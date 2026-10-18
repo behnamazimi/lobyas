@@ -43,6 +43,7 @@ export function TermNarrationPlayer({
   showButton = true,
   handleRef,
   onUnavailable,
+  onAutoplayBlocked,
   canPrepare = true,
 }: {
   termId: string;
@@ -53,6 +54,8 @@ export function TermNarrationPlayer({
   handleRef?: Ref<TermNarrationHandle>;
   /** Called when the clip can't be loaded or made. */
   onUnavailable?: () => void;
+  /** Called when the browser refused to start the clip without a tap. */
+  onAutoplayBlocked?: () => void;
   /** False plays only the given clip and never asks the server to make one. */
   canPrepare?: boolean;
 }) {
@@ -135,6 +138,7 @@ export function TermNarrationPlayer({
       .catch((error: unknown) => {
         if (isAutoplayBlocked(error)) {
           giveUp(audio);
+          if (mountedRef.current) onAutoplayBlocked?.();
           return;
         }
         // preload "none" never fires canplay unless something asks it to load.
