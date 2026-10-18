@@ -1,6 +1,11 @@
 export type StyleOption = { id: string; label: string; prompt: string };
 
-export const STORY_FORMATS: readonly StyleOption[] = [
+export type FormatOption = StyleOption & {
+  /** The tones that suit this format; any tone when missing. */
+  tones?: readonly string[];
+};
+
+export const STORY_FORMATS: readonly FormatOption[] = [
   {
     id: "short-story",
     label: "Short story",
@@ -12,6 +17,7 @@ export const STORY_FORMATS: readonly StyleOption[] = [
     label: "Slack thread",
     prompt:
       "a Slack thread between a few colleagues, one message per paragraph as 'Name: text'; chatty messages that reply to each other",
+    tones: ["casual", "friendly", "neutral", "humorous", "dramatic"],
   },
   {
     id: "blog-post",
@@ -23,25 +29,29 @@ export const STORY_FORMATS: readonly StyleOption[] = [
     id: "news-brief",
     label: "News brief",
     prompt:
-      "a news article in the third person and past tense: the first sentence says who, what, when and where; no dialogue, no opinion",
+      "a news article in the third person and past tense: a headline-style first sentence that says who, what, when and where, then facts and what follows from them, closing on what happens next; reported facts rather than feelings, no opinion; a rude or slangy term appears only as a quoted word from someone involved, never in the writer's own voice",
+    tones: ["neutral", "formal"],
   },
   {
     id: "incident-postmortem",
     label: "Incident postmortem",
     prompt:
       "an incident postmortem in three parts, in order: what happened, why, and what changes now; factual and blameless",
+    tones: ["neutral", "formal", "friendly"],
   },
   {
     id: "email",
     label: "Email",
     prompt:
       "a work email from one colleague to another: greeting, one clear update or request, and a sign-off with the sender's name",
+    tones: ["casual", "friendly", "neutral", "formal", "humorous"],
   },
   {
     id: "meeting-notes",
     label: "Meeting notes",
     prompt:
       "meeting notes in three sections: discussion, decisions, and next steps with who does what",
+    tones: ["neutral", "formal", "friendly", "casual"],
   },
   {
     id: "interview",

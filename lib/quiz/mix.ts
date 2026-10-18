@@ -13,10 +13,6 @@ export const DISTRACTOR_COUNT = 3;
  *  to another template. The fallback template ignores this. */
 export const MIN_DISTRACTORS = 2;
 
-/** A term is asked to type its word only once the learner already recognises it. */
-export const TYPED_MIN_POSTERIOR = 0.7;
-export const TYPED_MIN_TESTS = 1;
-
 /** Longer entries are tedious to type exactly, so they stay multiple choice. */
 export const TYPED_MAX_WORDS = 3;
 

@@ -23,13 +23,10 @@ describe("dictation", () => {
     expect(dictation.simpleOnly).toBe(true);
   });
 
-  it("needs a word-only clip, one quiz answer and at most three words", () => {
+  it("needs a word-only clip and at most three words, whether or not it was quizzed before", () => {
     expect(dictation.eligible(geval)).toBe(true);
     expect(dictation.eligible({ ...geval, dictationClip: undefined })).toBe(false);
-    expect(dictation.eligible({ ...geval, recognition: undefined })).toBe(false);
-    expect(dictation.eligible({ ...geval, recognition: { posterior: null, testCount: 0 } })).toBe(
-      false,
-    );
+    expect(dictation.eligible({ ...geval, recognition: undefined })).toBe(true);
     expect(dictation.eligible({ ...geval, term: "het is de moeite waard" })).toBe(false);
   });
 

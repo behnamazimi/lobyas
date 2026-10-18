@@ -37,7 +37,8 @@ describe("buildQuiz", () => {
 
   it("falls back to the definition question when nothing else can be built", async () => {
     const term = makeTerm({ id: "a", kind: "vocabulary", example: "A sentence." });
-    const [question] = await buildQuiz([term], sourceOf([]), "web");
+    const sameGloss = [makeDistractor({ id: "twin" })];
+    const [question] = await buildQuiz([term], sourceOf([], sameGloss), "web");
     expect(question.template).toBe("definition_to_term");
   });
 

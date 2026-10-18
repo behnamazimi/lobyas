@@ -30,7 +30,10 @@ export function styleWeights(
   now: Date,
 ): { id: string; weight: number }[] {
   const scores = scoreOptions(options, votes, pick, now);
-  return options.map((option) => ({ id: option.id, weight: Math.exp(scores.get(option.id)!) }));
+  return options.map((option) => ({
+    id: option.id,
+    weight: Math.exp(scores.get(option.id)!),
+  }));
 }
 
 function drawWeighted(weights: { id: string; weight: number }[], rng: () => number): string {
@@ -48,14 +51,15 @@ export function pickStyle(
   rng: () => number = Math.random,
   now: Date = new Date(),
 ): { format: string; tone: string } {
-  return {
-    format: drawWeighted(
-      styleWeights(STORY_FORMATS, votes, (vote) => vote.format, now),
-      rng,
-    ),
-    tone: drawWeighted(
-      styleWeights(STORY_TONES, votes, (vote) => vote.tone, now),
-      rng,
-    ),
-  };
+  const format = drawWeighted(
+    styleWeights(STORY_FORMATS, votes, (vote) => vote.format, now),
+    rng,
+  );
+  const allowed = STORY_FORMATS.find((option) => option.id === format)?.tones;
+  const tones = allowed ? STORY_TONES.filter((option) => allowed.includes(option.id)) : STORY_TONES;
+  const tone = drawWeighted(
+    styleWeights(tones, votes, (vote) => vote.tone, now),
+    rng,
+  );
+  return { format, tone };
 }

@@ -15,7 +15,6 @@ export const dictation: QuizTemplate = {
   simpleOnly: true,
   eligible: (term) =>
     Boolean(term.dictationClip) &&
-    (term.recognition?.testCount ?? 0) >= 1 &&
     wordCount(term.term) <= TYPED_MAX_WORDS &&
     HEARABLE.test(term.term.trim()),
   async build(term) {

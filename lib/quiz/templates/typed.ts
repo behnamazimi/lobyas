@@ -1,21 +1,14 @@
 import { closeMiss } from "../text/answer-match";
-import { TYPED_MAX_WORDS, TYPED_MIN_POSTERIOR, TYPED_MIN_TESTS } from "../mix";
+import { TYPED_MAX_WORDS } from "../mix";
 import type { QuizResponse, QuizTerm, QuizTextQuestion } from "../types";
 
 export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
-/** True once the learner knows the term well enough to be asked to type it. */
-export function isReadyToType(term: QuizTerm): boolean {
-  const recognition = term.recognition;
-  return (
-    recognition !== undefined &&
-    recognition.posterior !== null &&
-    recognition.posterior >= TYPED_MIN_POSTERIOR &&
-    recognition.testCount >= TYPED_MIN_TESTS &&
-    wordCount(term.term) <= TYPED_MAX_WORDS
-  );
+/** Longer entries are tedious to type exactly. */
+export function isShortEnoughToType(term: QuizTerm): boolean {
+  return wordCount(term.term) <= TYPED_MAX_WORDS;
 }
 
 export function textQuestion(
