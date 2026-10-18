@@ -14,7 +14,7 @@ and last-quizzed stamps, not from the `review_events` log, so goals keep
 working if that log is ever dropped. Only the forecast's personal success
 rates read the log, and they fall back to the defaults without it.
 
-- **Read:** terms read, including Stories, the widget, and Telegram.
+- **Read:** terms read, including Stories and the widget.
 - **Review:** cards graded (reveals don't count).
 - **Quiz:** questions answered (practice rounds don't count).
 

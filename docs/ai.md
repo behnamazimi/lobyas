@@ -116,9 +116,9 @@ the collection's page (`/admin/collections/[id]`) and continued by a cron job; s
 
 ## Environment
 
-| Variable                                         | Used for                              |
-| ------------------------------------------------ | ------------------------------------- |
-| `CENTRAL_LLM_PROVIDER`, `CENTRAL_LLM_API_KEY`    | The app's key for Quiz and Stories    |
-| `MURF_API_KEY`, `ELEVENLABS_API_KEY`             | Narration providers (main, fallback)  |
-| `SUPABASE_S3_*`                                  | Narration audio storage               |
-| `AI_INTERNAL_SECRET`, `TELEGRAM_INTERNAL_SECRET` | Narration sync route; Telegram routes |
+| Variable                                      | Used for                             |
+| --------------------------------------------- | ------------------------------------ |
+| `CENTRAL_LLM_PROVIDER`, `CENTRAL_LLM_API_KEY` | The app's key for Quiz and Stories   |
+| `MURF_API_KEY`, `ELEVENLABS_API_KEY`          | Narration providers (main, fallback) |
+| `SUPABASE_S3_*`                               | Narration audio storage              |
+| `AI_INTERNAL_SECRET`                          | Narration sync route                 |

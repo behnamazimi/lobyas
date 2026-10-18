@@ -77,8 +77,8 @@ guessing from the code alone.
 
 # Quiz questions
 
-What a quiz asks depends on the collection's kind. Simple mode and Telegram
-build questions with `buildQuiz` in `lib/quiz/build.ts`; each question type is
+What a quiz asks depends on the collection's kind. Simple mode builds
+questions with `buildQuiz` in `lib/quiz/build.ts`; each question type is
 a module in `lib/quiz/templates/`, listed in `registry.ts`. A question carries
 its `template` (what it asks) and `interaction` (`choice`, `boolean` or
 `text`, how it is answered), and grading, keys and the TRACE question type
@@ -102,8 +102,8 @@ access rules, cost levers and narration. Start there.
 
 # DevOps monitoring
 
-CI, production deploys and AI refund spikes post to a separate ops
-Telegram bot (not the learner bot). Read [docs/monitoring.md](docs/monitoring.md)
+CI, production deploys and AI refund spikes post to an ops Telegram
+bot. Read [docs/monitoring.md](docs/monitoring.md)
 before adding an alert.
 
 # AI credits
@@ -144,22 +144,6 @@ It is a route, not a Server Action, because the browser runs Server Actions one
 at a time and a story would hold up every other action on the page. A retry
 is counted in the `story_retry` event, with the reason; the retry is skipped
 when too little of the time limit is left for a second attempt.
-
-# Telegram bot
-
-The Telegram bot's app-side logic lives in `lib/telegram/`: `flows.ts` is
-the update router (dispatches commands/callbacks, does not itself contain
-command logic), `commands.ts` parses and handles top-level commands,
-`delivery-flow.ts` / `quiz-flow.ts` / `review-flow.ts` hold the Read/Quiz/
-Review flows, `presentation.ts` + `copy.ts` format outgoing messages, and
-`transport.ts` builds the `TelegramAction` DTOs that get sent. It calls the
-same `lib/terms/review-outcome.ts` and `lib/trace-queue` functions the web
-app uses, so scoring behavior stays identical across both surfaces. The
-Supabase Edge Functions that actually receive/send Telegram HTTP traffic are
-in `supabase/functions/telegram-webhook` and
-`supabase/functions/telegram-send-due`; see
-[docs/supabase/telegram-setup.md](docs/supabase/telegram-setup.md) for setup
-and the manual test matrix.
 
 # Guided tour
 

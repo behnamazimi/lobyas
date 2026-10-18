@@ -10,12 +10,7 @@
     "e2e/stubs/server.mts",
     "playwright.config.ts"
   ],
-  "ignore": [
-    "lib/supabase/database.types.ts",
-    "supabase/functions/**",
-    "components/ui/**",
-    "native/www/**"
-  ],
+  "ignore": ["lib/supabase/database.types.ts", "components/ui/**", "native/www/**"],
   "ignoreDependencies": ["uebersicht", "@capacitor/splash-screen"],
   "playwright": false
 }

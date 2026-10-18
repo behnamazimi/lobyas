@@ -7,8 +7,7 @@ after a deploy. Without that job, use **Resume** on the admin page. In this
 project the job is scheduled by a migration that reads its URL and secret from
 Vault; the Dashboard steps below are for a project without it.
 
-This cron talks to Next.js directly. Telegram due-term sends go through an
-Edge Function because they must call the Bot API; narration already runs
+This cron talks to Next.js directly, because narration already runs
 ElevenLabs and S3 in the Next.js app.
 
 ## Architecture
@@ -32,9 +31,8 @@ lease is still held, the next tick claims nothing and returns.
 `APP_BASE_URL` must be set on Vercel to the public Next.js origin, for example
 `https://lobyas.com`, and so must `AI_INTERNAL_SECRET`: the secret
 for this route (the app's own kick and the cron job below). Use a random value
-that differs from `TELEGRAM_INTERNAL_SECRET`. This route accepts only
-`AI_INTERNAL_SECRET`; a call with any other token gets 401. The Telegram routes
-and Edge Functions keep using `TELEGRAM_INTERNAL_SECRET`.
+This route accepts only
+`AI_INTERNAL_SECRET`; a call with any other token gets 401.
 
 To change the secret later, set the new value on Vercel, deploy, and change the
 cron job header at the same time. Calls made in between return 401 (the admin
