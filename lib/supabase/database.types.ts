@@ -1455,68 +1455,6 @@ export type Database = {
           },
         ];
       };
-      telegram_links: {
-        Row: {
-          all_caught_up_at: string | null;
-          cadence: Database["public"]["Enums"]["telegram_cadence"];
-          chat_id: number | null;
-          created_at: string;
-          last_keyboard_message_id: number | null;
-          last_sent_at: string | null;
-          link_token_expires_at: string | null;
-          link_token_hash: string | null;
-          linked_at: string | null;
-          quiz_session: Json | null;
-          quiz_setup: Json | null;
-          review_session: Json | null;
-          review_setup: Json | null;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          all_caught_up_at?: string | null;
-          cadence?: Database["public"]["Enums"]["telegram_cadence"];
-          chat_id?: number | null;
-          created_at?: string;
-          last_keyboard_message_id?: number | null;
-          last_sent_at?: string | null;
-          link_token_expires_at?: string | null;
-          link_token_hash?: string | null;
-          linked_at?: string | null;
-          quiz_session?: Json | null;
-          quiz_setup?: Json | null;
-          review_session?: Json | null;
-          review_setup?: Json | null;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          all_caught_up_at?: string | null;
-          cadence?: Database["public"]["Enums"]["telegram_cadence"];
-          chat_id?: number | null;
-          created_at?: string;
-          last_keyboard_message_id?: number | null;
-          last_sent_at?: string | null;
-          link_token_expires_at?: string | null;
-          link_token_hash?: string | null;
-          linked_at?: string | null;
-          quiz_session?: Json | null;
-          quiz_setup?: Json | null;
-          review_session?: Json | null;
-          review_setup?: Json | null;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "telegram_links_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: true;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
       term_relationships: {
         Row: {
           created_at: string;
@@ -2383,10 +2321,6 @@ export type Database = {
           term_id: string;
         }[];
       };
-      complete_telegram_link: {
-        Args: { p_chat_id: number; p_token_hash: string };
-        Returns: string;
-      };
       create_referral_code: {
         Args: { p_code?: string };
         Returns: {
@@ -2527,13 +2461,6 @@ export type Database = {
         Returns: boolean;
       };
       is_supported_language: { Args: { p_language: string }; Returns: boolean };
-      list_due_telegram_users: {
-        Args: never;
-        Returns: {
-          chat_id: number;
-          user_id: string;
-        }[];
-      };
       my_add_deferred_terms: {
         Args: { p_term_ids: string[] };
         Returns: undefined;
@@ -2857,7 +2784,6 @@ export type Database = {
         };
         Returns: undefined;
       };
-      record_telegram_send: { Args: { p_user_id: string }; Returns: undefined };
       redeem_referral_code: { Args: { p_code: string }; Returns: undefined };
       refund_ai_credits: {
         Args: { p_ledger_id: number; p_reason?: string };
@@ -2877,10 +2803,6 @@ export type Database = {
         Returns: undefined;
       };
       review_collection_ids: { Args: { p_user_id: string }; Returns: string[] };
-      set_telegram_all_caught_up: {
-        Args: { p_user_id: string };
-        Returns: undefined;
-      };
       set_term_marked_known: {
         Args: { p_marked: boolean; p_term_id: string; p_user_id: string };
         Returns: undefined;
@@ -2901,15 +2823,10 @@ export type Database = {
         };
         Returns: string;
       };
-      update_telegram_cadence: {
-        Args: { p_cadence: Database["public"]["Enums"]["telegram_cadence"] };
-        Returns: undefined;
-      };
     };
     Enums: {
       collection_visibility: "private" | "shared";
       review_event: "read" | "reveal" | "review_pass" | "review_fail" | "quiz_pass" | "quiz_fail";
-      telegram_cadence: "off" | "6h" | "12h" | "24h";
       user_role: "admin" | "member";
     };
     CompositeTypes: {
@@ -3041,7 +2958,6 @@ export const Constants = {
     Enums: {
       collection_visibility: ["private", "shared"],
       review_event: ["read", "reveal", "review_pass", "review_fail", "quiz_pass", "quiz_fail"],
-      telegram_cadence: ["off", "6h", "12h", "24h"],
       user_role: ["admin", "member"],
     },
   },

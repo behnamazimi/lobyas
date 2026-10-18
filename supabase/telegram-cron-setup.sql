@@ -1,5 +1,0 @@
--- The telegram-send-due job (every 3 hours) is scheduled by the migration
--- 20261024120000_cron_from_vault.sql, from the Vault secrets cron_project_url
--- and cron_telegram_secret (see supabase/narration-cron-setup.sql for how to
--- create them). Delivery cadences are 6h, 12h and 24h, so a 3 hour tick sends
--- every reminder within 3 hours of when it is due.
