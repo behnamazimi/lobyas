@@ -12,18 +12,18 @@ const WARM: [number, number][] = [[2, 0.2]];
 
 const NOTES: Record<SoundName, Note[]> = {
   correct: [
-    { freq: 523, start: 0, length: 0.14, overtones: WARM },
-    { freq: 784, start: 0.1, length: 0.24, overtones: WARM },
+    { freq: 659, start: 0, length: 0.14, overtones: WARM },
+    { freq: 988, start: 0.1, length: 0.24, overtones: WARM },
   ],
   wrong: [
-    { freq: 349, start: 0, length: 0.14, overtones: WARM },
-    { freq: 262, start: 0.11, length: 0.24, overtones: WARM },
+    { freq: 440, start: 0, length: 0.14, overtones: WARM },
+    { freq: 330, start: 0.11, length: 0.24, overtones: WARM },
   ],
   finish: [
-    { freq: 523, start: 0, length: 0.14, overtones: WARM },
-    { freq: 659, start: 0.08, length: 0.14, overtones: WARM },
-    { freq: 784, start: 0.16, length: 0.14, overtones: WARM },
-    { freq: 1047, start: 0.24, length: 0.36, overtones: WARM },
+    { freq: 659, start: 0, length: 0.14, overtones: WARM },
+    { freq: 831, start: 0.08, length: 0.14, overtones: WARM },
+    { freq: 988, start: 0.16, length: 0.14, overtones: WARM },
+    { freq: 1319, start: 0.24, length: 0.36, overtones: WARM },
   ],
 };
 
