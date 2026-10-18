@@ -1,6 +1,7 @@
 package com.lobyas.app;
 
 import android.os.Bundle;
+import android.webkit.CookieManager;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -18,6 +19,16 @@ public class MainActivity extends BridgeActivity {
         if (bridge != null) {
             bridge.setWebViewClient(new ConnectionErrorWebViewClient(bridge));
         }
+    }
+
+    /**
+     * The WebView writes cookies to disk lazily, so a sign-in made just before the app is
+     * closed (the first session after install) would be lost without this.
+     */
+    @Override
+    public void onPause() {
+        CookieManager.getInstance().flush();
+        super.onPause();
     }
 
     /**
