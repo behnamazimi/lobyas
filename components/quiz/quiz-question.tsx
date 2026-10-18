@@ -79,6 +79,8 @@ export function QuizQuestionView({
       type: "SUBMIT",
       passed: gradeAnswer(current.question, current.state.response),
     });
+    // Closes the keyboard now that the answer is in.
+    if (isTextEntryTarget(document.activeElement)) (document.activeElement as HTMLElement).blur();
     lockoutTimeoutRef.current = setTimeout(() => {
       dispatch({ type: "UNLOCK" });
       setJustUnlocked(true);

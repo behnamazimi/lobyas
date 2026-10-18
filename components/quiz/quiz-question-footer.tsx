@@ -37,6 +37,7 @@ export function QuizQuestionFooter({
           type="button"
           onPress={onSubmit}
           isDisabled={!canSubmit}
+          preventFocusOnPress
           className="min-h-11 w-full transition-transform active:scale-[0.96]"
         >
           Check answer
