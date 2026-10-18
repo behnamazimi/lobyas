@@ -8,6 +8,7 @@ import {
   clearNotYetCollectionAction,
   removeNotYetTermAction,
 } from "@/app/(private)/app/actions-triage";
+import { haptic } from "@/lib/native/haptics";
 import { useToast } from "@/components/ui/toast";
 import type { Term } from "@/lib/terms/types";
 import { buildTriageDeck } from "@/lib/triage/deck";
@@ -89,6 +90,7 @@ export function useTriageDeck({
 
   function handleKnew(termId: string) {
     if (!current || termId !== currentIdRef.current) return;
+    haptic("tap");
     writeMarked(current, true);
     setHistory((prev) => [...prev, { termId, kind: "knew" }]);
   }
@@ -108,6 +110,7 @@ export function useTriageDeck({
 
   function handleNotYet(termId: string) {
     if (termId !== currentIdRef.current) return;
+    haptic("tap");
     writeNotYet(termId, true);
     setHistory((prev) => [...prev, { termId, kind: "notYet" }]);
   }

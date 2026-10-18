@@ -65,6 +65,15 @@ The proxy uses it for one thing: a request for `/` from the app redirects to the
 study area (`AUTHENTICATED_HOME_PATH`) for a signed-in member, or to `/login`
 otherwise (`lib/native/landing.ts`). Every other public page still opens by link.
 
+## Haptics and sounds
+
+`haptic()` (`lib/native/haptics.ts`) buzzes only inside the app, through
+`@capacitor/haptics`, and does nothing on the web or in an app built before the
+plugin. It marks a quiz answer, a Review rating, a Triage choice and a goal
+celebration. Quiz sounds are synthesized with Web Audio (`lib/sound/quiz-sounds.ts`),
+so they play on the web and in the app; `components/quiz/quiz-feedback.ts` pairs
+them with the haptics.
+
 ## Launch
 
 The shell opens `/app/review` directly (not `/`), so a launch has no redirect hop;

@@ -1,6 +1,7 @@
 "use client";
 
 import { claimGoalCelebrationAction } from "@/app/(private)/app/goals/actions";
+import { haptic } from "@/lib/native/haptics";
 import { GOAL_TIERS, type DailyGoals, type GoalTier } from "@/lib/goals/levels";
 import { EMPTY_GOAL_COUNTS, goalProgress, type GoalProgress } from "@/lib/goals/progress";
 import type { GoalDay } from "@/lib/goals/settings";
@@ -160,6 +161,7 @@ async function claim(tier: GoalTier, caughtUp: boolean, retriesLeft: number) {
 
   if (result.claimed && state.goals) {
     const progress = goalProgress(state.goals, state.day.counts, state.day.celebrated);
+    haptic("success");
     update({ celebration: { tier, progress } });
     return;
   }
