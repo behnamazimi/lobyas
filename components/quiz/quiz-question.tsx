@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useReducer, useRef, useState } from "react";
-import { signalAnswer } from "@/components/quiz/quiz-feedback";
+import { feedback } from "@/lib/feedback";
 import { QuizPanel } from "@/components/quiz/quiz-ui";
 import { QuizAnswerChoices } from "@/components/quiz/quiz-answer-choices";
 import { DictationPlayer } from "@/components/quiz/dictation-player";
@@ -80,7 +80,7 @@ export function QuizQuestionView({
 
     const passed = gradeAnswer(current.question, current.state.response);
     dispatch({ type: "SUBMIT", passed });
-    signalAnswer(passed);
+    feedback(passed ? "answer-correct" : "answer-wrong");
     // Closes the keyboard now that the answer is in.
     if (isTextEntryTarget(document.activeElement)) (document.activeElement as HTMLElement).blur();
     lockoutTimeoutRef.current = setTimeout(() => {

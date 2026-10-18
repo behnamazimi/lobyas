@@ -67,12 +67,11 @@ otherwise (`lib/native/landing.ts`). Every other public page still opens by link
 
 ## Haptics and sounds
 
-`haptic()` (`lib/native/haptics.ts`) buzzes only inside the app, through
-`@capacitor/haptics`, and does nothing on the web or in an app built before the
-plugin. It marks a quiz answer, a Review rating, a Triage choice and a goal
-celebration. Quiz sounds are synthesized with Web Audio (`lib/sound/quiz-sounds.ts`),
-so they play on the web and in the app; `components/quiz/quiz-feedback.ts` pairs
-them with the haptics.
+Call `feedback(cue)` from `lib/feedback/`; its table in `index.ts` decides
+what each cue plays. Haptics (`haptics.ts`, `@capacitor/haptics`) run only
+inside the app and do nothing on the web or in an app built before the plugin.
+Sounds (`sounds.ts`) are synthesized with Web Audio, play on the web and in the
+app, and are used by the quiz only.
 
 ## Launch
 

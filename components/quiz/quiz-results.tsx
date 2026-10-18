@@ -3,7 +3,7 @@
 import { useEffect, type CSSProperties } from "react";
 import { ChevronDown, Dumbbell, RotateCcw, SlidersHorizontal, Trophy } from "lucide-react";
 import { KeepTrainingScene, QuizCheerScene } from "@/components/illustrations/scenes/quiz-results";
-import { signalFinish } from "@/components/quiz/quiz-feedback";
+import { feedback } from "@/lib/feedback";
 import { QuizPanel, QuizPanelBody, QuizPanelHeader } from "@/components/quiz/quiz-ui";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -88,7 +88,7 @@ export function QuizResults({
   const strongRound = !practice && total > 0 && score / total >= 0.8;
 
   useEffect(() => {
-    if (strongRound) signalFinish();
+    if (strongRound) feedback("quiz-finish");
   }, [strongRound]);
 
   return (
