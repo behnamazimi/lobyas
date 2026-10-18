@@ -1,21 +1,25 @@
 export type SoundName = "correct" | "wrong" | "finish";
 
-type Note = { freq: number; start: number; length: number };
+type Note = {
+  freq: number;
+  start: number;
+  length: number;
+  /** Pitch the note slides to by its end. */
+  glideTo?: number;
+  /** Extra overtones as [frequency ratio, loudness]; the base tone is always played. */
+  overtones?: [number, number][];
+};
+
+const BELL: [number, number][] = [[2.76, 0.3]];
 
 const NOTES: Record<SoundName, Note[]> = {
-  correct: [
-    { freq: 659, start: 0, length: 0.12 },
-    { freq: 988, start: 0.09, length: 0.2 },
-  ],
-  wrong: [
-    { freq: 262, start: 0, length: 0.14 },
-    { freq: 208, start: 0.12, length: 0.24 },
-  ],
+  correct: [{ freq: 1319, start: 0, length: 0.4, overtones: BELL }],
+  wrong: [{ freq: 220, start: 0, length: 0.22, glideTo: 110 }],
   finish: [
-    { freq: 523, start: 0, length: 0.14 },
-    { freq: 659, start: 0.12, length: 0.14 },
-    { freq: 784, start: 0.24, length: 0.14 },
-    { freq: 1047, start: 0.36, length: 0.34 },
+    { freq: 1047, start: 0, length: 0.3, overtones: BELL },
+    { freq: 1319, start: 0.07, length: 0.3, overtones: BELL },
+    { freq: 1568, start: 0.14, length: 0.3, overtones: BELL },
+    { freq: 2093, start: 0.21, length: 0.6, overtones: BELL },
   ],
 };
 
@@ -37,17 +41,24 @@ export function playSound(sound: SoundName) {
   try {
     const ctx = audioContext();
     const now = ctx.currentTime;
-    for (const { freq, start, length } of NOTES[sound]) {
-      const oscillator = ctx.createOscillator();
+    for (const { freq, start, length, glideTo, overtones = [] } of NOTES[sound]) {
+      const at = now + start;
       const gain = ctx.createGain();
-      oscillator.type = sound === "wrong" ? "triangle" : "sine";
-      oscillator.frequency.value = freq;
-      gain.gain.setValueAtTime(SILENCE, now + start);
-      gain.gain.exponentialRampToValueAtTime(VOLUME, now + start + ATTACK_SECONDS);
-      gain.gain.exponentialRampToValueAtTime(SILENCE, now + start + length);
-      oscillator.connect(gain).connect(ctx.destination);
-      oscillator.start(now + start);
-      oscillator.stop(now + start + length + 0.02);
+      gain.gain.setValueAtTime(SILENCE, at);
+      gain.gain.exponentialRampToValueAtTime(VOLUME, at + ATTACK_SECONDS);
+      gain.gain.exponentialRampToValueAtTime(SILENCE, at + length);
+      gain.connect(ctx.destination);
+      for (const [ratio, loudness] of [[1, 1], ...overtones]) {
+        const oscillator = ctx.createOscillator();
+        const level = ctx.createGain();
+        level.gain.value = loudness;
+        oscillator.frequency.setValueAtTime(freq * ratio, at);
+        if (glideTo)
+          oscillator.frequency.exponentialRampToValueAtTime(glideTo * ratio, at + length);
+        oscillator.connect(level).connect(gain);
+        oscillator.start(at);
+        oscillator.stop(at + length + 0.02);
+      }
     }
   } catch {
     // No audio support: the app works the same without it.
