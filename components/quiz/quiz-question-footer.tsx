@@ -29,14 +29,13 @@ export function QuizQuestionFooter({
   return (
     <footer className="flex shrink-0 flex-col gap-2 border-t border-base-300/60 px-5 py-3 sm:px-6">
       <div className="flex items-center justify-between gap-3 [[data-keyboard=open]_&]:max-md:hidden">
-        <p className="m-0 text-xs tabular-nums text-base-content/70">{correct} correct</p>
+        <p className="m-0 text-left text-xs tabular-nums text-base-content/70">
+          {correct} correct · {progressLabel}
+        </p>
         <p className="m-0 hidden text-xs text-base-content/70 md:block coarse:hidden">
           <QuizKeyboardHint action={!submitted ? "check" : isLast ? "see results" : "continue"} />
         </p>
       </div>
-      <p className="m-0 text-left text-xs font-medium tabular-nums text-base-content/70">
-        {progressLabel}
-      </p>
       {!submitted ? (
         <Button
           type="button"
