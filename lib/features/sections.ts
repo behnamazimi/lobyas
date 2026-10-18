@@ -22,11 +22,7 @@ export const FEATURE_SECTIONS: FeatureSection[] = [
         title: "Edit anything",
         body: "Every field, category and link between terms, any time. Say whether a collection holds field terms or words and phrases, and its quizzes follow.",
       },
-      {
-        icon: "download",
-        title: "Export",
-        body: "Take a collection out as text or JSON.",
-      },
+      { icon: "download", title: "Export", body: "Take a collection out as text or JSON." },
       {
         icon: "share",
         title: "Share a collection",

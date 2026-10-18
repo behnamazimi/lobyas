@@ -60,10 +60,7 @@ async function checkCurrentPassword(
   if (!email || !currentPassword) return "Enter your current password.";
   if (currentPassword === newPassword) return SAME_PASSWORD;
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password: currentPassword,
-  });
+  const { error } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
   if (!error) return null;
   return error.code === "invalid_credentials"
     ? WRONG_CURRENT_PASSWORD

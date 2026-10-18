@@ -34,23 +34,23 @@ A question carries two separate facts.
 
 ## Module layout (`lib/quiz/`)
 
-| Path                      | Responsibility                                                                                              |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `types.ts`                | `QuizTerm` (with `kind`, `category`), question union, `QuizResponse`, template ids                          |
-| `text/mask.ts`            | Whole-word, case-insensitive masking and whole-word check                                                   |
-| `templates/<id>.ts`       | One per template: `eligible`, `build`, `feedback`, `kinds`, `channels`                                      |
-| `templates/copy.ts`       | Kind-specific question wording                                                                              |
-| `templates/choice.ts`     | Shared helpers for choice templates (candidate picking, shuffling)                                          |
-| `templates/registry.ts`   | Template list, `templatesFor(kind, channel)`, feedback and boolean labels                                   |
-| `plan.ts`                 | `orderTemplates`: eligible templates for a term in weighted random order                                    |
-| `mix.ts`                  | Template weights, distractor counts, AI true/false cap, each with its reason                                |
-| `distractors.ts`          | `DistractorSource` interface                                                                                |
-| `distractors-supabase.ts` | The only Supabase implementation (related terms first, then same collection)                                |
-| `build.ts`                | `buildQuiz(terms, source, channel, rng)`: try templates in plan order, fall back to the definition question |
-| `grade.ts`                | `gradeAnswer(question, response)`: one switch on interaction                                                |
-| `trace-type.ts`           | Interaction to TRACE `QuestionType`                                                                         |
-| `question-schema.ts`      | `isQuizQuestion`, guarding both saved-session stores                                                        |
-| `terms.ts`, `mappers.ts`  | Quiz pool plus a `collections.kind` lookup (no `TermCard` or RPC change)                                    |
+| Path                      | Responsibility                                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `types.ts`                | `QuizTerm` (with `kind`, `category`), question union, `QuizResponse`, template ids                        |
+| `text/mask.ts`            | Whole-word, case-insensitive masking and whole-word check                                                 |
+| `templates/<id>.ts`       | One per template: `eligible`, `build`, `feedback`, `kinds`                                                |
+| `templates/copy.ts`       | Kind-specific question wording                                                                            |
+| `templates/choice.ts`     | Shared helpers for choice templates (candidate picking, shuffling)                                        |
+| `templates/registry.ts`   | Template list, `templatesFor(kind)`, feedback and boolean labels                                          |
+| `plan.ts`                 | `orderTemplates`: eligible templates for a term in weighted random order                                  |
+| `mix.ts`                  | Template weights, distractor counts, AI true/false cap, each with its reason                              |
+| `distractors.ts`          | `DistractorSource` interface                                                                              |
+| `distractors-supabase.ts` | The only Supabase implementation (related terms first, then same collection)                              |
+| `build.ts`                | `buildQuiz(terms, source, style, rng)`: try templates in plan order, fall back to the definition question |
+| `grade.ts`                | `gradeAnswer(question, response)`: one switch on interaction                                              |
+| `trace-type.ts`           | Interaction to TRACE `QuestionType`                                                                       |
+| `question-schema.ts`      | `isQuizQuestion`, guarding both saved-session stores                                                      |
+| `terms.ts`, `mappers.ts`  | Quiz pool plus a `collections.kind` lookup (no `TermCard` or RPC change)                                  |
 
 `generate-simple.ts` is `buildQuiz` wired to the Supabase source. `illustration.ts`
 is gone. A term is picked per its own collection's kind, so mixed quizzes work.

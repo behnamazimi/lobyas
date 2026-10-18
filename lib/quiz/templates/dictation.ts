@@ -19,14 +19,8 @@ export const dictation: QuizTemplate = {
   async build(term) {
     if (!term.dictationClip) return null;
     return {
-      ...textQuestion(term, {
-        template: "dictation",
-        prompt: QUIZ_COPY[term.kind].dictation,
-      }),
-      dictation: {
-        clipVersion: term.dictationClip,
-        meaning: term.definition.trim(),
-      },
+      ...textQuestion(term, { template: "dictation", prompt: QUIZ_COPY[term.kind].dictation }),
+      dictation: { clipVersion: term.dictationClip, meaning: term.definition.trim() },
     };
   },
   feedback(question, passed, response) {

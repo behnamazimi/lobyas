@@ -14,10 +14,7 @@ export function orderTemplates(
 ): QuizTemplate[] {
   return templatesFor(term.kind)
     .filter((template) => isEligible(template, term))
-    .map((template) => ({
-      template,
-      key: rng() ** (1 / TEMPLATE_WEIGHTS[template.id]),
-    }))
+    .map((template) => ({ template, key: rng() ** (1 / TEMPLATE_WEIGHTS[template.id]) }))
     .sort((a, b) => b.key - a.key)
     .map(({ template }) => template);
 }

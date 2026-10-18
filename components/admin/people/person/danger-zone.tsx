@@ -51,11 +51,7 @@ function DangerDialogs({
           }
           confirmLabel={asking === "suspend" ? "Suspend" : "Reactivate"}
           onSubmit={({ reason }) =>
-            setUserSuspended({
-              userId: person.id,
-              suspended: asking === "suspend",
-              reason,
-            })
+            setUserSuspended({ userId: person.id, suspended: asking === "suspend", reason })
           }
           onClose={onClose}
         />
@@ -64,11 +60,7 @@ function DangerDialogs({
       {asking === "delete" ? (
         <ReasonConfirmDialog
           title="Delete this account?"
-          description={`This can't be undone. It deletes ${
-            person.email
-          }, their progress, settings and ${person.ownedCollections} ${
-            person.ownedCollections === 1 ? "collection" : "collections"
-          }.`}
+          description={`This can't be undone. It deletes ${person.email}, their progress, settings and ${person.ownedCollections} ${person.ownedCollections === 1 ? "collection" : "collections"}.`}
           confirmLabel="Delete account"
           confirmText={person.email}
           onSubmit={({ reason, typed }) =>
@@ -121,9 +113,7 @@ export function DangerZone({ person }: { person: AdminPerson }) {
         title="Delete account"
         text={
           blocked
-            ? `Can't delete: ${person.peopleUsingCollections} other ${
-                person.peopleUsingCollections === 1 ? "person uses" : "people use"
-              } their collections. Make those collections private first.`
+            ? `Can't delete: ${person.peopleUsingCollections} other ${person.peopleUsingCollections === 1 ? "person uses" : "people use"} their collections. Make those collections private first.`
             : "Permanently deletes the account and everything in it. The waitlist entry stays."
         }
       >

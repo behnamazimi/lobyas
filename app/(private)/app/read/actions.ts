@@ -118,9 +118,9 @@ export type ReadFeedBatchResult = {
 };
 
 /**
- * Pull the next batch off the Read queue, ranked by lowest exposure
- * first. Returned masked — the client only records a read once the user reveals/scroll-exposes it. Hydrates
- * via get_term_card so relationships match.
+ * Pull the next batch off the Read queue, ranked by lowest exposure first.
+ * Returned masked — the client only records a read once the user
+ * reveals/scroll-exposes it. Hydrates via get_term_card so relationships match.
  *
  * The one fetch path both Read surfaces (paged view and fullscreen feed)
  * use via useReadQueue (components/read/use-read-queue.ts) — the
@@ -150,9 +150,7 @@ export async function getReadFeedBatchAction(
     );
 
     if (cards.length === 0) return { caughtUp: true, terms: [] };
-    return {
-      terms: await attachNarrationVersions(admin, auth.user.id, cards.map(toReviewTerm)),
-    };
+    return { terms: await attachNarrationVersions(admin, auth.user.id, cards.map(toReviewTerm)) };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Couldn't load more terms. Try again.";
     return { error: message, terms: [] };

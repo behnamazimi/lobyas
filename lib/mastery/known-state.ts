@@ -52,18 +52,12 @@ export async function fetchProgressStateByCollection(
   collectionIds: string[],
 ): Promise<CollectionProgressState> {
   if (collectionIds.length === 0) {
-    return {
-      knownTermIds: [],
-      markedKnownTermIds: [],
-      everMasteredTermIds: [],
-    };
+    return { knownTermIds: [], markedKnownTermIds: [], everMasteredTermIds: [] };
   }
 
   const data = await fetchAllRows((from, to) =>
     client
-      .rpc("my_progress_state_by_collection", {
-        p_collection_ids: collectionIds,
-      })
+      .rpc("my_progress_state_by_collection", { p_collection_ids: collectionIds })
       .order("term_id")
       .range(from, to),
   );

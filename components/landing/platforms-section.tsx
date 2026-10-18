@@ -10,7 +10,7 @@ export function PlatformsSection() {
           Same queue, everywhere
         </h2>
         <p className="mt-4 m-0 max-w-[52ch] text-base leading-relaxed text-base-content/85">
-          Install it on your phone or glance at a macOS widget, it&apos;s the same ranked queue
+          Install it on your phone or glance at a macOS widget. It&apos;s the same ranked queue
           wherever you open it.
         </p>
         <ul className="font-mono m-0 mt-5 flex list-none flex-wrap gap-x-5 gap-y-1 p-0 text-sm text-base-content/75">
