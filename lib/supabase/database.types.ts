@@ -10,12 +10,7 @@ export type Database = {
     };
     Functions: {
       graphql: {
-        Args: {
-          extensions?: Json;
-          operationName?: string;
-          query?: string;
-          variables?: Json;
-        };
+        Args: { extensions?: Json; operationName?: string; query?: string; variables?: Json };
         Returns: Json;
       };
     };
@@ -34,17 +29,18 @@ export type Database = {
           actor_email: string | null;
           actor_id: string | null;
           created_at: string;
-          details: Json;
+          details: NonNullable<Json>;
           id: number;
           target_id: string | null;
           target_type: string | null;
         };
+        ComputedFields: never;
         Insert: {
           action: string;
           actor_email?: string | null;
           actor_id?: string | null;
           created_at?: string;
-          details?: Json;
+          details?: NonNullable<Json>;
           id?: never;
           target_id?: string | null;
           target_type?: string | null;
@@ -54,7 +50,7 @@ export type Database = {
           actor_email?: string | null;
           actor_id?: string | null;
           created_at?: string;
-          details?: Json;
+          details?: NonNullable<Json>;
           id?: never;
           target_id?: string | null;
           target_type?: string | null;
@@ -75,6 +71,7 @@ export type Database = {
           lot_id: number;
           spend_id: number;
         };
+        ComputedFields: never;
         Insert: {
           amount: number;
           lot_id: number;
@@ -115,6 +112,7 @@ export type Database = {
           reasoning_tokens: number | null;
           spend_id: number;
         };
+        ComputedFields: never;
         Insert: {
           calls?: number;
           characters?: number | null;
@@ -169,6 +167,7 @@ export type Database = {
           units: number | null;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           amount: number;
           created_at?: string;
@@ -267,6 +266,7 @@ export type Database = {
           peg_usd: number;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           default_margin?: number;
           enabled?: boolean;
@@ -289,6 +289,7 @@ export type Database = {
           feature: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           feature: string;
@@ -323,6 +324,7 @@ export type Database = {
           token: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           feature: string;
           started_at?: string;
@@ -364,6 +366,7 @@ export type Database = {
           unit: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           access_mode?: string;
           billable: boolean;
@@ -398,6 +401,7 @@ export type Database = {
           units: number;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           feature: string;
@@ -440,6 +444,7 @@ export type Database = {
           source: string;
           worker: string;
         };
+        ComputedFields: never;
         Insert: {
           last_secret: string;
           last_tick_at?: string;
@@ -471,6 +476,7 @@ export type Database = {
           updated_at: string;
           user_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           attempts?: number;
           content_hash: string;
@@ -519,6 +525,7 @@ export type Database = {
           created_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           collection_id: string;
           created_at?: string;
@@ -552,6 +559,7 @@ export type Database = {
           mode: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           collection_id: string;
           mode: string;
@@ -584,6 +592,7 @@ export type Database = {
           resolved_by: string | null;
           status: string;
         };
+        ComputedFields: never;
         Insert: {
           collection_id: string;
           created_at?: string;
@@ -639,6 +648,7 @@ export type Database = {
           paused_estimate_days: number;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           enabled?: boolean;
           estimate_days?: number;
@@ -689,6 +699,7 @@ export type Database = {
           user_id: string;
           user_reply: string | null;
         };
+        ComputedFields: never;
         Insert: {
           accepted_at?: string | null;
           created_at?: string;
@@ -800,6 +811,7 @@ export type Database = {
           updated_at: string;
           visibility: Database["public"]["Enums"]["collection_visibility"];
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           description?: string | null;
@@ -860,6 +872,7 @@ export type Database = {
           only_when_balance_below: number | null;
           source: string;
         };
+        ComputedFields: never;
         Insert: {
           accounts_created_from?: string | null;
           accounts_created_to?: string | null;
@@ -906,6 +919,7 @@ export type Database = {
           unit_cost_usd: number | null;
           unit_size: number;
         };
+        ComputedFields: never;
         Insert: {
           base_credits?: number;
           created_at?: string;
@@ -956,17 +970,18 @@ export type Database = {
           entry: string | null;
           format: string | null;
           id: string;
-          result: Json;
+          result: NonNullable<Json>;
           source: string | null;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           collection_id?: string | null;
           created_at?: string;
           entry?: string | null;
           format?: string | null;
           id: string;
-          result?: Json;
+          result?: NonNullable<Json>;
           source?: string | null;
           user_id: string;
         };
@@ -976,7 +991,7 @@ export type Database = {
           entry?: string | null;
           format?: string | null;
           id?: string;
-          result?: Json;
+          result?: NonNullable<Json>;
           source?: string | null;
           user_id?: string;
         };
@@ -1011,6 +1026,7 @@ export type Database = {
           user_id: string;
           viewport: string | null;
         };
+        ComputedFields: never;
         Insert: {
           body: string;
           created_at?: string;
@@ -1064,6 +1080,7 @@ export type Database = {
           term_ids: string[];
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           collection_id: string;
           created_at?: string;
@@ -1127,7 +1144,9 @@ export type Database = {
           use_count: number;
           used_at: string | null;
           used_by: string | null;
+          _referral_code_problem: string | null;
         };
+        ComputedFields: "_referral_code_problem";
         Insert: {
           code: string;
           created_at?: string;
@@ -1180,6 +1199,7 @@ export type Database = {
           redeemed_at: string;
           user_id: string | null;
         };
+        ComputedFields: never;
         Insert: {
           code_id: string;
           id?: string;
@@ -1224,6 +1244,7 @@ export type Database = {
           term_id: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           event: Database["public"]["Enums"]["review_event"];
@@ -1286,6 +1307,7 @@ export type Database = {
           term_id: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           ever_learning_at?: string | null;
           ever_mastered_at?: string | null;
@@ -1349,13 +1371,14 @@ export type Database = {
           piece_length: string;
           read_at: string | null;
           reading_level: string | null;
-          segments: Json;
+          segments: NonNullable<Json>;
           term_ids: string[];
           title: string;
           tone: string;
           user_id: string;
           vote: number | null;
         };
+        ComputedFields: never;
         Insert: {
           cefr_level: string;
           collection_id?: string | null;
@@ -1369,7 +1392,7 @@ export type Database = {
           piece_length?: string;
           read_at?: string | null;
           reading_level?: string | null;
-          segments: Json;
+          segments: NonNullable<Json>;
           term_ids: string[];
           title: string;
           tone: string;
@@ -1389,7 +1412,7 @@ export type Database = {
           piece_length?: string;
           read_at?: string | null;
           reading_level?: string | null;
-          segments?: Json;
+          segments?: NonNullable<Json>;
           term_ids?: string[];
           title?: string;
           tone?: string;
@@ -1422,6 +1445,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           cefr_level: string;
           collection_id: string;
@@ -1464,6 +1488,7 @@ export type Database = {
           source_term_id: string;
           target_term_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           description: string;
@@ -1514,6 +1539,7 @@ export type Database = {
           term: string;
           updated_at: string;
         };
+        ComputedFields: never;
         Insert: {
           anti_example?: string | null;
           category?: string | null;
@@ -1562,6 +1588,7 @@ export type Database = {
           term_id: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           term_id: string;
@@ -1594,6 +1621,7 @@ export type Database = {
           collection_id: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           collection_id: string;
           user_id: string;
@@ -1624,6 +1652,7 @@ export type Database = {
           collection_id: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           collection_id: string;
           user_id: string;
@@ -1658,10 +1687,10 @@ export type Database = {
           current_streak: number;
           daily_goals: Json | null;
           goal_celebrate: boolean;
-          goal_celebrated: Json;
+          goal_celebrated: NonNullable<Json>;
           last_active_date: string | null;
           longest_streak: number;
-          promo_dismissed: Json;
+          promo_dismissed: NonNullable<Json>;
           promo_seen: string[];
           read_hide_question: boolean;
           read_keep_awake: boolean;
@@ -1682,13 +1711,14 @@ export type Database = {
           shield_ready: boolean;
           shield_saved_date: string | null;
           story_last_collection_id: string | null;
-          term_layout: Json;
+          term_layout: NonNullable<Json>;
           timezone: string | null;
           tour_seen: string[];
           tour_status: string;
           updated_at: string;
           user_id: string;
         };
+        ComputedFields: never;
         Insert: {
           analytics_consent?: string | null;
           analytics_consent_at?: string | null;
@@ -1697,10 +1727,10 @@ export type Database = {
           current_streak?: number;
           daily_goals?: Json | null;
           goal_celebrate?: boolean;
-          goal_celebrated?: Json;
+          goal_celebrated?: NonNullable<Json>;
           last_active_date?: string | null;
           longest_streak?: number;
-          promo_dismissed?: Json;
+          promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
           read_hide_question?: boolean;
           read_keep_awake?: boolean;
@@ -1721,7 +1751,7 @@ export type Database = {
           shield_ready?: boolean;
           shield_saved_date?: string | null;
           story_last_collection_id?: string | null;
-          term_layout?: Json;
+          term_layout?: NonNullable<Json>;
           timezone?: string | null;
           tour_seen?: string[];
           tour_status?: string;
@@ -1736,10 +1766,10 @@ export type Database = {
           current_streak?: number;
           daily_goals?: Json | null;
           goal_celebrate?: boolean;
-          goal_celebrated?: Json;
+          goal_celebrated?: NonNullable<Json>;
           last_active_date?: string | null;
           longest_streak?: number;
-          promo_dismissed?: Json;
+          promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
           read_hide_question?: boolean;
           read_keep_awake?: boolean;
@@ -1760,7 +1790,7 @@ export type Database = {
           shield_ready?: boolean;
           shield_saved_date?: string | null;
           story_last_collection_id?: string | null;
-          term_layout?: Json;
+          term_layout?: NonNullable<Json>;
           timezone?: string | null;
           tour_seen?: string[];
           tour_status?: string;
@@ -1795,6 +1825,7 @@ export type Database = {
           role: Database["public"]["Enums"]["user_role"];
           suspended_at: string | null;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           email: string;
@@ -1828,6 +1859,7 @@ export type Database = {
           referral_code_id: string | null;
           status: string;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           email: string;
@@ -1875,6 +1907,7 @@ export type Database = {
           user_id: string;
           widget_version: string | null;
         };
+        ComputedFields: never;
         Insert: {
           created_at?: string;
           id?: string;
@@ -1909,12 +1942,7 @@ export type Database = {
     };
     Functions: {
       _admin_audit_insert: {
-        Args: {
-          p_action: string;
-          p_details: Json;
-          p_target_id: string;
-          p_target_type: string;
-        };
+        Args: { p_action: string; p_details: Json; p_target_id: string; p_target_type: string };
         Returns: undefined;
       };
       _admin_clean_reason: { Args: { p_reason: string }; Returns: string };
@@ -1937,10 +1965,7 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      _admin_people_using_collections: {
-        Args: { p_owner: string };
-        Returns: number;
-      };
+      _admin_people_using_collections: { Args: { p_owner: string }; Returns: number };
       _ai_credit_due_grants: {
         Args: { p_at: string; p_user_id: string };
         Returns: {
@@ -1962,10 +1987,7 @@ export type Database = {
         }[];
       };
       _ai_credit_settle: { Args: { p_user_id: string }; Returns: string };
-      _consume_referral_code: {
-        Args: { p_code: string; p_user: string };
-        Returns: undefined;
-      };
+      _consume_referral_code: { Args: { p_code: string; p_user: string }; Returns: undefined };
       _counted_requests: {
         Args: { p_user: string };
         Returns: {
@@ -1997,16 +2019,16 @@ export type Database = {
       };
       _promote_merged_children: { Args: { p_id: string }; Returns: undefined };
       _referral_code_problem: {
-        Args: { p_row: Database["public"]["Tables"]["referral_codes"]["Row"] };
+        Args: {
+          p_row: Omit<
+            Database["public"]["Tables"]["referral_codes"]["Row"],
+            Database["public"]["Tables"]["referral_codes"]["ComputedFields"]
+          >;
+        };
         Returns: string;
       };
       _system_audit_insert: {
-        Args: {
-          p_action: string;
-          p_details: Json;
-          p_target_id: string;
-          p_target_type: string;
-        };
+        Args: { p_action: string; p_details: Json; p_target_id: string; p_target_type: string };
         Returns: undefined;
       };
       admin_ai_credit_failure_reasons: {
@@ -2019,7 +2041,7 @@ export type Database = {
         }[];
       };
       admin_ai_credit_summary: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           credits_spent: number;
           refund_users_24h: number;
@@ -2088,21 +2110,10 @@ export type Database = {
         };
         Returns: Json;
       };
-      admin_dismiss_collection_reports: {
-        Args: { p_collection_id: string };
-        Returns: number;
-      };
-      admin_fill_definitions: {
-        Args: { p_request_id: string; p_terms: Json };
-        Returns: Json;
-      };
+      admin_dismiss_collection_reports: { Args: { p_collection_id: string }; Returns: number };
+      admin_fill_definitions: { Args: { p_request_id: string; p_terms: Json }; Returns: Json };
       admin_grant_ai_credits: {
-        Args: {
-          p_amount: number;
-          p_expires_at?: string;
-          p_note: string;
-          p_user_id: string;
-        };
+        Args: { p_amount: number; p_expires_at?: string; p_note: string; p_user_id: string };
         Returns: undefined;
       };
       admin_lift_share_lock: {
@@ -2121,7 +2132,7 @@ export type Database = {
         }[];
       };
       admin_list_collections: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           created_at: string;
           id: string;
@@ -2142,7 +2153,7 @@ export type Database = {
         }[];
       };
       admin_list_shared_referral_codes: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           code: string;
           created_at: string;
@@ -2171,11 +2182,7 @@ export type Database = {
         }[];
       };
       admin_publish_collection: {
-        Args: {
-          p_collection_id: string;
-          p_collection_slug: string;
-          p_term_slugs: Json;
-        };
+        Args: { p_collection_id: string; p_collection_slug: string; p_term_slugs: Json };
         Returns: string;
       };
       admin_queue_debug_terms: { Args: { p_user_id: string }; Returns: Json };
@@ -2185,10 +2192,7 @@ export type Database = {
           term: string;
         }[];
       };
-      admin_reset_ai_credits: {
-        Args: { p_note: string; p_user_id: string };
-        Returns: undefined;
-      };
+      admin_reset_ai_credits: { Args: { p_note: string; p_user_id: string }; Returns: undefined };
       admin_set_ai_credit_settings: {
         Args: {
           p_monthly: number;
@@ -2205,10 +2209,7 @@ export type Database = {
         Args: { p_story_cap: number; p_term_cap: number };
         Returns: undefined;
       };
-      admin_set_narration_enabled: {
-        Args: { p_enabled: boolean };
-        Returns: undefined;
-      };
+      admin_set_narration_enabled: { Args: { p_enabled: boolean }; Returns: undefined };
       admin_set_narration_provider: {
         Args: { p_enabled: boolean; p_provider: string };
         Returns: undefined;
@@ -2226,7 +2227,7 @@ export type Database = {
         Returns: undefined;
       };
       admin_table_sizes: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           row_estimate: number;
           table_name: string;
@@ -2234,12 +2235,7 @@ export type Database = {
         }[];
       };
       admin_write_audit: {
-        Args: {
-          p_action: string;
-          p_details?: Json;
-          p_target_id?: string;
-          p_target_type?: string;
-        };
+        Args: { p_action: string; p_details?: Json; p_target_id?: string; p_target_type?: string };
         Returns: undefined;
       };
       ai_credit_balance: {
@@ -2271,14 +2267,8 @@ export type Database = {
         Args: { p_feature: string; p_ttl_seconds?: number; p_user_id: string };
         Returns: string;
       };
-      bump_streak: {
-        Args: { p_timezone?: string; p_user_id: string };
-        Returns: undefined;
-      };
-      can_read_collection: {
-        Args: { p_collection_id: string };
-        Returns: boolean;
-      };
+      bump_streak: { Args: { p_timezone?: string; p_user_id: string }; Returns: undefined };
+      can_read_collection: { Args: { p_collection_id: string }; Returns: boolean };
       can_read_term: { Args: { p_term_id: string }; Returns: boolean };
       claim_audio_job: {
         Args: {
@@ -2313,7 +2303,7 @@ export type Database = {
         };
       };
       claim_narration_sync_tick: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           cursor: number;
           job_id: string;
@@ -2344,18 +2334,12 @@ export type Database = {
           isSetofReturn: false;
         };
       };
-      delete_own_account: {
-        Args: { p_confirm_email: string };
-        Returns: undefined;
-      };
+      delete_own_account: { Args: { p_confirm_email: string }; Returns: undefined };
       end_ai_run: {
         Args: { p_feature: string; p_token: string; p_user_id: string };
         Returns: undefined;
       };
-      get_shared_collection_preview: {
-        Args: { p_collection_id: string };
-        Returns: Json;
-      };
+      get_shared_collection_preview: { Args: { p_collection_id: string }; Returns: Json };
       get_streak_history: {
         Args: { p_user_id: string };
         Returns: {
@@ -2451,22 +2435,13 @@ export type Database = {
           today: string;
         }[];
       };
-      has_feature_access: {
-        Args: { p_feature: string; p_user_id: string };
-        Returns: boolean;
-      };
-      is_admin: { Args: never; Returns: boolean };
-      is_in_user_collections: {
-        Args: { p_collection_id: string };
-        Returns: boolean;
-      };
+      has_feature_access: { Args: { p_feature: string; p_user_id: string }; Returns: boolean };
+      is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_in_user_collections: { Args: { p_collection_id: string }; Returns: boolean };
       is_supported_language: { Args: { p_language: string }; Returns: boolean };
-      my_add_deferred_terms: {
-        Args: { p_term_ids: string[] };
-        Returns: undefined;
-      };
+      my_add_deferred_terms: { Args: { p_term_ids: string[] }; Returns: undefined };
       my_ai_credit_state: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           enabled: boolean;
           remaining: number;
@@ -2474,20 +2449,14 @@ export type Database = {
         }[];
       };
       my_bump_streak: { Args: { p_timezone?: string }; Returns: undefined };
-      my_cancel_collection_request: {
-        Args: { p_id: string };
-        Returns: undefined;
-      };
+      my_cancel_collection_request: { Args: { p_id: string }; Returns: undefined };
       my_claim_goal_celebration: {
         Args: { p_caught_up: boolean; p_tier: string };
         Returns: boolean;
       };
-      my_clear_deferred_collection: {
-        Args: { p_collection_id: string };
-        Returns: undefined;
-      };
-      my_clear_shield_notice: { Args: never; Returns: undefined };
-      my_collection_request_quota: { Args: never; Returns: Json };
+      my_clear_deferred_collection: { Args: { p_collection_id: string }; Returns: undefined };
+      my_clear_shield_notice: { Args: Record<PropertyKey, never>; Returns: undefined };
+      my_collection_request_quota: { Args: Record<PropertyKey, never>; Returns: Json };
       my_create_collection_request: {
         Args: {
           p_kind: string;
@@ -2502,7 +2471,7 @@ export type Database = {
         Returns: Json;
       };
       my_credit_schedule: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           expiring_amount: number;
           expiring_at: string;
@@ -2510,10 +2479,7 @@ export type Database = {
           next_refill_at: string;
         }[];
       };
-      my_dismiss_collection_request: {
-        Args: { p_id: string };
-        Returns: undefined;
-      };
+      my_dismiss_collection_request: { Args: { p_id: string }; Returns: undefined };
       my_dismiss_promo: { Args: { p_id: string }; Returns: undefined };
       my_first_seen_at_by_term: {
         Args: { p_term_ids: string[] };
@@ -2523,7 +2489,7 @@ export type Database = {
         }[];
       };
       my_get_goal_day: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           celebrated: string[];
           quizzed_count: number;
@@ -2533,7 +2499,7 @@ export type Database = {
         }[];
       };
       my_get_streak_history: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           day: string;
           is_active: boolean;
@@ -2543,10 +2509,7 @@ export type Database = {
           reviewed_count: number;
         }[];
       };
-      my_get_trace_candidates_json: {
-        Args: { p_collection_ids?: string[] };
-        Returns: Json;
-      };
+      my_get_trace_candidates_json: { Args: { p_collection_ids?: string[] }; Returns: Json };
       my_get_trace_state_for_term: {
         Args: { p_term_id: string };
         Returns: {
@@ -2562,7 +2525,7 @@ export type Database = {
         }[];
       };
       my_grade_distribution: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           count: number;
           grade: number;
@@ -2582,7 +2545,7 @@ export type Database = {
         Returns: Json;
       };
       my_list_collection_requests: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           accepted_at: string;
           created_at: string;
@@ -2635,7 +2598,7 @@ export type Database = {
         }[];
       };
       my_quiz_answer_counts: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           passed: number;
           total: number;
@@ -2657,32 +2620,23 @@ export type Database = {
         };
         Returns: undefined;
       };
-      my_remove_deferred_term: {
-        Args: { p_term_id: string };
-        Returns: undefined;
-      };
-      my_reply_collection_request: {
-        Args: { p_id: string; p_reply: string };
-        Returns: undefined;
-      };
+      my_remove_deferred_term: { Args: { p_term_id: string }; Returns: undefined };
+      my_reply_collection_request: { Args: { p_id: string; p_reply: string }; Returns: undefined };
       my_report_collection: {
         Args: { p_collection_id: string; p_note?: string; p_reason: string };
         Returns: string;
       };
-      my_reset_collection_progress: {
-        Args: { p_collection_id: string };
-        Returns: undefined;
-      };
-      my_review_collection_ids: { Args: never; Returns: string[] };
+      my_reset_collection_progress: { Args: { p_collection_id: string }; Returns: undefined };
+      my_review_collection_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
       my_self_topup_ai_credits: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           added: number;
           remaining: number;
         }[];
       };
       my_self_topup_state: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           amount: number;
           available: boolean;
@@ -2693,16 +2647,13 @@ export type Database = {
         Args: { p_collection_id: string; p_loved: boolean };
         Returns: number;
       };
-      my_set_request_notify: {
-        Args: { p_id: string; p_notify: boolean };
-        Returns: undefined;
-      };
+      my_set_request_notify: { Args: { p_id: string; p_notify: boolean }; Returns: undefined };
       my_set_term_marked_known: {
         Args: { p_marked: boolean; p_term_id: string };
         Returns: undefined;
       };
       my_study_collection_term_counts: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           collection_id: string;
           term_count: number;
@@ -2747,7 +2698,7 @@ export type Database = {
         }[];
       };
       prune_operational_rows: {
-        Args: never;
+        Args: Record<PropertyKey, never>;
         Returns: {
           affected: number;
           what: string;
@@ -2785,10 +2736,7 @@ export type Database = {
         Returns: undefined;
       };
       redeem_referral_code: { Args: { p_code: string }; Returns: undefined };
-      refund_ai_credits: {
-        Args: { p_ledger_id: number; p_reason?: string };
-        Returns: undefined;
-      };
+      refund_ai_credits: { Args: { p_ledger_id: number; p_reason?: string }; Returns: undefined };
       reserve_ai_credits: {
         Args: { p_feature: string; p_units: number; p_user_id: string };
         Returns: {
@@ -2807,10 +2755,7 @@ export type Database = {
         Args: { p_marked: boolean; p_term_id: string; p_user_id: string };
         Returns: undefined;
       };
-      shared_collection_link: {
-        Args: { p_collection_id: string };
-        Returns: Json;
-      };
+      shared_collection_link: { Args: { p_collection_id: string }; Returns: Json };
       submit_issue_report: {
         Args: {
           p_body: string;
@@ -2849,9 +2794,7 @@ export type Tables<
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
       DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
@@ -2875,9 +2818,7 @@ export type TablesInsert<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I;
     }
@@ -2900,9 +2841,7 @@ export type TablesUpdate<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = DefaultSchemaTableNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaTableNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U;
     }
@@ -2925,9 +2864,7 @@ export type Enums<
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never) = never,
-> = DefaultSchemaEnumNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = DefaultSchemaEnumNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
@@ -2942,9 +2879,7 @@ export type CompositeTypes<
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never) = never,
-> = PublicCompositeTypeNameOrOptions extends {
-  schema: keyof DatabaseWithoutInternals;
-}
+> = PublicCompositeTypeNameOrOptions extends { schema: keyof DatabaseWithoutInternals }
   ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]

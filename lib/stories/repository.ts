@@ -83,7 +83,7 @@ export async function insertStory(
       piece_length: input.levels.pieceLength,
       outline: input.outline,
       title: input.title,
-      segments: input.segments as unknown as Json,
+      segments: input.segments as unknown as NonNullable<Json>,
       term_ids: input.termIds,
     })
     .select(STORY_COLUMNS)
