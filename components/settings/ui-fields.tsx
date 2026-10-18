@@ -3,35 +3,8 @@
 import { Check, Copy } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { ErrorAlert } from "@/components/shared/error-alert";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-type StatusVariant = "connected" | "pending" | "disconnected";
-
-const STATUS_LABELS: Record<StatusVariant, string> = {
-  connected: "Connected",
-  pending: "Link pending",
-  disconnected: "Not connected",
-};
-
-const STATUS_DOT_CLASS: Record<StatusVariant, string> = {
-  connected: "bg-success",
-  pending: "bg-warning",
-  disconnected: "bg-base-content/30",
-};
-
-export function StatusPill({ variant }: { variant: StatusVariant }) {
-  return (
-    <Badge variant="outline" className="gap-2 text-xs font-medium">
-      <span
-        className={cn("size-1.5 shrink-0 rounded-full", STATUS_DOT_CLASS[variant])}
-        aria-hidden
-      />
-      {STATUS_LABELS[variant]}
-    </Badge>
-  );
-}
 
 export function CopyIconSwap({ copied }: { copied: boolean }) {
   return (

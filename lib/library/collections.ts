@@ -104,7 +104,7 @@ export async function fetchUserCollection(
   return applyCollectionStats(combined, stats);
 }
 
-/** Service-role / admin client: collection for an explicit userId (Telegram, widget). */
+/** Service-role / admin client: collection for an explicit userId (widget). */
 export async function fetchUserCollectionForUser(
   client: Client,
   userId: string,

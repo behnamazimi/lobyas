@@ -14,7 +14,6 @@ function candidates(term: QuizTerm): { text: string; fits: boolean }[] {
 export const doesItFit: QuizTemplate = {
   id: "does_it_fit",
   kinds: ["terms"],
-  channels: ["web", "telegram"],
   booleanLabels: { yes: "Yes", no: "No" },
   ai: {
     interaction: "boolean",

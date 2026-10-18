@@ -123,8 +123,7 @@ within a session.
 
 A missed term (an Again) is asked again in the same session, after a few other
 cards, up to three times (`LEARNING_STEP_MAX_RETRIES`). Web Review does this in
-the browser (`lib/review/retry.ts`, `useReviewQueue.scheduleRetry`); Telegram
-adds the term back into its session list (`recordReviewRating`). Once it is
+the browser (`lib/review/retry.ts`, `useReviewQueue.scheduleRetry`). Once it is
 recalled, the one-day floor takes over: an Again then a Good a few minutes
 later comes back after about 1.4 days, then about 3.6, 7.9 and 14.6 days.
 
@@ -489,7 +488,7 @@ that point, it's just no longer being held back.
 A term with no definition is "unfinished". It never enters any of the pools
 above: `get_trace_candidates` and `progress_state_by_collection` skip it, so it
 earns no exposure, adds nothing to mastery denominators or progress counts, and
-never reaches Read, Review, Quiz, Stories, the widget or Telegram. Finishing a
+never reaches Read, Review, Quiz, Stories or the widget. Finishing a
 term makes it eligible from that moment, with no history, like a newly
 imported term. A finished term can't go back, so no trace row ever belongs to
 an unfinished term. See [import.md](./import.md).
@@ -514,8 +513,8 @@ it:
    ranking functions, and loads the winning terms' full content. Entry
    points: `pickReadTerms(ForUser)`, `pickReviewTerms(ForUser)`,
    `pickQuizTerms(ForUser)` in `lib/trace-queue/service.ts`. The `ForUser`
-   variants take an explicit user id and the service-role client. Telegram
-   and the widget need them because they have no browser session. The web
+   variants take an explicit user id and the service-role client. The widget
+   needs them because it has no browser session. The web
    Read and Review feeds use them too, after checking the session, because
    they load the winning cards in one batched `get_term_cards` call.
    Candidates come from `get_trace_candidates_json` (or
@@ -535,9 +534,7 @@ it:
    `lib/review/feed.ts`: on the page itself, and on refills through
    `POST /api/review/feed`, so a refill never waits behind a grade), and
    `generateQuizAction` / `recordQuizAnswerAction` in
-   `app/(private)/app/quiz/actions.ts`. Telegram has its own equivalents
-   in `lib/telegram/` that call the same `lib/terms/review-outcome.ts`
-   and `lib/trace-queue` functions underneath.
+   `app/(private)/app/quiz/actions.ts`.
 5. **The database** — two tables. `review_state` holds one row per (user,
    term), storing exactly the fields `TraceState` needs: read count and
    last-read time, recall stability/difficulty and last-review time,
@@ -629,7 +626,7 @@ other:
   by posterior × recognition rather than recognition alone.
 - **The old known/unknown pool toggle is gone entirely,** not repurposed.
   There's no manual "mark as known" action anywhere in the app anymore, on
-  web or Telegram — the label described above is the only thing that plays
+  web — the label described above is the only thing that plays
   that role now, and it can't be set by hand.
 
 ## Tunable parameters

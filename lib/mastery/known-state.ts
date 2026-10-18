@@ -145,19 +145,3 @@ export async function setTermMarkedKnown(
 
   if (error) throw error;
 }
-
-/** Service-role counterpart of {@link setTermMarkedKnown} (Telegram). */
-export async function setTermMarkedKnownForUser(
-  client: Client,
-  userId: string,
-  termId: string,
-  marked: boolean,
-) {
-  const { error } = await client.rpc("set_term_marked_known", {
-    p_user_id: userId,
-    p_term_id: termId,
-    p_marked: marked,
-  });
-
-  if (error) throw error;
-}

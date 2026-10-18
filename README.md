@@ -19,7 +19,7 @@ Known/unknown isn't set by hand — it's read off how well you've actually
 retained a term, and fades again if you stop practicing it.
 
 The same TRACE ranking powers Read, Review, and Quiz across every
-surface — web, Telegram bot, and macOS desktop widget — not random shuffle,
+surface — web and macOS desktop widget — not random shuffle,
 and not spaced repetition with future review dates. Collection browse picks
 its own way and doesn't use the ranking.
 
@@ -29,8 +29,6 @@ See the landing page for how to request an invitation.
 
 - [TRACE scoring engine](docs/trace.md) — scoring, outcomes, and how picking
   works across surfaces
-- [Telegram bot setup](docs/supabase/telegram-setup.md) — webhook, secrets, and
-  Edge Function deployment
 - [Narration sync cron](docs/supabase/narration-sync-cron.md) — Dashboard job
   that continues admin audio generation after the first invoke
 - User-facing guide at `/how-terms-work` (term structure, how known/unknown
@@ -113,7 +111,6 @@ TypeScript.
 | `lib/terms/`       | Term model, cards, outcomes, term CRUD  |
 | `lib/library/`     | Library page data, collections, filters |
 | `lib/study/`       | Collection scope and study pool wrapper |
-| `lib/telegram/`    | Telegram bot flows                      |
 | `widget/`          | macOS Übersicht desktop widget          |
-| `supabase/`        | Migrations and Edge Functions           |
+| `supabase/`        | Migrations and SQL tests                |
 | `docs/`            | Internal documentation                  |

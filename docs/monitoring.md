@@ -1,9 +1,8 @@
 # DevOps monitoring (Telegram)
 
-A separate Telegram bot posts the things that need a human to a private ops
-chat. It is not the Lobyas learner bot (`lib/telegram/`): that bot's token is on
-Vercel and in the Supabase Edge secrets, and a monitor must not depend on the
-app it watches. The ops bot only sends; it has no webhook.
+A Telegram bot posts the things that need a human to a private ops chat. Its
+token lives only in GitHub secrets, because a monitor must not depend on the
+app it watches. The bot only sends; it has no webhook.
 
 ## What reaches the chat
 
@@ -19,7 +18,7 @@ Pull request runs are left out on purpose: the author already sees them.
 
 ## Setup
 
-1. In [@BotFather](https://t.me/BotFather) run `/newbot` for a new bot, not the learner bot.
+1. In [@BotFather](https://t.me/BotFather) run `/newbot` for a new bot.
 2. Add the bot to a private chat or group, send a message, then read the chat id
    from `https://api.telegram.org/bot<token>/getUpdates`.
 3. Add these GitHub repository secrets:

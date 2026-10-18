@@ -37,7 +37,7 @@ export async function planAiQuiz(
 
   await Promise.all(
     terms.map(async (term) => {
-      for (const template of orderTemplates(term, "web", rng, isEligibleForAi)) {
+      for (const template of orderTemplates(term, rng, isEligibleForAi)) {
         if (template.ai) {
           slots.set(term.id, { term, template });
           return;

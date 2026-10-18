@@ -1,5 +1,5 @@
 import type { CollectionKind } from "@/lib/terms/kinds";
-import type { QuizChannel, QuizQuestion, QuizResponse } from "../types";
+import type { QuizQuestion, QuizResponse } from "../types";
 import { definitionToTerm } from "./definition-to-term";
 import { dictation } from "./dictation";
 import { doesItFit } from "./does-it-fit";
@@ -22,10 +22,8 @@ const QUIZ_TEMPLATES: readonly QuizTemplate[] = [
 
 const DEFAULT_BOOLEAN_LABELS: BooleanLabels = { yes: "True", no: "False" };
 
-export function templatesFor(kind: CollectionKind, channel: QuizChannel): QuizTemplate[] {
-  return QUIZ_TEMPLATES.filter(
-    (template) => template.kinds.includes(kind) && template.channels.includes(channel),
-  );
+export function templatesFor(kind: CollectionKind): QuizTemplate[] {
+  return QUIZ_TEMPLATES.filter((template) => template.kinds.includes(kind));
 }
 
 export function templateById(id: QuizQuestion["template"]): QuizTemplate | undefined {

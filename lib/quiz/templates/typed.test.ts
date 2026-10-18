@@ -23,26 +23,32 @@ describe("typed eligibility", () => {
   it("does not depend on how well the learner knows the term", () => {
     expect(typedCloze.eligible(fietsen)).toBe(true);
     expect(typedCloze.eligible({ ...fietsen, recognition: undefined })).toBe(true);
-    expect(typedCloze.eligible({ ...fietsen, recognition: { posterior: 0.1, testCount: 0 } })).toBe(
-      true,
-    );
+    expect(
+      typedCloze.eligible({
+        ...fietsen,
+        recognition: { posterior: 0.1, testCount: 0 },
+      }),
+    ).toBe(true);
   });
 
   it("keeps terms longer than three words as multiple choice", () => {
-    const long = { ...fietsen, term: "het is de moeite waard", example: "Het is de moeite waard." };
+    const long = {
+      ...fietsen,
+      term: "het is de moeite waard",
+      example: "Het is de moeite waard.",
+    };
     expect(typedCloze.eligible(long)).toBe(false);
     expect(typedMeaningToWord.eligible(long)).toBe(false);
     expect(typedMeaningToWord.eligible({ ...long, term: "de moeite waard" })).toBe(true);
   });
 
-  it("is for vocabulary on the web only", () => {
-    const webTerms = templatesFor("terms", "web").map((t) => t.id);
+  it("is for vocabulary only", () => {
+    const webTerms = templatesFor("terms").map((t) => t.id);
     expect(webTerms).not.toContain("typed_cloze");
     expect(webTerms).not.toContain("typed_meaning_to_word");
-    expect(templatesFor("vocabulary", "web").map((t) => t.id)).toEqual(
+    expect(templatesFor("vocabulary").map((t) => t.id)).toEqual(
       expect.arrayContaining(["typed_cloze", "typed_meaning_to_word"]),
     );
-    expect(templatesFor("vocabulary", "telegram").map((t) => t.id)).not.toContain("typed_cloze");
   });
 });
 
@@ -77,7 +83,11 @@ describe("typed_meaning_to_word", () => {
   });
 
   it("gives up when another term shares the meaning", async () => {
-    const other = makeDistractor({ id: "t2", term: "rijden", definition: "to cycle" });
+    const other = makeDistractor({
+      id: "t2",
+      term: "rijden",
+      definition: "to cycle",
+    });
     expect(await typedMeaningToWord.build(fietsen, ctx([other]))).toBeNull();
   });
 });

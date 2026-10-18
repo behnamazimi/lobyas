@@ -2,13 +2,11 @@ import { Suspense } from "react";
 import {
   getAccountSettingsData,
   getLlmSettingsData,
-  getTelegramSettingsData,
   getWidgetSettingsData,
 } from "@/app/(private)/app/settings/actions";
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
 import { AccountPanel } from "@/components/settings/account-panel";
 import { LlmPanel } from "@/components/settings/llm-panel";
-import { TelegramPanel } from "@/components/settings/telegram-panel";
 import { ScrollToSettingsPanel, type SettingsTabId } from "@/components/settings/ui";
 import { WidgetPanel } from "@/components/settings/widget-panel";
 import { PanelSkeleton } from "@/components/page-skeleton";
@@ -19,7 +17,7 @@ type PageProps = {
 };
 
 function parseTab(value: string | undefined): SettingsTabId | null {
-  if (value === "telegram" || value === "widget" || value === "ai" || value === "account") {
+  if (value === "widget" || value === "ai" || value === "account") {
     return value;
   }
   // The AI panel used to be the "quiz" tab; keep old links working.
@@ -33,14 +31,6 @@ async function LlmPanelServer() {
     return <p className="text-sm text-base-content/70">{setup.error}</p>;
   }
   return <LlmPanel ai={setup.ai} schedule={setup.schedule} />;
-}
-
-async function TelegramPanelServer() {
-  const setup = await getTelegramSettingsData();
-  if ("error" in setup) {
-    return <p className="text-sm text-base-content/70">{setup.error}</p>;
-  }
-  return <TelegramPanel initialStatus={setup.telegramStatus} />;
 }
 
 async function WidgetPanelServer() {
@@ -75,9 +65,6 @@ export default async function SettingsRoute({ searchParams }: PageProps) {
       {tab ? <ScrollToSettingsPanel tab={tab} /> : null}
       <Suspense fallback={<PanelSkeleton />}>
         <LlmPanelServer />
-      </Suspense>
-      <Suspense fallback={<PanelSkeleton />}>
-        <TelegramPanelServer />
       </Suspense>
       <Suspense fallback={<PanelSkeleton />}>
         <WidgetPanelServer />

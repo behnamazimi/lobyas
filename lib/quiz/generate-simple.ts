@@ -10,5 +10,5 @@ export function generateSimpleQuiz(
   terms: QuizTerm[],
   client: SupabaseClient<Database>,
 ): Promise<QuizQuestion[]> {
-  return buildQuiz(terms, supabaseDistractorSource(client), "web");
+  return buildQuiz(terms, supabaseDistractorSource(client));
 }

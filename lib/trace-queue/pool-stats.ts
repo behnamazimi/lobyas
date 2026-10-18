@@ -21,52 +21,16 @@ export async function getPoolStats(
   return computePoolStats(candidates, context);
 }
 
-function poolStatsByCollection(
-  candidates: TraceCandidate[],
-  context: PickContext,
-): Map<string, PoolStats> {
-  const byCollection = new Map<string, TraceCandidate[]>();
-
-  for (const candidate of candidates) {
-    const list = byCollection.get(candidate.collectionId) ?? [];
-    list.push(candidate);
-    byCollection.set(candidate.collectionId, list);
-  }
-
-  const statsByCollection = new Map<string, PoolStats>();
-  for (const [collectionId, collectionCandidates] of byCollection) {
-    statsByCollection.set(collectionId, computePoolStats(collectionCandidates, context));
-  }
-  return statsByCollection;
-}
-
-export async function getPoolStatsForUser(
-  client: Client,
-  userId: string,
-  scope: ReviewScope,
-  context: PickContext,
-): Promise<PoolStats> {
-  const candidates = await fetchTraceCandidatesForUser(client, userId, scope);
-  return computePoolStats(candidates, context);
-}
-
-export async function getPoolStatsByCollectionForUser(
-  client: Client,
-  userId: string,
-  context: PickContext,
-): Promise<Map<string, PoolStats>> {
-  const candidates = await fetchTraceCandidatesForUser(client, userId, { collectionIds: "all" });
-  return poolStatsByCollection(candidates, context);
-}
-
 /** Every active-collection candidate, unsorted — callers group/aggregate
- *  themselves (rollups, mastery). Service-role: explicit userId (Telegram). */
+ *  themselves (rollups, mastery). Service-role: explicit userId. */
 export const fetchActiveTraceCandidatesForUser = cache(
   async function fetchActiveTraceCandidatesForUser(
     client: Client,
     userId: string,
   ): Promise<TraceCandidate[]> {
-    return fetchTraceCandidatesForUser(client, userId, { collectionIds: "all" });
+    return fetchTraceCandidatesForUser(client, userId, {
+      collectionIds: "all",
+    });
   },
 );
 
@@ -84,7 +48,9 @@ export async function getReadEligibleCountsByCollectionForUser(
   client: Client,
   userId: string,
 ): Promise<Map<string, number>> {
-  const candidates = await fetchTraceCandidatesForUser(client, userId, { collectionIds: "all" });
+  const candidates = await fetchTraceCandidatesForUser(client, userId, {
+    collectionIds: "all",
+  });
   const counts = new Map<string, number>();
   for (const candidate of candidates) {
     if (candidate.markedKnownAt) continue;

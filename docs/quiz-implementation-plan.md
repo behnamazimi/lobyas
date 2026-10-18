@@ -34,23 +34,23 @@ A question carries two separate facts.
 
 ## Module layout (`lib/quiz/`)
 
-| Path                      | Responsibility                                                                                              |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `types.ts`                | `QuizTerm` (with `kind`, `category`), question union, `QuizResponse`, template ids                          |
-| `text/mask.ts`            | Whole-word, case-insensitive masking and whole-word check                                                   |
-| `templates/<id>.ts`       | One per template: `eligible`, `build`, `feedback`, `kinds`, `channels`                                      |
-| `templates/copy.ts`       | Kind-specific question wording                                                                              |
-| `templates/choice.ts`     | Shared helpers for choice templates (candidate picking, shuffling)                                          |
-| `templates/registry.ts`   | Template list, `templatesFor(kind, channel)`, feedback and boolean labels                                   |
-| `plan.ts`                 | `orderTemplates`: eligible templates for a term in weighted random order                                    |
-| `mix.ts`                  | Template weights, distractor counts, AI true/false cap, each with its reason                                |
-| `distractors.ts`          | `DistractorSource` interface                                                                                |
-| `distractors-supabase.ts` | The only Supabase implementation (related terms first, then same collection)                                |
-| `build.ts`                | `buildQuiz(terms, source, channel, rng)`: try templates in plan order, fall back to the definition question |
-| `grade.ts`                | `gradeAnswer(question, response)`: one switch on interaction                                                |
-| `trace-type.ts`           | Interaction to TRACE `QuestionType`                                                                         |
-| `question-schema.ts`      | `isQuizQuestion`, guarding both saved-session stores                                                        |
-| `terms.ts`, `mappers.ts`  | Quiz pool plus a `collections.kind` lookup (no `TermCard` or RPC change)                                    |
+| Path                      | Responsibility                                                                                            |
+| ------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `types.ts`                | `QuizTerm` (with `kind`, `category`), question union, `QuizResponse`, template ids                        |
+| `text/mask.ts`            | Whole-word, case-insensitive masking and whole-word check                                                 |
+| `templates/<id>.ts`       | One per template: `eligible`, `build`, `feedback`, `kinds`                                                |
+| `templates/copy.ts`       | Kind-specific question wording                                                                            |
+| `templates/choice.ts`     | Shared helpers for choice templates (candidate picking, shuffling)                                        |
+| `templates/registry.ts`   | Template list, `templatesFor(kind)`, feedback and boolean labels                                          |
+| `plan.ts`                 | `orderTemplates`: eligible templates for a term in weighted random order                                  |
+| `mix.ts`                  | Template weights, distractor counts, AI true/false cap, each with its reason                              |
+| `distractors.ts`          | `DistractorSource` interface                                                                              |
+| `distractors-supabase.ts` | The only Supabase implementation (related terms first, then same collection)                              |
+| `build.ts`                | `buildQuiz(terms, source, style, rng)`: try templates in plan order, fall back to the definition question |
+| `grade.ts`                | `gradeAnswer(question, response)`: one switch on interaction                                              |
+| `trace-type.ts`           | Interaction to TRACE `QuestionType`                                                                       |
+| `question-schema.ts`      | `isQuizQuestion`, guarding both saved-session stores                                                      |
+| `terms.ts`, `mappers.ts`  | Quiz pool plus a `collections.kind` lookup (no `TermCard` or RPC change)                                  |
 
 `generate-simple.ts` is `buildQuiz` wired to the Supabase source. `illustration.ts`
 is gone. A term is picked per its own collection's kind, so mixed quizzes work.
@@ -61,19 +61,13 @@ is gone. A term is picked per its own collection's kind, so mixed quizzes work.
   `boolean-answer.tsx`), chosen in `quiz-answer-choices.tsx`. The answer
   reducer holds a `QuizResponse`, and the keyboard helper returns one. Typed
   input (PR 2) pauses digit shortcuts, as `isTextEntryTarget` already does.
-- **Telegram.** Uses `buildQuiz(..., "telegram")`, so templates that don't list
-  `telegram` in `channels` are never picked. The built questions are stored in
-  the session, and `quiz-session-flow.ts` renders from them through
-  `quiz-options.ts`, which turns a question into tappable options and their
-  responses. Long answers are listed in the message with numbered buttons.
-  The "category / collection" header line is gone.
 - **Pool.** `lib/quiz/terms.ts` looks up `collections.kind` for the picked terms.
   The quiz pickers copy each term's recognition posterior and test count onto
   the card (`withRecognition` in `lib/trace-queue/pick-terms.ts`), so no extra
   query is needed.
 - **Saved sessions.** Web uses the storage key version (`v2`, the old key is
-  removed on load) and validates questions with `isQuizQuestion`. Telegram
-  stores `version: 2`. Old sessions are dropped, not migrated.
+  removed on load) and validates questions with `isQuizQuestion`. Old
+  sessions are dropped, not migrated.
 
 ## AI mode
 
@@ -116,8 +110,7 @@ never sit on field-term templates.
 1. **Foundation and vocabulary.** Kind plumbing, model, registry, masking,
    plan, `mix.ts`, the injected distractor source, all MCQ and boolean
    templates for both kinds (field terms and vocabulary), category-aware
-   distractors, shared-gloss handling, web UI refactor, Telegram on the
-   shared builder, session versioning. "None of these" and prompt-text
+   distractors, shared-gloss handling, web UI refactor, session versioning. "None of these" and prompt-text
    detection are removed.
 2. **Typed.** `text` interaction, typed templates, strength gate, TRACE
    `typed` type: migration for the check constraint, a guess-rate constant, a
@@ -143,9 +136,9 @@ against real data in PR 2 before it ships.
   is pure.
 - A coverage test over the seed: how many Dutch terms get an exact-match
   cloze.
-- Existing quiz and Telegram tests are updated, not deleted.
+- Existing quiz tests are updated, not deleted.
 
 ## Out of scope
 
-Typed answers in Telegram, typo tolerance, changes to Review or Read, and any
+Typo tolerance, changes to Review or Read, and any
 change to TRACE constants other than the new `typed` guess rate.

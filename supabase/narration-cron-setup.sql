@@ -1,12 +1,10 @@
--- The narration-sync job (every minute) is scheduled by the migration
--- 20261024120000_cron_from_vault.sql. It reads these four Vault secrets, which
--- supabase/ops/cron-secrets-to-vault.sql creates from the job that already
--- exists. On a fresh project create them by hand first:
+-- The narration-sync job (every minute) is scheduled by the cron migrations in
+-- supabase/migrations (20261024120000_cron_from_vault.sql onwards). It reads
+-- these two Vault secrets, which supabase/ops/cron-secrets-to-vault.sql creates
+-- from the job that already exists. On a fresh project create them by hand first:
 --
 --   select vault.create_secret('https://your-app-host', 'cron_app_url');
 --   select vault.create_secret('YOUR_AI_INTERNAL_SECRET', 'cron_ai_internal_secret');
---   select vault.create_secret('https://YOUR_PROJECT_REF.supabase.co', 'cron_project_url');
---   select vault.create_secret('YOUR_TELEGRAM_CRON_SECRET', 'cron_telegram_secret');
 --
 -- then run the migration, or paste its body in the SQL editor. The job posts
 -- to cron_app_url + /api/internal/narration/sync with cron_ai_internal_secret

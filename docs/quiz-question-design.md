@@ -107,7 +107,7 @@ No typed answers for field terms.
 - A term qualifies when it has at most 3 words (`lib/quiz/mix.ts`).
   Typed meaning → word is skipped when another term in the collection has
   the same definition.
-- Web only. The Telegram quiz uses the MCQ types and skips typed ones.
+- Web only.
 - Built: typed answers use their own `typed` question type with a 0.05 guess
   rate (migration `20261009100000_review_events_typed.sql`). The options below
   are kept for the record.
@@ -161,11 +161,6 @@ the typed input, and the quiz action's `questionType`.
 - `kind` lives on `collections`, but `TermCard` (from the `get_term_card` RPC) has
   no `kind` and no recognition strength. The quiz pool must carry both, which
   may mean an RPC or query change.
-- Telegram builds its own questions in `lib/telegram/quiz-session-store.ts`
-  (calls `buildIllustrationQuestions`) and `quiz-session-flow.ts` (calls
-  `selectDistractorsFromCollection`), not in `quiz-flow.ts`. Removing "None of
-  these", adding masking and per-kind types has to land there too, and its
-  Edge Function runtime must be able to import any new shared code.
 - Update [trace.md](trace.md) if the question types or guess rates change.
 
 ## Retries inside a session

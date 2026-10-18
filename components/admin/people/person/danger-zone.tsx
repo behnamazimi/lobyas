@@ -96,8 +96,8 @@ export function DangerZone({ person }: { person: AdminPerson }) {
         title={suspended ? "Reactivate account" : "Suspend account"}
         text={
           suspended
-            ? "They are signed out and can't use the app, Telegram or the widget. Reactivating lets them sign in again."
-            : "Signs them out everywhere and blocks sign-in, Telegram, the widget and AI. Nothing is deleted."
+            ? "They are signed out and can't use the app or the widget. Reactivating lets them sign in again."
+            : "Signs them out everywhere and blocks sign-in, the widget and AI. Nothing is deleted."
         }
       >
         <button

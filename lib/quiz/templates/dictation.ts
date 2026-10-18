@@ -11,7 +11,6 @@ const HEARABLE = /^[\p{L}\p{M}' ’-]+$/u;
 export const dictation: QuizTemplate = {
   id: "dictation",
   kinds: ["vocabulary"],
-  channels: ["web"],
   simpleOnly: true,
   eligible: (term) =>
     Boolean(term.dictationClip) &&

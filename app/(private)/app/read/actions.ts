@@ -77,13 +77,13 @@ export async function recordReadRevealAction(termId: string): Promise<{ error?: 
 }
 
 /**
- * Deep-link entry: open one specific term (from Telegram, the widget, or a
+ * Deep-link entry: open one specific term (from the widget or a
  * direct link) without touching the queue.
  *
- * Uses the same get_term_card RPC as Telegram /read so relationships and
- * every other field match that delivery path.
+ * Uses the same get_term_card RPC as the Read queue so relationships and
+ * every other field match.
  *
- * `alreadyRead` covers Telegram's "Open in web" link and the widget's
+ * `alreadyRead` covers the widget's
  * "Read more" handoff, where the term was already recorded as read (and
  * revealed) at the point the user clicked through. Every other source (a
  * bare link) opens masked, requiring an explicit reveal tap here before
@@ -118,10 +118,9 @@ export type ReadFeedBatchResult = {
 };
 
 /**
- * Web equivalent of Telegram /read: pull the next batch off the Read
- * queue, ranked by lowest exposure first. Returned masked — the client
- * only records a read once the user reveals/scroll-exposes it. Hydrates
- * via get_term_card (same RPC Telegram uses) so relationships match.
+ * Pull the next batch off the Read queue, ranked by lowest exposure first.
+ * Returned masked — the client only records a read once the user
+ * reveals/scroll-exposes it. Hydrates via get_term_card so relationships match.
  *
  * The one fetch path both Read surfaces (paged view and fullscreen feed)
  * use via useReadQueue (components/read/use-read-queue.ts) — the
@@ -129,7 +128,7 @@ export type ReadFeedBatchResult = {
  * batch so both surfaces share one queue and one prefetch mechanism.
  *
  * `collectionId` is a Read-page filter on top of the active pool. `"all"` (default)
- * matches Telegram /read. The RPC already intersects with collections that are
+ * takes the whole pool. The RPC already intersects with collections that are
  * turned on, so an unknown id just yields an empty pick.
  */
 export async function getReadFeedBatchAction(

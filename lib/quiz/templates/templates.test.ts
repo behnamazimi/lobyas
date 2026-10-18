@@ -9,11 +9,26 @@ import { termToMeaning } from "./term-to-meaning";
 import type { BuildContext } from "./types";
 
 const distractors = [
-  makeDistractor({ id: "d1", term: "Velocity", definition: "How fast a team ships." }),
-  makeDistractor({ id: "d2", term: "Spike", definition: "A time-boxed experiment." }),
-  makeDistractor({ id: "d3", term: "Carryover", definition: "Work pushed to the next sprint." }),
+  makeDistractor({
+    id: "d1",
+    term: "Velocity",
+    definition: "How fast a team ships.",
+  }),
+  makeDistractor({
+    id: "d2",
+    term: "Spike",
+    definition: "A time-boxed experiment.",
+  }),
+  makeDistractor({
+    id: "d3",
+    term: "Carryover",
+    definition: "Work pushed to the next sprint.",
+  }),
 ];
-const ctx = (list = distractors): BuildContext => ({ source: sourceOf(list), rng: rngOf(0.1) });
+const ctx = (list = distractors): BuildContext => ({
+  source: sourceOf(list),
+  rng: rngOf(0.1),
+});
 
 const blocker = makeTerm({
   id: "t1",
@@ -67,7 +82,12 @@ describe("term_to_meaning", () => {
   });
 
   it("drops a distractor whose meaning matches the right one", async () => {
-    const walk = makeTerm({ id: "t", term: "lopen", definition: "to walk", kind: "vocabulary" });
+    const walk = makeTerm({
+      id: "t",
+      term: "lopen",
+      definition: "to walk",
+      kind: "vocabulary",
+    });
     const q = await termToMeaning.build(
       walk,
       ctx([
@@ -128,19 +148,34 @@ describe("does_it_fit", () => {
   });
 
   it("asks yes for an example and no for an anti-example", async () => {
-    const yes = await doesItFit.build(blockerUnnamed, { source: sourceOf([]), rng: rngOf(0) });
+    const yes = await doesItFit.build(blockerUnnamed, {
+      source: sourceOf([]),
+      rng: rngOf(0),
+    });
     expect(yes).toMatchObject({
       interaction: "boolean",
       correctAnswer: true,
       quote: blockerUnnamed.example,
     });
-    const no = await doesItFit.build(blockerUnnamed, { source: sourceOf([]), rng: rngOf(0.99) });
-    expect(no).toMatchObject({ correctAnswer: false, quote: blocker.antiExample });
+    const no = await doesItFit.build(blockerUnnamed, {
+      source: sourceOf([]),
+      rng: rngOf(0.99),
+    });
+    expect(no).toMatchObject({
+      correctAnswer: false,
+      quote: blocker.antiExample,
+    });
   });
 
   it("never quotes text that names the term", async () => {
-    const q = await doesItFit.build(blocker, { source: sourceOf([]), rng: rngOf(0) });
-    expect(q).toMatchObject({ correctAnswer: false, quote: blocker.antiExample });
+    const q = await doesItFit.build(blocker, {
+      source: sourceOf([]),
+      rng: rngOf(0),
+    });
+    expect(q).toMatchObject({
+      correctAnswer: false,
+      quote: blocker.antiExample,
+    });
 
     const geval = makeTerm({
       language: "nl",
@@ -153,7 +188,10 @@ describe("does_it_fit", () => {
   });
 
   it("explains anti-examples and labels the answers Yes and No", async () => {
-    const no = await doesItFit.build(blocker, { source: sourceOf([]), rng: rngOf(0.99) });
+    const no = await doesItFit.build(blocker, {
+      source: sourceOf([]),
+      rng: rngOf(0.99),
+    });
     expect(quizFeedbackLine(no!, true)).toContain("anti-example");
     expect(booleanLabelsFor(no!)).toEqual({ yes: "Yes", no: "No" });
   });
@@ -161,13 +199,13 @@ describe("does_it_fit", () => {
 
 describe("registry", () => {
   it("gives each kind its templates", () => {
-    expect(templatesFor("terms", "web").map((t) => t.id)).toEqual([
+    expect(templatesFor("terms").map((t) => t.id)).toEqual([
       "definition_to_term",
       "term_to_meaning",
       "masked_example",
       "does_it_fit",
     ]);
-    expect(templatesFor("vocabulary", "web").map((t) => t.id)).not.toContain("does_it_fit");
+    expect(templatesFor("vocabulary").map((t) => t.id)).not.toContain("does_it_fit");
   });
 
   it("finds a template by id and knows which ones the model can write", () => {

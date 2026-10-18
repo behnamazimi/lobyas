@@ -8,7 +8,6 @@ export {
   SetupStep,
 } from "@/components/settings/ui-layout";
 export {
-  StatusPill,
   CopyIconSwap,
   CopyField,
   AlertBanner,

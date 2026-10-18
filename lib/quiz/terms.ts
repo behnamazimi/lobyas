@@ -4,7 +4,6 @@ import { parseKind, type CollectionKind } from "@/lib/terms/kinds";
 import {
   countTermsForSelection as countStudyTermsForSelection,
   fetchQuizTermPool as fetchStudyQuizTermPool,
-  type StudyAuthMode,
   type StudyCollection,
 } from "@/lib/study";
 import { toQuizTerm } from "./mappers";
@@ -32,15 +31,8 @@ export async function fetchQuizTermPool(
   userId: string,
   collectionIds: string[] | "all",
   questionCount: number,
-  mode?: StudyAuthMode,
 ): Promise<QuizTerm[]> {
-  const cards = await fetchStudyQuizTermPool(
-    client,
-    userId,
-    { collectionIds },
-    questionCount,
-    mode,
-  );
+  const cards = await fetchStudyQuizTermPool(client, userId, { collectionIds }, questionCount);
   const kinds = await fetchCollectionKinds(client, [
     ...new Set(cards.map((card) => card.collectionId)),
   ]);

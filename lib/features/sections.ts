@@ -42,11 +42,6 @@ export const FEATURE_SECTIONS: FeatureSection[] = [
         body: "Add it to your phone. The layout is built for thumbs.",
       },
       {
-        icon: "send",
-        title: "Telegram bot",
-        body: "Use /read, /review and /quiz, with reminders when you want them.",
-      },
-      {
         icon: "monitor",
         title: "macOS widget",
         body: "The next term sits on your desktop. Reveal it, or move on to the next one.",

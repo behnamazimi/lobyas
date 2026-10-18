@@ -86,7 +86,7 @@ null`) is unfinished. It is saved, and only its owner sees it. It stays out of
 every study and delivery surface until it gets a definition:
 
 - `get_trace_candidates` and `progress_state_by_collection` skip it, so Read,
-  Review, Quiz, Stories, Triage, Mastery, the widget, Telegram and every count
+  Review, Quiz, Stories, Triage, Mastery, the widget and every count
   ignore it.
 - Row-level security hides it from everyone but the owner, so shared views,
   public pages and the sitemap never show it.

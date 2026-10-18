@@ -7,8 +7,7 @@ import { Hatch, Line, Shape, STROKE } from "../shape";
 
 /**
  * One queue on every device. Someone taps through a card on their phone, and the
- * laptop, the desktop widget and the Telegram chat all flip to the same next card
- * at the same moment.
+ * laptop and the desktop widget flip to the same next card at the same moment.
  */
 export function EverywhereScene({ className, title }: { className?: string; title?: string }) {
   return (
@@ -18,14 +17,6 @@ export function EverywhereScene({ className, title }: { className?: string; titl
       <Dot x={90} y={330} r={6} color={CORAL} />
 
       {/* Sync lines carrying the phone's progress out to the other devices. */}
-      <DottedPath
-        moving
-        d={curve([
-          [392, 372],
-          [330, 290],
-          [232, 238],
-        ])}
-      />
       <DottedPath
         moving
         d={curve([
@@ -43,7 +34,6 @@ export function EverywhereScene({ className, title }: { className?: string; titl
         ])}
       />
 
-      <ChatBubble />
       <Widget />
       <Laptop />
       <Person />
@@ -75,19 +65,6 @@ function QueueCard({ x, y, w }: { x: number; y: number; w: number }) {
         <Shape d={box(x, y, w, h, { bow: 1 })} color={BLUE} stroke={STROKE.fine} offset={[3, 2]} />
         {lines}
       </Motion>
-    </g>
-  );
-}
-
-function ChatBubble() {
-  return (
-    <g>
-      <Shape d="M110 120Q110 100 132 100L246 100Q268 100 268 122L268 196Q268 216 246 216L160 216L132 240L138 216L132 216Q110 216 110 196Z" />
-      <QueueCard x={140} y={124} w={96} />
-      <g transform="rotate(-14 286 104)">
-        <Shape d="M260 110L316 86L282 124Z" color={BLUE} stroke={STROKE.regular} />
-        <Line d="M282 124L288 104" stroke={STROKE.fine} />
-      </g>
     </g>
   );
 }

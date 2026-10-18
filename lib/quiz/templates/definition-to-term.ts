@@ -30,7 +30,6 @@ export async function buildDefinitionToTerm(
 export const definitionToTerm: QuizTemplate = {
   id: "definition_to_term",
   kinds: ["terms", "vocabulary"],
-  channels: ["web", "telegram"],
   ai: {
     interaction: "choice",
     writesQuote: true,

@@ -55,12 +55,11 @@ begin
   assert not has_table_privilege('authenticated', 'public.users', 'update'), 'users updatable by clients';
   assert not has_column_privilege('authenticated', 'public.users', 'suspended_at', 'update'), 'suspended_at updatable by clients';
 
-  -- Fixtures: the member owns a private and a shared collection, has a session, a telegram link and a widget token.
+  -- Fixtures: the member owns a private and a shared collection, has a session and a widget token.
   insert into public.collections (name, owner_id) values ('UM Private', member_id) returning id into d_priv;
   insert into public.collections (name, owner_id, visibility) values ('UM Shared', member_id, 'shared') returning id into d_shared;
   insert into public.terms (collection_id, term, category, definition) values (d_shared, 'um-term', 'c', 'd') returning id into t_shared;
   insert into auth.sessions (id, user_id) values (gen_random_uuid(), member_id);
-  insert into public.telegram_links (user_id, chat_id, cadence, linked_at) values (member_id, 987654321, '6h', now());
 
   -- Signed-out and non-admin callers are refused everywhere.
   perform set_config('request.jwt.claims', '', true);
@@ -141,13 +140,6 @@ begin
   -- Doing it again changes nothing and adds no row.
   perform public.admin_set_user_suspended(member_id, true, 'spam again');
   assert (select count(*) from public.admin_audit_log where target_id = member_id::text and action = 'suspend_user') = 1, 'a repeat suspend was audited';
-  -- Suspended people get no Telegram sends and can't link a chat.
-  execute 'reset role';
-  assert not exists (select 1 from public.list_due_telegram_users() where user_id = member_id), 'suspended person is due';
-  update public.telegram_links set link_token_hash = 'tok', link_token_expires_at = now() + interval '1 hour' where user_id = member_id;
-  v_failed := false;
-  begin perform public.complete_telegram_link('tok', 111); exception when others then v_failed := sqlerrm like 'Invalid or expired%'; end;
-  assert v_failed, 'a suspended person linked a chat';
   perform pg_temp.act_as(admin_id);
 
   -- Drift: a hand edit that lifts the ban shows up and re-suspending repairs it without a duplicate row only when nothing is wrong.
@@ -167,8 +159,6 @@ begin
   assert (select count(*) from public.admin_audit_log where target_id = member_id::text and action = 'reactivate_user') = 1, 'reactivate audit row';
   perform public.admin_set_user_suspended(member_id, false, 'again');
   assert (select count(*) from public.admin_audit_log where target_id = member_id::text and action = 'reactivate_user') = 1, 'a repeat reactivate was audited';
-  execute 'reset role';
-  assert exists (select 1 from public.list_due_telegram_users() where user_id = member_id), 'reactivated person not due';
   perform pg_temp.act_as(admin_id);
 
   -- Delete is refused while another person uses the collections, one way at a time.
@@ -243,7 +233,6 @@ begin
   assert not exists (select 1 from public.collections where owner_id = member_id), 'collections kept';
   assert not exists (select 1 from public.terms where id = t_shared), 'terms kept';
   assert not exists (select 1 from public.user_settings where user_id = member_id), 'settings kept';
-  assert not exists (select 1 from public.telegram_links where user_id = member_id), 'telegram link kept';
   assert not exists (select 1 from auth.sessions where user_id = member_id), 'sessions kept';
   assert exists (select 1 from public.waitlist_requests where normalized_email = 'um-member@example.test'), 'waitlist row removed';
   assert (select used_by is null and used_at is not null from public.referral_codes where code = v_code), 'used code not kept as used';

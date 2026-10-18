@@ -18,8 +18,7 @@ type SyncAuthResult =
   | { ok: true; source: SyncSource; error?: undefined }
   | { ok?: undefined; error: NextResponse };
 
-/** The narration sync route accepts only AI_INTERNAL_SECRET. The Telegram
- *  routes keep their own secret, and this one never opens them. */
+/** The narration sync route accepts only AI_INTERNAL_SECRET.  */
 export function authenticateNarrationSyncRequest(request: Request): SyncAuthResult {
   const secret = process.env.AI_INTERNAL_SECRET?.trim();
   if (!secret) {
@@ -31,7 +30,9 @@ export function authenticateNarrationSyncRequest(request: Request): SyncAuthResu
 
   const token = request.headers.get("authorization")?.match(/^Bearer\s+(.+)$/i)?.[1] ?? "";
   if (!sameSecret(token, secret)) {
-    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
+    return {
+      error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }),
+    };
   }
 
   return {

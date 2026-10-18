@@ -80,8 +80,7 @@ characters is required. Errors the admin should read use the database code `AD00
   shown as "This account has been suspended."); the proxy, which checks the session token locally (`getClaims`), so it stops them when
   the token next refreshes, up to about an hour later (`getSessionUser` checks `isBanned` itself only when the
   proxy's headers are absent);
-  widget tokens (`resolveUserFromToken`); Telegram commands (`resolveUserIdByChatId`), scheduled sends
-  (`list_due_telegram_users`) and linking (`complete_telegram_link`). A new way in that doesn't go through a
+  widget tokens (`resolveUserFromToken`). A new way in that doesn't go through a
   session must check `users.suspended_at` too.
 - **Delete** removes the auth user; everything else cascades. It is refused while other people have something
   hanging off the person's collections (added, studying, story preferences, review state or events), because

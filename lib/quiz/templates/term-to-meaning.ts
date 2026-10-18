@@ -8,7 +8,6 @@ import type { QuizTemplate } from "./types";
 export const termToMeaning: QuizTemplate = {
   id: "term_to_meaning",
   kinds: ["terms", "vocabulary"],
-  channels: ["web", "telegram"],
   ai: {
     interaction: "choice",
     writesQuote: false,

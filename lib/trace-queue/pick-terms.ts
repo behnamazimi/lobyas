@@ -96,7 +96,7 @@ export async function pickReadTerms(
   return withIsNewToUser(cards, ranked);
 }
 
-/** Service-role counterpart of {@link pickReadTerms} (Telegram, widget). */
+/** Service-role counterpart of {@link pickReadTerms} (widget). */
 export async function pickReadTermsForUser(
   client: Client,
   userId: string,
@@ -143,7 +143,7 @@ export async function pickReviewTerms(
   return withRecall(withIsNewToUser(cards, ranked), ranked);
 }
 
-/** Service-role counterpart of {@link pickReviewTerms} (Telegram). */
+/** Service-role counterpart of {@link pickReviewTerms}. */
 export async function pickReviewTermsForUser(
   client: Client,
   userId: string,
@@ -185,32 +185,6 @@ export async function pickQuizTerms(
   return withRecognition(
     await hydrateTermsAsTermCards(
       client,
-      ranked.map((c) => c.termId),
-    ),
-    ranked,
-  );
-}
-
-/** Service-role counterpart of {@link pickQuizTerms} (Telegram). */
-export async function pickQuizTermsForUser(
-  client: Client,
-  userId: string,
-  scope: ReviewScope,
-  limit: number,
-  excludeTermIds?: string[],
-): Promise<TermCard[]> {
-  const candidates = excludeMarkedKnown(
-    excludeTerms(await fetchTraceCandidatesForUser(client, userId, scope), excludeTermIds),
-  );
-  if (candidates.length === 0) return [];
-
-  const ranked = rankQuizQueue(candidates, new Date()).slice(0, limit);
-  if (ranked.length === 0) return [];
-
-  return withRecognition(
-    await hydrateTermCardsForUser(
-      client,
-      userId,
       ranked.map((c) => c.termId),
     ),
     ranked,
