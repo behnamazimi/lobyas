@@ -8,6 +8,10 @@ import type { StorySegment } from "./types";
 // drifts against a real clip.
 const SENTENCE_PAUSE_WEIGHT = 4;
 const PARAGRAPH_PAUSE_WEIGHT = 20;
+// The title is a short sentence, so the voice rests after it for less than
+// after a paragraph. Counting it as a paragraph put its end up to a second
+// late, which could pull every later boundary onto the wrong pause.
+const TITLE_PAUSE_WEIGHT = 6;
 
 type Sentence = { index: number; segments: StorySegment[] };
 
@@ -134,7 +138,7 @@ export function buildTimeline(
     return sentences;
   });
 
-  const titleWeight = title.trim().length + PARAGRAPH_PAUSE_WEIGHT;
+  const titleWeight = title.trim().length + TITLE_PAUSE_WEIGHT;
   const total = titleWeight + weights.reduce((sum, weight) => sum + weight, 0);
   let spoken = titleWeight;
   const ends = weights.map((weight) => (spoken += weight) / total);

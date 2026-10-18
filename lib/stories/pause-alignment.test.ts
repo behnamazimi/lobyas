@@ -200,3 +200,29 @@ describe("snapTimeline", () => {
     });
   });
 });
+
+describe("a short title spoken quickly", () => {
+  const pauses: Pause[] = [
+    [1.4, 1.58],
+    [3.26, 3.54],
+    [5.54, 6.15],
+    [6.84, 6.97],
+    [7.71, 7.85],
+    [8.45, 8.88],
+  ].map(([start, end]) => ({ start: start!, end: end! }));
+  const timeline = buildTimeline(
+    "Tom kookt voor zijn vrienden",
+    [
+      {
+        text: "Tom maakt pasta voor zijn vrienden. Plotseling valt de hete pan op de grond. „Godverdomme!”, roept hij hard. Wat een pech.",
+      },
+    ],
+    "nl",
+  );
+
+  it("ends the title at its own brief pause, not the next sentence's", () => {
+    const snapped = snapTimeline(timeline, pauses, 11);
+    expect(snapped.titleEnd * 11).toBeCloseTo(1.49);
+    expect(snapped.ends[0]! * 11).toBeCloseTo(3.4);
+  });
+});
