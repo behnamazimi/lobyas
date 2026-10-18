@@ -6,7 +6,13 @@ import type { StoryVote } from "./types";
 const NOW = new Date("2026-09-26T12:00:00Z");
 
 function vote(overrides: Partial<StoryVote>): StoryVote {
-  return { format: "email", tone: "casual", vote: 1, createdAt: NOW, ...overrides };
+  return {
+    format: "email",
+    tone: "casual",
+    vote: 1,
+    createdAt: NOW,
+    ...overrides,
+  };
 }
 
 function weightOf(weights: { id: string; weight: number }[], id: string) {
@@ -69,5 +75,22 @@ describe("pickStyle", () => {
       format: STORY_FORMATS[STORY_FORMATS.length - 1]!.id,
       tone: STORY_TONES[STORY_TONES.length - 1]!.id,
     });
+  });
+
+  it("draws a tone only from those the format allows", () => {
+    const restricted = STORY_FORMATS.find((option) => option.tones)!;
+    const at = (STORY_FORMATS.indexOf(restricted) + 0.5) / STORY_FORMATS.length;
+    for (const toneDraw of [0, 0.5, 0.9999]) {
+      const draws = [at, toneDraw];
+      const style = pickStyle([], () => draws.shift()!, NOW);
+      expect(restricted.tones).toContain(style.tone);
+    }
+  });
+
+  it("only allows tones that exist", () => {
+    const known = STORY_TONES.map((option) => option.id);
+    for (const format of STORY_FORMATS) {
+      for (const tone of format.tones ?? []) expect(known).toContain(tone);
+    }
   });
 });
