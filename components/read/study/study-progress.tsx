@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 type StudyProgressProps = {
   current: number;
   total: number;
-  unitLabel: string;
+  /** Read out by screen readers, e.g. "Question 3 of 10". */
+  label: string;
   className?: string;
   /** Colours the bar; defaults to the primary colour. */
   barClassName?: string;
@@ -12,26 +13,19 @@ type StudyProgressProps = {
 export function StudyProgress({
   current,
   total,
-  unitLabel,
+  label,
   className,
   barClassName = "progress-primary",
 }: StudyProgressProps) {
   return (
-    <div className={cn("min-w-0 w-full space-y-2", className)}>
-      <div className="flex items-center justify-between gap-3 text-xs text-base-content/70">
-        <span className="font-medium tabular-nums">
-          {unitLabel} {current} of {total}
-        </span>
-      </div>
-      <progress
-        className={cn("progress h-1.5 w-full", barClassName)}
-        value={current}
-        max={total}
-        aria-valuenow={current}
-        aria-valuemin={0}
-        aria-valuemax={total}
-        aria-label={`${unitLabel} ${current} of ${total}`}
-      />
-    </div>
+    <progress
+      className={cn("progress h-1 w-full", barClassName, className)}
+      value={current}
+      max={total}
+      aria-valuenow={current}
+      aria-valuemin={0}
+      aria-valuemax={total}
+      aria-label={label}
+    />
   );
 }

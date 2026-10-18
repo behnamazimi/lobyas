@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 
 type QuizQuestionFooterProps = {
   correct: number;
+  progressLabel: string;
   submitted: boolean;
   isLast: boolean;
   canSubmit: boolean;
@@ -16,6 +17,7 @@ type QuizQuestionFooterProps = {
 
 export function QuizQuestionFooter({
   correct,
+  progressLabel,
   submitted,
   isLast,
   canSubmit,
@@ -32,6 +34,9 @@ export function QuizQuestionFooter({
           <QuizKeyboardHint action={!submitted ? "check" : isLast ? "see results" : "continue"} />
         </p>
       </div>
+      <p className="m-0 text-left text-xs font-medium tabular-nums text-base-content/70">
+        {progressLabel}
+      </p>
       {!submitted ? (
         <Button
           type="button"

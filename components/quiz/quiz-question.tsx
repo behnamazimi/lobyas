@@ -29,6 +29,7 @@ type QuizQuestionViewProps = {
   question: QuizQuestion;
   termLabel: string;
   correct: number;
+  progressLabel: string;
   /** Whether this answer, right or wrong, ends the quiz. */
   isLast: (passed: boolean) => boolean;
   onAnswer: (passed: boolean) => void;
@@ -39,6 +40,7 @@ type QuizQuestionViewProps = {
 export function QuizQuestionView({
   question,
   correct,
+  progressLabel,
   isLast,
   onAnswer,
   onSkip,
@@ -191,6 +193,7 @@ export function QuizQuestionView({
 
       <QuizQuestionFooter
         correct={correct}
+        progressLabel={progressLabel}
         submitted={submitted}
         isLast={isLast(state.passed)}
         canSubmit={canSubmit}

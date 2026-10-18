@@ -42,13 +42,16 @@ function QuizActiveQuestionStep({ quiz }: { quiz: UseQuizSessionResult }) {
   const question = quiz.questions[quiz.currentIndex];
   if (!question) return null;
 
+  const unitLabel = quiz.practice ? "Practice" : question.retry ? "Retry" : "Question";
+  const progressLabel = `${unitLabel} ${quiz.currentIndex + 1} of ${quiz.questions.length}`;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <StudyProgress
-        className="shrink-0"
+        className="shrink-0 max-md:-mx-5 max-md:-mt-3 max-md:w-[calc(100%+2.5rem)] md:rounded-full"
         current={quiz.currentIndex + 1}
         total={quiz.questions.length}
-        unitLabel={quiz.practice ? "Practice" : question.retry ? "Retry" : "Question"}
+        label={progressLabel}
         barClassName="text-[var(--ill-blue)]"
       />
       {quiz.practice ? (
@@ -66,6 +69,7 @@ function QuizActiveQuestionStep({ quiz }: { quiz: UseQuizSessionResult }) {
         question={question}
         termLabel={quiz.termById.get(question.termId)?.term ?? "Term"}
         correct={quiz.correctSoFar}
+        progressLabel={progressLabel}
         isLast={quiz.isLastAfter}
         onAnswer={quiz.handleQuestionAnswer}
         onSkip={quiz.handleQuestionSkip}
