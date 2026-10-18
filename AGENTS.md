@@ -84,9 +84,9 @@ its `template` (what it asks) and `interaction` (`choice`, `boolean` or
 `text`, how it is answered), and grading, keys and the TRACE question type
 follow the interaction (dictation is the one exception: TRACE logs it as
 `dictation`, see `lib/quiz/trace-type.ts`). Typed (`text`) questions are web-only and only for
-vocabulary terms the learner already knows (`lib/quiz/mix.ts`), except
-dictation, which plays a term's word-only clip to anyone quizzed on it once
-and runs in simple quizzes only. AI mode
+vocabulary terms of up to three words (`lib/quiz/mix.ts`); how well the learner
+knows the term doesn't matter. Dictation plays a term's word-only clip and runs in
+simple quizzes only. AI mode
 plans with the same templates (`lib/quiz/plan-ai.ts`): a template's `ai` spec
 says how the model writes it, and credits are charged only for the questions
 the model writes. Builders

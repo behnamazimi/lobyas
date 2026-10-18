@@ -6,7 +6,6 @@ import { typedCloze } from "./typed-cloze";
 import { typedMeaningToWord } from "./typed-meaning-to-word";
 import type { BuildContext } from "./types";
 
-const ready = { posterior: 0.8, testCount: 2 };
 const fietsen = makeTerm({
   id: "t1",
   kind: "vocabulary",
@@ -14,25 +13,18 @@ const fietsen = makeTerm({
   term: "fietsen",
   definition: "to cycle",
   example: "We fietsen naar het strand.",
-  recognition: ready,
 });
 const ctx = (sameGloss = [] as ReturnType<typeof makeDistractor>[]): BuildContext => ({
   source: sourceOf([], sameGloss),
   rng: rngOf(0.1),
 });
 
-describe("typed readiness gate", () => {
-  it("needs a known term: posterior, test count and at most three words", () => {
+describe("typed eligibility", () => {
+  it("does not depend on how well the learner knows the term", () => {
     expect(typedCloze.eligible(fietsen)).toBe(true);
-    expect(typedCloze.eligible({ ...fietsen, recognition: undefined })).toBe(false);
-    expect(
-      typedCloze.eligible({ ...fietsen, recognition: { posterior: 0.69, testCount: 5 } }),
-    ).toBe(false);
-    expect(
-      typedCloze.eligible({ ...fietsen, recognition: { posterior: null, testCount: 5 } }),
-    ).toBe(false);
-    expect(typedCloze.eligible({ ...fietsen, recognition: { posterior: 0.9, testCount: 0 } })).toBe(
-      false,
+    expect(typedCloze.eligible({ ...fietsen, recognition: undefined })).toBe(true);
+    expect(typedCloze.eligible({ ...fietsen, recognition: { posterior: 0.1, testCount: 0 } })).toBe(
+      true,
     );
   });
 
@@ -104,7 +96,6 @@ describe("typed feedback", () => {
       kind: "vocabulary",
       term: "het café",
       definition: "the cafe",
-      recognition: ready,
     });
     const q = (await typedMeaningToWord.build(cafe, ctx()))!;
     const typed = (text: string) => ({ interaction: "text" as const, text });

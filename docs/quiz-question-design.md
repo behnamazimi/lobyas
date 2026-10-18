@@ -82,8 +82,8 @@ No typed answers for field terms.
   `term`), the clip is current and the learner has narration access. The quiz
   action looks the clips up (`lib/quiz/dictation-clips.ts`) and sets
   `QuizTerm.dictationClip`.
-- Any term quizzed at least once, up to 3 words. The usual typed readiness
-  bar doesn't apply: listening is worth training early.
+- Any term with a clip, up to 3 words, whether or not it was quizzed before:
+  listening is worth training early.
 - Graded like other typed answers, article and accents included.
 - Simple quizzes on the web only (`simpleOnly`), never planned into AI quizzes.
 - "Can't listen now", or a clip that won't load, skips the question: no TRACE
@@ -96,20 +96,15 @@ No typed answers for field terms.
 
 - Only for terms of up to 3 words. Longer entries stay MCQ. The gloss can be
   any length because it is only shown.
-- Which question a term gets depends on how well the learner knows it
-  (recognition strength): less known → MCQ, better known → typed. Neither
-  `TermCard` nor `QuizTerm` carries that strength today, so the quiz pool has
-  to load it. Caveat: the Quiz queue serves the lowest recognition
-  retrievability first (untested terms come after answered terms that have
-  decayed below the untested line, and before the rest), so a typical session
-  is mostly weak terms and typed questions will be rare. Pick a
-  strength threshold deliberately and check what share of questions it
-  produces on real data.
+- How well the learner knows a term doesn't decide whether it can be typed.
+  The first design gated typed questions on recognition strength, but the
+  Quiz queue serves weak terms first, so typed questions almost never
+  appeared. Which terms come up is TRACE's call; the planner only weighs
+  the templates a term is eligible for.
 - Grading is forgiving on case and spacing only. Accents and articles count;
   no typo tolerance. When the only difference is accents or a leading
   article, the answer is still wrong but the feedback says so.
-- A term qualifies once its recognition posterior is at least 0.7, it has been
-  quizzed at least once and it has at most 3 words (`lib/quiz/mix.ts`).
+- A term qualifies when it has at most 3 words (`lib/quiz/mix.ts`).
   Typed meaning → word is skipped when another term in the collection has
   the same definition.
 - Web only. The Telegram quiz uses the MCQ types and skips typed ones.

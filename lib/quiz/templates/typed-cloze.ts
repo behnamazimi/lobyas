@@ -1,6 +1,6 @@
 import { containsWholeWord, maskWord } from "../text/mask";
 import { QUIZ_COPY } from "./copy";
-import { isReadyToType, textQuestion, typedFeedback } from "./typed";
+import { isShortEnoughToType, textQuestion, typedFeedback } from "./typed";
 import type { QuizTemplate } from "./types";
 
 export const typedCloze: QuizTemplate = {
@@ -9,7 +9,7 @@ export const typedCloze: QuizTemplate = {
   channels: ["web"],
   eligible: (term) => {
     const example = term.example?.trim();
-    return isReadyToType(term) && Boolean(example) && containsWholeWord(example!, term.term);
+    return isShortEnoughToType(term) && Boolean(example) && containsWholeWord(example!, term.term);
   },
   async build(term) {
     return textQuestion(term, {
