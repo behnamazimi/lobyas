@@ -185,6 +185,11 @@
     --info-text: var(--color-info);
   }
 
+  /* With the keyboard up the dock is hidden, so its space goes too. */
+  :root[data-keyboard="open"] {
+    --dock-bottom: 0px;
+  }
+
   /* Tour targets scroll clear of the phone dock instead of landing behind it. */
   @media (max-width: 47.99rem) {
     .chrome-dock [data-tour] {

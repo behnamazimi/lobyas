@@ -121,7 +121,7 @@ export function StudyPhoneDock() {
       aria-label="Primary"
       className={cn(
         "dock dock-md dock-safe absolute! bg-base-100/80 backdrop-blur-sm md:hidden",
-        "[[data-chrome=study]:has(input:not([type=radio],[type=checkbox]):focus)_&]:hidden",
+        "[[data-keyboard=open]_&]:hidden",
         !isDockPath(pathname) && "hidden",
       )}
       style={{ viewTransitionName: "phone-dock" }}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Volume2 } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import {
   TermNarrationPlayer,
   type TermNarrationHandle,
@@ -28,6 +28,7 @@ export function DictationPlayer({
   onCantListen,
 }: DictationPlayerProps) {
   const playerRef = useRef<TermNarrationHandle>(null);
+  const [needsTap, setNeedsTap] = useState(false);
 
   useMountEffect(() => {
     playerRef.current?.play();
@@ -43,6 +44,7 @@ export function DictationPlayer({
         showButton={false}
         handleRef={playerRef}
         onUnavailable={onCantListen}
+        onAutoplayBlocked={() => setNeedsTap(true)}
       />
       <Button
         type="button"
@@ -54,6 +56,9 @@ export function DictationPlayer({
         <Volume2 className="size-5" aria-hidden strokeWidth={1.5} />
         Play
       </Button>
+      {needsTap && !answered ? (
+        <p className="m-0 text-sm text-base-content/70">Tap Play to hear the word.</p>
+      ) : null}
       {answered ? null : (
         <Button type="button" variant="link" size="sm" onPress={onCantListen}>
           Can&apos;t listen now

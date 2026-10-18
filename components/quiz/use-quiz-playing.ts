@@ -5,6 +5,7 @@ import { generateQuizAction } from "@/app/(private)/app/quiz/actions";
 import type { AiFailureReason } from "@/lib/llm/types";
 import { missedQuestions, missedTermIds, scoredTotal, scoreOf } from "@/lib/quiz/results";
 import { questionsAfterAnswer } from "@/lib/quiz/retry";
+import { prefetchDictationClips } from "@/components/quiz/prefetch-dictation";
 import type { QuizAnswer, QuizQuestion, QuizTerm } from "@/lib/quiz/types";
 import {
   clearQuizSession,
@@ -71,6 +72,10 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     }
     setSavedSession(loaded);
   }, []);
+
+  useEffect(() => {
+    if (step === "playing") prefetchDictationClips(questions);
+  }, [step, questions]);
 
   useQuizSessionPersistence({
     practice,

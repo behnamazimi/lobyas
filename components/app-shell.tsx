@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { isDockPath, isStudyPath } from "@/lib/chrome";
+import { useKeyboardOpen } from "@/hooks/use-keyboard-open";
 import { cn } from "@/lib/utils";
 
 export function AppShell({
@@ -21,6 +22,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const pathname = usePathname();
+  useKeyboardOpen();
   const showStudyChrome = hasLikelySession && isStudyPath(pathname);
   const showDock = isDockPath(pathname);
 
