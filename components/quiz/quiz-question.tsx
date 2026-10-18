@@ -4,6 +4,7 @@ import { useEffect, useReducer, useRef, useState } from "react";
 import { QuizPanel } from "@/components/quiz/quiz-ui";
 import { QuizAnswerChoices } from "@/components/quiz/quiz-answer-choices";
 import { DictationPlayer } from "@/components/quiz/dictation-player";
+import { TextFeedback } from "@/components/quiz/text-feedback";
 import { QuizQuestionFooter } from "@/components/quiz/quiz-question-footer";
 import type { QuizQuestion } from "@/lib/quiz/types";
 import { gradeAnswer } from "@/lib/quiz/grade";
@@ -176,7 +177,9 @@ export function QuizQuestionView({
           onRespond={(response) => dispatch({ type: "RESPOND", response })}
         />
 
-        {feedbackLine ? (
+        {submitted && question.interaction === "text" ? (
+          <TextFeedback question={question} passed={state.passed} response={state.response} />
+        ) : feedbackLine ? (
           <p role="status" className="m-0 mt-4 text-sm text-base-content/70">
             {feedbackLine}
           </p>
