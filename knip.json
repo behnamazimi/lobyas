@@ -7,7 +7,8 @@
     "app/sw.ts",
     "e2e/**/*.spec.ts",
     "e2e/**/*.setup.ts",
-    "e2e/stubs/server.mts"
+    "e2e/stubs/server.mts",
+    "playwright.config.ts"
   ],
   "ignore": [
     "lib/supabase/database.types.ts",
@@ -15,5 +16,6 @@
     "components/ui/**",
     "native/www/**"
   ],
-  "ignoreDependencies": ["uebersicht", "@capacitor/splash-screen"]
+  "ignoreDependencies": ["uebersicht", "@capacitor/splash-screen"],
+  "playwright": false
 }
