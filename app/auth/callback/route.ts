@@ -1,5 +1,5 @@
-import { trackServer } from "@/lib/analytics/server";
 import { NextResponse, type NextRequest } from "next/server";
+import { finishSignIn } from "@/lib/auth/after-sign-in";
 import { callbackFailureError, callbackSignInMethod } from "@/lib/auth/callback-flow";
 import { normalizeReferralCode } from "@/lib/auth/referral-code";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
@@ -21,22 +21,14 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      if (ref) {
-        const { error: redeemError } = await supabase.rpc("redeem_referral_code", {
-          p_code: ref,
-        });
-
-        if (redeemError) {
-          const params = new URLSearchParams({ ref, error: "invalid-code", next });
-          return NextResponse.redirect(`${origin}/complete-signup?${params.toString()}`);
-        }
-      }
-
-      trackServer(data.user.id, ref ? "user_signed_up" : "user_logged_in", {
+      const destination = await finishSignIn({
+        supabase,
+        userId: data.user.id,
         method: callbackSignInMethod(flow),
-        ...(ref ? { needs_email_confirmation: false } : {}),
+        next,
+        ref,
       });
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}${destination}`);
     }
 
     if (error.code === "user_banned") {

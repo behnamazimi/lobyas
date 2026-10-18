@@ -46,6 +46,7 @@ const PUBLIC_PATH_PREFIXES = [
   "/terms",
   "/contact",
   "/auth/callback",
+  "/auth/apple",
   "/auth/native/",
   "/downloads/",
   "/api/widget",

@@ -134,7 +134,36 @@ must be in Supabase's redirect allow list (`supabase/config.toml` locally, the
 dashboard for hosted projects). A link that reopens a fully closed app is not
 handled; the user just taps the button again.
 
-Sign in with Apple isn't built. App Review requires it once Google is offered.
+## Sign in with Apple
+
+`AppleSignInButton` sits under Google on the login and signup pages. In the iOS app it opens
+the system Apple sheet (`@capgo/capacitor-social-login`, loaded with a dynamic `import()` and
+shown only when `Capacitor.isPluginAvailable("SocialLogin")`, so older installs just don't see it).
+In browsers it uses Apple's popup script and needs `NEXT_PUBLIC_APPLE_SERVICES_ID`; without it
+(previews, local dev; Apple rejects `localhost`) the button is hidden. The Android app has
+neither, so it shows no Apple button.
+
+Both paths get an ID token and POST it with the raw nonce to `POST /auth/apple`
+(`lib/auth/apple-sign-in.ts`), which calls Supabase `signInWithIdToken` and returns
+`{ redirectTo }`; `finishSignIn` (`lib/auth/after-sign-in.ts`) redeems the referral code and
+tracks the sign-in, shared with `/auth/callback`. The nonce Apple signs is the SHA-256 of the raw
+one (`lib/auth/apple-client.ts`). The route only accepts JSON, so a cross-site form can't sign
+someone in with an attacker's token.
+
+Apple sends the name and email only on the first authorization. "Hide My Email" gives a
+`privaterelay.appleid.com` address that never matches an existing account, so that person gets a
+separate account; Supabase links by email only when the real address is shared.
+`enable_manual_linking` is off. Resend must send from a domain registered under Apple's
+"Sign in with Apple for Email Communication", or mail to relay addresses is dropped.
+
+Setup outside the repo: enable the capability on the App ID (the build's `App.entitlements`
+needs it in the provisioning profile, so run `fastlane match appstore --force` after), create a
+Services ID with `lobyas.com`, and enable the Apple provider in the hosted Supabase project with
+both the bundle id and the Services ID as client ids. Local Supabase keeps Apple off.
+
+Not done yet: Apple requires revoking the person's Apple token when they delete their account
+(`delete_own_account`). That needs the authorization code from a fresh Apple sign-in and a `.p8`
+key on the server.
 
 ## CI
 

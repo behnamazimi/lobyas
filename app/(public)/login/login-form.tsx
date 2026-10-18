@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useActionState } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
+import { AppleSignInButton } from "@/components/auth/apple-signin-button";
 import { GoogleSignInButton } from "@/components/auth/google-signin-button";
 import { AuthCard } from "@/components/public/auth-card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,8 @@ import { SUSPENDED_ERROR } from "@/lib/auth/format-auth-error";
 import { appendNextParam, safeNextPath } from "@/lib/auth/safe-next-path";
 import { login } from "./actions";
 
-const OAUTH_FAILED_ERROR = "Google login didn't work. Try again or use your email instead.";
+const OAUTH_FAILED_ERROR =
+  "Google or Apple login didn't work. Try again or use your email instead.";
 
 const LINK_FAILED_ERROR = "That link didn't work here. Log in with your email and password.";
 
@@ -38,7 +40,10 @@ export default function LoginForm() {
 
   return (
     <AuthCard title="Log in">
-      <GoogleSignInButton next={next} />
+      <div className="flex flex-col gap-3">
+        <GoogleSignInButton next={next} />
+        <AppleSignInButton next={next} />
+      </div>
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-base-content/10" />
