@@ -9,15 +9,35 @@ describe("parseShell", () => {
   });
 
   it.each(["ios", "android"] as const)("reads the os the %s app reports", (os) => {
-    expect(parseShell(`${CHROME} LobyasApp/${os}`)).toEqual({ native: true, os });
+    expect(parseShell(`${CHROME} LobyasApp/${os}`)).toEqual({ native: true, os, version: null });
   });
 
   it("recognises an older app that sends no os", () => {
-    expect(parseShell(`${CHROME} LobyasApp`)).toEqual({ native: true, os: null });
+    expect(parseShell(`${CHROME} LobyasApp`)).toEqual({ native: true, os: null, version: null });
+  });
+
+  it("reads the app version", () => {
+    expect(parseShell(`${CHROME} LobyasApp/ios/1.10.2`)).toEqual({
+      native: true,
+      os: "ios",
+      version: "1.10.2",
+    });
+  });
+
+  it("ignores a version that isn't major.minor.patch", () => {
+    expect(parseShell(`${CHROME} LobyasApp/android/beta`)).toEqual({
+      native: true,
+      os: "android",
+      version: null,
+    });
   });
 
   it("ignores an unknown os", () => {
-    expect(parseShell(`${CHROME} LobyasApp/windows`)).toEqual({ native: true, os: null });
+    expect(parseShell(`${CHROME} LobyasApp/windows`)).toEqual({
+      native: true,
+      os: null,
+      version: null,
+    });
   });
 });
 
@@ -34,6 +54,7 @@ describe("SHELL_RESTORE_SCRIPT", () => {
   it.each([
     ["LobyasApp/ios", "ios"],
     ["LobyasApp/android", "android"],
+    ["LobyasApp/ios/1.2.0", "ios"],
     ["LobyasApp", "app"],
   ])("marks %s", (suffix, expected) => {
     expect(attributeFor(`${CHROME} ${suffix}`)).toBe(expected);

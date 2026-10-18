@@ -42,9 +42,11 @@ in `server_url`; download the APK from the run's artifacts.
 
 ## Telling the app from a browser
 
-The shell adds `LobyasApp/ios` or `LobyasApp/android` to the WebView's user agent
-(`ios.appendUserAgent` / `android.appendUserAgent`; apps built before that send
-plain `LobyasApp`, so the os can be unknown). Everything reads it through
+The shell adds `LobyasApp/ios/<version>` or `LobyasApp/android/<version>` to the
+WebView's user agent (`ios.appendUserAgent` / `android.appendUserAgent`). The version is
+`package.json`'s, baked in by `cap sync`, and matches the store version CI uploads. Apps built
+before that send `LobyasApp/<os>` or plain `LobyasApp`, so the os or the version can be unknown
+(`useShell()` gives `version: null`). Everything reads it through
 `lib/native/shell.ts`, and there is no cookie: the user agent is on every
 request, including the first, and a cookie would make the cached public pages
 dynamic.
@@ -64,6 +66,16 @@ older than the web code: a plugin added later won't exist in it.
 The proxy uses it for one thing: a request for `/` from the app redirects to the
 study area (`AUTHENTICATED_HOME_PATH`) for a signed-in member, or to `/login`
 otherwise (`lib/native/landing.ts`). Every other public page still opens by link.
+
+## Asking old apps to update
+
+`NativeUpdateGate` (mounted in the root layout) reads the version from `useShell()` and
+compares it with `UPDATE_POLICY` in `lib/native/update-policy.ts`. Below `recommended` it shows a
+dismissible banner (dismissal is remembered per recommended version); below `required` it
+covers the app with an Update screen. An app that reports no version counts as `0.0.0`. Both
+floors start at `0.0.0`, so nobody is prompted. Raise one only after a store build with that
+version has been released, and set `APP_STORE_URL` in the same file first: without a store link
+the screen has no Update button. Check on a device that the store links open the store app.
 
 ## Haptics and sounds
 
