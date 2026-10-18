@@ -113,7 +113,9 @@ test.describe("Dictation", () => {
     await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
     await page.getByLabel("Your answer").fill("verkeerd");
     await page.getByRole("button", { name: "Check answer" }).click();
-    await expect(page.getByRole("status")).toContainText(/The answer is .+ It means: .+/);
+    await expect(page.getByRole("status")).toContainText(
+      /Not quite\s*The answer is .+\.\s*Meaning: .+/,
+    );
     await expect(page.getByRole("button", { name: "Can't listen now" })).toHaveCount(0);
   });
 

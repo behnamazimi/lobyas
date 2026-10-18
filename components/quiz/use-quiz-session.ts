@@ -35,6 +35,7 @@ export function useQuizSession(collections: StudyCollection[], initialSetup: Ini
     resetQuizState: playing.resetQuizState,
     handleStartQuiz: playing.handleStartQuiz,
     handleQuestionAnswer: playing.handleQuestionAnswer,
+    isLastAfter: playing.isLastAfter,
     handleQuestionSkip: playing.handleQuestionSkip,
     handleStartPractice: playing.handleStartPractice,
     practice: playing.practice,

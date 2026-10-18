@@ -57,8 +57,8 @@ function QuizPickerResumeBanner({
         <>
           Quiz in progress: question{" "}
           <span className="tabular-nums">{savedSession.currentIndex + 1}</span> of{" "}
-          <span className="tabular-nums">{savedSession.questions.length}</span>. Starting a new quiz
-          replaces it.
+          <span className="tabular-nums">{savedSession.setup.questionCount}</span>. Starting a new
+          quiz replaces it.
         </>
       }
       onResume={onResumeSession}

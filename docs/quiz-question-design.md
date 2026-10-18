@@ -167,3 +167,19 @@ the typed input, and the quiz action's `questionType`.
   these", adding masking and per-kind types has to land there too, and its
   Edge Function runtime must be able to import any new shared code.
 - Update [trace.md](trace.md) if the question types or guess rates change.
+
+## Retries inside a session
+
+A missed question comes back later in the same quiz (`lib/quiz/retry.ts`). The
+retry is inserted into `questions` after the current one, so `answers[i]` still
+belongs to `questions[i]`. Rules, the same for every quiz size:
+
+- A miss queues retry 1; a right retry 1 queues retry 2; both must be right.
+  A wrong retry ends the term, and it stays in the results' missed list.
+- The gap is a quarter of the quiz kept between 2 and 4 questions
+  (`RETRY_MIN_GAP`, `RETRY_MAX_GAP` in `mix.ts`); retry 2 waits twice as long.
+  Near the end a retry goes after the last question rather than past it.
+- A session holds at most as many retries as it has questions, so it can never
+  run past twice its size. Practice rounds and skipped questions never queue one.
+- Only the first attempt is scored and sent to TRACE. Choice retries get their
+  options re-shuffled.

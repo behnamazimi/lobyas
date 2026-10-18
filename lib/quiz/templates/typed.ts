@@ -29,6 +29,16 @@ const CLOSE_MISS_HINT = {
   article: "Check the article.",
 } as const;
 
+/** Says when a miss was only the accents or the article. */
+export function closeMissHint(
+  question: QuizTextQuestion,
+  response: QuizResponse | null,
+): string | null {
+  const miss =
+    response?.interaction === "text" ? closeMiss(response.text, question.acceptedAnswers) : null;
+  return miss ? CLOSE_MISS_HINT[miss] : null;
+}
+
 /** Shared feedback for typed templates: show the answer on a miss, and say so
  *  when the miss was only accents or the article. */
 export function typedFeedback(
@@ -39,7 +49,6 @@ export function typedFeedback(
   if (passed) return null;
 
   const answer = `The answer is ${question.acceptedAnswers[0]}.`;
-  const miss =
-    response?.interaction === "text" ? closeMiss(response.text, question.acceptedAnswers) : null;
-  return miss ? `${answer} ${CLOSE_MISS_HINT[miss]}` : answer;
+  const hint = closeMissHint(question, response);
+  return hint ? `${answer} ${hint}` : answer;
 }

@@ -7,6 +7,7 @@ const base = {
   termId: z.string(),
   prompt: z.string(),
   quote: z.string().optional(),
+  retry: z.union([z.literal(1), z.literal(2)]).optional(),
 };
 
 const quizQuestionSchema: z.ZodType<QuizQuestion> = z.discriminatedUnion("interaction", [

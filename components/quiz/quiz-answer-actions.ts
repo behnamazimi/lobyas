@@ -1,12 +1,14 @@
 import type { PendingQuizWrite } from "@/lib/quiz/session-storage";
 import { traceQuestionType } from "@/lib/quiz/trace-type";
-import { scoredTotal } from "@/lib/quiz/results";
+import { scoredTotal, scoreOf } from "@/lib/quiz/results";
+import { questionsAfterAnswer } from "@/lib/quiz/retry";
 import type { QuizAnswer, QuizQuestion } from "@/lib/quiz/types";
 import type { QuizStep } from "@/components/quiz/use-quiz-setup";
 
 type AnswerSetters = {
   setStep: (step: QuizStep) => void;
   setAnswers: (answers: QuizAnswer[]) => void;
+  setQuestions: (questions: QuizQuestion[]) => void;
   setCurrentIndex: (updater: (index: number) => number) => void;
   setResultsScore: (score: { score: number; total: number }) => void;
   setPendingWrites: (updater: (writes: PendingQuizWrite[]) => PendingQuizWrite[]) => void;
@@ -27,7 +29,7 @@ export function submitQuizAnswer(
     question: QuizQuestion;
     answers: QuizAnswer[];
     currentIndex: number;
-    totalQuestions: number;
+    questions: QuizQuestion[];
     /** Practice rounds replay questions whose answers were just shown, so
      *  they're graded on screen but never sent to TRACE. */
     practice: boolean;
@@ -35,15 +37,24 @@ export function submitQuizAnswer(
     skipped?: boolean;
   },
 ) {
-  const isLastQuestion = args.currentIndex + 1 >= args.totalQuestions;
+  const { question } = args;
+  const nextQuestions = questionsAfterAnswer({
+    questions: args.questions,
+    currentIndex: args.currentIndex,
+    passed,
+    scored: !args.practice && !args.skipped,
+  });
+  const isLastQuestion = args.currentIndex + 1 >= nextQuestions.length;
   const answer: QuizAnswer = args.skipped
-    ? { termId: args.question.termId, passed: false, skipped: true }
-    : { termId: args.question.termId, passed };
+    ? { termId: question.termId, passed: false, skipped: true }
+    : { termId: question.termId, passed };
+  if (question.retry) answer.retry = question.retry;
   const nextAnswers = [...args.answers, answer];
 
   setters.setAnswers(nextAnswers);
+  if (nextQuestions !== args.questions) setters.setQuestions(nextQuestions);
 
-  if (!args.practice && !args.skipped) {
+  if (!args.practice && !args.skipped && !question.retry) {
     const write: PendingQuizWrite = {
       id: crypto.randomUUID(),
       termId: args.question.termId,
@@ -60,8 +71,8 @@ export function submitQuizAnswer(
   }
 
   setters.setResultsScore({
-    score: nextAnswers.filter((answer) => answer.passed).length,
-    total: scoredTotal(args.totalQuestions, nextAnswers),
+    score: scoreOf(nextAnswers),
+    total: scoredTotal(nextQuestions, nextAnswers),
   });
   setters.setStep("results");
   if (!args.practice) setters.markSessionComplete();

@@ -47,12 +47,16 @@ export const QUIZ_TEMPLATE_IDS = [
 
 type QuizTemplateId = (typeof QUIZ_TEMPLATE_IDS)[number];
 
+export type QuizRetry = 1 | 2;
+
 type QuizQuestionBase = {
   template: QuizTemplateId;
   termId: string;
   prompt: string;
   /** A scenario shown apart from the prompt, such as an example sentence. */
   quote?: string;
+  /** Set on a repeat of a missed question: which retry of the term this is. */
+  retry?: QuizRetry;
 };
 
 export type QuizChoiceQuestion = QuizQuestionBase & {
@@ -89,4 +93,6 @@ export type QuizAnswer = {
   passed: boolean;
   /** Left out of the score: the learner couldn't listen to a dictation clip. */
   skipped?: boolean;
+  /** Set when this answers a retry, which is practice and is never scored. */
+  retry?: QuizRetry;
 };
