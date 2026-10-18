@@ -4,22 +4,26 @@ type Note = {
   freq: number;
   start: number;
   length: number;
-  /** Pitch the note slides to by its end. */
-  glideTo?: number;
   /** Extra overtones as [frequency ratio, loudness]; the base tone is always played. */
   overtones?: [number, number][];
 };
 
-const BELL: [number, number][] = [[2.76, 0.3]];
+const WARM: [number, number][] = [[2, 0.2]];
 
 const NOTES: Record<SoundName, Note[]> = {
-  correct: [{ freq: 1319, start: 0, length: 0.4, overtones: BELL }],
-  wrong: [{ freq: 220, start: 0, length: 0.22, glideTo: 110 }],
+  correct: [
+    { freq: 523, start: 0, length: 0.14, overtones: WARM },
+    { freq: 784, start: 0.1, length: 0.24, overtones: WARM },
+  ],
+  wrong: [
+    { freq: 349, start: 0, length: 0.14, overtones: WARM },
+    { freq: 262, start: 0.11, length: 0.24, overtones: WARM },
+  ],
   finish: [
-    { freq: 1047, start: 0, length: 0.3, overtones: BELL },
-    { freq: 1319, start: 0.07, length: 0.3, overtones: BELL },
-    { freq: 1568, start: 0.14, length: 0.3, overtones: BELL },
-    { freq: 2093, start: 0.21, length: 0.6, overtones: BELL },
+    { freq: 523, start: 0, length: 0.14, overtones: WARM },
+    { freq: 659, start: 0.08, length: 0.14, overtones: WARM },
+    { freq: 784, start: 0.16, length: 0.14, overtones: WARM },
+    { freq: 1047, start: 0.24, length: 0.36, overtones: WARM },
   ],
 };
 
@@ -41,7 +45,7 @@ export function playSound(sound: SoundName) {
   try {
     const ctx = audioContext();
     const now = ctx.currentTime;
-    for (const { freq, start, length, glideTo, overtones = [] } of NOTES[sound]) {
+    for (const { freq, start, length, overtones = [] } of NOTES[sound]) {
       const at = now + start;
       const gain = ctx.createGain();
       gain.gain.setValueAtTime(SILENCE, at);
@@ -53,8 +57,6 @@ export function playSound(sound: SoundName) {
         const level = ctx.createGain();
         level.gain.value = loudness;
         oscillator.frequency.setValueAtTime(freq * ratio, at);
-        if (glideTo)
-          oscillator.frequency.exponentialRampToValueAtTime(glideTo * ratio, at + length);
         oscillator.connect(level).connect(gain);
         oscillator.start(at);
         oscillator.stop(at + length + 0.02);
