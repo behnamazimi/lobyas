@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { parseAuthDeepLink } from "@/lib/native/auth-deep-link";
 import { isNativeShell } from "@/lib/native/shell";
 
 /** In the native app, finishes Google sign-in when the system browser hands control back. */
 export function NativeAuthBridge() {
+  const [finishing, setFinishing] = useState(false);
+
   useEffect(() => {
     if (!isNativeShell()) return;
 
@@ -20,6 +22,7 @@ export function NativeAuthBridge() {
       const handle = await App.addListener("appUrlOpen", ({ url }) => {
         const path = parseAuthDeepLink(url);
         if (!path) return;
+        setFinishing(true);
         void Browser.close().catch(() => {});
         window.location.assign(path);
       });
@@ -36,5 +39,16 @@ export function NativeAuthBridge() {
     };
   }, []);
 
-  return null;
+  if (!finishing) return null;
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="fixed inset-0 z-[1000] flex flex-col items-center justify-center gap-3 bg-base-100/90 backdrop-blur-sm"
+    >
+      <span className="loading loading-spinner loading-lg" />
+      <p className="text-sm text-base-content/70">Signing you in…</p>
+    </div>
+  );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { signInWithGoogle } from "@/lib/auth/oauth-actions";
 import { Button } from "@/components/ui/button";
 import { isNativeShell, NATIVE_REQUEST_HEADER } from "@/lib/native/shell";
@@ -35,7 +36,7 @@ function GoogleMark({ className }: { className?: string }) {
 }
 
 /** Google blocks sign-in inside a WebView, so the app opens it in the system browser instead. */
-async function startNativeSignIn(form: HTMLFormElement) {
+async function startNativeSignIn(form: HTMLFormElement, onDone: () => void) {
   try {
     const response = await fetch("/auth/native/google", {
       method: "POST",
@@ -51,6 +52,8 @@ async function startNativeSignIn(form: HTMLFormElement) {
     await Browser.open({ url: result.url });
   } catch {
     window.location.assign("/login?error=oauth-failed");
+  } finally {
+    onDone();
   }
 }
 
@@ -60,13 +63,16 @@ export function GoogleSignInButton({
   email,
   label = "Continue with Google",
 }: GoogleSignInButtonProps) {
+  const [starting, setStarting] = useState(false);
+
   return (
     <form
       action={signInWithGoogle}
       onSubmit={(event) => {
         if (!isNativeShell()) return;
         event.preventDefault();
-        void startNativeSignIn(event.currentTarget);
+        setStarting(true);
+        void startNativeSignIn(event.currentTarget, () => setStarting(false));
       }}
       className="flex flex-col gap-4"
     >
@@ -75,9 +81,9 @@ export function GoogleSignInButton({
         <input type="hidden" name="ref" value={referenceCode} />
       ) : null}
       {email ? <input type="hidden" name="email" value={email} /> : null}
-      <Button type="submit" variant="outline" className="w-full">
+      <Button type="submit" variant="outline" className="w-full" isDisabled={starting}>
         <GoogleMark className="size-4 shrink-0" />
-        {label}
+        {starting ? "Opening Google…" : label}
       </Button>
     </form>
   );
