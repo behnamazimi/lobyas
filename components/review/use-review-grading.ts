@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { recordReviewRevealAction } from "@/app/(private)/app/actions";
+import { feedback } from "@/lib/feedback";
 import { track } from "@/lib/analytics/track";
 import { canMoveForward } from "@/lib/review/keyboard";
 import { cardKey, makeRetryCard, shouldRetry } from "@/lib/review/retry";
@@ -76,6 +77,7 @@ export function useReviewGrading({
       if (!alreadyRated && advancedCardKeyRef.current === key) return;
 
       const visit = currentCard.visit ?? 0;
+      feedback("rate");
       setRatings((prev) => upsertRating(prev, key, grade));
       track("review_term_rated", { grade, retry: visit > 0 });
       enqueueRating(currentCard.id, grade, visit);
