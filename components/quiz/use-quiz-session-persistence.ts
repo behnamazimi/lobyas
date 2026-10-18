@@ -39,7 +39,11 @@ export function useQuizSessionPersistence(session: {
     if (step === "results" && pendingWrites.length === 0) return;
 
     saveQuizSession({
-      setup: { collectionIds, questionCount: questions.length, questionStyle },
+      setup: {
+        collectionIds,
+        questionCount: questions.filter((question) => !question.retry).length,
+        questionStyle,
+      },
       questions,
       terms,
       currentIndex,

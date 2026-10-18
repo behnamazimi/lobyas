@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { QuizQuestion } from "./types";
-import { missedQuestions, missedTermIds, scoredTotal } from "./results";
+import { missedQuestions, missedTermIds, scoredTotal, scoreOf } from "./results";
 
 function question(termId: string): QuizQuestion {
   return {
@@ -34,7 +34,7 @@ describe("missedQuestions", () => {
       { termId: "b", passed: false },
     ];
     expect(missedQuestions(questions, answers).map((q) => q.termId)).toEqual(["b"]);
-    expect(scoredTotal(questions.length, answers)).toBe(2);
+    expect(scoredTotal(questions, answers)).toBe(2);
   });
 });
 
@@ -47,5 +47,20 @@ describe("missedTermIds", () => {
       { termId: "b", passed: false },
     ];
     expect(missedTermIds(questions, answers)).toEqual(["b", "a"]);
+  });
+});
+
+describe("retries", () => {
+  const questions = [question("a"), question("b"), { ...question("b"), retry: 1 as const }];
+  const answers = [
+    { termId: "a", passed: true },
+    { termId: "b", passed: false },
+    { termId: "b", passed: true, retry: 1 as const },
+  ];
+
+  it("don't change the score, the total or what counts as missed", () => {
+    expect(scoreOf(answers)).toBe(1);
+    expect(scoredTotal(questions, answers)).toBe(2);
+    expect(missedQuestions(questions, answers).map((q) => q.termId)).toEqual(["b"]);
   });
 });

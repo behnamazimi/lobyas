@@ -3,7 +3,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { generateQuizAction } from "@/app/(private)/app/quiz/actions";
 import type { AiFailureReason } from "@/lib/llm/types";
-import { missedQuestions, missedTermIds, scoredTotal } from "@/lib/quiz/results";
+import { missedQuestions, missedTermIds, scoredTotal, scoreOf } from "@/lib/quiz/results";
+import { questionsAfterAnswer } from "@/lib/quiz/retry";
 import type { QuizAnswer, QuizQuestion, QuizTerm } from "@/lib/quiz/types";
 import {
   clearQuizSession,
@@ -85,11 +86,12 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
   });
 
   const termById = useMemo(() => new Map(terms.map((term) => [term.id, term])), [terms]);
-  const correctSoFar = answers.filter((answer) => answer.passed).length;
+  const correctSoFar = scoreOf(answers);
 
   const answerSetters = {
     setStep,
     setAnswers,
+    setQuestions,
     setCurrentIndex,
     setResultsScore,
     setPendingWrites,
@@ -200,6 +202,18 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     setStep("playing");
   }
 
+  /** Whether answering the current question this way ends the quiz: a retry
+   *  may still be queued behind it. */
+  function isLastAfter(passed: boolean, skipped = false) {
+    const next = questionsAfterAnswer({
+      questions,
+      currentIndex,
+      passed,
+      scored: !practice && !skipped,
+    });
+    return currentIndex + 1 >= next.length;
+  }
+
   function handleQuestionAnswer(passed: boolean, skipped = false) {
     const question = questions[currentIndex];
     if (!question) return;
@@ -209,11 +223,10 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     advancedQuestionKeyRef.current = key;
 
     setErrorMessage(null);
-    if (!practice && currentIndex === questions.length - 1) {
+    if (!practice && isLastAfter(passed, skipped)) {
       track("quiz_completed", {
-        correct_answers:
-          answers.filter((answer) => answer.passed).length + (passed && !skipped ? 1 : 0),
-        total_questions: scoredTotal(questions.length, answers) - (skipped ? 1 : 0),
+        correct_answers: scoreOf(answers) + (passed && !skipped && !question.retry ? 1 : 0),
+        total_questions: scoredTotal(questions, answers) - (skipped && !question.retry ? 1 : 0),
         question_style: questionStyle,
       });
     }
@@ -221,14 +234,14 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
       question,
       answers,
       currentIndex,
-      totalQuestions: questions.length,
+      questions,
       practice,
       skipped,
     });
   }
 
-  const score = resultsScore?.score ?? answers.filter((answer) => answer.passed).length;
-  const resultsTotal = resultsScore?.total ?? scoredTotal(questions.length, answers);
+  const score = resultsScore?.score ?? scoreOf(answers);
+  const resultsTotal = resultsScore?.total ?? scoredTotal(questions, answers);
 
   return {
     errorReason,
@@ -241,6 +254,7 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     resetQuizState,
     handleStartQuiz,
     handleQuestionAnswer,
+    isLastAfter,
     handleQuestionSkip: () => handleQuestionAnswer(false, true),
     handleStartPractice,
     practice,

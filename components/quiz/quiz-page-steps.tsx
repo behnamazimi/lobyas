@@ -48,7 +48,7 @@ function QuizActiveQuestionStep({ quiz }: { quiz: UseQuizSessionResult }) {
         className="shrink-0"
         current={quiz.currentIndex + 1}
         total={quiz.questions.length}
-        unitLabel={quiz.practice ? "Practice" : "Question"}
+        unitLabel={quiz.practice ? "Practice" : question.retry ? "Retry" : "Question"}
         barClassName="text-[var(--ill-blue)]"
       />
       {quiz.practice ? (
@@ -66,7 +66,7 @@ function QuizActiveQuestionStep({ quiz }: { quiz: UseQuizSessionResult }) {
         question={question}
         termLabel={quiz.termById.get(question.termId)?.term ?? "Term"}
         correct={quiz.correctSoFar}
-        isLast={quiz.currentIndex + 1 === quiz.questions.length}
+        isLast={quiz.isLastAfter}
         onAnswer={quiz.handleQuestionAnswer}
         onSkip={quiz.handleQuestionSkip}
       />

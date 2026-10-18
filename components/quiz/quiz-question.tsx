@@ -29,7 +29,8 @@ type QuizQuestionViewProps = {
   question: QuizQuestion;
   termLabel: string;
   correct: number;
-  isLast: boolean;
+  /** Whether this answer, right or wrong, ends the quiz. */
+  isLast: (passed: boolean) => boolean;
   onAnswer: (passed: boolean) => void;
   /** Moves on without scoring, when a dictation clip can't be heard. */
   onSkip: () => void;
@@ -189,7 +190,7 @@ export function QuizQuestionView({
       <QuizQuestionFooter
         correct={correct}
         submitted={submitted}
-        isLast={isLast}
+        isLast={isLast(state.passed)}
         canSubmit={canSubmit}
         canAdvance={canAdvance}
         justUnlocked={justUnlocked}

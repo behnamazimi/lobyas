@@ -16,6 +16,14 @@ export const MIN_DISTRACTORS = 2;
 /** Longer entries are tedious to type exactly, so they stay multiple choice. */
 export const TYPED_MAX_WORDS = 3;
 
+/** A missed question comes back up to this many times, and every one must be right. */
+export const RETRIES_PER_TERM = 2;
+
+/** Questions between a miss and its first retry: a quarter of the quiz, kept
+ *  between these bounds. The second retry waits twice as long. */
+export const RETRY_MIN_GAP = 2;
+export const RETRY_MAX_GAP = 4;
+
 /** Relative chance that a planned template is tried first for a term. */
 export const TEMPLATE_WEIGHTS: Record<PlannedTemplateId, number> = {
   // The baseline recognition question.

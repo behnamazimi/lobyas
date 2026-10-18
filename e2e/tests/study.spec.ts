@@ -138,21 +138,19 @@ test.describe("Studying a collection", () => {
       await page.getByRole("button", { name: "5", exact: true }).click();
       await page.getByRole("button", { name: "Start quiz" }).click();
 
-      for (let question = 1; question <= 5; question++) {
-        await expect(page.getByText(`Question ${question} of 5`)).toBeVisible();
-        await page
-          .getByRole("radiogroup", { name: "Answer choices" })
-          .locator("label")
-          .first()
-          .click();
+      // A wrong answer queues a retry, so the quiz can run past five questions.
+      const choices = page.getByRole("radiogroup", { name: "Answer choices" });
+      const results = page.getByRole("heading", { name: /Quiz complete|Practice complete/ });
+      await expect(page.getByText("Question 1 of 5")).toBeVisible();
+      for (let answered = 0; answered < 10; answered++) {
+        await choices.locator("label").first().click();
         await page.getByRole("button", { name: "Check answer" }).click();
-        const last = question === 5;
-        await page.getByRole("button", { name: last ? "See results" : "Next question" }).click();
+        await page.getByRole("button", { name: /Next question|See results/ }).click();
+        await expect(results.or(choices)).toBeVisible();
+        if (await results.isVisible()) break;
       }
 
-      await expect(
-        page.getByRole("heading", { name: /Quiz complete|Practice complete/ }),
-      ).toBeVisible();
+      await expect(results).toBeVisible();
       await expect.poll(() => reviewState(user.id)).toMatchObject({ quizzed: 5 });
 
       await gotoReady(page, "/app/mastery");
