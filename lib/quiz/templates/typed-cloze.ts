@@ -6,7 +6,6 @@ import type { QuizTemplate } from "./types";
 export const typedCloze: QuizTemplate = {
   id: "typed_cloze",
   kinds: ["vocabulary"],
-  channels: ["web"],
   eligible: (term) => {
     const example = term.example?.trim();
     return isShortEnoughToType(term) && Boolean(example) && containsWholeWord(example!, term.term);

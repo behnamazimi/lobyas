@@ -6,7 +6,6 @@ import type { QuizTemplate } from "./types";
 export const typedMeaningToWord: QuizTemplate = {
   id: "typed_meaning_to_word",
   kinds: ["vocabulary"],
-  channels: ["web"],
   eligible: (term) => isShortEnoughToType(term) && term.definition.trim().length > 0,
   async build(term, ctx) {
     // Another term with the same meaning would be a right answer we'd mark wrong.

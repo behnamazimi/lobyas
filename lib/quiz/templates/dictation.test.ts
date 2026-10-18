@@ -16,10 +16,9 @@ const ctx = { source: sourceOf([]), rng: rngOf(0.1) };
 const typed = (text: string) => ({ interaction: "text" as const, text });
 
 describe("dictation", () => {
-  it("is for vocabulary on the web, in simple quizzes only", () => {
-    expect(templatesFor("vocabulary", "web").map((t) => t.id)).toContain("dictation");
-    expect(templatesFor("terms", "web").map((t) => t.id)).not.toContain("dictation");
-    expect(templatesFor("vocabulary", "telegram").map((t) => t.id)).not.toContain("dictation");
+  it("is for vocabulary, in simple quizzes only", () => {
+    expect(templatesFor("vocabulary").map((t) => t.id)).toContain("dictation");
+    expect(templatesFor("terms").map((t) => t.id)).not.toContain("dictation");
     expect(dictation.simpleOnly).toBe(true);
   });
 

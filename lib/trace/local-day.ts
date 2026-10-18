@@ -3,7 +3,7 @@
  *  (user_settings.timezone, the same one their streak uses), or
  *  STUDY_TIMEZONE when none is saved yet. */
 
-/** Fallback for people with no saved timezone, e.g. Telegram-only users.
+/** Fallback for people with no saved timezone, e.g. a new account.
  *  bump_streak() and get_streak_history() use the same literal in SQL. */
 export const STUDY_TIMEZONE = "Europe/Amsterdam";
 

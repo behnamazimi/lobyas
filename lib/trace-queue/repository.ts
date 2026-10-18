@@ -80,14 +80,16 @@ function mapTraceStateRow(row: TraceStateRow) {
 /** One term's current state, read before applying a Review grade or Quiz
  *  answer — the FSRS-5/Bayesian math needs the prior S/D/posterior in TS. */
 export async function fetchTraceState(client: Client, termId: string) {
-  const { data, error } = await client.rpc("my_get_trace_state_for_term", { p_term_id: termId });
+  const { data, error } = await client.rpc("my_get_trace_state_for_term", {
+    p_term_id: termId,
+  });
   if (error) throw error;
   const row = data?.[0];
   if (!row) throw new Error(`Trace state missing for ${termId}`);
   return mapTraceStateRow(row);
 }
 
-/** Service-role counterpart of {@link fetchTraceState} (Telegram). */
+/** Service-role counterpart of {@link fetchTraceState}. */
 export async function fetchTraceStateForUser(client: Client, userId: string, termId: string) {
   const { data, error } = await client.rpc("get_trace_state_for_term", {
     p_user_id: userId,

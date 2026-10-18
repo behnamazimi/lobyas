@@ -8,7 +8,6 @@ import type { QuizTemplate } from "./types";
 export const maskedExample: QuizTemplate = {
   id: "masked_example",
   kinds: ["terms", "vocabulary"],
-  channels: ["web", "telegram"],
   ai: {
     interaction: "choice",
     writesQuote: true,

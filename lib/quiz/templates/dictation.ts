@@ -11,7 +11,6 @@ const HEARABLE = /^[\p{L}\p{M}' ’-]+$/u;
 export const dictation: QuizTemplate = {
   id: "dictation",
   kinds: ["vocabulary"],
-  channels: ["web"],
   simpleOnly: true,
   eligible: (term) =>
     Boolean(term.dictationClip) &&
@@ -20,8 +19,14 @@ export const dictation: QuizTemplate = {
   async build(term) {
     if (!term.dictationClip) return null;
     return {
-      ...textQuestion(term, { template: "dictation", prompt: QUIZ_COPY[term.kind].dictation }),
-      dictation: { clipVersion: term.dictationClip, meaning: term.definition.trim() },
+      ...textQuestion(term, {
+        template: "dictation",
+        prompt: QUIZ_COPY[term.kind].dictation,
+      }),
+      dictation: {
+        clipVersion: term.dictationClip,
+        meaning: term.definition.trim(),
+      },
     };
   },
   feedback(question, passed, response) {

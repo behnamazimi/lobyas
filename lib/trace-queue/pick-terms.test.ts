@@ -18,7 +18,7 @@ vi.mock("./hydrate", () => ({
   hydrateTermCardsForUser: mocks.hydrate,
 }));
 
-const { pickQuizTerms, pickQuizTermsForUser } = await import("./pick-terms");
+const { pickQuizTerms } = await import("./pick-terms");
 
 const client = {} as SupabaseClient<Database>;
 
@@ -66,17 +66,5 @@ describe("quiz pickers carry recognition", () => {
     const byId = Object.fromEntries(cards.map((c) => [c.id, c.recognition]));
     expect(byId.known).toEqual({ posterior: 0.82, testCount: 3 });
     expect(byId.new).toEqual({ posterior: null, testCount: 0 });
-  });
-
-  it("does the same on the service-role path used by Telegram", async () => {
-    mocks.candidates = [
-      candidate("a", {
-        quizKnowledgePosterior: 0.5,
-        quizTestCount: 1,
-        lastQuizTestedAt: new Date("2026-01-02"),
-      }),
-    ];
-    const [first] = await pickQuizTermsForUser(client, "u", { collectionIds: "all" } as never, 10);
-    expect(first.recognition).toEqual({ posterior: 0.5, testCount: 1 });
   });
 });

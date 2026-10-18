@@ -4,13 +4,15 @@ import { authenticateNarrationSyncRequest, getNarrationSyncSecret } from "./sync
 function request(token?: string, headers: Record<string, string> = {}) {
   return new Request("http://localhost/api/internal/narration/sync", {
     method: "POST",
-    headers: { ...(token ? { authorization: `Bearer ${token}` } : {}), ...headers },
+    headers: {
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+      ...headers,
+    },
   });
 }
 
 beforeEach(() => {
   vi.stubEnv("AI_INTERNAL_SECRET", "new-secret");
-  vi.stubEnv("TELEGRAM_INTERNAL_SECRET", "old-secret");
   vi.spyOn(console, "error").mockImplementation(() => undefined);
 });
 afterEach(() => vi.unstubAllEnvs());
@@ -21,10 +23,6 @@ describe("authenticateNarrationSyncRequest", () => {
       ok: true,
       source: "cron",
     });
-  });
-
-  it("no longer accepts the old Telegram secret", () => {
-    expect(authenticateNarrationSyncRequest(request("old-secret")).error?.status).toBe(401);
   });
 
   it("treats a call marked as the app's own kick as the app", () => {

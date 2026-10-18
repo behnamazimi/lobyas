@@ -49,8 +49,7 @@ const PUBLIC_PATH_PREFIXES = [
   "/auth/native/",
   "/downloads/",
   "/api/widget",
-  // Bearer-secret auth in route handlers (Edge → Next Telegram proxy, narration sync)
-  "/api/internal/telegram",
+  // Bearer-secret auth in route handlers (narration sync, AI health)
   "/api/internal/narration",
   "/api/internal/ai-health",
 ];

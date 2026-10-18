@@ -1,13 +1,7 @@
 import type { CollectionKind } from "@/lib/terms/kinds";
 import type { DistractorSource } from "../distractors";
 import type { Rng } from "../random";
-import type {
-  PlannedTemplateId,
-  QuizChannel,
-  QuizQuestion,
-  QuizResponse,
-  QuizTerm,
-} from "../types";
+import type { PlannedTemplateId, QuizQuestion, QuizResponse, QuizTerm } from "../types";
 
 export type BuildContext = {
   source: DistractorSource;
@@ -38,7 +32,6 @@ type AiSpec = {
 export type QuizTemplate = {
   id: PlannedTemplateId;
   kinds: readonly CollectionKind[];
-  channels: readonly QuizChannel[];
   /** Wording of the two answers of a boolean question. */
   booleanLabels?: BooleanLabels;
   /** Present when the model can write this template in AI mode. */

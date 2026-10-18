@@ -6,7 +6,6 @@ export type FeatureIconKey =
   | "download"
   | "share"
   | "phone"
-  | "send"
   | "monitor"
   | "star"
   | "shield"

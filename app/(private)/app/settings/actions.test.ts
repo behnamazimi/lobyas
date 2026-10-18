@@ -32,12 +32,15 @@ vi.mock("@/lib/auth/require-session", () => ({
   requireAuthenticatedClient: async () =>
     state.signedIn ? { supabase, user: { id: "u1" } } : { error: "Log in to continue." },
 }));
-vi.mock("@/app/(private)/auth/actions", () => ({ logout: async () => undefined }));
+vi.mock("@/app/(private)/auth/actions", () => ({
+  logout: async () => undefined,
+}));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }));
 vi.mock("@/lib/llm/access", () => ({ getAiAccessView: async () => ({}) }));
-vi.mock("@/lib/telegram/links", () => ({}));
 vi.mock("@/lib/widget/tokens", () => ({}));
-vi.mock("@/lib/issues/storage", () => ({ deleteUserScreenshots: async () => undefined }));
+vi.mock("@/lib/issues/storage", () => ({
+  deleteUserScreenshots: async () => undefined,
+}));
 vi.mock("next/cache", () => ({ revalidatePath: () => undefined }));
 
 const { changePasswordAction } = await import("./actions");
@@ -87,7 +90,10 @@ describe("changePasswordAction", () => {
   });
 
   it("checks the current password first and stops when it is wrong", async () => {
-    state.verifyError = { code: "invalid_credentials", message: "Invalid login credentials" };
+    state.verifyError = {
+      code: "invalid_credentials",
+      message: "Invalid login credentials",
+    };
     expect(await changePasswordAction(null, form(VALID))).toEqual({
       error: "That isn't your current password.",
     });
@@ -122,7 +128,9 @@ describe("changePasswordAction", () => {
         confirmPassword: "same-pass-1",
       }),
     );
-    expect(result).toMatchObject({ error: expect.stringContaining("different") });
+    expect(result).toMatchObject({
+      error: expect.stringContaining("different"),
+    });
     expect(state.calls).toEqual([]);
   });
 });

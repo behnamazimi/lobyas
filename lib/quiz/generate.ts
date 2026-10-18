@@ -59,7 +59,10 @@ async function requestQuestionsFromModel(input: ModelInput): Promise<QuizQuestio
       prompt,
       // Gemini decides how long to think by default, which is slow and billed as output.
       providerOptions: {
-        google: { structuredOutputs: true, thinkingConfig: { thinkingLevel: "low" } },
+        google: {
+          structuredOutputs: true,
+          thinkingConfig: { thinkingLevel: "low" },
+        },
       },
       maxRetries: 0,
       abortSignal: input.signal,
@@ -136,7 +139,7 @@ export async function generateQuizQuestions(input: {
   for (const question of written) byTermId.set(question.termId, question);
 
   const missing = plan.terms.filter((term) => !byTermId.has(term.id));
-  for (const question of await buildQuiz(missing, source, "web", "ai")) {
+  for (const question of await buildQuiz(missing, source, "ai")) {
     byTermId.set(question.termId, question);
   }
 

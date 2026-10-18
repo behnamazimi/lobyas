@@ -10,13 +10,6 @@ import type { createClient } from "@/lib/supabase/server";
 import { getMyCreditSchedule } from "@/lib/ai-credits/repository";
 import type { CreditSchedule } from "@/lib/ai-credits/types";
 import { getAiAccessView } from "@/lib/llm/access";
-import {
-  createOrRefreshTelegramLink,
-  disconnectTelegram,
-  getTelegramLinkStatus,
-  updateTelegramCadence,
-} from "@/lib/telegram/links";
-import type { TelegramCadence } from "@/lib/telegram/types";
 import { createWidgetToken, listWidgetTokens, revokeWidgetToken } from "@/lib/widget/tokens";
 import { deleteUserScreenshots } from "@/lib/issues/storage";
 
@@ -67,7 +60,10 @@ async function checkCurrentPassword(
   if (!email || !currentPassword) return "Enter your current password.";
   if (currentPassword === newPassword) return SAME_PASSWORD;
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password: currentPassword,
+  });
   if (!error) return null;
   return error.code === "invalid_credentials"
     ? WRONG_CURRENT_PASSWORD
@@ -134,16 +130,6 @@ async function getCreditSchedule(
   }
 }
 
-export async function getTelegramSettingsData() {
-  const auth = await requireAuthenticatedClient();
-  if ("error" in auth) {
-    return { error: "Log in to view settings." as const };
-  }
-
-  const telegramStatus = await getTelegramLinkStatus(auth.supabase, auth.user.id);
-  return { telegramStatus };
-}
-
 export async function getWidgetSettingsData() {
   const auth = await requireAuthenticatedClient();
   if ("error" in auth) {
@@ -188,63 +174,6 @@ export async function revokeWidgetTokenAction(tokenId: string): Promise<{ error?
   }
 }
 
-export async function generateTelegramLinkAction(): Promise<{
-  error?: string;
-  deepLink?: string;
-}> {
-  const auth = await requireAuthenticatedClient();
-  if ("error" in auth) return { error: auth.error };
-
-  try {
-    const admin = createAdminClient();
-    const status = await getTelegramLinkStatus(admin, auth.user.id);
-
-    if (status.connected) {
-      return {
-        error: "Telegram is already connected. Disconnect first to link a different account.",
-      };
-    }
-
-    const result = await createOrRefreshTelegramLink(admin, auth.user.id);
-    revalidatePath("/app/settings");
-    return { deepLink: result.deepLink };
-  } catch (err) {
-    console.error("Settings action failed:", err);
-    return { error: "Couldn't generate a Telegram link. Try again." };
-  }
-}
-
-export async function disconnectTelegramAction(): Promise<{ error?: string }> {
-  const auth = await requireAuthenticatedClient();
-  if ("error" in auth) return { error: auth.error };
-
-  try {
-    const admin = createAdminClient();
-    await disconnectTelegram(admin, auth.user.id);
-    revalidatePath("/app/settings");
-    return {};
-  } catch (err) {
-    console.error("Settings action failed:", err);
-    return { error: "Couldn't disconnect Telegram. Try again." };
-  }
-}
-
-export async function updateTelegramCadenceAction(
-  cadence: TelegramCadence,
-): Promise<{ error?: string }> {
-  const auth = await requireAuthenticatedClient();
-  if ("error" in auth) return { error: auth.error };
-
-  try {
-    await updateTelegramCadence(auth.supabase, cadence);
-    revalidatePath("/app/settings");
-    return {};
-  } catch (err) {
-    console.error("Settings action failed:", err);
-    return { error: "Couldn't update reminder cadence. Try again." };
-  }
-}
-
 export async function deleteOwnAccountAction(confirmEmail: string): Promise<{ error?: string }> {
   const auth = await requireAuthenticatedClient();
   if ("error" in auth) return { error: auth.error };
@@ -256,7 +185,9 @@ export async function deleteOwnAccountAction(confirmEmail: string): Promise<{ er
     // AD001 marks messages the database wrote for the person to read.
     if (error.code === "AD001") return { error: error.message };
     console.error("Settings action failed:", error);
-    return { error: "Couldn't delete your account. Try again, or contact support." };
+    return {
+      error: "Couldn't delete your account. Try again, or contact support.",
+    };
   }
 
   await deleteUserScreenshots(auth.user.id).catch((err) =>

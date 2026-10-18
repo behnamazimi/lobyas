@@ -52,12 +52,18 @@ export async function fetchProgressStateByCollection(
   collectionIds: string[],
 ): Promise<CollectionProgressState> {
   if (collectionIds.length === 0) {
-    return { knownTermIds: [], markedKnownTermIds: [], everMasteredTermIds: [] };
+    return {
+      knownTermIds: [],
+      markedKnownTermIds: [],
+      everMasteredTermIds: [],
+    };
   }
 
   const data = await fetchAllRows((from, to) =>
     client
-      .rpc("my_progress_state_by_collection", { p_collection_ids: collectionIds })
+      .rpc("my_progress_state_by_collection", {
+        p_collection_ids: collectionIds,
+      })
       .order("term_id")
       .range(from, to),
   );
@@ -139,22 +145,6 @@ export async function setTermMarkedKnown(
   marked: boolean,
 ) {
   const { error } = await client.rpc("my_set_term_marked_known", {
-    p_term_id: termId,
-    p_marked: marked,
-  });
-
-  if (error) throw error;
-}
-
-/** Service-role counterpart of {@link setTermMarkedKnown} (Telegram). */
-export async function setTermMarkedKnownForUser(
-  client: Client,
-  userId: string,
-  termId: string,
-  marked: boolean,
-) {
-  const { error } = await client.rpc("set_term_marked_known", {
-    p_user_id: userId,
     p_term_id: termId,
     p_marked: marked,
   });

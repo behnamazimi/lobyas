@@ -8,7 +8,6 @@ import type { QuizTemplate } from "./types";
 export const termToMeaning: QuizTemplate = {
   id: "term_to_meaning",
   kinds: ["terms", "vocabulary"],
-  channels: ["web", "telegram"],
   ai: {
     interaction: "choice",
     writesQuote: false,
@@ -19,7 +18,9 @@ export const termToMeaning: QuizTemplate = {
         "options: short meanings of the word or phrase. The right one is its meaning; the wrong ones are meanings of similar words. Never use the word itself in an option.",
     },
     finish(raw, term) {
-      const choice = resolveChoice(raw, { mapText: (text) => maskWords(text, [term.term]) });
+      const choice = resolveChoice(raw, {
+        mapText: (text) => maskWords(text, [term.term]),
+      });
       if (!choice) return null;
 
       return {

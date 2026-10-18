@@ -3,17 +3,16 @@ import { orderTemplates } from "./plan";
 import type { Rng } from "./random";
 import { buildDefinitionToTerm } from "./templates/definition-to-term";
 import type { BuildContext, QuizTemplate } from "./templates/types";
-import type { QuizChannel, QuizQuestion, QuizQuestionStyle, QuizTerm } from "./types";
+import type { QuizQuestion, QuizQuestionStyle, QuizTerm } from "./types";
 
 async function buildQuestionForTerm(
   term: QuizTerm,
-  channel: QuizChannel,
   style: QuizQuestionStyle,
   ctx: BuildContext,
 ): Promise<QuizQuestion> {
   const isEligible = (template: QuizTemplate, t: QuizTerm) =>
     !(style === "ai" && template.simpleOnly) && template.eligible(t);
-  for (const template of orderTemplates(term, channel, ctx.rng, isEligible)) {
+  for (const template of orderTemplates(term, ctx.rng, isEligible)) {
     const question = await template.build(term, ctx);
     if (question) return question;
   }
@@ -29,10 +28,9 @@ async function buildQuestionForTerm(
 export function buildQuiz(
   terms: QuizTerm[],
   source: DistractorSource,
-  channel: QuizChannel,
   style: QuizQuestionStyle = "simple",
   rng: Rng = Math.random,
 ): Promise<QuizQuestion[]> {
   const ctx: BuildContext = { source, rng };
-  return Promise.all(terms.map((term) => buildQuestionForTerm(term, channel, style, ctx)));
+  return Promise.all(terms.map((term) => buildQuestionForTerm(term, style, ctx)));
 }

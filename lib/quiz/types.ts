@@ -4,8 +4,6 @@ import type { TermCard } from "@/lib/terms/term-card";
 
 export type QuizQuestionStyle = "ai" | "simple";
 
-export type QuizChannel = "web" | "telegram";
-
 export type QuizTerm = {
   id: string;
   term: string;
@@ -24,7 +22,7 @@ export type QuizTerm = {
   collectionName: string;
 };
 
-/** What a question asks. Drives feedback copy and which kinds and channels
+/** What a question asks. Drives feedback copy and which kinds
  *  can use it; how it is answered is the question's `interaction`. */
 export type PlannedTemplateId =
   | "definition_to_term"
