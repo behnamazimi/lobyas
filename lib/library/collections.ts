@@ -30,6 +30,9 @@ export type CollectionRow = {
   is_public: boolean;
   slug: string | null;
   source: "owned" | "added";
+  readQueue: number;
+  reviewQueue: number;
+  quizQueue: number;
   termCount: number;
   unfinishedCount: number;
   knownCount: number;

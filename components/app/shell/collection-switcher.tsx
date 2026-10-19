@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { formatCount } from "@/lib/kit/text";
 import { BottomSheet, CollectionSwitcherRow } from "@/components/kit";
 import { collectionLetter, collectionTone } from "./collection-look";
 import { useShell, type ShellCollection } from "./shell-context";
@@ -18,6 +19,9 @@ export function CollectionList() {
           tone={collectionTone(collection.kind)}
           mastered={collection.termsLearnedCount}
           total={collection.termCount}
+          detail={`Read ${formatCount(collection.queues.read)} · Review ${formatCount(
+            collection.queues.review,
+          )} · Quiz ${formatCount(collection.queues.quiz)}`}
           selected={collection.id === current?.id}
           onPress={() => setCollection(collection.id)}
         />

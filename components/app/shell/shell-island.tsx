@@ -8,6 +8,8 @@ import { getStudyPhoneUserSettings } from "@/lib/streak/settings";
 import { ShellFrame } from "./shell-frame";
 import { ShellProvider, type ShellCollection } from "./shell-context";
 
+const DESCRIPTION_LIMIT = 200;
+
 export async function ShellIsland({
   initialIsDark,
   children,
@@ -31,6 +33,9 @@ export async function ShellIsland({
           kind: collection.kind,
           termCount: collection.termCount,
           termsLearnedCount: collection.termsLearnedCount,
+          queues: collection.queues,
+          description: collection.description.slice(0, DESCRIPTION_LIMIT) || null,
+          language: collection.language,
           isActiveForReview: collection.isActiveForReview,
         }))
       : [];

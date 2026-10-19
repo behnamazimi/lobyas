@@ -64,6 +64,8 @@ export type Collection = {
   unfinishedCount: number;
   knownCount: number;
   termsLearnedCount: number;
+  /** What Read, Review and Quiz would serve now; see `collection-tally.ts`. */
+  queues: { read: number; review: number; quiz: number };
   markedKnownCount: number;
   isBuiltin: boolean;
   loveCount: number;
