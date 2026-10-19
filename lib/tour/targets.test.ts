@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { STUDY_DOCK_TABS } from "@/components/app/account-nav";
+import { NAV_ITEMS } from "@/components/kit/shell/nav-items";
 import type { SettingsTabId } from "@/components/settings/ui-layout";
 import { TOUR_TARGETS } from "./targets";
 
@@ -7,7 +7,7 @@ import { TOUR_TARGETS } from "./targets";
 // these keep a rename there from silently dropping a tour step.
 describe("derived tour targets", () => {
   it("has a nav target for every dock tab, and no others", () => {
-    const fromTabs = STUDY_DOCK_TABS.map((tab) => `nav-${tab.label.toLowerCase()}`).toSorted();
+    const fromTabs = NAV_ITEMS.map((item) => `nav-${item.key}`).toSorted();
     const navTargets = TOUR_TARGETS.filter((id) => id.startsWith("nav-")).toSorted();
     expect(navTargets).toEqual(fromTabs);
   });

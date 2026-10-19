@@ -71,6 +71,7 @@ async function storyHasClip(
 export async function getStoriesSetupData(
   requestedCollectionId?: string,
   requestedStoryId?: string,
+  currentCollectionId?: string | null,
 ): Promise<StoriesSetupData | { error: string }> {
   const auth = await requireAuthenticatedClient();
   if ("error" in auth) return { error: "Log in to read stories." };
@@ -104,6 +105,7 @@ export async function getStoriesSetupData(
     paused: collectionState.paused,
     initialCollectionId: resolveInitialCollectionId(collections, [
       requestedCollectionId,
+      currentCollectionId,
       prefs.lastCollectionId,
     ]),
     levelsByCollection: prefs.levelsByCollection,

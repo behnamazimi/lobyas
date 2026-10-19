@@ -11,9 +11,8 @@ test.describe("Settings", () => {
   });
 
   test("a member can sign out", async ({ page, user: _user }) => {
-    await gotoReady(page, "/app/library");
-    await page.getByRole("button", { name: "Account menu" }).click();
-    await page.getByRole("menuitem", { name: /log out|sign out/i }).click();
+    await gotoReady(page, "/app/me");
+    await page.getByRole("button", { name: "Log out" }).click();
 
     await expect(page).toHaveURL(/\/($|login)/);
     await page.goto("/app/library");

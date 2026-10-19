@@ -16,7 +16,13 @@ import {
   parseReadCollectionCookie,
   READ_COLLECTION_COOKIE,
 } from "@/lib/read/collection-preference";
-import { resolveStudyCollectionId } from "@/lib/study/collection-preference";
+import { RememberCollectionFromLink } from "@/components/collections/remember-collection";
+import {
+  parseCurrentCollectionId,
+  resolveAppCollection,
+  speculativeAppCollection,
+  CURRENT_COLLECTION_COOKIE,
+} from "@/lib/collections/current";
 import { hasNoCollections } from "@/lib/study/collections";
 import type { StudyCollection } from "@/lib/study/types";
 import { withReveal } from "@/components/shared/view-transitions";
@@ -45,14 +51,8 @@ async function loadReadOptions(): Promise<ReadOptions> {
   });
 }
 
-function resolveReadCollectionId(
-  collectionParam: string | undefined,
-  collections: StudyCollection[],
-): string {
-  if (collectionParam && collections.some((collection) => collection.id === collectionParam)) {
-    return collectionParam;
-  }
-  return "all";
+function activeIdsOf(collections: StudyCollection[]): string[] {
+  return collections.map((collection) => collection.id);
 }
 
 async function buildDeepLinkSeed(termId: string, alreadyRead: boolean): Promise<ReadQueueSeed> {
@@ -70,20 +70,29 @@ function LoginPrompt() {
   return <p className="text-sm text-base-content/70">Log in to read terms.</p>;
 }
 
-async function ReadRoute({ searchParams }: PageProps) {
-  const params = await searchParams;
+function rememberFromLink(collectionParam: string | undefined, collectionId: string) {
+  if (!collectionParam || collectionParam !== collectionId || collectionId === "all") return null;
+  return <RememberCollectionFromLink collectionId={collectionId} />;
+}
 
-  const options = await loadReadOptions();
+async function deepLinkRead(params: Awaited<PageProps["searchParams"]>, options: ReadOptions) {
+  const setup = await getReadSetupData();
+  if ("error" in setup) return <LoginPrompt />;
 
-  if (params.termId) {
-    const setup = await getReadSetupData();
-    if ("error" in setup) return <LoginPrompt />;
+  const currentId = parseCurrentCollectionId(
+    (await cookies()).get(CURRENT_COLLECTION_COOKIE)?.value,
+  );
+  const collectionId = resolveAppCollection({
+    collectionParam: params.collection,
+    currentId,
+    rememberedId: null,
+    activeIds: activeIdsOf(setup.collections),
+  });
+  const seed = await buildDeepLinkSeed(params.termId ?? "", params.alreadyRead === "true");
+  if (seed.error === "Log in to continue.") return <LoginPrompt />;
 
-    const collectionId = resolveReadCollectionId(params.collection, setup.collections);
-    const seed = await buildDeepLinkSeed(params.termId, params.alreadyRead === "true");
-    if (seed.error === "Log in to continue.") return <LoginPrompt />;
-
-    return (
+  return (
+    <>
       <ReadPage
         key={activeCollectionsKey(setup.collections)}
         seed={seed}
@@ -92,19 +101,24 @@ async function ReadRoute({ searchParams }: PageProps) {
         narrationAccess={setup.narrationAccess}
         options={options}
       />
-    );
-  }
-
-  // No deep link: the collection is already resolvable from the URL (or
-  // defaults to "all"), so fire the feed batch next to setup instead of
-  // waiting for setup to resolve first — getReadFeedBatchAction does its
-  // own auth check and an unknown/inactive collection id just yields an empty
-  // pick. Only discard it if the resolved collection turns out different (a
-  // stale/removed collection in the URL).
-  const rememberedId = parseReadCollectionCookie(
-    (await cookies()).get(READ_COLLECTION_COOKIE)?.value,
+      {rememberFromLink(params.collection, collectionId)}
+    </>
   );
-  const speculativeCollectionId = params.collection ?? rememberedId ?? "all";
+}
+
+async function collectionRead(params: Awaited<PageProps["searchParams"]>, options: ReadOptions) {
+  // The collection is already resolvable from the URL (or defaults to "all"),
+  // so the feed batch starts next to setup. An unknown collection id yields
+  // an empty pick, and that batch is discarded when the resolved collection
+  // turns out different.
+  const cookieStore = await cookies();
+  const currentId = parseCurrentCollectionId(cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value);
+  const rememberedId = parseReadCollectionCookie(cookieStore.get(READ_COLLECTION_COOKIE)?.value);
+  const speculativeCollectionId = speculativeAppCollection(
+    params.collection,
+    currentId,
+    rememberedId,
+  );
   const [setup, speculativeSeed] = await Promise.all([
     getReadSetupData(),
     getReadFeedBatchAction(speculativeCollectionId, []),
@@ -120,11 +134,12 @@ async function ReadRoute({ searchParams }: PageProps) {
     );
   }
 
-  const collectionId = resolveStudyCollectionId(
-    params.collection,
+  const collectionId = resolveAppCollection({
+    collectionParam: params.collection,
+    currentId,
     rememberedId,
-    setup.collections.map((collection) => collection.id),
-  );
+    activeIds: activeIdsOf(setup.collections),
+  });
   const seed =
     collectionId === speculativeCollectionId
       ? speculativeSeed
@@ -142,8 +157,16 @@ async function ReadRoute({ searchParams }: PageProps) {
         narrationAccess={setup.narrationAccess}
         options={options}
       />
+      {rememberFromLink(params.collection, collectionId)}
     </>
   );
+}
+
+async function ReadRoute({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const options = await loadReadOptions();
+  if (params.termId) return deepLinkRead(params, options);
+  return collectionRead(params, options);
 }
 
 export default withReveal(ReadRoute);

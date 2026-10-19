@@ -8,7 +8,7 @@ import { Button, LinkButton } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import { ownerNoticeFor } from "@/lib/collections/moderation";
 import { cn } from "@/lib/utils";
-import { rememberLibraryCollection } from "@/lib/library/pick-collection";
+import { setCurrentCollection } from "@/lib/collections/current";
 import type { Collection } from "@/lib/terms/types";
 import { CollectionActionsMenu, CollectionMeta } from "./collection-actions-menu";
 import { CollectionShareButton } from "./collection-share-sheet";
@@ -171,7 +171,7 @@ export function LibraryCollectionHeader({
   function setActiveForReview(active: boolean) {
     // A plain /app/library visit shows the first active collection without
     // remembering it, so pausing that one would move on to the next. Pin it.
-    rememberLibraryCollection(collection.id);
+    setCurrentCollection(collection.id);
     startToggle(async () => {
       setOptimisticActive(active);
       const { error } = await toggleActiveForReview(collection.id, active);

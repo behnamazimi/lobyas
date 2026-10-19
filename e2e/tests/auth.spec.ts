@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 test.describe("Signing up and logging in", () => {
   test(
-    "a new member signs up with an invite code and lands in the library",
+    "a new member signs up with an invite code and lands on Home",
     { tag: "@smoke" },
     async ({ page }) => {
       const code = await createReferralCode();
@@ -14,7 +14,7 @@ test.describe("Signing up and logging in", () => {
       await page.getByLabel("Invite code").fill(code);
       await page.getByRole("button", { name: "Sign up with email" }).click();
 
-      await expect(page).toHaveURL(/\/app\/library/);
+      await expect(page).toHaveURL(/\/app\/?$/);
     },
   );
 
@@ -39,7 +39,7 @@ test.describe("Signing up and logging in", () => {
       await page.getByLabel("Password").fill(member.password);
       await page.getByRole("button", { name: "Log in with email" }).click();
 
-      await expect(page).toHaveURL(/\/app\//);
+      await expect(page).toHaveURL(/\/app\/?$/);
     },
   );
 

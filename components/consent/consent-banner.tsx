@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { isDockPath } from "@/lib/chrome";
+import { shellLayout } from "@/lib/chrome";
 import {
   CONSENT_BANNER_ID,
   setConsent,
@@ -29,8 +29,8 @@ export function ConsentBanner() {
       aria-label="Analytics choice"
       className={cn(
         "shadow-surface fixed left-4 z-50 outline-none w-[calc(100%-2rem)] max-w-xs rounded-box border border-base-300 bg-base-100 p-4 text-sm",
-        isDockPath(pathname)
-          ? "bottom-[calc(var(--dock-bottom)+0.75rem)] md:bottom-4"
+        shellLayout(pathname) === "tabs"
+          ? "bottom-[calc(var(--dock-bottom)+0.75rem)] lg:bottom-4"
           : "bottom-[calc(var(--safe-bottom,0px)+1rem)]",
       )}
     >

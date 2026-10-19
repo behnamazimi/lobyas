@@ -4,10 +4,10 @@
 export const TOUR_TARGETS = [
   "app-streak",
   "app-account",
+  "nav-home",
   "nav-library",
-  "nav-read",
-  "nav-review",
-  "nav-quiz",
+  "nav-goals",
+  "nav-me",
   "library-browse",
   "library-import",
   "library-collections",

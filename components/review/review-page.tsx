@@ -16,6 +16,7 @@ import { QuizPanel } from "@/components/quiz/quiz-ui";
 import type { TermNarrationHandle } from "@/components/terms/term-narration-player";
 import { LinkButton } from "@/components/ui/button";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
+import { setCurrentCollection } from "@/lib/collections/current";
 import {
   clearReviewCollectionPreference,
   saveReviewCollectionPreference,
@@ -97,6 +98,7 @@ export function ReviewPage({
       if (rememberOnDevice) {
         saveReviewCollectionPreference(nextCollectionId);
       }
+      setCurrentCollection(nextCollectionId);
     },
     [queue.switchCollection, rememberOnDevice],
   );

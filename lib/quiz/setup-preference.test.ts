@@ -44,17 +44,18 @@ describe("parseQuizSetupCookie", () => {
 });
 
 describe("resolveInitialQuizSetup", () => {
-  it("defaults to simple, all, and no explicit count", () => {
+  it("defaults to simple, the first active collection, and no explicit count", () => {
     expect(
       resolveInitialQuizSetup({
         saved: null,
         collectionParam: undefined,
+        currentId: null,
         activeIds: [A],
         aiAvailable: true,
       }),
     ).toEqual({
       style: "simple",
-      collectionId: "all",
+      collectionId: A,
       count: null,
       savedCollectionId: null,
       collectionFromLink: false,
@@ -66,6 +67,7 @@ describe("resolveInitialQuizSetup", () => {
     const setup = resolveInitialQuizSetup({
       saved: { style: "ai" },
       collectionParam: undefined,
+      currentId: null,
       activeIds: [A],
       aiAvailable: false,
     });
@@ -77,6 +79,7 @@ describe("resolveInitialQuizSetup", () => {
     const setup = resolveInitialQuizSetup({
       saved: { style: "ai" },
       collectionParam: undefined,
+      currentId: null,
       activeIds: [A],
       aiAvailable: true,
     });
@@ -87,19 +90,33 @@ describe("resolveInitialQuizSetup", () => {
     const base = {
       saved: { style: "simple" as const, collectionId: A },
       collectionParam: undefined,
+      currentId: null,
     };
     expect(
       resolveInitialQuizSetup({ ...base, activeIds: [A, B], aiAvailable: false }).collectionId,
     ).toBe(A);
     expect(
       resolveInitialQuizSetup({ ...base, activeIds: [B], aiAvailable: false }).collectionId,
-    ).toBe("all");
+    ).toBe(B);
+  });
+
+  it("lets the app cookie win over the remembered collection", () => {
+    expect(
+      resolveInitialQuizSetup({
+        saved: { style: "simple", collectionId: A },
+        collectionParam: undefined,
+        currentId: B,
+        activeIds: [A, B],
+        aiAvailable: false,
+      }).collectionId,
+    ).toBe(B);
   });
 
   it("lets a valid link win and marks it as coming from the link", () => {
     const setup = resolveInitialQuizSetup({
       saved: { style: "simple", collectionId: A },
       collectionParam: B,
+      currentId: A,
       activeIds: [A, B],
       aiAvailable: false,
     });
@@ -114,10 +131,11 @@ describe("resolveInitialQuizSetup", () => {
     const setup = resolveInitialQuizSetup({
       saved: null,
       collectionParam: B,
+      currentId: null,
       activeIds: [A],
       aiAvailable: false,
     });
-    expect(setup).toMatchObject({ collectionId: "all", collectionFromLink: false });
+    expect(setup).toMatchObject({ collectionId: A, collectionFromLink: false });
   });
 });
 

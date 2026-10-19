@@ -11,6 +11,7 @@ export { ProgressBar } from "./progress/bar";
 export { MasteryStack } from "./progress/mastery-stack";
 export { QuizSegments } from "./progress/quiz-segments";
 export { ProgressRing } from "./progress/ring";
+export { CollectionSwitcherRow } from "./shell/collection-switcher-row";
 export { PageHeader } from "./shell/page-header";
 export { Rail } from "./shell/rail";
 export { StudyTopBar } from "./shell/study-top-bar";

@@ -9,6 +9,7 @@ import { ReadToolbar } from "@/components/read/read-toolbar";
 import { useReadEnterKey } from "@/components/read/use-read-enter-key";
 import { useReadQueue } from "@/components/read/use-read-queue";
 import { useMountEffect } from "@/hooks/use-mount-effect";
+import { setCurrentCollection } from "@/lib/collections/current";
 import { saveReadCollectionPreference } from "@/lib/read/collection-preference";
 import type { ReadOptions } from "@/lib/read/options";
 import type { StudyCollection } from "@/lib/study/types";
@@ -64,6 +65,7 @@ export function ReadPage({
       replaceReadCollectionInUrl(nextCollectionId);
       queue.switchCollection(nextCollectionId);
       saveReadCollectionPreference(nextCollectionId);
+      setCurrentCollection(nextCollectionId);
     },
     [queue.switchCollection],
   );

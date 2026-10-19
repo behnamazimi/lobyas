@@ -1,14 +1,10 @@
 import {
   Compass,
   LayoutDashboard,
-  LayoutList,
   Settings,
   Signal,
   Target,
   Upload,
-  BadgeQuestionMark,
-  BookOpenText,
-  PlayingCardsFan,
   type LucideIcon,
 } from "lucide-react";
 
@@ -28,13 +24,6 @@ export type AccountNavItem = {
   label: string;
   icon: LucideIcon;
 };
-
-export const STUDY_DOCK_TABS = [
-  { href: "/app/library", label: "Library", icon: LayoutList, match: "library" },
-  { href: "/app/read", label: "Read", icon: BookOpenText, match: "prefix" },
-  { href: "/app/review", label: "Review", icon: PlayingCardsFan, match: "prefix" },
-  { href: "/app/quiz", label: "Quiz", icon: BadgeQuestionMark, match: "prefix" },
-] as const;
 
 export const ACCOUNT_OVERFLOW_NAV: AccountNavItem[] = [
   { href: "/app/browse", label: "Browse", icon: Compass },

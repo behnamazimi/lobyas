@@ -21,7 +21,7 @@ export function StudyTopBar({
 }: {
   closeHref: string;
   closeLabel?: string;
-  collection: { name: string; letter: string; tone: Tone };
+  collection: { name: string; letter: string; tone: Tone; onPress?: () => void };
   goal?: { label: string; value?: number; tone: Tone };
   className?: string;
 }) {
@@ -31,15 +31,36 @@ export function StudyTopBar({
         <X className="size-6" strokeWidth={2.6} aria-hidden />
       </IconButton>
       <div className="flex min-w-0 flex-1 justify-center">
-        <div className={cn(pill, "max-w-full min-w-0 pr-3.5 pl-1.5")}>
-          <Tile tone={collection.tone} size={24} serif>
-            {collection.letter}
-          </Tile>
-          <span className={cn("min-w-0", CLAMP_ONE_LINE)}>{collection.name}</span>
-        </div>
+        <CollectionChip collection={collection} />
       </div>
       {goal ? <GoalPill {...goal} /> : <div className="w-9" />}
     </div>
+  );
+}
+
+function CollectionChip({
+  collection,
+}: {
+  collection: { name: string; letter: string; tone: Tone; onPress?: () => void };
+}) {
+  const className = cn(
+    pill,
+    "max-w-full min-w-0 pr-3.5 pl-1.5",
+    collection.onPress && "cursor-pointer",
+  );
+  const body = (
+    <>
+      <Tile tone={collection.tone} size={24} serif>
+        {collection.letter}
+      </Tile>
+      <span className={cn("min-w-0", CLAMP_ONE_LINE)}>{collection.name}</span>
+    </>
+  );
+  if (!collection.onPress) return <div className={className}>{body}</div>;
+  return (
+    <button type="button" onClick={collection.onPress} className={className}>
+      {body}
+    </button>
   );
 }
 

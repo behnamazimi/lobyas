@@ -73,7 +73,7 @@ describe("updateSession", () => {
 
     auth.user = { id: "real-id", email: "a@example.com", banned_until: null };
     const member = await updateSession(request("/", "", app));
-    expect(new URL(member.headers.get("location")!).pathname).toBe("/app/review");
+    expect(new URL(member.headers.get("location")!).pathname).toBe("/app");
   });
 
   it("forwards the verified user, signed, instead of what the client sent", async () => {

@@ -31,6 +31,7 @@ chosen pages, only once the guided tour is done, and only when a condition holds
 - Dismissing stamps `promo_dismissed[id]`; the promo returns after `snoozeDays`.
 - Accounts that existed when promos shipped had `promo_seen` backfilled from
   their history (Quiz, Stories) or fully (Mastery, Browse, Triage).
+- Phone navigation is the tab bar (and the desktop rail), not the old dock. A promo sits in the page and does not depend on either.
 - The slot is mounted in layouts (Library, Review) and the Read layout, not
   in its own `Suspense`, so it can't pop in. Visit markers sit in the Quiz,
   Mastery, Browse and Triage layouts and the Stories page.

@@ -1,4 +1,5 @@
 import { cookies, headers } from "next/headers";
+import { RememberCollectionFromLink } from "@/components/collections/remember-collection";
 import { LibraryPage } from "@/components/library/library-page";
 import type { ImportedSummary } from "@/components/import/imported-banner";
 import { EmptyCollection } from "@/components/library/empty-collection";
@@ -10,7 +11,7 @@ import { requireAuthenticatedClient } from "@/lib/auth/require-session";
 import { batchResultSchema } from "@/lib/import/commit-schema";
 import { readLibraryFiltersCookie } from "@/lib/library/library-filters";
 import { loadLibraryPage } from "@/lib/library/load";
-import { LIBRARY_LAST_COLLECTION_COOKIE } from "@/lib/library/pick-collection";
+import { CURRENT_COLLECTION_COOKIE } from "@/lib/collections/current";
 import { LOAD_FAILED_MESSAGE } from "@/lib/library/setup";
 import { getNarrationAccessForUser } from "@/lib/narration/access";
 import { loadRequestEntryFor } from "@/lib/requests/repository";
@@ -92,7 +93,7 @@ async function LibraryRoute({ searchParams }: PageProps) {
   try {
     result = await loadLibraryPage(supabase, user.id, {
       requestedCollectionId,
-      lastCollectionId: cookieStore.get(LIBRARY_LAST_COLLECTION_COOKIE)?.value,
+      lastCollectionId: cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value,
     });
   } catch (error) {
     console.error("Couldn't load the Library:", error);
@@ -109,6 +110,9 @@ async function LibraryRoute({ searchParams }: PageProps) {
           filtersCookie={readLibraryFiltersCookie(requestHeaders.get("cookie") ?? "")}
           importedSummary={importedSummary}
         />
+        {requestedCollectionId && requestedCollectionId === result.data.collection.id ? (
+          <RememberCollectionFromLink collectionId={result.data.collection.id} />
+        ) : null}
       </NarrationAccess>
     </RequestsAvailable>
   );

@@ -1,8 +1,5 @@
-import {
-  isCollectionPreference,
-  resolveStudyCollectionId,
-  writePreferenceCookie,
-} from "@/lib/study/collection-preference";
+import { resolveAppCollection } from "@/lib/collections/current";
+import { isCollectionPreference, writePreferenceCookie } from "@/lib/study/collection-preference";
 import { MAX_STUDY_TERMS } from "@/lib/study/types";
 import type { QuizQuestionStyle } from "./types";
 
@@ -60,10 +57,11 @@ export function saveQuizSetupPreference(setup: SavedQuizSetup): void {
 export function resolveInitialQuizSetup(input: {
   saved: SavedQuizSetup | null;
   collectionParam: string | undefined;
+  currentId: string | null;
   activeIds: string[];
   aiAvailable: boolean;
 }): InitialQuizSetup {
-  const { saved, collectionParam, activeIds, aiAvailable } = input;
+  const { saved, collectionParam, currentId, activeIds, aiAvailable } = input;
   const savedCollectionId = saved?.collectionId ?? null;
   const wantedAi = saved?.style === "ai";
 
@@ -71,7 +69,12 @@ export function resolveInitialQuizSetup(input: {
     // An AI quiz can't start without a key or credits, so don't open on it.
     style: wantedAi && aiAvailable ? "ai" : "simple",
     aiFellBack: wantedAi && !aiAvailable,
-    collectionId: resolveStudyCollectionId(collectionParam, savedCollectionId, activeIds),
+    collectionId: resolveAppCollection({
+      collectionParam,
+      currentId,
+      rememberedId: savedCollectionId,
+      activeIds,
+    }),
     count: saved?.count ?? null,
     savedCollectionId,
     collectionFromLink: Boolean(collectionParam && activeIds.includes(collectionParam)),

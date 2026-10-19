@@ -31,6 +31,7 @@ export function TabBar({
           <Link
             key={item.key}
             href={item.href}
+            data-tour={`nav-${item.key}`}
             aria-current={active ? "page" : undefined}
             className={cn("min-h-14 gap-0.5", active ? "text-success-text" : "text-muted")}
           >

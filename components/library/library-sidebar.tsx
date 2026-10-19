@@ -3,10 +3,7 @@
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { collectionCountsOverride, useLibraryOverrides } from "@/lib/library/overrides";
-import {
-  LIBRARY_LAST_COLLECTION_COOKIE,
-  pickLibraryCollectionId,
-} from "@/lib/library/pick-collection";
+import { CURRENT_COLLECTION_COOKIE, pickLibraryCollectionId } from "@/lib/collections/current";
 import type { Collection } from "@/lib/terms/types";
 import { CollectionSidebar } from "./collection-sidebar";
 import { CollectionSidebarDrawer } from "./collection-sidebar-drawer";
@@ -20,7 +17,7 @@ type LibrarySidebarProps = {
 };
 
 function readLastCollectionCookie(): string | null {
-  const prefix = `${LIBRARY_LAST_COLLECTION_COOKIE}=`;
+  const prefix = `${CURRENT_COLLECTION_COOKIE}=`;
   const entry = document.cookie.split("; ").find((part) => part.startsWith(prefix));
   return entry ? entry.slice(prefix.length) : null;
 }
