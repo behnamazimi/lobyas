@@ -654,3 +654,65 @@ Desktop study pages keep the rail.
 
 **Open.** Sub-pages still show their old header under the new back bar until
 their phase. Admin sits in the rail's content area with its own sidebar.
+
+### Phase 2 · Home
+
+Branch `redesign-p2-home`.
+
+**Built.** `/app` is Home (`components/home/`): a phone header (Studying label,
+collection title that opens the switcher, mastery bar, streak pill), the
+three-stop path with ring, "x of y today", "N in queue", the **Continue** pill
+and the last stop, and a desktop layout (`HomeDesktop`: title with **Add terms**
+and one primary action, the path in a white panel, a right column with today's
+goals or the pace prompt, and the collection card; below 1180px the column
+drops under the path). The switcher rows (phone sheet and rail popover) now show
+"Read · Review · Quiz" queue lines. Loading is a Suspense skeleton inside the page, not a
+`loading.tsx`, so it doesn't cover the routes under `/app`. Without a collection
+(or if collections fail to load) Home shows an empty panel and keeps the streak
+pill on the phone.
+
+**Kit.** `PathStop` (`components/kit/progress/path-stop.tsx`, from `@/components/kit`):
+node, optional goal ring, met check, filled "next up" state. `CollectionSwitcherRow`
+takes an optional `detail` line.
+
+**Data.** `lib/library/collection-tally.ts` now also counts `readQueue`,
+`reviewQueue`, `quizQueue` per collection from the same progress rows the shell
+already loads, so no new query. Read = terms never read, not marked known.
+Review and Quiz = `rankReviewQueue` / `rankQuizQueue` length on the unmarked
+terms, so they follow TRACE's cooldown without copying it. `Collection.queues`
+carries them; `ShellCollection` also gained `queues`, `description` (200 chars)
+and `language`. The page itself calls the cached `loadLibraryCollections`, so it
+is fresh on every visit even though the shell island isn't re-rendered on a soft
+navigation. All branching for the path is in `lib/home/path.ts` (unit tested).
+
+**Decisions taken.** Partial goals work per tier (rings only on tiers with a goal;
+the pill goes to the first unmet goal with a queue; the last stop counts only set
+goals). With no goals the pill reads **Start here** and the first stop with a
+queue gets it. All goals met: the trophy turns green, no pill, desktop primary is
+**Keep reading**. Desktop with no goals puts the "Want a daily pace?" prompt in
+the goals card slot. An empty-queue stop still links to its study route, whose
+caught-up state belongs to Phases 3 to 5. "Mastered" is `termsLearnedCount`.
+Goal counts are global across collections; queues are per collection.
+
+**Left as is.** Server actions, TRACE, the claim flow, promos (no Home slot), the
+tour (no Home chapter), the streak sheet, Phase 1's shell and `collectionTone`
+(the frames' per-collection tints have no data source).
+
+**Frames that didn't match.** Mock queue numbers; per-collection tile colors;
+`known` shown as a percent (now ever-mastered); `ReadNoGoal`/`QuizSetup` links
+(Home links `/app/read`, `/app/quiz`); the frames only draw all-goals or no-goals,
+so partial and all-met follow the rules above. The rail popover is 340px wide
+(was 288) so the queue line fits.
+
+**Care.** Home sets its own cream page background (`bg-base-200`) because the
+shell still paints `base-100` behind every page; move that into `ShellFrame` once
+the other pages are redesigned. `lib/home/path.ts` is the one place that decides
+the pill, copy and trophy. Anything that changes what "queue" means is a change
+to `tallyCollectionStats` only.
+
+**Open.** Phone entry points for Stories, Triage and **Add terms** are not on
+Home's phone frame; Phases 3, 6 and 8 must check they stay reachable. The kit
+page story for `PathStop` is covered by type-check and lint but I couldn't get a
+screenshot of `/admin/kit` in the headless run. `?collection=` on Home isn't
+read (the cookie is the current collection). Mastery counts on Home are fresh;
+the shell's switcher list is only as fresh as the shell's last load.

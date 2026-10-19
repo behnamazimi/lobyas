@@ -11,6 +11,7 @@ export function CollectionSwitcherRow({
   tone,
   mastered,
   total,
+  detail,
   selected = false,
   onPress,
 }: {
@@ -19,6 +20,8 @@ export function CollectionSwitcherRow({
   tone: Tone;
   mastered: number;
   total: number;
+  /** A small third line, for example the queue sizes. */
+  detail?: string;
   selected?: boolean;
   onPress: () => void;
 }) {
@@ -44,6 +47,7 @@ export function CollectionSwitcherRow({
             {formatCount(mastered)} of {formatCount(total)} mastered
           </span>
         </span>
+        {detail ? <span className="text-[13px] font-semibold text-muted">{detail}</span> : null}
       </span>
     </button>
   );

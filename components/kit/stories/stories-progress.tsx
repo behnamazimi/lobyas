@@ -1,4 +1,5 @@
-import { MasteryStack, ProgressBar, ProgressRing, QuizSegments } from "@/components/kit";
+import { BookOpen, RotateCw, Zap } from "lucide-react";
+import { MasteryStack, PathStop, ProgressBar, ProgressRing, QuizSegments } from "@/components/kit";
 import { CLAMP_TWO_LINES, formatCount } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
 import { Story } from "./story";
@@ -25,6 +26,35 @@ export function ProgressStories() {
           <ProgressRing value={0.4} tone="read" size={72}>
             <span className="text-lg font-extrabold tabular-nums">{formatCount(1024)}</span>
           </ProgressRing>
+        </div>
+      </Story>
+      <Story
+        title="Path stop"
+        note="Home's stops: next up (filled), part way, met, and a tier without a goal."
+      >
+        <div className="flex flex-wrap items-center gap-4">
+          <PathStop
+            href="#"
+            tone="read"
+            label="Read, 4 of 10 today"
+            ringValue={0.4}
+            highlighted
+            icon={<BookOpen className="size-8" strokeWidth={2.2} />}
+          />
+          <PathStop
+            href="#"
+            tone="review"
+            label="Review, 10 of 10 today"
+            ringValue={1}
+            met
+            icon={<RotateCw className="size-8" strokeWidth={2.2} />}
+          />
+          <PathStop
+            href="#"
+            tone="quiz"
+            label="Quiz"
+            icon={<Zap className="size-8" strokeWidth={2.2} />}
+          />
         </div>
       </Story>
       <Story title="Bar and quiz segments">

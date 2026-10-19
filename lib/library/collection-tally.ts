@@ -1,7 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { fetchAllRows } from "@/lib/supabase/fetch-all-rows";
-import { computeTraceSnapshot, type TraceState } from "@/lib/trace";
+import {
+  computeTraceSnapshot,
+  rankQuizQueue,
+  rankReviewQueue,
+  type TraceCandidate,
+  type TraceState,
+} from "@/lib/trace";
 import type { CollectionRow } from "./collections";
 
 type Client = SupabaseClient<Database>;
@@ -44,6 +50,11 @@ function toTraceState(row: ProgressStateRow): TraceState {
  *  what's left to learn regardless of how it happened; `markedKnownCount`
  *  tracks it on its own for the Mastery page's "N marked known by you" line. */
 type CollectionStats = {
+  /** Terms Read would still show for the first time (never read, not marked known). */
+  readQueue: number;
+  /** Terms Review and Quiz would serve right now: not marked known, not in cooldown. */
+  reviewQueue: number;
+  quizQueue: number;
   termCount: number;
   unfinishedCount: number;
   knownCount: number;
@@ -51,18 +62,37 @@ type CollectionStats = {
   markedKnownCount: number;
 };
 
+function toCandidate(row: ProgressStateRow): TraceCandidate {
+  return {
+    ...toTraceState(row),
+    termId: "",
+    collectionId: row.collection_id,
+    createdAt: new Date(0),
+    everMasteredAt: null,
+    everLearningAt: null,
+    markedKnownAt: null,
+  };
+}
+
+const EMPTY_STATS: CollectionStats = {
+  readQueue: 0,
+  reviewQueue: 0,
+  quizQueue: 0,
+  termCount: 0,
+  unfinishedCount: 0,
+  knownCount: 0,
+  termsLearnedCount: 0,
+  markedKnownCount: 0,
+};
+
 function tallyCollectionStats(collectionIds: string[], data: ProgressStateRow[]) {
   const stats = new Map<string, CollectionStats>();
   const now = new Date();
+  const queueCandidates = new Map<string, TraceCandidate[]>();
 
   for (const collectionId of collectionIds) {
-    stats.set(collectionId, {
-      termCount: 0,
-      unfinishedCount: 0,
-      knownCount: 0,
-      termsLearnedCount: 0,
-      markedKnownCount: 0,
-    });
+    stats.set(collectionId, { ...EMPTY_STATS });
+    queueCandidates.set(collectionId, []);
   }
 
   for (const row of data) {
@@ -78,7 +108,17 @@ function tallyCollectionStats(collectionIds: string[], data: ProgressStateRow[])
     }
     if (markedKnown) {
       current.markedKnownCount += 1;
+    } else {
+      if (row.read_count === 0) current.readQueue += 1;
+      queueCandidates.get(row.collection_id)?.push(toCandidate(row));
     }
+  }
+
+  for (const [collectionId, candidates] of queueCandidates) {
+    const current = stats.get(collectionId);
+    if (!current) continue;
+    current.reviewQueue = rankReviewQueue(candidates, now).length;
+    current.quizQueue = rankQuizQueue(candidates, now).length;
   }
 
   return stats;
@@ -90,11 +130,15 @@ export async function fetchCollectionStats(client: Client, collectionIds: string
   const [progress, unfinished] = await Promise.all([
     fetchAllRows((from, to) =>
       client
-        .rpc("my_progress_state_by_collection", { p_collection_ids: collectionIds })
+        .rpc("my_progress_state_by_collection", {
+          p_collection_ids: collectionIds,
+        })
         .order("term_id")
         .range(from, to),
     ),
-    client.rpc("my_unfinished_term_counts", { p_collection_ids: collectionIds }),
+    client.rpc("my_unfinished_term_counts", {
+      p_collection_ids: collectionIds,
+    }),
   ]);
 
   if (unfinished.error) throw unfinished.error;
@@ -117,7 +161,10 @@ export async function fetchCollectionStatsForUser(
 
   const data = await fetchAllRows((from, to) =>
     client
-      .rpc("progress_state_by_collection", { p_user_id: userId, p_collection_ids: collectionIds })
+      .rpc("progress_state_by_collection", {
+        p_user_id: userId,
+        p_collection_ids: collectionIds,
+      })
       .order("term_id")
       .range(from, to),
   );
@@ -129,15 +176,12 @@ export function applyCollectionStats<T extends { id: string }>(
   stats: Map<string, CollectionStats>,
 ): (T & CollectionRow)[] {
   return rows.map((row) => {
-    const collectionStats = stats.get(row.id) ?? {
-      termCount: 0,
-      unfinishedCount: 0,
-      knownCount: 0,
-      termsLearnedCount: 0,
-      markedKnownCount: 0,
-    };
+    const collectionStats = stats.get(row.id) ?? EMPTY_STATS;
     return {
       ...row,
+      readQueue: collectionStats.readQueue,
+      reviewQueue: collectionStats.reviewQueue,
+      quizQueue: collectionStats.quizQueue,
       termCount: collectionStats.termCount,
       unfinishedCount: collectionStats.unfinishedCount,
       knownCount: collectionStats.knownCount,

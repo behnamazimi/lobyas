@@ -13,6 +13,9 @@ export type ShellCollection = {
   kind: CollectionKind;
   termCount: number;
   termsLearnedCount: number;
+  queues: { read: number; review: number; quiz: number };
+  description: string | null;
+  language: string;
   isActiveForReview: boolean;
 };
 

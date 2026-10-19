@@ -10,6 +10,7 @@ export { ToggleRow } from "./controls/toggle-row";
 export { ProgressBar } from "./progress/bar";
 export { MasteryStack } from "./progress/mastery-stack";
 export { QuizSegments } from "./progress/quiz-segments";
+export { PathStop } from "./progress/path-stop";
 export { ProgressRing } from "./progress/ring";
 export { CollectionSwitcherRow } from "./shell/collection-switcher-row";
 export { PageHeader } from "./shell/page-header";
