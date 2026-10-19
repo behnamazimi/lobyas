@@ -12,8 +12,8 @@ export function TermLayoutCustomize({ collectionId }: { collectionId: string | u
   return (
     <Button
       variant="ghost"
-      size="xs"
-      className="font-normal text-base-content/60 hover:text-base-content"
+      size="sm"
+      className="min-h-11 font-extrabold text-ink-soft"
       onHoverStart={preloadTermLayoutEditor}
       onFocus={preloadTermLayoutEditor}
       onPress={() => access.openEditor(collectionId)}
