@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { GoalCaughtUp } from "@/components/goals/goal-caught-up";
 import { CaughtUpScene } from "@/components/illustrations/scenes/caught-up";
-import { QuizCenteredState, QuizPanel, QuizPanelBody } from "@/components/quiz/quiz-ui";
+import { EmptyPanel } from "@/components/kit";
 import type { GoalTier } from "@/lib/goals/levels";
 
 /** Shared "nothing left to read" empty state for both the paged Read view
@@ -19,17 +19,14 @@ export function ReadCaughtUp({
   actions?: ReactNode;
 }) {
   return (
-    <QuizPanel>
+    <div className="flex min-h-0 flex-1 items-center justify-center py-6">
       {goal ? <GoalCaughtUp tier={goal.tier} collectionId={goal.collectionId} /> : null}
-      <QuizPanelBody>
-        <QuizCenteredState
-          illustration={<CaughtUpScene className="w-48 sm:w-56" />}
-          title={title}
-          description={description}
-        >
-          {actions}
-        </QuizCenteredState>
-      </QuizPanelBody>
-    </QuizPanel>
+      <EmptyPanel
+        illustration={<CaughtUpScene className="w-full" />}
+        title={title}
+        description={description}
+        actions={actions}
+      />
+    </div>
   );
 }

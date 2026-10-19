@@ -1,6 +1,6 @@
 import { type ReactNode, useCallback } from "react";
 import { FirstExposureKnownPrompt } from "@/components/shared/first-exposure-known-prompt";
-import { TermCardHeader } from "@/components/terms/term-card-header";
+import { ReadCardHead } from "@/components/read/read-card-head";
 import { StudyTermBody } from "@/components/terms/study-term-body";
 import type { ReviewTerm } from "@/lib/review/types";
 
@@ -53,17 +53,19 @@ export function ReadFullscreenCard({
   return (
     <div
       ref={ref}
-      className="flex h-dvh w-full shrink-0 flex-col pt-safe pb-safe"
+      className="mx-auto flex h-dvh w-full max-w-[640px] shrink-0 flex-col pt-safe pb-safe"
       style={{ scrollSnapAlign: "start" }}
     >
-      <TermCardHeader
-        term={term}
-        narrationAccess={narrationAccess}
-        narrationPreload={narrationPreload}
-        style={{ paddingInlineEnd: "calc(env(safe-area-inset-right) + 3.25rem)" }}
-      />
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 has-[[data-known-prompt]]:pb-0 sm:px-6">
-        <StudyTermBody key={term.id} term={term} />
+        <div lang={term.collectionLanguage}>
+          <ReadCardHead
+            term={term}
+            narrationAccess={narrationAccess}
+            narrationPreload={narrationPreload}
+            className="pe-10"
+          />
+          <StudyTermBody key={term.id} term={term} />
+        </div>
         {term.isNewToUser ? (
           <FirstExposureKnownPrompt
             termId={term.id}

@@ -1,65 +1,43 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { cn } from "@/lib/utils";
+import { ModeSwitch } from "@/components/kit";
 
 // Cards passes view=cards so an unread story doesn't redirect it back to Stories.
-const READ_MODES: { href: string; label: string; params: Record<string, string> }[] = [
-  { href: "/app/read", label: "Cards", params: { view: "cards" } },
-  { href: "/app/read/stories", label: "Stories", params: {} },
-];
-
-function hrefFor(path: string, params: Record<string, string>): string {
-  const query = new URLSearchParams(params).toString();
-  return query ? `${path}?${query}` : path;
-}
+const STORIES_PATH = "/app/read/stories";
 
 export function isStoriesPath(pathname: string) {
-  return pathname.startsWith("/app/read/stories");
+  return pathname.startsWith(STORIES_PATH);
 }
 
-function ReadModeTabList({ collection }: { collection: string | null }) {
-  const pathname = usePathname();
-  const activeHref = isStoriesPath(pathname) ? "/app/read/stories" : "/app/read";
-  const collectionParam: Record<string, string> =
-    collection && collection !== "all" ? { collection } : {};
-
-  return (
-    <nav
-      aria-label="Read mode"
-      data-tour="read-modes"
-      className="tabs tabs-box tabs-sm w-fit shrink-0"
-    >
-      {READ_MODES.map((mode) => {
-        const active = mode.href === activeHref;
-        return (
-          <Link
-            key={mode.href}
-            href={hrefFor(mode.href, { ...mode.params, ...collectionParam })}
-            aria-current={active ? "page" : undefined}
-            className={cn("tab min-h-9 px-4", active && "tab-active")}
-          >
-            {mode.label}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
-
-function ReadModeTabListWithCollection() {
-  const searchParams = useSearchParams();
-  return <ReadModeTabList collection={searchParams.get("collection")} />;
+function withCollection(path: string, params: Record<string, string>, collection: string | null) {
+  const query = new URLSearchParams(params);
+  if (collection && collection !== "all") query.set("collection", collection);
+  const text = query.toString();
+  return text ? `${path}?${text}` : path;
 }
 
 /** Cards ↔ Stories switch at the top of Read. Carries the collection across
  *  so switching modes keeps you in the same context. */
-export function ReadModeTabs() {
+export function ReadModeSwitch({
+  pathname,
+  collection,
+}: {
+  pathname: string;
+  collection: string | null;
+}) {
+  const onStories = isStoriesPath(pathname);
   return (
-    <Suspense fallback={<ReadModeTabList collection={null} />}>
-      <ReadModeTabListWithCollection />
-    </Suspense>
+    <ModeSwitch
+      label="Read mode"
+      data-tour="read-modes"
+      items={[
+        {
+          href: withCollection("/app/read", { view: "cards" }, collection),
+          label: "Cards",
+          active: !onStories,
+        },
+        { href: withCollection(STORIES_PATH, {}, collection), label: "Stories", active: onStories },
+      ]}
+    />
   );
 }

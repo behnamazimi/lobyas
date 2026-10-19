@@ -1,7 +1,4 @@
-import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-
-const PRESS_CLASS = "transition-transform duration-150 ease-out active:scale-[0.96]";
+import { FeedbackNote, Pill } from "@/components/kit";
 
 export function ReadErrorAlert({
   message,
@@ -13,19 +10,13 @@ export function ReadErrorAlert({
   onRetry: () => void;
 }) {
   return (
-    <Alert variant="destructive">
-      <AlertDescription>{message}</AlertDescription>
-      <AlertAction>
-        <Button
-          type="button"
-          size="sm"
-          onPress={onRetry}
-          isDisabled={isPending}
-          className={PRESS_CLASS}
-        >
-          {isPending ? "Loading…" : "Try again"}
-        </Button>
-      </AlertAction>
-    </Alert>
+    <div className="flex flex-col gap-3">
+      <FeedbackNote kind="wrong" title="Couldn't load terms">
+        {message}
+      </FeedbackNote>
+      <Pill size="lg" onClick={onRetry} disabled={isPending}>
+        {isPending ? "Loading…" : "Try again"}
+      </Pill>
+    </div>
   );
 }

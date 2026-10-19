@@ -40,11 +40,11 @@ export function StoryShadowingToggle({ on }: { on: boolean }) {
         aria-pressed={shownOn}
         onPress={toggle}
         className={cn(
-          "absolute top-1 right-3 size-11 sm:right-4 md:top-2 md:size-9",
-          shownOn ? "bg-primary/15 text-primary" : "text-base-content/70",
+          "absolute top-1.5 right-2 size-11 rounded-full",
+          shownOn ? "bg-quiz-tint text-quiz-text" : "text-muted",
         )}
       >
-        <Speech className="size-5" aria-hidden strokeWidth={1.5} />
+        <Speech className="size-5" aria-hidden strokeWidth={2.2} />
       </Button>
       <Tooltip>{shownOn ? "Shadowing is on" : "Turn on shadowing"}</Tooltip>
     </TooltipTrigger>

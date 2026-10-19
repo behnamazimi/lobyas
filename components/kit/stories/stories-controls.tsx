@@ -5,6 +5,7 @@ import { useState } from "react";
 import {
   Chip,
   IconButton,
+  ModeSwitch,
   Pill,
   RadioList,
   SegmentedControl,
@@ -22,6 +23,18 @@ export function ControlsStories() {
 
   return (
     <>
+      <Story
+        title="Mode switch"
+        note="Links on a pill track, like Cards and Stories. The current one is white."
+      >
+        <ModeSwitch
+          label="Read mode"
+          items={[
+            { href: "/admin/kit", label: "Cards", active: true },
+            { href: "/admin/kit", label: "Stories", active: false },
+          ]}
+        />
+      </Story>
       <Story
         title="Pills and icon buttons"
         note="Ink, white, soft and coral; 44 px, and 60 px pinned."

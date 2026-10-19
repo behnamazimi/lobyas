@@ -109,10 +109,7 @@ async function HomeContent() {
         addTermsHref={`/app/import/paste?to=${collection.id}`}
       />
       <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:items-start">
-        <section
-          aria-label="Today’s path"
-          className="min-w-0 lg:flex-[999_1_560px] lg:rounded-[30px] lg:bg-base-100 lg:p-6 lg:shadow-card"
-        >
+        <section aria-label="Today’s path" className="min-w-0 lg:flex-[999_1_560px]">
           <div className="mb-3 flex items-baseline justify-between lg:hidden">
             <h2 className="m-0 font-sans text-base font-extrabold">Today</h2>
             <div className="text-[13px] font-bold text-muted">{path.note}</div>

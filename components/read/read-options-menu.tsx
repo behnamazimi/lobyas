@@ -3,10 +3,10 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { saveReadOptionAction } from "@/app/(private)/app/read/actions";
-import { OptionRow } from "@/components/read/read-option-row";
+import { SlidersHorizontal } from "lucide-react";
+import { BottomSheet, Divider, IconButton, ToggleRow } from "@/components/kit";
 import { ShadowingOptionRows } from "@/components/read/shadowing-option-rows";
 import { isStoriesPath } from "@/components/read/read-mode-tabs";
-import { OptionsMenu } from "@/components/shared/options-menu";
 import { useToast } from "@/components/ui/toast";
 import { useKeepAwakeAvailable } from "@/hooks/use-wake-lock";
 import type { ReadOptionKey, ReadOptions } from "@/lib/read/options";
@@ -21,16 +21,6 @@ type SwitchOptionKey =
 
 const OPTION_ROWS: { key: SwitchOptionKey; label: string; description: string }[] = [
   {
-    key: "storiesDefault",
-    label: "Open Stories by default",
-    description: "Read starts on the Stories tab instead of Cards.",
-  },
-  {
-    key: "keepAwake",
-    label: "Keep screen awake",
-    description: "Stops the screen sleeping while you study, until you’ve been idle for 2 minutes.",
-  },
-  {
     key: "revealedDefault",
     label: "Show definitions right away",
     description: "Cards open revealed. A card counts as read when it's shown.",
@@ -39,6 +29,16 @@ const OPTION_ROWS: { key: SwitchOptionKey; label: string; description: string }[
     key: "hideQuestion",
     label: "Hide “What is …?”",
     description: "The hidden card shows just the term.",
+  },
+  {
+    key: "storiesDefault",
+    label: "Open Stories by default",
+    description: "Read starts on the Stories tab instead of Cards.",
+  },
+  {
+    key: "keepAwake",
+    label: "Keep screen awake",
+    description: "Stops the screen sleeping while you study, until you’ve been idle for 2 minutes.",
   },
   {
     key: "narrationHighlight",
@@ -75,25 +75,43 @@ function OptionsList({
   keepAwakeAvailable: boolean;
   onChange: (key: ReadOptionKey, value: boolean | number) => void;
 }) {
+  const visible = OPTION_ROWS.filter((row) => keepAwakeAvailable || row.key !== "keepAwake");
+  const general = visible.filter((row) => !STORIES_ONLY_KEYS.has(row.key));
+  const listening = visible.filter((row) => STORIES_ONLY_KEYS.has(row.key));
+
+  function renderRows(rows: typeof OPTION_ROWS) {
+    return rows.map((row, index) => {
+      const note = disabledNoteFor(row.key, options);
+      return (
+        <div key={row.key}>
+          {index > 0 ? <Divider /> : null}
+          <ToggleRow
+            label={row.label}
+            description={note ?? row.description}
+            disabled={Boolean(note)}
+            className={note ? "opacity-50" : undefined}
+            checked={options[row.key] || (row.key === "narrationHighlight" && options.shadowing)}
+            onChange={(checked) => onChange(row.key, checked)}
+          />
+        </div>
+      );
+    });
+  }
+
   return (
-    <ul className="m-0 list-none divide-y divide-base-300/60 p-0">
-      {OPTION_ROWS.filter(
-        (row) =>
-          (onStories || !STORIES_ONLY_KEYS.has(row.key)) &&
-          (keepAwakeAvailable || row.key !== "keepAwake"),
-      ).map((row) => (
-        <OptionRow
-          key={row.key}
-          id={`read-option-${row.key}`}
-          label={row.label}
-          description={row.description}
-          checked={options[row.key] || (row.key === "narrationHighlight" && options.shadowing)}
-          disabledNote={disabledNoteFor(row.key, options)}
-          onChange={(checked) => onChange(row.key, checked)}
-        />
-      ))}
-      {onStories ? <ShadowingOptionRows options={options} onChange={onChange} /> : null}
-    </ul>
+    <div>
+      {renderRows(general)}
+      {onStories ? (
+        <>
+          <h3 className="mt-4 mb-0 px-1 text-[13px] font-extrabold text-muted">
+            Listening (AI voice)
+          </h3>
+          {renderRows(listening)}
+          <Divider />
+          <ShadowingOptionRows options={options} onChange={onChange} />
+        </>
+      ) : null}
+    </div>
   );
 }
 
@@ -101,7 +119,7 @@ function sameOptions(a: ReadOptions, b: ReadOptions): boolean {
   return (Object.keys(a) as ReadOptionKey[]).every((key) => a[key] === b[key]);
 }
 
-/** Gear next to the Cards/Stories switch. Saves each toggle as it changes. */
+/** The options button next to the Cards/Stories switch. Saves each toggle as it changes. */
 export function ReadOptionsMenu({ initialOptions }: { initialOptions: ReadOptions }) {
   const [options, setOptions] = useState(initialOptions);
   // An option can also be changed elsewhere (the Shadowing chip on a story), so
@@ -130,14 +148,26 @@ export function ReadOptionsMenu({ initialOptions }: { initialOptions: ReadOption
     if (key !== "storiesDefault") router.refresh();
   }
 
+  const [open, setOpen] = useState(false);
+
   return (
-    <OptionsMenu label="Read options" tourTarget="read-options">
-      <OptionsList
-        options={options}
-        onStories={onStories}
-        keepAwakeAvailable={keepAwakeAvailable}
-        onChange={(key, value) => void update(key, value)}
-      />
-    </OptionsMenu>
+    <>
+      <IconButton
+        label="Read options"
+        data-tour="read-options"
+        onClick={() => setOpen(true)}
+        className="transition-transform duration-150 ease-out active:scale-[0.96]"
+      >
+        <SlidersHorizontal className="size-[22px]" strokeWidth={2.2} aria-hidden />
+      </IconButton>
+      <BottomSheet isOpen={open} onOpenChange={setOpen} title="Read options">
+        <OptionsList
+          options={options}
+          onStories={onStories}
+          keepAwakeAvailable={keepAwakeAvailable}
+          onChange={(key, value) => void update(key, value)}
+        />
+      </BottomSheet>
+    </>
   );
 }

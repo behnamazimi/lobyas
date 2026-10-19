@@ -36,7 +36,7 @@ export function AppShell({
       className={cn(
         "flex min-h-full flex-1 flex-col",
         "max-lg:fixed max-lg:inset-0 max-lg:min-h-0 max-lg:overflow-hidden",
-        "lg:h-dvh lg:min-h-0 lg:overflow-hidden",
+        "lg:h-dvh lg:min-h-0 lg:flex-none lg:overflow-hidden",
         shellLayout(pathname) === "tabs" && "chrome-tabs",
       )}
       data-chrome="study"

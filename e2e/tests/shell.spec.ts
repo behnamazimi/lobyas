@@ -62,10 +62,13 @@ test.describe("App shell", () => {
       await expect(page).toHaveURL(new RegExp(`collection=${beta.collectionId}`));
 
       await gotoReady(page, "/app/read");
-      await expect(page.getByLabel("Collection")).toContainText(beta.name);
+      await expect(page).toHaveURL(new RegExp(`collection=${beta.collectionId}`));
 
       await gotoReady(page, `/app/read?collection=${alpha.collectionId}`);
-      await expect(page.getByLabel("Collection")).toContainText(alpha.name);
+      await expect(page).toHaveURL(new RegExp(`collection=${alpha.collectionId}`));
+
+      await gotoReady(page, "/app/read?collection=all");
+      await expect(page).toHaveURL(new RegExp(`collection=${alpha.collectionId}`));
     },
   );
 });

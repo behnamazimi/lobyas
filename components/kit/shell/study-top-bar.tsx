@@ -17,12 +17,15 @@ export function StudyTopBar({
   closeLabel = "Close and go home",
   collection,
   goal,
+  goalSlot,
   className,
 }: {
   closeHref: string;
   closeLabel?: string;
   collection: { name: string; letter: string; tone: Tone; onPress?: () => void };
-  goal?: { label: string; value?: number; tone: Tone };
+  goal?: { label: string; value?: number; tone: Tone; icon?: ReactNode };
+  /** Replaces `goal` with a live element. */
+  goalSlot?: ReactNode;
   className?: string;
 }) {
   return (
@@ -33,7 +36,7 @@ export function StudyTopBar({
       <div className="flex min-w-0 flex-1 justify-center">
         <CollectionChip collection={collection} />
       </div>
-      {goal ? <GoalPill {...goal} /> : <div className="w-9" />}
+      {goalSlot ?? (goal ? <GoalPill {...goal} /> : <div className="w-9" />)}
     </div>
   );
 }
@@ -64,12 +67,25 @@ function CollectionChip({
   );
 }
 
-function GoalPill({ label, value, tone }: { label: ReactNode; value?: number; tone: Tone }) {
+/** The pill's ring (or `icon` when there is no goal) and its label. */
+export function GoalPill({
+  label,
+  value,
+  tone,
+  icon,
+}: {
+  label: ReactNode;
+  value?: number;
+  tone: Tone;
+  icon?: ReactNode;
+}) {
   return (
     <div className={cn(pill, "shrink-0 pr-3 pl-2 tabular-nums")}>
       {value !== undefined ? (
         <ProgressRing value={value} tone={tone} size={24} strokeWidth={10} />
-      ) : null}
+      ) : (
+        icon
+      )}
       <span>{label}</span>
     </div>
   );
