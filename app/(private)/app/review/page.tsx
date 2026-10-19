@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { RememberCollectionFromLink } from "@/components/collections/remember-collection";
 import { ReviewPage } from "@/components/review/review-page";
 import {
   parseReviewCollectionCookie,
@@ -9,9 +10,11 @@ import { getSessionUser } from "@/lib/auth/require-session";
 import { DEFAULT_REVIEW_OPTIONS, getReviewOptions } from "@/lib/review/options";
 import { loadReviewFeed, loadReviewSetup } from "@/lib/review/feed";
 import {
-  isCollectionPreference,
-  resolveStudyCollectionId,
-} from "@/lib/study/collection-preference";
+  CURRENT_COLLECTION_COOKIE,
+  parseCurrentCollectionId,
+  resolveAppCollection,
+  speculativeAppCollection,
+} from "@/lib/collections/current";
 import { hasNoCollections } from "@/lib/study/collections";
 import { withReveal } from "@/components/shared/view-transitions";
 
@@ -34,9 +37,12 @@ async function ReviewRoute({ searchParams }: PageProps) {
   const rememberedId = parseReviewCollectionCookie(
     cookieStore.get(REVIEW_COLLECTION_COOKIE)?.value,
   );
-  const speculativeCollectionId = isCollectionPreference(params.collection)
-    ? params.collection
-    : (rememberedId ?? "all");
+  const currentId = parseCurrentCollectionId(cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value);
+  const speculativeCollectionId = speculativeAppCollection(
+    params.collection,
+    currentId,
+    rememberedId,
+  );
 
   const [setup, speculativeSeed, options] = await Promise.all([
     loadReviewSetup(),
@@ -50,11 +56,12 @@ async function ReviewRoute({ searchParams }: PageProps) {
   if (hasNoCollections({ active: setup.collections, paused: setup.paused }))
     redirect("/app/library");
 
-  const collectionId = resolveStudyCollectionId(
-    params.collection,
+  const collectionId = resolveAppCollection({
+    collectionParam: params.collection,
+    currentId,
     rememberedId,
-    setup.collections.map((collection) => collection.id),
-  );
+    activeIds: setup.collections.map((collection) => collection.id),
+  });
   const seed =
     collectionId === speculativeCollectionId
       ? speculativeSeed
@@ -65,17 +72,22 @@ async function ReviewRoute({ searchParams }: PageProps) {
   }
 
   return (
-    <ReviewPage
-      // Resuming a paused collection refreshes the page; a new active set
-      // remounts it so the queue rebuilds from the fresh seed.
-      key={setup.collections.map((collection) => collection.id).join(",")}
-      seed={seed}
-      collections={setup.collections}
-      paused={setup.paused}
-      collectionId={collectionId}
-      narrationAccess={setup.narrationAccess}
-      initialOptions={options}
-    />
+    <>
+      <ReviewPage
+        // Resuming a paused collection refreshes the page; a new active set
+        // remounts it so the queue rebuilds from the fresh seed.
+        key={setup.collections.map((collection) => collection.id).join(",")}
+        seed={seed}
+        collections={setup.collections}
+        paused={setup.paused}
+        collectionId={collectionId}
+        narrationAccess={setup.narrationAccess}
+        initialOptions={options}
+      />
+      {params.collection && params.collection === collectionId && collectionId !== "all" ? (
+        <RememberCollectionFromLink collectionId={collectionId} />
+      ) : null}
+    </>
   );
 }
 

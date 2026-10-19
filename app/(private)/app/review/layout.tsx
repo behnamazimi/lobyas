@@ -14,7 +14,7 @@ export default function ReviewLayout({ children }: { children: React.ReactNode }
       <SectionTransition>
         <PageShell
           className="flex min-h-0 flex-1 flex-col"
-          innerClassName="flex min-h-0 flex-1 flex-col gap-3 space-y-0 py-3 md:gap-4 md:py-4 max-md:pb-dock! md:pb-4!"
+          innerClassName="flex min-h-0 flex-1 flex-col gap-3 space-y-0 py-3 pb-4! md:gap-4 md:py-4"
         >
           <div className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col gap-3 lg:max-w-2xl">
             <PageHeader

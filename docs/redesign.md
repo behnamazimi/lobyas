@@ -98,6 +98,13 @@ desktop. Every phase follows these rules instead of inventing its own.
 | Tablet, `md` to `lg`           | Bottom tab bar stays.                                                                         | One column, max width 640 px, centered.                                                                      |
 | Desktop, `lg` (1024 px) and up | Left rail with the four destinations, the collection switcher and the streak.                 | Pages use a 1120 px container. Study screens use a centered 640 px column; the card's height caps at 760 px. |
 
+The `HomeDesktop` frame (1440 × 900) is the reference for the desktop chrome
+and page layout. It shows the rail (brand mark, collection switcher with its
+popover, the four destinations, the streak card and the account row) and
+Home's two-pane layout. Every desktop page uses the same rail and container.
+In the frame the rail scrolls with the page because the canvas can't pin it;
+in the app it stays fixed to the window height while the page scrolls.
+
 Desktop conventions that apply everywhere:
 
 - **Sheets** become centered dialogs (max width 480 px). Short menus
@@ -211,7 +218,8 @@ item that still needs a decision.
 This phase replaces the app chrome with the new navigation and makes the
 current collection app-wide, so every later page plugs into it.
 
-**Frames:** `Main` (tab bar), `Me`, `Switcher`, `Streak`.
+**Frames:** `Main` (tab bar), `HomeDesktop` (rail), `Me`, `Switcher`,
+`Streak`.
 
 **Existing code:** `components/app-chrome.tsx`, `components/app-shell.tsx`,
 `components/app/study-phone-*`, `components/streak-badge.tsx`,
@@ -229,10 +237,10 @@ current collection app-wide, so every later page plugs into it.
    updates it.
 3. Point `/app` at a placeholder Home page (Phase 2 fills it) instead of
    redirecting to the Library.
-4. Build the **Me** page shell with every item from today's **More** sheet:
-   Mastery, Browse, Add a collection, Goals, Settings, Admin panel (admins
-   only), Install, Report an issue, theme, credits, Log out, and the footer
-   links.
+4. Build the **Me** page as a plain list of today's **More** actions, without
+   a Goals row (Goals is a tab): Mastery, Browse, Add a collection, Settings,
+   Admin panel (admins only), Install, Report an issue, Light/Dim, credits,
+   Log out, and the footer links. Phase 9 replaces the list with the Me frame.
 5. Restyle the streak pill and the streak history sheet (`Streak`).
 6. Update `lib/tour/` chapters and targets for the new navigation.
 
@@ -251,11 +259,11 @@ slots, and how a study page opts out of the tab bar.
 
 ## Phase 2: Home
 
-This phase builds the path-based Home with and without goals, and the
-collection switcher.
+This phase builds the path-based Home with and without goals, and adds queue
+lines to the collection switcher Phase 1 shipped.
 
 **Frames:** `Main`, `HomeNoGoals`, `HomeDim`, `Switcher`, `HomeLoading`,
-`StressHome`, `StressSwitcher`.
+`StressHome`, `StressSwitcher`, `HomeDesktop`.
 
 **Existing code:** `lib/goals/` (`loadGoalDay`, `goalProgress`, `metCount`,
 `nextOpenTier`), `lib/library/collection-tally.ts`
@@ -276,8 +284,13 @@ collection switcher.
 4. A stop with an empty queue opens the empty state (`Empty`).
 5. The switcher sheet lists active collections with mastery and queues, plus
    **Add collection**. Paused collections don't appear.
-6. Desktop: the path on the left, with today's goals and the collection card
-   on the right.
+6. Desktop (`HomeDesktop`): a header with the collection name, mastery bar,
+   **Add terms** and one primary action that continues the next open goal;
+   the path in a white panel on the left; and a right column with today's
+   goals (small rings and **Edit pace**) and the collection card (queues,
+   **Open in Library**, **Stories**, **Triage**). Below about 1180 px the
+   right column moves under the path and its two cards sit side by side.
+   The switcher is the rail's popover, not a sheet.
 
 **Keep:** goals optional; no due copy; the celebration claim flow.
 
@@ -585,3 +598,59 @@ isn't installed here and wasn't downloaded). I did not add an e2e spec for
 `/admin/kit`. The 390px look was only checked for overflow and tap targets, not
 against the frames. The dev overlay logs a React "script tag" error that comes
 from the root layout's theme scripts, not the kit.
+
+### Phase 1 · App shell and navigation
+
+Branch `redesign-p1-shell`.
+
+**Built.** The app shell has three layouts from `shellLayout` in `lib/chrome.ts`:
+`tabs` (Home, Library, Goals, Me), `study` (Read including Stories, Review, Quiz,
+Triage) and `sub` (everything else in the app, including admin and `/c/…`).
+`navKey` highlights a destination. Phone uses kit `TabBar` (`lg:hidden`). Every
+desktop page uses the same rail, pinned to the window height while the page
+scrolls: brand, the collection switcher as a popover, the four destinations,
+the streak card and the account row. Study routes hide the tab bar. On a phone
+they also hide the rail and show the study bar; the collection chip opens the
+sheet. On desktop the chip is a label and the switcher is the rail's popover.
+Close on the study bar goes to `/app`. Sub-pages get a phone-only back bar:
+history when this visit already moved inside the app, otherwise
+`subPageFallback`. `/app` is a placeholder Home. `AUTHENTICATED_HOME_PATH` is
+`/app`.
+
+**Kit.** `CollectionSwitcherRow` in `components/kit/shell/collection-switcher-row.tsx`,
+exported from `@/components/kit`. `StudyTopBar`'s collection chip takes an
+optional `onPress`.
+
+**Data.** No new queries. The current collection is the existing cookie
+`lb_lib_collection`, read with `parseCurrentCollectionId` and written with
+`setCurrentCollection` in `lib/collections/current.ts` (a browser cookie, not a
+Server Action). `pickLibraryCollectionId` moved there. A study page resolves
+with `resolveAppCollection`: a real `?collection=`, then the app cookie, then
+that page's own real collection, then the first active collection. A stored
+`"all"` is skipped. `?collection=all` and the in-page All option still mix
+collections for that visit and do not write the cookie. A real pick does.
+Stories checks the app cookie before its database last-collection. Triage
+already follows the Library setup.
+
+**Left as is.** Page bodies. The public account menu. Light and Dim only, no
+Auto. Me is a plain list (streak row, the old More actions except Goals, Admin
+for admins, install, report, theme, credits, log out, footer links). Phase 9
+replaces that list with the Me frame. The study bar has no goal pill. The
+switcher has no queue counts and no paused collections. The streak pill is on
+the Home header on the phone. The desktop rail carries the streak card on every
+page. The streak sheet is restyled and still uses `StreakFlameScene`. The walk ends after
+Library; the Library account tip points at Me and comes before the streak tip.
+Read, Review and Quiz chapters still run on those pages.
+
+**Frames that didn't match.** Me has no framed profile card yet. The switcher
+has no queue lines. Theme has no Auto. Settings does not mention Telegram.
+Goals is not a row on Me.
+
+**Care.** Don't rebuild the switcher in Phase 2; add queue lines to
+`components/app/shell/collection-switcher.tsx`. Don't restyle Me's list into
+the frame before Phase 9. `shellLayout` is how a study page opts out of the
+tab bar: a path under `/app/read`, `/app/review`, `/app/quiz` or `/app/triage`.
+Desktop study pages keep the rail.
+
+**Open.** Sub-pages still show their old header under the new back bar until
+their phase. Admin sits in the rail's content area with its own sidebar.

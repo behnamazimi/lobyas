@@ -14,7 +14,7 @@ import type {
   UnfinishedLibraryTerm,
 } from "@/lib/terms/types";
 import { isUuid } from "./details";
-import { pickLibraryCollectionId } from "./pick-collection";
+import { pickLibraryCollectionId } from "@/lib/collections/current";
 
 type Client = SupabaseClient<Database>;
 

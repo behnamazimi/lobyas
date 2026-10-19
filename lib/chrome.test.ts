@@ -1,17 +1,10 @@
 import { describe, expect, it } from "vitest";
-import {
-  isDockPath,
-  isLibraryPath,
-  isMorePath,
-  isNestedFlowPath,
-  isStudyPath,
-  studyBackTarget,
-} from "./chrome";
+import { isStudyPath, navKey, shellLayout, subPageFallback } from "./chrome";
 
 describe("isStudyPath", () => {
-  it("treats jargon and admin as study chrome", () => {
+  it("treats the app, admin and shared links as the app shell", () => {
+    expect(isStudyPath("/app")).toBe(true);
     expect(isStudyPath("/app/library")).toBe(true);
-    expect(isStudyPath("/app/read")).toBe(true);
     expect(isStudyPath("/admin/people")).toBe(true);
     expect(isStudyPath("/c/22222222-2222-2222-2222-222222222223")).toBe(true);
   });
@@ -27,70 +20,52 @@ describe("isStudyPath", () => {
   });
 });
 
-describe("isLibraryPath", () => {
-  it("is only the collections hub", () => {
-    expect(isLibraryPath("/app/library")).toBe(true);
-    expect(isLibraryPath("/app/read")).toBe(false);
+describe("shellLayout", () => {
+  it("gives the four destinations the tab bar", () => {
+    expect(shellLayout("/app")).toBe("tabs");
+    expect(shellLayout("/app/library")).toBe("tabs");
+    expect(shellLayout("/app/goals")).toBe("tabs");
+    expect(shellLayout("/app/me")).toBe("tabs");
+  });
+
+  it("treats Read, Stories, Review, Quiz and Triage as study", () => {
+    expect(shellLayout("/app/read")).toBe("study");
+    expect(shellLayout("/app/read/stories")).toBe("study");
+    expect(shellLayout("/app/review")).toBe("study");
+    expect(shellLayout("/app/quiz")).toBe("study");
+    expect(shellLayout("/app/triage")).toBe("study");
+  });
+
+  it("treats the rest of the app as a sub-page and the website as the site", () => {
+    expect(shellLayout("/app/settings")).toBe("sub");
+    expect(shellLayout("/app/import/paste")).toBe("sub");
+    expect(shellLayout("/admin")).toBe("sub");
+    expect(shellLayout("/c/22222222-2222-2222-2222-222222222223")).toBe("sub");
+    expect(shellLayout("/login")).toBe("site");
   });
 });
 
-describe("isMorePath", () => {
-  it("covers overflow destinations", () => {
-    expect(isMorePath("/app/settings")).toBe(true);
-    expect(isMorePath("/app/capture")).toBe(true);
-    expect(isMorePath("/admin/collections")).toBe(true);
-    expect(isMorePath("/admin/system/audit")).toBe(true);
-    expect(isMorePath("/c/22222222-2222-2222-2222-222222222223")).toBe(true);
-    expect(isMorePath("/app/read")).toBe(false);
-    expect(isMorePath("/app/library")).toBe(false);
+describe("navKey", () => {
+  it("names the destination and nothing else", () => {
+    expect(navKey("/app")).toBe("home");
+    expect(navKey("/app/library")).toBe("library");
+    expect(navKey("/app/goals")).toBe("goals");
+    expect(navKey("/app/me")).toBe("me");
+    expect(navKey("/app/read")).toBeNull();
+    expect(navKey("/app/settings")).toBeNull();
   });
 });
 
-describe("isDockPath", () => {
-  it("is the four primary study tabs", () => {
-    expect(isDockPath("/app/library")).toBe(true);
-    expect(isDockPath("/app/read")).toBe(true);
-    expect(isDockPath("/app/review")).toBe(true);
-    expect(isDockPath("/app/quiz")).toBe(true);
-  });
-
-  it("hides the dock on overflow sub-pages", () => {
-    expect(isDockPath("/app/settings")).toBe(false);
-    expect(isDockPath("/app/browse")).toBe(false);
-    expect(isDockPath("/admin/people")).toBe(false);
-    expect(isDockPath("/login")).toBe(false);
-  });
-});
-
-describe("studyBackTarget", () => {
-  it("returns dock pages with their query", () => {
-    expect(studyBackTarget("/app/quiz", "")).toBe("/app/quiz");
-    expect(studyBackTarget("/app/library", "collection=abc")).toBe("/app/library?collection=abc");
-    expect(studyBackTarget("/app/read/stories", "collection=abc")).toBe(
-      "/app/read/stories?collection=abc",
-    );
-  });
-
-  it("never targets overflow or website pages", () => {
-    expect(studyBackTarget("/app/settings", "tab=ai")).toBeNull();
-    expect(studyBackTarget("/admin/people", "")).toBeNull();
-    expect(studyBackTarget("/how-terms-work", "")).toBeNull();
-  });
-});
-
-describe("isNestedFlowPath", () => {
-  it.each([
-    ["/app/import", false],
-    ["/app/import/paste", true],
-    ["/app/import/apps", true],
-    ["/app/import/apps/quizlet", true],
-    ["/app/import/more", true],
-    ["/app/import/request", true],
-    ["/app/capture", true],
-    ["/app/settings", false],
-    ["/app/read", false],
-    ["/app/library", false],
-  ])("%s -> %s", (path, expected) => {
-    expect(isNestedFlowPath(path)).toBe(expected);
+describe("subPageFallback", () => {
+  it("sends each sub-page to its parent when there is no history", () => {
+    expect(subPageFallback("/app/settings")).toBe("/app/me");
+    expect(subPageFallback("/app/mastery")).toBe("/app/me");
+    expect(subPageFallback("/app/browse")).toBe("/app/me");
+    expect(subPageFallback("/app/import")).toBe("/app/me");
+    expect(subPageFallback("/app/import/paste")).toBe("/app/import");
+    expect(subPageFallback("/app/capture")).toBe("/app/import");
+    expect(subPageFallback("/admin")).toBe("/app/me");
+    expect(subPageFallback("/admin/people")).toBe("/admin");
+    expect(subPageFallback("/c/22222222-2222-2222-2222-222222222223")).toBe("/app");
   });
 });

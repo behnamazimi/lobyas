@@ -7,7 +7,7 @@ import { PageShell } from "@/components/page-container";
 import { LibraryPageSkeleton } from "@/components/page-skeleton";
 import { getSessionUser } from "@/lib/auth/require-session";
 import { loadLibraryCollections } from "@/lib/library/load";
-import { LIBRARY_LAST_COLLECTION_COOKIE } from "@/lib/library/pick-collection";
+import { CURRENT_COLLECTION_COOKIE } from "@/lib/collections/current";
 import { SectionTransition } from "@/components/shared/view-transitions";
 
 /**
@@ -48,7 +48,7 @@ async function LibraryFrame({ children }: { children: React.ReactNode }) {
           <LibrarySidebar
             collections={collections.collections}
             loadedAt={collections.loadedAt}
-            lastCollectionId={cookieStore.get(LIBRARY_LAST_COLLECTION_COOKIE)?.value ?? null}
+            lastCollectionId={cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value ?? null}
           />
           {children}
         </div>

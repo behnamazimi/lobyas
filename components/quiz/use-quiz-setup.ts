@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { setCurrentCollection } from "@/lib/collections/current";
 import { studyCountPresetValues } from "@/lib/study/count";
 import { type StudyCollection } from "@/lib/study/types";
 import { maxQuizQuestions } from "@/lib/quiz/question-limit";
@@ -56,6 +57,7 @@ export function useQuizSetup(collections: StudyCollection[], initial: InitialQui
   function setSelectedCollectionId(collectionId: string) {
     setSelectedCollectionIdState(collectionId);
     setCollectionChanged(true);
+    setCurrentCollection(collectionId);
     showQuestionCount(questionCountFor(preferredCount, maxFor(collectionId, questionStyle)));
   }
 

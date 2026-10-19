@@ -282,7 +282,7 @@
 
   /* Tour targets scroll clear of the phone dock instead of landing behind it. */
   @media (max-width: 47.99rem) {
-    .chrome-dock [data-tour] {
+    .chrome-tabs [data-tour] {
       scroll-margin-bottom: calc(var(--dock-bottom) + 1rem);
     }
   }

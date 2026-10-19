@@ -23,19 +23,11 @@ test.describe("Daily goals", () => {
   test(
     "a member sets goals and meeting one celebrates it",
     { tag: "@smoke" },
-    async ({ page, user, isMobile }) => {
+    async ({ page, user }) => {
       const { collectionId } = await seedCollection(user);
-      await gotoReady(page, "/app/library");
-      if (isMobile) {
-        await page
-          .getByRole("navigation", { name: "Primary" })
-          .getByRole("button", { name: "More" })
-          .click();
-        await page.getByRole("link", { name: "Goals" }).click();
-      } else {
-        await page.getByRole("button", { name: "Account menu" }).click();
-        await page.getByRole("menuitem", { name: "Goals" }).click();
-      }
+      await gotoReady(page, "/app");
+      const nav = page.getByRole("navigation", { name: "Main" });
+      await nav.getByRole("link", { name: "Goals" }).click();
       await expect(page).toHaveURL(/\/app\/goals/);
 
       await page

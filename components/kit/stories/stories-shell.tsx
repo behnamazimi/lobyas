@@ -1,5 +1,12 @@
 import { Bell } from "lucide-react";
-import { IconButton, PageHeader, Rail, StudyTopBar, TabBar } from "@/components/kit";
+import {
+  CollectionSwitcherRow,
+  IconButton,
+  PageHeader,
+  Rail,
+  StudyTopBar,
+  TabBar,
+} from "@/components/kit";
 import { Story } from "./story";
 
 export function ShellStories() {
@@ -16,20 +23,46 @@ export function ShellStories() {
           <TabBar activeKey="me" placement="static" className="!h-[84px]" />
         </div>
       </Story>
-      <Story title="Desktop rail" note="Shown from 1024 px up, beside the content." width={280}>
+      <Story
+        title="Desktop rail"
+        note="Pinned to the window from 1024 px up: switcher popover, streak card, account."
+        width={280}
+      >
         <Rail
           activeKey="library"
-          className="h-[420px] rounded-2xl"
+          className="h-[520px] rounded-2xl"
           brand={<span className="font-heading text-2xl font-extrabold">Lobyas</span>}
           switcher={
             <div className="rounded-2xl bg-base-200 p-3 text-sm font-extrabold">Standup</div>
           }
           streak={
-            <div className="rounded-full bg-base-200 px-4 py-2 text-sm font-extrabold">
+            <div className="rounded-3xl bg-base-200 px-3 py-3 text-sm font-extrabold">
               12 day streak
             </div>
           }
+          account={<div className="rounded-2xl px-2 py-3 text-sm font-bold">ada@example.com</div>}
         />
+      </Story>
+      <Story title="Collection switcher row" note="Letter, name, and how much is mastered.">
+        <div className="flex flex-col gap-1">
+          <CollectionSwitcherRow
+            name="Standup"
+            letter="S"
+            tone="neutral"
+            mastered={120}
+            total={292}
+            selected
+            onPress={() => {}}
+          />
+          <CollectionSwitcherRow
+            name="Distributed Systems Fundamentals"
+            letter="D"
+            tone="read"
+            mastered={4}
+            total={80}
+            onPress={() => {}}
+          />
+        </div>
       </Story>
       <Story title="Page header" note="Back, serif title, action. A long title wraps.">
         <PageHeader title="Settings" backHref="/admin/kit" />

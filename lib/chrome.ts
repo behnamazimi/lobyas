@@ -1,48 +1,53 @@
 /** /c is a shared collection link: members see it inside the app, visitors on the website. */
-const STUDY_PREFIXES = ["/app", "/admin", "/c"] as const;
+const APP_PREFIXES = ["/app", "/admin", "/c"] as const;
 
-/** Logged-in study/admin surfaces get app chrome on phone. Everything else is the website. */
+export type ShellLayout = "tabs" | "study" | "sub" | "site";
+
+/** Logged-in app surfaces get the app shell. Everything else is the website. */
 export function isStudyPath(pathname: string): boolean {
-  return STUDY_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  return APP_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
 }
 
-export function isLibraryPath(pathname: string): boolean {
-  return pathname === "/app/library";
+/** Which frame a route uses. Study routes drop the rail and the tab bar. */
+export function shellLayout(pathname: string): ShellLayout {
+  if (!isStudyPath(pathname)) return "site";
+  if (isTabPath(pathname)) return "tabs";
+  if (isStudyRoute(pathname)) return "study";
+  return "sub";
 }
 
-export function isMorePath(pathname: string): boolean {
+function isTabPath(pathname: string): boolean {
   return (
-    pathname.startsWith("/app/browse") ||
-    pathname.startsWith("/app/import") ||
-    pathname.startsWith("/app/capture") ||
-    pathname.startsWith("/app/mastery") ||
+    pathname === "/app" ||
+    pathname === "/app/library" ||
     pathname.startsWith("/app/goals") ||
-    pathname.startsWith("/app/settings") ||
-    pathname.startsWith("/admin") ||
-    pathname.startsWith("/c/")
+    pathname.startsWith("/app/me")
   );
 }
 
-/** Phone dock destinations: Library, Read, Review, Quiz. Overflow sub-pages hide the dock. */
-export function isDockPath(pathname: string): boolean {
-  return isStudyPath(pathname) && !isMorePath(pathname);
+function isStudyRoute(pathname: string): boolean {
+  return (
+    pathname.startsWith("/app/read") ||
+    pathname.startsWith("/app/review") ||
+    pathname.startsWith("/app/quiz") ||
+    pathname.startsWith("/app/triage")
+  );
 }
 
-/** Where the phone back arrow on an overflow page (Settings, Mastery, …)
- *  should return to: the dock page the user was last on, with its query so
- *  a scoped collection survives. Overflow and non-study pages are never
- *  back targets. */
-export function studyBackTarget(pathname: string, search: string): string | null {
-  if (!isDockPath(pathname)) return null;
-  return search ? `${pathname}?${search}` : pathname;
+/** The tab a path highlights, or null when the path is not a destination. */
+export function navKey(pathname: string): "home" | "library" | "goals" | "me" | null {
+  if (pathname === "/app") return "home";
+  if (pathname === "/app/library") return "library";
+  if (pathname.startsWith("/app/goals")) return "goals";
+  if (pathname.startsWith("/app/me")) return "me";
+  return null;
 }
 
-/** Pages inside a multi-step flow (the paste, apps, more and request pages
- *  under the import chooser, and capture). Their back arrow returns to the page
- *  that opened them, not to the last dock page. */
-export function isNestedFlowPath(pathname: string): boolean {
-  return pathname.startsWith("/app/import/") || pathname === "/app/capture";
+/** Where a sub-page's back control goes when this visit has no earlier app page. */
+export function subPageFallback(pathname: string): string {
+  if (pathname.startsWith("/app/import/") || pathname === "/app/capture") return "/app/import";
+  if (pathname.startsWith("/admin/")) return "/admin";
+  if (pathname === "/admin") return "/app/me";
+  if (pathname.startsWith("/c/")) return "/app";
+  return "/app/me";
 }
-
-/** Where a nested page's back arrow goes when there's no earlier page in this visit. */
-export const NESTED_FLOW_PARENT = "/app/import";

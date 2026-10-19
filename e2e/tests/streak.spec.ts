@@ -18,7 +18,7 @@ async function setStreak(user: TestUser, daysAgo: number) {
 test.describe("Streak", () => {
   test("a streak with a missed day shows 0", { tag: "@smoke" }, async ({ page, user }) => {
     await setStreak(user, 3);
-    await gotoReady(page, "/app/library");
+    await gotoReady(page, "/app");
 
     await expect(page.getByRole("button", { name: /^0 day streak\./ })).toBeVisible();
   });
@@ -26,7 +26,7 @@ test.describe("Streak", () => {
   test("a banked shield keeps the streak through one missed day", async ({ page, user }) => {
     await setStreak(user, 2);
     await sql("update public.user_settings set shield_ready = true where user_id = $1", [user.id]);
-    await gotoReady(page, "/app/library");
+    await gotoReady(page, "/app");
 
     await page.getByRole("button", { name: /^5 day streak\./ }).click();
 
@@ -37,7 +37,7 @@ test.describe("Streak", () => {
 
   test("a streak waiting on today marks today as open", async ({ page, user }) => {
     await setStreak(user, 1);
-    await gotoReady(page, "/app/library");
+    await gotoReady(page, "/app");
 
     const badge = page.getByRole("button", { name: /^5 day streak\./ });
     await expect(badge).toHaveAttribute("data-streak-today", "open");
@@ -64,7 +64,8 @@ test.describe("Streak", () => {
       })
       .toBe(6);
 
-    await page.getByRole("button", { name: /^5 day streak\./ }).click();
+    await gotoReady(page, "/app");
+    await page.getByRole("button", { name: /^6 day streak\./ }).click();
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByRole("button", { name: "Today: studied" })).toBeVisible();
     await expect(dialog.getByText("6 day streak")).toBeVisible();

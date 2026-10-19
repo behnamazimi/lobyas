@@ -6,7 +6,7 @@ const APP = `${BROWSER} LobyasApp/ios`;
 
 describe("nativeLandingPath", () => {
   it("sends a signed-in app to the study area", () => {
-    expect(nativeLandingPath("/", APP, true)).toBe("/app/review");
+    expect(nativeLandingPath("/", APP, true)).toBe("/app");
   });
 
   it("sends a signed-out app to login", () => {

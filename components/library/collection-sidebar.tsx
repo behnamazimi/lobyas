@@ -5,7 +5,7 @@ import { useLinkStatus } from "next/link";
 import { useMemo, useState } from "react";
 import { Button, LinkButton } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { rememberLibraryCollection } from "@/lib/library/pick-collection";
+import { setCurrentCollection } from "@/lib/collections/current";
 import type { Collection } from "@/lib/terms/types";
 import { cn } from "@/lib/utils";
 
@@ -57,7 +57,7 @@ function CollectionSidebarSection({
                     : collection.name
                 }
                 onPress={() => {
-                  rememberLibraryCollection(collection.id);
+                  setCurrentCollection(collection.id);
                   onSelect();
                 }}
                 className={cn(

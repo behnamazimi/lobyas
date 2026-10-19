@@ -6,7 +6,7 @@ import { useEffect, useState, useSyncExternalStore, useTransition } from "react"
 import { clearShieldNoticeAction, getStreakHistoryAction } from "@/app/(private)/actions";
 import { getGoalsSnapshot, subscribeGoals } from "@/components/goals/goal-store";
 import { StreakFlameScene } from "@/components/illustrations/scenes/streak-flame";
-import { Dialog, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BottomSheet } from "@/components/kit";
 import { GOAL_TIERS } from "@/lib/goals/levels";
 import { goalProgress, metCount } from "@/lib/goals/progress";
 import type { StreakDay } from "@/lib/streak/history";
@@ -78,22 +78,17 @@ export function StreakModal({
   const showSkeleton = isPending && days.length === 0;
 
   return (
-    <Dialog isOpen={isOpen} onOpenChange={onOpenChange} className="max-w-sm">
-      <DialogHeader>
-        <DialogTitle className="sr-only">Streak history</DialogTitle>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <Flame className="size-6 shrink-0 text-streak" strokeWidth={2} aria-hidden />
-            <p className="m-0 text-lg leading-none font-semibold">
-              <span className="tabular-nums">{streak.current}</span> day streak
-            </p>
-          </div>
-          <p className="m-0 ml-8 text-xs leading-none text-base-content/70">
-            Longest {streak.longest}
-          </p>
-        </div>
-      </DialogHeader>
-
+    <BottomSheet
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title={
+        <span className="inline-flex items-center gap-2">
+          <Flame className="size-6 shrink-0 text-streak" strokeWidth={2.4} aria-hidden />
+          <span className="tabular-nums">{streak.current}</span> day streak
+        </span>
+      }
+      subline={`Longest ${streak.longest}`}
+    >
       {noticeDate ? (
         <div role="status" className="alert alert-info alert-soft text-sm">
           <ShieldCheck className="size-4 shrink-0" aria-hidden />
@@ -153,7 +148,7 @@ export function StreakModal({
       <GoalsRow today={days.at(-1)} onNavigate={() => onOpenChange(false)} />
 
       {error ? <p className="text-sm text-error-text">{error}</p> : null}
-    </Dialog>
+    </BottomSheet>
   );
 }
 
@@ -166,10 +161,10 @@ function chipState(day: StreakDay, isToday: boolean): ChipState {
 }
 
 const CHIP_STYLES: Record<ChipState, string> = {
-  studied: "border-transparent bg-streak/15 text-base-content",
-  shielded: "border-transparent bg-info/10 text-base-content",
-  "not yet": "border-dashed border-streak/60 text-base-content/80",
-  missed: "border-transparent bg-base-200/60 text-base-content/40",
+  studied: "border-transparent bg-accent/15 text-base-content",
+  shielded: "border-transparent bg-info/15 text-base-content",
+  "not yet": "border-dashed border-accent/70 text-base-content/80",
+  missed: "border-transparent bg-base-200 text-base-content/40",
 };
 
 function ChipIcon({ state }: { state: ChipState }) {
@@ -210,8 +205,9 @@ function DayChip({
       aria-pressed={isSelected}
       aria-label={`${label}: ${state}`}
       className={cn(
-        "flex flex-1 flex-col items-center gap-1 rounded-field border py-2 text-xs font-medium transition-colors",
-        isSelected && "ring-2 ring-primary",
+        "flex min-h-11 flex-1 flex-col items-center justify-center gap-1 rounded-2xl border py-2 text-xs font-extrabold",
+        isToday && !isSelected && "ring-2 ring-base-content",
+        isSelected && "ring-2 ring-neutral",
         CHIP_STYLES[state],
       )}
     >

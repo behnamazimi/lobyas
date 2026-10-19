@@ -75,7 +75,7 @@ app, and are used by the quiz only.
 
 ## Launch
 
-The shell opens `/app/review` directly (not `/`), so a launch has no redirect hop;
+The shell opens `/app` directly (not `/`), so a launch has no redirect hop;
 the proxy sends a signed-out member on to login. The splash stays up until the
 page has painted: `NativeSplash` hides it, and `launchShowDuration` (4s) hides it
 anyway when the site is slow or `offline.html` loads. These are native settings,

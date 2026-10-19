@@ -46,7 +46,7 @@ describe("pickChapter", () => {
   });
 
   it("holds the header tips back on an empty Library, so welcome comes first", () => {
-    const onEmptyLibrary = visible("library-browse", "library-import", "app-streak", "app-account");
+    const onEmptyLibrary = visible("library-browse", "library-import", "nav-me", "app-streak");
     expect(pickChapter("/app/library", NEW_USER_TOUR_STATE, onEmptyLibrary)?.id).toBe("welcome");
 
     const welcomeSeen: TourState = { status: "pending", seen: ["welcome"] };
@@ -55,9 +55,7 @@ describe("pickChapter", () => {
 
   it("shows the header tips once the Library chapters have run", () => {
     const state: TourState = { status: "pending", seen: ["library", "library-terms"] };
-    expect(pickChapter("/app/library", state, visible("app-streak", "app-account"))?.id).toBe(
-      "app",
-    );
+    expect(pickChapter("/app/library", state, visible("nav-me", "app-streak"))?.id).toBe("app");
   });
 
   it("runs the Library chapter once a collection exists", () => {
