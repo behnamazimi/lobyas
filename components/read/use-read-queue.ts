@@ -161,30 +161,6 @@ export function useReadQueue({ collectionId, seed }: UseReadQueueArgs) {
     [maybePrefetch],
   );
 
-  // Collection switch is lazy: it only changes what FUTURE fetches pull
-  // from, never interrupts whatever term is currently on screen. Drop any
-  // terms prefetched-but-not-yet-shown from the old collection so the next
-  // advance pulls from the new selection instead of silently continuing
-  // the old one; loadedIdsRef is left as-is (a few stale excluded ids from
-  // the old collection are harmless — exclude-lists only ever prevent
-  // re-showing something, never wrongly show it).
-  const switchCollection = useCallback(
-    (nextId: string) => {
-      if (nextId === collectionIdRef.current) return;
-      collectionIdRef.current = nextId;
-      requestIdRef.current++; // discard any response still in flight for the old collection
-      const trimmed = termsRef.current.slice(0, currentIndexRef.current + 1);
-      termsRef.current = trimmed;
-      setTerms(trimmed);
-      reachedEndRef.current = false;
-      loadErrorRef.current = null;
-      setReachedEnd(false);
-      setLoadError(null);
-      maybePrefetch();
-    },
-    [maybePrefetch],
-  );
-
   const currentTerm = terms[currentIndex] ?? null;
   const status: ReadQueueStatus = currentTerm ? "ready" : loadError ? "error" : "caughtUp";
 
@@ -201,7 +177,6 @@ export function useReadQueue({ collectionId, seed }: UseReadQueueArgs) {
     goNext,
     goPrevious,
     goToIndex,
-    switchCollection,
     // Same function serves both "Next" and "Try again" — goNext already
     // re-attempts loadMore and re-checks when called with currentIndex
     // sitting at the past-the-end sentinel.

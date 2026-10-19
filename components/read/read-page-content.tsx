@@ -5,23 +5,7 @@ import { ReadErrorAlert } from "@/components/read/read-error-alert";
 import { ReadTermCard } from "@/components/read/read-term-card";
 import { caughtUpDescription } from "@/components/read/read-page-helpers";
 import type { ReadQueue } from "@/components/read/use-read-queue";
-import { LinkButton } from "@/components/ui/button";
 import type { StudyCollection } from "@/lib/study/types";
-
-function ReadCaughtUpActions({ selectedCollectionId }: { selectedCollectionId: string }) {
-  if (selectedCollectionId !== "all") return null;
-
-  return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-      <LinkButton href="/app/library" variant="outline">
-        Go to library
-      </LinkButton>
-      <LinkButton href="/app/import" variant="outline">
-        Add your own terms
-      </LinkButton>
-    </div>
-  );
-}
 
 export function ReadQueueContent({
   queue,
@@ -45,7 +29,6 @@ export function ReadQueueContent({
       <ReadCaughtUp
         goal={{ tier: "read", collectionId: selectedCollectionId }}
         description={caughtUpDescription(selectedCollectionId, collections)}
-        actions={<ReadCaughtUpActions selectedCollectionId={selectedCollectionId} />}
       />
     );
   }

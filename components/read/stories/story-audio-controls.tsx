@@ -146,7 +146,7 @@ export function StoryAudioControls({
   }
 
   return (
-    <div className="flex items-center gap-1 rounded-box bg-base-200/60 py-1 px-1 sm:gap-1">
+    <div className="flex items-center gap-1 rounded-[20px] bg-base-200 p-1">
       <audio
         ref={audioRef}
         src={src}
@@ -187,7 +187,7 @@ export function StoryAudioControls({
         size="icon"
         aria-label={playing ? "Pause" : "Play"}
         onPress={togglePlay}
-        className="btn-circle relative size-10 shrink-0 min-[360px]:size-11 md:size-10"
+        className="btn-circle btn-neutral relative size-10 shrink-0 min-[360px]:size-11 md:size-10"
       >
         {playing ? (
           <Pause className="size-4 fill-current" aria-hidden strokeWidth={1.5} />
@@ -220,13 +220,13 @@ export function StoryAudioControls({
         disabled={seekMax < 1}
         onChange={(event) => seekTo(Number(event.target.value))}
         className={cn(
-          "range range-sm range-primary mx-1.5 min-w-0 flex-1 sm:range-xs",
+          "range range-sm range-neutral mx-1.5 min-w-0 flex-1 sm:range-xs",
           shadowing && "max-sm:hidden",
         )}
       />
       <span
         className={cn(
-          "shrink-0 text-xs text-base-content/70 tabular-nums max-[359px]:hidden",
+          "shrink-0 text-xs font-bold text-muted tabular-nums max-[359px]:hidden",
           shadowing && "max-sm:flex-1 max-sm:text-center",
         )}
       >

@@ -70,6 +70,11 @@ function LoginPrompt() {
   return <p className="text-sm text-base-content/70">Log in to read terms.</p>;
 }
 
+/** Every study screen works on one collection, so a mixed `all` link follows the current one. */
+function singleCollectionParam(param: string | undefined): string | undefined {
+  return param === "all" ? undefined : param;
+}
+
 function rememberFromLink(collectionParam: string | undefined, collectionId: string) {
   if (!collectionParam || collectionParam !== collectionId || collectionId === "all") return null;
   return <RememberCollectionFromLink collectionId={collectionId} />;
@@ -83,7 +88,7 @@ async function deepLinkRead(params: Awaited<PageProps["searchParams"]>, options:
     (await cookies()).get(CURRENT_COLLECTION_COOKIE)?.value,
   );
   const collectionId = resolveAppCollection({
-    collectionParam: params.collection,
+    collectionParam: singleCollectionParam(params.collection),
     currentId,
     rememberedId: null,
     activeIds: activeIdsOf(setup.collections),
@@ -94,7 +99,7 @@ async function deepLinkRead(params: Awaited<PageProps["searchParams"]>, options:
   return (
     <>
       <ReadPage
-        key={activeCollectionsKey(setup.collections)}
+        key={`${collectionId}:${activeCollectionsKey(setup.collections)}`}
         seed={seed}
         collections={setup.collections}
         collectionId={collectionId}
@@ -115,7 +120,7 @@ async function collectionRead(params: Awaited<PageProps["searchParams"]>, option
   const currentId = parseCurrentCollectionId(cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value);
   const rememberedId = parseReadCollectionCookie(cookieStore.get(READ_COLLECTION_COOKIE)?.value);
   const speculativeCollectionId = speculativeAppCollection(
-    params.collection,
+    singleCollectionParam(params.collection),
     currentId,
     rememberedId,
   );
@@ -135,7 +140,7 @@ async function collectionRead(params: Awaited<PageProps["searchParams"]>, option
   }
 
   const collectionId = resolveAppCollection({
-    collectionParam: params.collection,
+    collectionParam: singleCollectionParam(params.collection),
     currentId,
     rememberedId,
     activeIds: activeIdsOf(setup.collections),
@@ -150,7 +155,7 @@ async function collectionRead(params: Awaited<PageProps["searchParams"]>, option
     <>
       <ReadLandingSync storiesDefault={options.storiesDefault} redirectToStories />
       <ReadPage
-        key={activeCollectionsKey(setup.collections)}
+        key={`${collectionId}:${activeCollectionsKey(setup.collections)}`}
         seed={seed}
         collections={setup.collections}
         collectionId={collectionId}

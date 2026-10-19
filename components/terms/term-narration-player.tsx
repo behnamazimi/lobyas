@@ -1,13 +1,12 @@
 "use client";
 
-import { Loader2, Pause, Volume2 } from "lucide-react";
 import { useImperativeHandle, useRef, useState, type Ref } from "react";
 import {
   claimActiveAudio,
   isActiveAudio,
   releaseActiveAudio,
 } from "@/components/shared/active-audio";
-import { Button } from "@/components/ui/button";
+import { NarrationButton, type NarrationStatus } from "@/components/terms/narration-button";
 import { useMountEffect } from "@/hooks/use-mount-effect";
 import {
   canPlayThrough,
@@ -45,6 +44,7 @@ export function TermNarrationPlayer({
   onUnavailable,
   onAutoplayBlocked,
   canPrepare = true,
+  look = "icon",
 }: {
   termId: string;
   clipVersion?: string | null;
@@ -58,8 +58,10 @@ export function TermNarrationPlayer({
   onAutoplayBlocked?: () => void;
   /** False plays only the given clip and never asks the server to make one. */
   canPrepare?: boolean;
+  /** `pill` is the labelled Listen button of the study cards. */
+  look?: "icon" | "pill";
 }) {
-  const [status, setStatus] = useState<"idle" | "loading" | "playing" | "paused">("idle");
+  const [status, setStatus] = useState<NarrationStatus>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const wantPlayingRef = useRef(false);
   const mountedRef = useRef(true);
@@ -255,24 +257,7 @@ export function TermNarrationPlayer({
         onError={handleError}
         onPause={handlePause}
       />
-      {showButton ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onPress={handlePress}
-          isDisabled={status === "loading"}
-          aria-label={status === "playing" ? "Pause" : "Listen (AI voice)"}
-        >
-          {status === "loading" ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden strokeWidth={1.5} />
-          ) : status === "playing" ? (
-            <Pause className="size-4" aria-hidden strokeWidth={1.5} />
-          ) : (
-            <Volume2 className="size-4" aria-hidden strokeWidth={1.5} />
-          )}
-        </Button>
-      ) : null}
+      {showButton ? <NarrationButton status={status} look={look} onPress={handlePress} /> : null}
     </span>
   );
 }

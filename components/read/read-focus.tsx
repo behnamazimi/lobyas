@@ -4,7 +4,7 @@ import { Maximize } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { isStoriesPath } from "@/components/read/read-mode-tabs";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/kit";
 import { requestFullscreenOnDocument } from "@/hooks/use-fullscreen-exit";
 import { useReadFullscreenPreference } from "@/hooks/use-read-fullscreen-preference";
 import { cn } from "@/lib/utils";
@@ -55,18 +55,15 @@ export function ReadFocusButton() {
   if (isStoriesPath(usePathname())) return null;
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      aria-label="Enter focus mode"
-      onPress={enter}
+    <IconButton
+      label="Enter focus mode"
+      onClick={enter}
       className={cn(
-        "size-11 shrink-0 text-base-content/70 transition-transform duration-150 ease-out active:scale-[0.96] md:size-9",
-        preferenceOn && "text-primary-text",
+        "transition-transform duration-150 ease-out active:scale-[0.96]",
+        preferenceOn && "text-read-text",
       )}
     >
-      <Maximize className="size-4" aria-hidden strokeWidth={1.5} />
-    </Button>
+      <Maximize className="size-[22px]" strokeWidth={2.2} aria-hidden />
+    </IconButton>
   );
 }

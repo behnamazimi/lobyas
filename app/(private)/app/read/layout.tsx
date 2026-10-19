@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
-import { ReadFocusButton, ReadFocusProvider } from "@/components/read/read-focus";
-import { ReadModeTabs } from "@/components/read/read-mode-tabs";
-import { StoryHistoryMenu } from "@/components/read/stories/story-history-menu";
-import { ReadOptionsMenu } from "@/components/read/read-options-menu";
-import { PageShell } from "@/components/page-container";
+import { StudyDay } from "@/components/goals/study-day";
+import { ReadControls } from "@/components/read/read-controls";
+import { ReadFocusProvider } from "@/components/read/read-focus";
 import { KeepAwake } from "@/components/shared/keep-awake";
 import { PromoSlot } from "@/components/promos/promo-slot";
 import { TermLayoutScope } from "@/components/terms/term-layout-scope";
@@ -27,34 +23,18 @@ export default async function ReadLayout({ children }: { children: React.ReactNo
       <KeepAwake enabled={options.keepAwake} />
       <TermLayoutScope>
         <SectionTransition>
-          <PageShell
-            className="flex min-h-0 flex-1 flex-col"
-            innerClassName="flex min-h-0 flex-1 flex-col gap-3 space-y-0 py-3 pb-4! md:gap-4 md:py-4"
-          >
-            <div className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col gap-3 lg:max-w-2xl">
-              <PageHeader
-                badge={<PageBadge page="read" />}
-                title="Read"
-                description="Read terms one at a time, or inside short AI-written pieces built from your queue."
-                compactOnPhone
-                showBack={false}
-              />
-              <PromoSlot route="read" />
-              <div className="flex items-center justify-between gap-2">
-                <ReadModeTabs />
-                {user ? (
-                  <div className="flex items-center">
-                    <Suspense>
-                      <StoryHistoryMenu />
-                    </Suspense>
-                    <ReadOptionsMenu initialOptions={options} />
-                    <ReadFocusButton />
-                  </div>
-                ) : null}
-              </div>
-              {children}
-            </div>
-          </PageShell>
+          <div className="mx-auto flex min-h-0 w-full max-w-[640px] flex-1 flex-col gap-3 px-5 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
+            <Suspense>
+              <StudyDay />
+            </Suspense>
+            <PromoSlot route="read" />
+            {user ? (
+              <Suspense fallback={<div className="h-11" />}>
+                <ReadControls options={options} />
+              </Suspense>
+            ) : null}
+            {children}
+          </div>
         </SectionTransition>
       </TermLayoutScope>
     </ReadFocusProvider>

@@ -716,3 +716,23 @@ page story for `PathStop` is covered by type-check and lint but I couldn't get a
 screenshot of `/admin/kit` in the headless run. `?collection=` on Home isn't
 read (the cookie is the current collection). Mastery counts on Home are fresh;
 the shell's switcher list is only as fresh as the shell's last load.
+
+### Phase 3 · Read (Cards and Stories)
+
+Branch `redesign-p3-read`.
+
+**Built.** Read has a controls row under the shell's study bar (Read chip, Cards/Stories switch, options, and focus mode on Cards or history on Stories) in a centered 640 px column. Cards: hidden and revealed `StudyCard`, Listen pill, term body, **Mark as known** line, **Previous**, **Next term**, goal-met note, caught-up, error and paused states, and the fullscreen feed. Options and **What cards show** are `BottomSheet`s. Stories: setup, generating, error, no-terms, reader with the narration controls, term sheet (definition, Mark as known, Open term), glossary, footer and a history sheet.
+
+**Kit.** `ModeSwitch` (`controls/mode-switch.tsx`, link-based pill switch). `GoalPill` is now exported and takes an `icon` for the no-goal case; `StudyTopBar` takes `goalSlot`. `ListenButton` takes `ariaLabel` and `disabled`. Stories on `/admin/kit`: Mode switch, and the pill with an icon.
+
+**Data.** No new queries or actions. The goal pill reads `goalCountFor(tier)` / `useGoalCount(tier)` in `components/goals/goal-store.ts`. A study page mounts `<StudyDay />` (`components/goals/study-day.tsx`, inside Suspense) to seed today's counts through the existing `loadGoalDay`. The shell's `StudyBar` picks the tier from the path (`components/app/shell/study-goal-pill.tsx`), so **Review and Quiz only need to mount `StudyDay`** to get their pill. It shows nothing until counts are known. `tickGoal` now emits, so the pill updates live, and `rollOverIfNewDay` skips a store with no loaded day.
+
+**Left as is.** TRACE, every server action and route, `recordRead`/`tickGoal` calls, reveal default and all Read options, narration billing and access, `POST /api/stories`, `OptionRow` (still used by Goals, share sheet and Review), `OptionsMenu` and `TermCardHeader` (Review), `CreditGateNotice` and `TopUpButton` (Phase 9), `resolveAppCollection` (Read maps `?collection=all` to the current collection locally in `page.tsx`).
+
+**Decisions taken.** Caught-up counts toward the goal for the current collection (`GoalCaughtUp` no longer needs `"all"`). Switching collection from the shell resets the queue (`ReadPage` is keyed by collection). Stories' collection is read-only and says so when it falls back to another collection with enough terms. The `read-collection` tour chapter and target were removed; the tour mechanism is untouched. Home desktop's white path panel was removed on request.
+
+**Frames that didn't match.** No Previous, focus mode or hidden-card state in the frames (kept from the code). Frame speeds and credit numbers are placeholders; real values used. The term sheet gained Mark as known and Open term as in the frame, reusing the glossary actions. "Read goal met" is a quiet note, not a celebration.
+
+**Care.** `components/app-shell.tsx` got `lg:flex-none`: without it the desktop shell ignored `h-dvh`, so long study pages scrolled the whole window and the rail with it (a Phase 1 bug). `components/app/shell/shell-frame.tsx` paints `bg-base-200` on study routes, so Review, Quiz and Triage inherit the cream page. `components/read/read-page.tsx` skips the `view=cards` rewrite when the visit is about to move to Stories; this also fixed `read-landing.spec.ts` "no cookie yet", which was already failing on `redesign`.
+
+**Open.** Not checked at 390/1280 against the frames: paused and no-terms states, the credit-short and listening-limit notices (they reuse Phase 9's components), narration controls while playing (no stub clip), and shadowing. `components/read/study/study-setup-panel.tsx` is untouched and still used by Review and Quiz setups. The kit page stories for Mode switch were checked by type-check and lint only.

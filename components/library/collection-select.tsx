@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export type CollectionSelectOption = {
+type CollectionSelectOption = {
   id: string;
   name: string;
   termCount?: number;

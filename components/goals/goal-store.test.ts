@@ -6,8 +6,15 @@ vi.mock("@/app/(private)/app/goals/actions", () => ({
   claimGoalCelebrationAction: (...args: unknown[]) => claim(...args),
 }));
 
-const { getGoalsSnapshot, goalCaughtUp, resetGoals, seedGoals, tickGoal } =
-  await import("./goal-store");
+const {
+  getGoalsSnapshot,
+  goalCaughtUp,
+  goalCountFor,
+  resetGoals,
+  seedGoals,
+  seedStudyDay,
+  tickGoal,
+} = await import("./goal-store");
 
 const NOW = new Date("2026-10-11T10:00:00Z");
 const TODAY = "2026-10-11";
@@ -140,5 +147,29 @@ describe("goal store", () => {
     expect(getGoalsSnapshot()).toBeNull();
     seedGoals({ goals: null, celebrate: false, timeZone: "UTC", day: day(0) });
     expect(getGoalsSnapshot()?.goals).toBeNull();
+  });
+
+  describe("goalCountFor", () => {
+    it("knows nothing until today's counts are loaded", () => {
+      expect(goalCountFor("review")).toBeNull();
+    });
+
+    it("counts a term credited in this tab on top of the server's count", () => {
+      seed(1);
+      tickGoal("review", "a");
+      expect(goalCountFor("review")).toEqual({ goal: 3, count: 2 });
+    });
+
+    it("uses the study day when no celebration can load the store's own day", () => {
+      seedGoals({
+        goals: null,
+        celebrate: true,
+        timeZone: "UTC",
+        day: { date: null, counts: { read: 0, review: 0, quiz: 0 }, celebrated: [] },
+      });
+      seedStudyDay({ date: TODAY, counts: { read: 4, review: 0, quiz: 0 }, celebrated: [] });
+      tickGoal("read", "a");
+      expect(goalCountFor("read")).toEqual({ goal: null, count: 5 });
+    });
   });
 });

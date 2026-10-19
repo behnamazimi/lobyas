@@ -53,6 +53,24 @@ function update(next: Partial<State>) {
   emit();
 }
 
+/** Today's counts for a study screen's pill. They are loaded for any account,
+ *  while `state.day` is only loaded when a goal can celebrate. */
+let studyDay: GoalDay | null = null;
+
+export function seedStudyDay(day: GoalDay) {
+  studyDay = day;
+  emit();
+}
+
+/** What the pill shows for a tier, or null until today's counts are known. */
+export type GoalCount = { goal: number | null; count: number };
+
+export function goalCountFor(tier: GoalTier): GoalCount | null {
+  const day = state?.day.date ? state.day : studyDay;
+  if (!day) return null;
+  return { goal: state?.goals?.[tier] ?? null, count: day.counts[tier] + credited[tier].size };
+}
+
 export function subscribeGoals(listener: () => void) {
   listeners.add(listener);
   return () => listeners.delete(listener);
@@ -71,6 +89,7 @@ export function seedGoals(seed: Omit<State, "celebration">) {
 /** Forgets everything, so the next account to sign in on this tab starts clean. */
 export function resetGoals() {
   state = null;
+  studyDay = null;
   clearCredits();
   claiming.clear();
   emit();
@@ -99,11 +118,14 @@ export function closeGoalCelebration() {
 export function tickGoal(tier: GoalTier, termIds: string | readonly string[]) {
   if (!state) return;
   rollOverIfNewDay();
+  let added = false;
   for (const id of typeof termIds === "string" ? [termIds] : termIds) {
     if (seen[tier].has(id)) continue;
     seen[tier].add(id);
     credited[tier].add(id);
+    added = true;
   }
+  if (added) emit();
   if (looksMet(tier)) void claim(tier, false, MAX_RETRIES);
 }
 
@@ -130,7 +152,8 @@ function looksMet(tier: GoalTier): boolean {
 }
 
 function rollOverIfNewDay() {
-  if (!state) return;
+  // No day was loaded (nothing can celebrate), so there is nothing to roll over.
+  if (!state || state.day.date === null) return;
   const today = localDateKey(new Date(), state.timeZone);
   if (state.day.date === today) return;
   clearCredits();

@@ -20,7 +20,6 @@ export const TOUR_TARGETS = [
   "read-card",
   "read-modes",
   "read-options",
-  "read-collection",
   "stories-level",
   "stories-write",
   "quiz-style",

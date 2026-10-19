@@ -1,15 +1,19 @@
 "use client";
 
-import {
-  Button as AriaButton,
-  Dialog,
-  DialogTrigger,
-  Heading,
-  Popover,
-} from "react-aria-components";
+import { BottomSheet, Pill } from "@/components/kit";
+import { StoryMarkKnown } from "@/components/read/stories/story-mark-known";
 import type { StoryTerm } from "@/lib/stories/types";
 
-export function StoryTermPopover({ text, term }: { text: string; term: StoryTerm | undefined }) {
+/** A term inside the story text. Tapping it opens its definition in a sheet. */
+export function StoryTermButton({
+  text,
+  term,
+  onPress,
+}: {
+  text: string;
+  term: StoryTerm | undefined;
+  onPress: (term: StoryTerm) => void;
+}) {
   if (!term) {
     return (
       <span className="underline decoration-base-content/30 decoration-dotted underline-offset-4">
@@ -19,22 +23,43 @@ export function StoryTermPopover({ text, term }: { text: string; term: StoryTerm
   }
 
   return (
-    <DialogTrigger>
-      <AriaButton className="cursor-pointer rounded-sm font-medium underline decoration-primary/70 decoration-2 underline-offset-4 outline-none transition-colors hover:text-primary hover:decoration-primary focus-visible:ring-2 focus-visible:ring-primary/60">
-        {text}
-      </AriaButton>
-      <Popover
-        placement="bottom"
-        offset={6}
-        className="z-50 w-72 max-w-[calc(100vw-2rem)] rounded-box bg-base-100 p-4 shadow-lg ring-1 ring-base-content/10"
-      >
-        <Dialog className="space-y-1 outline-none" aria-label={term.term}>
-          <Heading slot="title" className="m-0 text-sm font-medium">
-            {term.term}
-          </Heading>
-          <p className="m-0 text-sm text-base-content/70">{term.definition}</p>
-        </Dialog>
-      </Popover>
-    </DialogTrigger>
+    <button
+      type="button"
+      onClick={() => onPress(term)}
+      className="m-0 inline cursor-pointer rounded text-start px-0.5 py-0 font-[inherit] text-read-text underline decoration-read decoration-2 underline-offset-[3px] outline-none focus-visible:ring-2 focus-visible:ring-read"
+    >
+      {text}
+    </button>
+  );
+}
+
+/** The open term's definition, with the two things a reader may want next. */
+export function StoryTermSheet({
+  term,
+  href,
+  onClose,
+}: {
+  term: StoryTerm | null;
+  href: string;
+  onClose: () => void;
+}) {
+  return (
+    <BottomSheet
+      isOpen={term !== null}
+      onOpenChange={(open) => !open && onClose()}
+      title={term?.term ?? ""}
+    >
+      {term ? (
+        <div>
+          <p className="m-0 text-base leading-snug font-semibold">{term.definition}</p>
+          <div className="mt-4 flex gap-2">
+            <StoryMarkKnown termId={term.id} term={term.term} variant="pill" />
+            <Pill variant="soft" href={href} className="flex-1">
+              Open term
+            </Pill>
+          </div>
+        </div>
+      ) : null}
+    </BottomSheet>
   );
 }

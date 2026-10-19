@@ -32,7 +32,7 @@ async function ReadStoriesRoute({ searchParams }: PageProps) {
   const storyId = z.uuid().safeParse(story).success ? story : undefined;
   const currentId = parseCurrentCollectionId(cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value);
   const [setup, storiesDefault] = await Promise.all([
-    getStoriesSetupData(collectionId, storyId, currentId),
+    getStoriesSetupData(collectionId === "all" ? undefined : collectionId, storyId, currentId),
     loadStoriesDefault(),
   ]);
   if ("error" in setup) {
@@ -53,7 +53,7 @@ async function ReadStoriesRoute({ searchParams }: PageProps) {
       <PromoVisit target="stories" />
       {storiesDefault === null ? null : <ReadLandingSync storiesDefault={storiesDefault} />}
       <StoriesPage
-        key={`${setup.collections.map((collection) => collection.id).join(",")}:${storyId ?? ""}`}
+        key={`${setup.collections.map((collection) => collection.id).join(",")}:${setup.initialCollectionId ?? ""}:${storyId ?? ""}`}
         setup={setup}
       />
       {collectionId && collectionId === setup.initialCollectionId ? (

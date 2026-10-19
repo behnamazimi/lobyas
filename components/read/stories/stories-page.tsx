@@ -1,45 +1,38 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EmptyBoxScene } from "@/components/illustrations/scenes/empty-box";
 import { PreparingScene } from "@/components/illustrations/scenes/preparing";
-import type { StoriesSetupData } from "@/lib/stories/setup";
-import { ErrorAlert } from "@/components/shared/error-alert";
-import {
-  QuizCenteredState,
-  QuizPanel,
-  QuizPanelBody,
-  QuizPanelHeader,
-} from "@/components/quiz/quiz-ui";
+import { EmptyPanel, FeedbackNote, Pill } from "@/components/kit";
 import { StoryReader } from "@/components/read/stories/story-reader";
 import { StorySetupPanel } from "@/components/read/stories/story-setup-panel";
 import { useStorySession, type StorySession } from "@/components/read/stories/use-story-session";
 import { StudyNoActiveCollectionsState } from "@/components/read/study/study-paused-state";
-import { Button, LinkButton } from "@/components/ui/button";
 import { GENERATING_STAGES } from "@/lib/stories/generating-stages";
 import { STORY_MIN_TERMS } from "@/lib/stories/types";
+import type { StoriesSetupData } from "@/lib/stories/setup";
 
 const CARDS_HREF = "/app/read?view=cards";
 
 function StoriesNoTerms() {
   return (
-    <QuizPanelBody>
-      <QuizCenteredState
-        illustration={<EmptyBoxScene className="w-44" />}
+    <div className="flex min-h-0 flex-1 items-center justify-center py-6">
+      <EmptyPanel
+        illustration={<EmptyBoxScene className="w-full" />}
         title="Not enough terms to read"
         description={`Stories need a collection with at least ${STORY_MIN_TERMS} terms you haven't marked known.`}
-      >
-        <div className="flex flex-wrap justify-center gap-2">
-          <LinkButton href="/app/library" variant="outline" className="min-h-11">
-            Go to library
-          </LinkButton>
-          <LinkButton href={CARDS_HREF} variant="ghost" className="min-h-11">
-            Read cards instead
-          </LinkButton>
-        </div>
-      </QuizCenteredState>
-    </QuizPanelBody>
+        actions={
+          <>
+            <Pill variant="secondary" href="/app/library">
+              Go to library
+            </Pill>
+            <Pill variant="soft" href={CARDS_HREF}>
+              Read cards instead
+            </Pill>
+          </>
+        }
+      />
+    </div>
   );
 }
 
@@ -57,43 +50,32 @@ function useGeneratingStage() {
 function StoriesGeneratingStep() {
   const stage = useGeneratingStage();
   return (
-    <QuizPanel className="flex min-h-0 flex-1 flex-col">
-      <QuizPanelBody className="flex min-h-0 flex-1 items-center justify-center">
-        <QuizCenteredState
-          illustration={<PreparingScene className="w-48" />}
-          title={stage}
-          description="This usually takes a few seconds."
-        />
-      </QuizPanelBody>
-    </QuizPanel>
+    <div className="flex min-h-0 flex-1 items-center justify-center py-6">
+      <EmptyPanel
+        illustration={<PreparingScene className="w-full" />}
+        title={stage}
+        description="This usually takes a few seconds."
+      />
+    </div>
   );
 }
 
 function StoriesErrorStep({ session }: { session: StorySession }) {
   return (
-    <QuizPanel className="flex min-h-0 flex-1 flex-col">
-      <QuizPanelHeader
-        icon={AlertCircle}
-        title="Story didn't come through"
-        description="Nothing was saved to your progress."
-      />
-      <QuizPanelBody className="space-y-4">
-        <ErrorAlert error={session.errorMessage ?? "Couldn't write a story. Try again."} />
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <Button
-            type="button"
-            variant="outline"
-            onPress={() => void session.generate()}
-            className="min-h-11"
-          >
-            Try again
-          </Button>
-          <Button type="button" variant="ghost" onPress={session.backToSetup} className="min-h-11">
-            Back to setup
-          </Button>
-        </div>
-      </QuizPanelBody>
-    </QuizPanel>
+    <div className="flex min-h-0 flex-1 flex-col justify-center gap-4">
+      <FeedbackNote kind="wrong" title="Story didn't come through">
+        {session.errorMessage ?? "Couldn't write a story. Try again."} Nothing was saved to your
+        progress.
+      </FeedbackNote>
+      <div className="flex flex-col gap-2">
+        <Pill size="lg" onClick={() => void session.generate()}>
+          Try again
+        </Pill>
+        <Pill variant="soft" onClick={session.backToSetup}>
+          Back to setup
+        </Pill>
+      </div>
+    </div>
   );
 }
 
@@ -123,16 +105,12 @@ export function StoriesPage({ setup }: { setup: StoriesSetupData }) {
         />
       ) : null;
     default:
-      return (
-        <QuizPanel className="flex max-h-full min-h-0 w-full flex-col">
-          {setup.collections.length === 0 ? (
-            <StudyNoActiveCollectionsState paused={setup.paused} activity="reading stories" />
-          ) : setup.initialCollectionId === null ? (
-            <StoriesNoTerms />
-          ) : (
-            <StorySetupPanel session={session} collections={setup.collections} ai={setup.ai} />
-          )}
-        </QuizPanel>
+      return setup.collections.length === 0 ? (
+        <StudyNoActiveCollectionsState paused={setup.paused} activity="reading stories" />
+      ) : setup.initialCollectionId === null ? (
+        <StoriesNoTerms />
+      ) : (
+        <StorySetupPanel session={session} collections={setup.collections} ai={setup.ai} />
       );
   }
 }

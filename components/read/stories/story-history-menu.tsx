@@ -1,17 +1,14 @@
 "use client";
 
-import { CheckCheck, History, ThumbsDown, ThumbsUp, XIcon } from "lucide-react";
+import { Check, ChevronRight, History, ThumbsDown, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Dialog as AriaDialog, DialogTrigger, Popover } from "react-aria-components";
 import { listStoryHistoryAction } from "@/app/(private)/app/read/stories/actions";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetClose, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useMediaQuery } from "@/hooks/use-platform";
-import { PLATFORM_MEDIA } from "@/lib/platform";
+import { BottomSheet, IconButton } from "@/components/kit";
 import { storyMetaLabels } from "@/lib/stories/meta";
 import type { StorySummary } from "@/lib/stories/types";
+import { cn } from "@/lib/utils";
 
 type HistoryState =
   | { status: "loading" }
@@ -26,12 +23,10 @@ function storyHref(storyId: string, collection: string | null): string {
 
 function VoteIcon({ vote }: { vote: StorySummary["vote"] }) {
   if (vote === 1) {
-    return <ThumbsUp className="size-4 text-primary" aria-label="Liked" strokeWidth={1.5} />;
+    return <ThumbsUp className="size-4 text-quiz-text" aria-label="Liked" strokeWidth={2.2} />;
   }
   if (vote === -1) {
-    return (
-      <ThumbsDown className="size-4 text-base-content/70" aria-label="Disliked" strokeWidth={1.5} />
-    );
+    return <ThumbsDown className="size-4 text-muted" aria-label="Disliked" strokeWidth={2.2} />;
   }
   return null;
 }
@@ -53,22 +48,25 @@ function HistoryRow({
         href={href}
         onClick={onOpen}
         aria-current={isCurrent ? "true" : undefined}
-        className="flex min-h-14 items-center justify-between gap-3 px-4 py-3 shadow-[inset_2px_0_0_transparent] outline-none hover:bg-base-200 focus-visible:bg-base-200 aria-[current=true]:bg-primary/10 aria-[current=true]:shadow-[inset_2px_0_0_var(--color-primary)] aria-[current=true]:hover:bg-primary/15"
+        className={cn(
+          "flex min-h-14 items-center gap-3 rounded-2xl px-2 py-2.5 text-base-content no-underline",
+          isCurrent && "bg-base-200",
+        )}
       >
-        <span className="min-w-0">
-          <span className="block truncate text-sm font-medium text-base-content">
-            {story.title}
-          </span>
-          <span className="block text-xs text-base-content/70">
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-base font-extrabold">{story.title}</span>
+          <span className="block text-[13px] font-semibold text-muted">
             {storyMetaLabels(story).join(" · ")}
+            {story.readAt ? (
+              <span className="ms-1.5 inline-flex items-center gap-0.5 rounded-full bg-success-tint px-1.5 text-xs font-extrabold text-success-text">
+                <Check className="size-3" aria-hidden strokeWidth={3} />
+                Read
+              </span>
+            ) : null}
           </span>
         </span>
-        <span className="flex shrink-0 items-center gap-2">
-          <VoteIcon vote={story.vote} />
-          {story.readAt ? (
-            <CheckCheck className="size-4 text-success-text" aria-label="Read" strokeWidth={1.5} />
-          ) : null}
-        </span>
+        <VoteIcon vote={story.vote} />
+        <ChevronRight className="size-4 shrink-0 text-muted" aria-hidden strokeWidth={2.4} />
       </Link>
     </li>
   );
@@ -87,19 +85,19 @@ function HistoryList({
 }) {
   if (state.status === "loading") {
     return (
-      <div className="flex justify-center px-4 py-6">
-        <span className="loading loading-spinner loading-sm text-base-content/70" role="status" />
+      <div className="flex justify-center py-6">
+        <span className="loading loading-spinner loading-sm text-muted" role="status" />
       </div>
     );
   }
   if (state.status === "error") {
-    return <p className="m-0 px-4 py-4 text-sm text-error-text">{state.message}</p>;
+    return <p className="m-0 py-4 text-sm font-bold text-wrong-text">{state.message}</p>;
   }
   if (state.stories.length === 0) {
-    return <p className="m-0 px-4 py-4 text-sm text-base-content/70">No stories yet.</p>;
+    return <p className="m-0 py-4 text-sm font-semibold text-muted">No stories yet.</p>;
   }
   return (
-    <ul className="m-0 max-h-96 list-none divide-y divide-base-300/60 overflow-y-auto p-0">
+    <ul className="m-0 list-none p-0">
       {state.stories.map((story) => (
         <HistoryRow
           key={story.id}
@@ -113,27 +111,11 @@ function HistoryList({
   );
 }
 
-function HistoryButton({ onPress }: { onPress?: () => void }) {
-  return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      aria-label="Story history"
-      onPress={onPress}
-      className="size-11 shrink-0 text-base-content/70 md:size-9"
-    >
-      <History className="size-4" aria-hidden strokeWidth={1.5} />
-    </Button>
-  );
-}
-
 /** Lists the latest stories next to the Read options button, on the Stories
- *  tab only. A bottom sheet on phone, a popover on desktop. */
+ *  tab only. A bottom sheet on phone, a dialog on desktop. */
 export function StoryHistoryMenu() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const isPhone = useMediaQuery(PLATFORM_MEDIA.phone, true);
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<HistoryState>({ status: "loading" });
 
@@ -157,56 +139,19 @@ export function StoryHistoryMenu() {
     if (next) void load();
   }
 
-  const list = (
-    <HistoryList
-      state={state}
-      currentStoryId={currentStoryId}
-      collection={collection}
-      onOpen={() => setOpen(false)}
-    />
-  );
-
-  if (!isPhone) {
-    return (
-      <DialogTrigger isOpen={open} onOpenChange={changeOpen}>
-        <HistoryButton />
-        <Popover
-          placement="bottom end"
-          offset={6}
-          className="dropdown-content z-50 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-box bg-base-100 shadow-md ring-1 ring-base-content/10"
-        >
-          <AriaDialog aria-label="Story history" className="outline-none">
-            <p className="m-0 border-b border-base-300/60 px-4 py-3 text-sm font-medium">
-              Recent stories
-            </p>
-            {list}
-          </AriaDialog>
-        </Popover>
-      </DialogTrigger>
-    );
-  }
-
   return (
     <>
-      <HistoryButton onPress={() => changeOpen(true)} />
-      <Sheet
-        isOpen={open}
-        onOpenChange={changeOpen}
-        side="bottom"
-        showCloseButton={false}
-        className="max-h-[min(36rem,85dvh)] rounded-t-2xl pb-safe"
-      >
-        <SheetHeader className="border-b border-base-300 px-4 py-3">
-          <div className="flex items-center gap-1">
-            <SheetTitle className="min-w-0 flex-1">Recent stories</SheetTitle>
-            <SheetClose className="shrink-0">
-              <XIcon className="size-4" />
-              <span className="sr-only">Close</span>
-            </SheetClose>
-          </div>
-        </SheetHeader>
-        {list}
-      </Sheet>
+      <IconButton label="Story history" onClick={() => changeOpen(true)}>
+        <History className="size-[22px]" strokeWidth={2.2} aria-hidden />
+      </IconButton>
+      <BottomSheet isOpen={open} onOpenChange={changeOpen} title="Recent stories">
+        <HistoryList
+          state={state}
+          currentStoryId={currentStoryId}
+          collection={collection}
+          onOpen={() => setOpen(false)}
+        />
+      </BottomSheet>
     </>
   );
 }

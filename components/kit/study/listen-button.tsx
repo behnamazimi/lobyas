@@ -8,17 +8,24 @@ export function ListenButton({
   status = "idle",
   onPress,
   label = "Listen",
+  ariaLabel,
+  disabled,
   className,
 }: {
   status?: ListenStatus;
   onPress?: () => void;
   label?: string;
+  /** Spoken name when it differs from the visible label. */
+  ariaLabel?: string;
+  disabled?: boolean;
   className?: string;
 }) {
   const Icon = status === "loading" ? Loader2 : Volume2;
   return (
     <button
       type="button"
+      aria-label={ariaLabel}
+      disabled={disabled}
       aria-pressed={status === "playing"}
       aria-busy={status === "loading"}
       onClick={onPress}

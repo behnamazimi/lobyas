@@ -47,17 +47,6 @@ export const STUDY_CHAPTERS = [
     ],
   },
   {
-    id: "read-more",
-    route: "/app/read",
-    steps: [
-      {
-        target: "read-collection",
-        title: "Choose what to read",
-        body: "Read one collection or all of them.",
-      },
-    ],
-  },
-  {
     id: "stories",
     route: "/app/read/stories",
     steps: [

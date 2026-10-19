@@ -1,4 +1,4 @@
-import { Bell } from "lucide-react";
+import { Bell, RefreshCw } from "lucide-react";
 import {
   CollectionSwitcherRow,
   IconButton,
@@ -90,7 +90,11 @@ export function ShellStories() {
           <StudyTopBar
             closeHref="/admin/kit"
             collection={{ name: "Standup", letter: "S", tone: "read" }}
-            goal={{ label: "312 today", tone: "review" }}
+            goal={{
+              label: "312 reviewed today",
+              tone: "review",
+              icon: <RefreshCw className="size-5 text-review-text" strokeWidth={2.4} aria-hidden />,
+            }}
           />
           <StudyTopBar
             closeHref="/admin/kit"
