@@ -507,11 +507,25 @@ This phase checks the whole app and merges the redesign into `main`.
 
 ## Phase handoff template
 
-Every phase ends with a short note in its PR description, so the next agent
-starts from facts instead of guesses:
+Every phase ends by adding a note to [Handoffs](#handoffs) in this file, in the
+same PR, so the next agent starts from facts instead of guesses. Because each
+phase branches from the latest `redesign`, the next agent already has every
+earlier note. Copy the note into the PR description too, for review.
 
-- What was built, and the kit items added.
+Add the note as a `### Phase <N> · <name>` heading with these items:
+
+- What was built, and the kit items added (with import paths).
 - Data added (queries, props) and where they live.
 - Behavior deliberately left as is, and why.
 - Frames that didn't match, and the decision taken.
+- Files later phases must not change, or must change with care.
 - Open questions for later phases.
+
+Before you start a phase, read the notes of every phase it depends on (see the
+[Dependency map](#dependency-map)). Phase 0 and Phase 1 notes apply to every
+phase. If a note you need is missing, stop and ask instead of guessing.
+
+## Handoffs
+
+Each phase adds its note here when it merges into `redesign`. Don't edit
+another phase's note; add a correction under your own phase.
