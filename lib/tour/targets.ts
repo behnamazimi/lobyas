@@ -14,7 +14,6 @@ export const TOUR_TARGETS = [
   "library-search",
   "library-term",
   "library-actions",
-  "review-collection",
   "review-card",
   "review-grades",
   "read-card",

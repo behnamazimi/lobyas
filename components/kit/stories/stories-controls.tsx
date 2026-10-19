@@ -43,6 +43,7 @@ export function ControlsStories() {
           <Pill>Primary</Pill>
           <Pill variant="secondary">Secondary</Pill>
           <Pill variant="soft">Soft</Pill>
+          <Pill variant="ghost">Ghost</Pill>
           <Pill variant="danger">
             <Trash2 className="size-4" aria-hidden /> Delete…
           </Pill>

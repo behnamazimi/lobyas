@@ -78,9 +78,10 @@ export function StudyStories() {
       </Story>
       <Story
         title="Grade tiles"
-        note="Four grades. With 'Show when terms come back' on, each tile adds its interval."
+        note="Four grades. With 'Show when terms come back' on, each tile adds its interval. The second row shows a grade already given."
       >
         <GradeTiles onGrade={() => {}} />
+        <GradeTiles className="mt-4" onGrade={() => {}} selected="good" />
         <GradeTiles
           className="mt-4"
           onGrade={() => {}}

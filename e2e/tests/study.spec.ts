@@ -84,7 +84,7 @@ test.describe("Studying a collection", () => {
     const { collectionId } = await seedCollection(user);
     await gotoReady(page, `/app/review?collection=${collectionId}`);
 
-    await page.getByRole("button", { name: /^Recall the meaning/ }).click();
+    await page.getByRole("button", { name: "Show answer" }).click();
     await page.getByRole("button", { name: "Good" }).click();
 
     await expect.poll(() => reviewState(user.id)).toMatchObject({ reviewed: 1 });
@@ -93,6 +93,26 @@ test.describe("Studying a collection", () => {
       [user.id],
     );
     expect(event?.grade).toBe(3);
+  });
+
+  test("a mixed link opens the current collection", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await gotoReady(page, `/app/review?collection=all`);
+
+    await page.getByRole("button", { name: /^Recall the meaning/ }).click();
+    await page.getByRole("button", { name: "Good" }).click();
+
+    await expect
+      .poll(async () => {
+        const rows = await sql<{ collection_id: string }>(
+          `select t.collection_id from public.review_events e
+           join public.terms t on t.id = e.term_id
+           where e.user_id = $1 and e.grade is not null`,
+          [user.id],
+        );
+        return rows.map((row) => row.collection_id);
+      })
+      .toEqual([collectionId]);
   });
 
   test(

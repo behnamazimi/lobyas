@@ -5,7 +5,7 @@ import type { ReadQueueSeed } from "@/app/(private)/app/read/actions";
 import { ReadQueueContent } from "@/components/read/read-page-content";
 import { ReadFullscreenFeed } from "@/components/read/read-fullscreen-feed";
 import { useReadFocus } from "@/components/read/read-focus";
-import { ReadGoalMet } from "@/components/read/read-goal-met";
+import { GoalMetNote } from "@/components/goals/goal-met-note";
 import { useReadEnterKey } from "@/components/read/use-read-enter-key";
 import { useReadQueue } from "@/components/read/use-read-queue";
 import { useMountEffect } from "@/hooks/use-mount-effect";
@@ -72,7 +72,7 @@ export function ReadPage({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <ReadGoalMet />
+      <GoalMetNote tier="read" />
 
       <div
         key={term?.id ?? "empty"}

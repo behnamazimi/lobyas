@@ -63,6 +63,7 @@ test.describe("Daily goals", () => {
     await expect(dialog.getByRole("heading", { name: "Today's goals done!" })).toBeVisible();
     await dialog.getByRole("button", { name: "Done for today" }).click();
     await expect(dialog).toBeHidden();
+    await expect(page.getByRole("status").filter({ hasText: "Review goal met." })).toBeVisible();
 
     await gotoReady(page, `/app/review?collection=${collectionId}`);
     await gradeGood(page, 1);
