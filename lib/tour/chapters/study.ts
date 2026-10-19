@@ -7,11 +7,6 @@ export const STUDY_CHAPTERS = [
     route: "/app/review",
     steps: [
       {
-        target: "review-collection",
-        title: "Pick what to review",
-        body: "Review one collection or all of them.",
-      },
-      {
         target: "review-card",
         title: "Recall, then reveal",
         body: "Recall the meaning, then click the card or press Enter.",

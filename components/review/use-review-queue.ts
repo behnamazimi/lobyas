@@ -137,36 +137,6 @@ export function useReviewQueue({ collectionId, seed }: UseReviewQueueArgs) {
     setCurrentIndex(next);
   }, []);
 
-  const switchCollection = useCallback(
-    (nextId: string) => {
-      if (nextId === collectionIdRef.current) return;
-      collectionIdRef.current = nextId;
-      requestIdRef.current++;
-      inFlightRef.current = false;
-
-      const hasCurrent = currentIndexRef.current < termsRef.current.length;
-      if (hasCurrent) {
-        const trimmed = termsRef.current.slice(0, currentIndexRef.current + 1);
-        termsRef.current = trimmed;
-        setTerms(trimmed);
-        loadedIdsRef.current = new Set(trimmed.map((term) => term.id));
-      } else {
-        termsRef.current = [];
-        currentIndexRef.current = 0;
-        setTerms([]);
-        setCurrentIndex(0);
-        loadedIdsRef.current = new Set();
-      }
-
-      reachedEndRef.current = false;
-      loadErrorRef.current = null;
-      setReachedEnd(false);
-      setLoadError(null);
-      void loadMore();
-    },
-    [loadMore],
-  );
-
   const currentTerm = terms[currentIndex] ?? null;
   const status: ReviewQueueStatus = currentTerm
     ? "ready"
@@ -187,7 +157,6 @@ export function useReviewQueue({ collectionId, seed }: UseReviewQueueArgs) {
     goNext,
     goPrevious,
     scheduleRetry,
-    switchCollection,
     retry: goNext,
   };
 }

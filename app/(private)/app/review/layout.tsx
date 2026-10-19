@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
+import { Suspense } from "react";
+import { StudyDay } from "@/components/goals/study-day";
 import { PromoSlot } from "@/components/promos/promo-slot";
-import { PageShell } from "@/components/page-container";
 import { TermLayoutScope } from "@/components/terms/term-layout-scope";
 import { SectionTransition } from "@/components/shared/view-transitions";
 
@@ -12,22 +11,13 @@ export default function ReviewLayout({ children }: { children: React.ReactNode }
   return (
     <TermLayoutScope>
       <SectionTransition>
-        <PageShell
-          className="flex min-h-0 flex-1 flex-col"
-          innerClassName="flex min-h-0 flex-1 flex-col gap-3 space-y-0 py-3 pb-4! md:gap-4 md:py-4"
-        >
-          <div className="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col gap-3 lg:max-w-2xl">
-            <PageHeader
-              badge={<PageBadge page="review" />}
-              title="Review"
-              description="Recall each term, then check it."
-              compactOnPhone
-              showBack={false}
-            />
-            <PromoSlot route="review" />
-            {children}
-          </div>
-        </PageShell>
+        <div className="mx-auto flex min-h-0 w-full max-w-[640px] flex-1 flex-col gap-3 px-5 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
+          <Suspense>
+            <StudyDay />
+          </Suspense>
+          <PromoSlot route="review" />
+          {children}
+        </div>
       </SectionTransition>
     </TermLayoutScope>
   );

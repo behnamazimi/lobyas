@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { AGAIN, EASY, GOOD, HARD } from "@/lib/trace";
-import { describeNextReview, formatNextReview, nextReviewDays } from "./next-review";
+import {
+  describeNextReview,
+  formatNextReview,
+  gradeTileLabels,
+  nextReviewDays,
+} from "./next-review";
 
 describe("formatNextReview", () => {
   it("picks the unit by size", () => {
@@ -49,10 +54,34 @@ describe("nextReviewDays", () => {
 
   it("works for a term never graded", () => {
     const days = nextReviewDays(
-      { stability: null, difficulty: null, lastReviewAt: null, readCount: 0, lastReadAt: null },
+      {
+        stability: null,
+        difficulty: null,
+        lastReviewAt: null,
+        readCount: 0,
+        lastReadAt: null,
+      },
       new Date("2026-03-01T09:00:00Z"),
     );
     expect(days[AGAIN]).toBeLessThan(1);
     expect(days[GOOD]).toBeGreaterThan(1);
+  });
+});
+
+describe("gradeTileLabels", () => {
+  const days = { [AGAIN]: 0.5, [HARD]: 2, [GOOD]: 6, [EASY]: 21 };
+
+  it("gives every grade an interval and a spoken name", () => {
+    const { intervals, ariaLabels } = gradeTileLabels(days, false);
+    expect(intervals).toMatchObject({ again: "12h", good: "6d" });
+    expect(ariaLabels.good).toBe("Good, back in about 6 days");
+    expect(ariaLabels.again).toBe("Again, back in about 12 hours");
+  });
+
+  it("says a missed term is asked again while a retry is left", () => {
+    const { intervals, ariaLabels } = gradeTileLabels(days, true);
+    expect(intervals.again).toBe("~2m");
+    expect(ariaLabels.again).toBe("Again, asked again in about 2 minutes");
+    expect(ariaLabels.hard).toBe("Hard, back in about 2 days");
   });
 });

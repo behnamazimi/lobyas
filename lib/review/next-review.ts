@@ -1,4 +1,5 @@
-import { daysUntilNextReview, type ReviewGrade } from "@/lib/trace";
+import type { KitGrade } from "@/components/kit/study/grade-tiles";
+import { AGAIN, EASY, GOOD, HARD, daysUntilNextReview, type ReviewGrade } from "@/lib/trace";
 import type { ReviewRecallState } from "@/lib/terms/term-card";
 
 /** Days until the term comes back after each grade, if graded at `now`. */
@@ -43,11 +44,47 @@ export function formatNextReview(days: number): string {
 }
 
 /** What the Again button says while a missed term will be asked again this session. */
-export const RETRY_LABEL = "~2m";
-export const RETRY_DESCRIPTION = "asked again in about 2 minutes";
+const RETRY_LABEL = "~2m";
+const RETRY_DESCRIPTION = "asked again in about 2 minutes";
 
 /** The same estimate in words, for screen readers. */
 export function describeNextReview(days: number): string {
   const { count, unit } = measure(days);
   return `back in about ${count} ${unit.word}${count === 1 ? "" : "s"}`;
+}
+
+export const REVIEW_GRADE_OF: Record<KitGrade, ReviewGrade> = {
+  again: AGAIN,
+  hard: HARD,
+  good: GOOD,
+  easy: EASY,
+};
+
+export const KIT_GRADE_OF: Record<ReviewGrade, KitGrade> = {
+  [AGAIN]: "again",
+  [HARD]: "hard",
+  [GOOD]: "good",
+  [EASY]: "easy",
+};
+
+/** What each grade tile says under its label and to a screen reader. A miss
+ *  that will be asked again this session says so instead of an interval. */
+export function gradeTileLabels(
+  nextReview: Record<ReviewGrade, number>,
+  willRetry: boolean,
+): {
+  intervals: Record<KitGrade, string>;
+  ariaLabels: Record<KitGrade, string>;
+} {
+  const intervals = {} as Record<KitGrade, string>;
+  const ariaLabels = {} as Record<KitGrade, string>;
+  for (const [kit, grade] of Object.entries(REVIEW_GRADE_OF) as [KitGrade, ReviewGrade][]) {
+    const retrying = grade === AGAIN && willRetry;
+    const name = kit.charAt(0).toUpperCase() + kit.slice(1);
+    intervals[kit] = retrying ? RETRY_LABEL : formatNextReview(nextReview[grade]);
+    ariaLabels[kit] = `${name}, ${
+      retrying ? RETRY_DESCRIPTION : describeNextReview(nextReview[grade])
+    }`;
+  }
+  return { intervals, ariaLabels };
 }

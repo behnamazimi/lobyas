@@ -41,11 +41,17 @@ const TILES: {
 export function GradeTiles({
   onGrade,
   intervals,
+  ariaLabels,
+  selected,
   disabled,
   className,
 }: {
   onGrade: (grade: KitGrade) => void;
   intervals?: Partial<Record<KitGrade, string>>;
+  /** Spoken names when they differ from the visible label, e.g. with an interval. */
+  ariaLabels?: Partial<Record<KitGrade, string>>;
+  /** The grade already given to this card; it gets a ring. */
+  selected?: KitGrade;
   disabled?: boolean;
   className?: string;
 }) {
@@ -60,10 +66,12 @@ export function GradeTiles({
           key={tile.grade}
           type="button"
           disabled={disabled}
+          aria-label={ariaLabels?.[tile.grade]}
           onClick={() => onGrade(tile.grade)}
           className={cn(
-            "flex min-h-[60px] flex-col items-center justify-center gap-0.5 rounded-[22px] px-1 text-[15px] font-extrabold disabled:opacity-50",
+            "flex min-h-[60px] flex-col items-center justify-center gap-0.5 rounded-[22px] px-1 text-[15px] font-extrabold transition-transform duration-150 ease-out active:scale-[0.96] disabled:opacity-50",
             tile.className,
+            selected === tile.grade && "ring-2 ring-neutral/60",
           )}
         >
           {tile.icon}

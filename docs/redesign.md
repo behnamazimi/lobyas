@@ -736,3 +736,23 @@ Branch `redesign-p3-read`.
 **Care.** `components/app-shell.tsx` got `lg:flex-none`: without it the desktop shell ignored `h-dvh`, so long study pages scrolled the whole window and the rail with it (a Phase 1 bug). `components/app/shell/shell-frame.tsx` paints `bg-base-200` on study routes, so Review, Quiz and Triage inherit the cream page. `components/read/read-page.tsx` skips the `view=cards` rewrite when the visit is about to move to Stories; this also fixed `read-landing.spec.ts` "no cookie yet", which was already failing on `redesign`.
 
 **Open.** Not checked at 390/1280 against the frames: paused and no-terms states, the credit-short and listening-limit notices (they reuse Phase 9's components), narration controls while playing (no stub clip), and shadowing. `components/read/study/study-setup-panel.tsx` is untouched and still used by Review and Quiz setups. The kit page stories for Mode switch were checked by type-check and lint only.
+
+### Phase 4 · Review
+
+Branch `redesign-p4-review`.
+
+**Built.** Review sits in Read's 640 px column under the shell's study bar (goal pill from `<StudyDay/>` in the layout). A controls row (Review chip, Previous, Skip or Next, options), a front card (term, category, "Recall the meaning" chip) with a pinned **Show answer**, and a revealed card (coral title, category, Listen, full term body via `StudyTermBody`, Mark as known foot line) with four grade tiles pinned under it. A quiet "Review goal met." note, caught-up, load-error, loading and paused states reuse Read's. Review options is a `BottomSheet` of `ToggleRow`s with the same four options and visibility rules.
+
+**Kit.** `GradeTiles` takes `selected` and `ariaLabels`; `Pill` has a `ghost` variant. Stories on `/admin/kit`: Pill (Ghost) and Grade tiles (selected row).
+
+**Data.** None added. `gradeTileLabels`, `KIT_GRADE_OF`, `REVIEW_GRADE_OF` in `lib/review/next-review.ts` map TRACE grades to tiles and build the interval line and screen-reader names (unit tested). `GoalMetNote` (`components/goals/goal-met-note.tsx`, `tier` prop) replaces `ReadGoalMet`; Read now imports it.
+
+**Left as is.** TRACE, actions, `recordReviewRevealAction`, write queue, `tickGoal`, keyboard hook and `lib/review/keyboard.ts`, `/api/review/feed` (still accepts `all`), the cookie fallback `lb-review-collection` (read only now), promo slot, tour targets `review-card` and `review-grades`.
+
+**Decisions taken.** Both card faces stay mounted and only one shows (`hidden` + `inert`), so narration autoplay still runs inside the reveal press; the 3D flip is gone. `?collection=all` follows the current collection. Switching collection from the shell remounts the page (keyed by collection); the write queue already handles a remount. The `review-collection` tour step and target are removed. **Show answer** is new (the frame has it, Read has the same).
+
+**Frames that didn't match.** Three tiles in the frames, four built. Frame says the intervals option is off; the option and its default stay. "Review goal met!" with **See today** is a plain note with no button (celebration is Phase 6). The options sheet's "Customize what cards show" row is not added; Customize stays under the term body. Previous (not in the frame) is kept as a ghost button in the controls row.
+
+**Care.** `components/review/review-playing-step.tsx` still exports `SOFT_ACTION_BUTTON_CLASS` and `releaseFocusAfterPointerPress` for Triage, and `review-card.tsx` plus `term-card-header.tsx` stay for Triage; Phase 6 should move or drop them. `review-options.spec.ts` now finds the options by role `switch`. `StudyNoActiveCollectionsState` is no longer wrapped in `QuizPanel` on Review (Read's page still wraps it).
+
+**Open.** Checked at 390 and 1280 in light and dim for front, back (term with every field) and the options sheet. Not checked against frames: Japanese and definition-only terms, retry showing, caught-up, paused and load-error states, touch swipes. `e2e/tests/zz-visual.spec.ts` (Phase 3's scratch screenshot script with a hard-coded path) is still there.

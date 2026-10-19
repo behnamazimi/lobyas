@@ -4,5 +4,3 @@ const reviewCollection = createCollectionPreference("lb-review-collection");
 
 export const REVIEW_COLLECTION_COOKIE = reviewCollection.cookieName;
 export const parseReviewCollectionCookie = reviewCollection.parse;
-export const saveReviewCollectionPreference = reviewCollection.save;
-export const clearReviewCollectionPreference = reviewCollection.clear;

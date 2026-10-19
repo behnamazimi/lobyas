@@ -22,6 +22,11 @@ type PageProps = {
   searchParams: Promise<{ collection?: string }>;
 };
 
+/** Every study screen works on one collection, so a mixed `all` link follows the current one. */
+function singleCollectionParam(param: string | undefined): string | undefined {
+  return param === "all" ? undefined : param;
+}
+
 function LoginPrompt({ message }: { message: string }) {
   return <p className="text-sm text-base-content/70">{message}</p>;
 }
@@ -38,8 +43,9 @@ async function ReviewRoute({ searchParams }: PageProps) {
     cookieStore.get(REVIEW_COLLECTION_COOKIE)?.value,
   );
   const currentId = parseCurrentCollectionId(cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value);
+  const collectionParam = singleCollectionParam(params.collection);
   const speculativeCollectionId = speculativeAppCollection(
-    params.collection,
+    collectionParam,
     currentId,
     rememberedId,
   );
@@ -57,7 +63,7 @@ async function ReviewRoute({ searchParams }: PageProps) {
     redirect("/app/library");
 
   const collectionId = resolveAppCollection({
-    collectionParam: params.collection,
+    collectionParam,
     currentId,
     rememberedId,
     activeIds: setup.collections.map((collection) => collection.id),
@@ -74,9 +80,9 @@ async function ReviewRoute({ searchParams }: PageProps) {
   return (
     <>
       <ReviewPage
-        // Resuming a paused collection refreshes the page; a new active set
-        // remounts it so the queue rebuilds from the fresh seed.
-        key={setup.collections.map((collection) => collection.id).join(",")}
+        // A new collection or active set remounts the page so the queue
+        // rebuilds from the fresh seed.
+        key={`${collectionId}:${setup.collections.map((collection) => collection.id).join(",")}`}
         seed={seed}
         collections={setup.collections}
         paused={setup.paused}
@@ -84,7 +90,7 @@ async function ReviewRoute({ searchParams }: PageProps) {
         narrationAccess={setup.narrationAccess}
         initialOptions={options}
       />
-      {params.collection && params.collection === collectionId && collectionId !== "all" ? (
+      {collectionParam && collectionParam === collectionId ? (
         <RememberCollectionFromLink collectionId={collectionId} />
       ) : null}
     </>
