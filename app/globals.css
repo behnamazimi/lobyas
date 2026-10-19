@@ -10,29 +10,29 @@
   default: true;
   prefersdark: false;
   color-scheme: light;
-  --color-base-100: oklch(99% 0.005 85);
-  --color-base-200: oklch(96.5% 0.011 85);
-  --color-base-300: oklch(91% 0.016 82);
-  --color-base-content: oklch(31% 0.022 60);
-  --color-primary: oklch(76.662% 0.135 153.45);
-  --color-primary-content: oklch(30% 0.05 160);
-  --color-secondary: oklch(56% 0.1 255);
-  --color-secondary-content: oklch(99% 0 0);
-  --color-accent: oklch(72% 0.14 50);
-  --color-accent-content: oklch(22% 0.04 50);
-  --color-neutral: oklch(31% 0.022 60);
-  --color-neutral-content: oklch(98% 0.006 85);
-  --color-info: oklch(72% 0.09 235);
-  --color-info-content: oklch(22% 0.03 235);
-  --color-success: oklch(70% 0.12 155);
-  --color-success-content: oklch(22% 0.04 155);
-  --color-warning: oklch(82% 0.12 85);
-  --color-warning-content: oklch(25% 0.05 85);
-  --color-error: oklch(68% 0.15 25);
-  --color-error-content: oklch(22% 0.05 25);
+  --color-base-100: #ffffff;
+  --color-base-200: #f7f4ee;
+  --color-base-300: #ece6da;
+  --color-base-content: #2a2420;
+  --color-primary: #6fcf9a;
+  --color-primary-content: #2a2420;
+  --color-secondary: #b794ee;
+  --color-secondary-content: #2a2420;
+  --color-accent: #f2907f;
+  --color-accent-content: #2a2420;
+  --color-neutral: #2a2420;
+  --color-neutral-content: #ffffff;
+  --color-info: #4f8ff0;
+  --color-info-content: #2a2420;
+  --color-success: #6fcf9a;
+  --color-success-content: #2a2420;
+  --color-warning: #f7e05a;
+  --color-warning-content: #2a2420;
+  --color-error: #c9503c;
+  --color-error-content: #ffffff;
   --radius-selector: 0.5rem;
-  --radius-field: 0.75rem;
-  --radius-box: 1rem;
+  --radius-field: 1rem;
+  --radius-box: 1.5rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
@@ -45,29 +45,29 @@
   default: false;
   prefersdark: false;
   color-scheme: dark;
-  --color-base-100: oklch(27% 0.014 65);
-  --color-base-200: oklch(23.5% 0.013 65);
-  --color-base-300: oklch(33% 0.015 65);
-  --color-base-content: oklch(90% 0.014 85);
-  --color-primary: oklch(80% 0.13 153);
-  --color-primary-content: oklch(18% 0.03 153);
-  --color-secondary: oklch(74% 0.09 255);
-  --color-secondary-content: oklch(18% 0.03 255);
-  --color-accent: oklch(78% 0.12 50);
-  --color-accent-content: oklch(20% 0.04 50);
-  --color-neutral: oklch(22% 0.012 65);
-  --color-neutral-content: oklch(90% 0.014 85);
-  --color-info: oklch(80% 0.08 235);
-  --color-info-content: oklch(20% 0.03 235);
-  --color-success: oklch(80% 0.11 155);
-  --color-success-content: oklch(20% 0.04 155);
-  --color-warning: oklch(86% 0.12 88);
-  --color-warning-content: oklch(22% 0.05 88);
-  --color-error: oklch(78% 0.13 25);
-  --color-error-content: oklch(20% 0.05 25);
+  --color-base-100: #27221e;
+  --color-base-200: #1c1916;
+  --color-base-300: #3a332d;
+  --color-base-content: #f3eee6;
+  --color-primary: #6fcf9a;
+  --color-primary-content: #1c1916;
+  --color-secondary: #b794ee;
+  --color-secondary-content: #1c1916;
+  --color-accent: #f2907f;
+  --color-accent-content: #1c1916;
+  --color-neutral: #f3eee6;
+  --color-neutral-content: #1c1916;
+  --color-info: #6fa3f5;
+  --color-info-content: #1c1916;
+  --color-success: #6fcf9a;
+  --color-success-content: #1c1916;
+  --color-warning: #f7e05a;
+  --color-warning-content: #1c1916;
+  --color-error: #e0705c;
+  --color-error-content: #1c1916;
   --radius-selector: 0.5rem;
-  --radius-field: 0.75rem;
-  --radius-box: 1rem;
+  --radius-field: 1rem;
+  --radius-box: 1.5rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
@@ -82,8 +82,12 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-figtree);
-  --font-heading: var(--font-fraunces);
+  --font-sans:
+    var(--font-figtree), "Hiragino Sans", "Noto Sans JP", "PingFang SC", "Noto Sans SC",
+    "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+  --font-heading:
+    var(--font-fraunces), "Hiragino Mincho ProN", "Noto Serif JP", "Songti SC", "Noto Serif SC",
+    "Apple SD Gothic Neo", "Noto Serif KR", Georgia, serif;
   --font-mono: var(--font-jetbrains-mono);
   /* The streak flame is the warm accent in both themes. */
   --color-streak: var(--color-accent);
@@ -92,6 +96,32 @@
   --color-success-text: var(--success-text);
   --color-warning-text: var(--warning-text);
   --color-info-text: var(--info-text);
+  /* Study modes: a solid, a tint to sit behind text, the text step and the ring arc. */
+  --color-read: var(--read);
+  --color-read-tint: var(--read-tint);
+  --color-read-text: var(--read-text);
+  --color-read-ring: var(--read-ring);
+  --color-review: var(--review);
+  --color-review-tint: var(--review-tint);
+  --color-review-text: var(--review-text);
+  --color-review-ring: var(--review-ring);
+  --color-quiz: var(--quiz);
+  --color-quiz-tint: var(--quiz-tint);
+  --color-quiz-text: var(--quiz-text);
+  --color-quiz-ring: var(--quiz-ring);
+  --color-success-tint: var(--success-tint);
+  --color-hard: var(--hard);
+  --color-hard-tint: var(--hard-tint);
+  --color-hard-text: var(--hard-text);
+  --color-wrong: var(--wrong);
+  --color-wrong-tint: var(--wrong-tint);
+  --color-wrong-text: var(--wrong-text);
+  --color-mastered: var(--mastered);
+  --color-learning: var(--learning);
+  --color-debated-tint: var(--debated-tint);
+  --color-muted: var(--muted);
+  --color-ink-soft: var(--ink-soft);
+  --color-line: var(--line);
 }
 
 /* Must match PLATFORM_MEDIA in lib/platform.ts */
@@ -157,8 +187,12 @@
   }
 
   :root {
-    --font-heading: var(--font-fraunces);
-    --font-body: var(--font-figtree);
+    --font-heading:
+      var(--font-fraunces), "Hiragino Mincho ProN", "Noto Serif JP", "Songti SC", "Noto Serif SC",
+      "Apple SD Gothic Neo", "Noto Serif KR", Georgia, serif;
+    --font-body:
+      var(--font-figtree), "Hiragino Sans", "Noto Sans JP", "PingFang SC", "Noto Sans SC",
+      "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
     --font-mono: var(--font-jetbrains-mono);
     --dock-height: 3.5rem;
     /* iOS home-screen apps can report an inflated bottom inset until the first
@@ -169,20 +203,76 @@
     );
     --dock-inset: max(0.25rem, calc(var(--safe-bottom) - 0.75rem));
     --dock-bottom: calc(var(--dock-height) + var(--dock-inset));
-    /* Text-safe variants: the fill colours are too light to read as text on white. */
-    --primary-text: oklch(45% 0.12 153);
-    --error-text: oklch(50% 0.16 25);
-    --success-text: oklch(42% 0.1 155);
-    --warning-text: oklch(45% 0.1 75);
-    --info-text: oklch(44% 0.09 235);
+  }
+
+  /* Text steps are dark enough to read on white and on their tint (4.5:1). */
+  :root,
+  [data-theme="emerald"] {
+    --primary-text: #14563a;
+    --error-text: #8f3626;
+    --success-text: #14563a;
+    --warning-text: #6b5a00;
+    --info-text: #2a62c0;
+    --muted: #6f675d;
+    --ink-soft: #5c554c;
+    --line: #d6ccbc;
+    --read: #4f8ff0;
+    --read-tint: #e4edfd;
+    --read-text: #2a62c0;
+    --read-ring: #2f6fd6;
+    --review: #f2907f;
+    --review-tint: #fce6e2;
+    --review-text: #8f3626;
+    --review-ring: #d9604b;
+    --quiz: #b794ee;
+    --quiz-tint: #eee5fa;
+    --quiz-text: #5b34a0;
+    --quiz-ring: #8e62d9;
+    --success-tint: #ddf4e7;
+    --hard: #f7e05a;
+    --hard-tint: #fbf0b0;
+    --hard-text: #6b5a00;
+    --wrong: #c9503c;
+    --wrong-tint: #fce6e2;
+    --wrong-text: #8f3626;
+    --mastered: #3fa773;
+    --learning: #f7e05a;
+    --debated-tint: #f6f1fd;
+    --shadow-rgb: 42 36 32;
   }
 
   [data-theme="dim"] {
-    --primary-text: var(--color-primary);
-    --error-text: var(--color-error);
-    --success-text: var(--color-success);
-    --warning-text: var(--color-warning);
-    --info-text: var(--color-info);
+    --primary-text: #93deb5;
+    --error-text: #f6b3a5;
+    --success-text: #93deb5;
+    --warning-text: #f3e28a;
+    --info-text: #9cc0f8;
+    --muted: #b3a99c;
+    --ink-soft: #cfc6ba;
+    --line: #4a423b;
+    --read: #4f8ff0;
+    --read-tint: #22324d;
+    --read-text: #9cc0f8;
+    --read-ring: #6fa3f5;
+    --review: #f2907f;
+    --review-tint: #4a2b26;
+    --review-text: #f6b3a5;
+    --review-ring: #f0806c;
+    --quiz: #b794ee;
+    --quiz-tint: #352a4a;
+    --quiz-text: #d2bcf6;
+    --quiz-ring: #b08cf0;
+    --success-tint: #1e3a2b;
+    --hard: #f7e05a;
+    --hard-tint: #4a4220;
+    --hard-text: #f3e28a;
+    --wrong: #e0705c;
+    --wrong-tint: #4a2b26;
+    --wrong-text: #f6b3a5;
+    --mastered: #5cc08c;
+    --learning: #f7e05a;
+    --debated-tint: #352a4a;
+    --shadow-rgb: 0 0 0;
   }
 
   /* With the keyboard up the dock is hidden, so its space goes too. */
@@ -286,6 +376,16 @@
       0 0 0 1px oklch(35% 0.04 60 / 0.1),
       0 2px 4px oklch(35% 0.04 60 / 0.08),
       0 12px 28px -10px oklch(35% 0.04 60 / 0.18);
+  }
+
+  .shadow-card {
+    box-shadow:
+      0 1px 2px rgb(var(--shadow-rgb) / 0.05),
+      0 14px 28px -20px rgb(var(--shadow-rgb) / 0.3);
+  }
+
+  .shadow-sheet {
+    box-shadow: 0 -20px 40px -20px rgb(var(--shadow-rgb) / 0.3);
   }
 
   [data-theme="dim"] .shadow-surface {

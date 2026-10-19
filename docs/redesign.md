@@ -529,3 +529,59 @@ phase. If a note you need is missing, stop and ask instead of guessing.
 
 Each phase adds its note here when it merges into `redesign`. Don't edit
 another phase's note; add a correction under your own phase.
+
+### Phase 0 · Kit and scaffolding
+
+Branch `redesign-p0-kit` (not `redesign/p0-kit`: git can't hold both `redesign` and
+`redesign/…`, so later phases should branch as `redesign-p<N>-<name>`).
+
+**Built.** The `emerald` and `dim` themes carry the new palette, the kit lives in
+`components/kit/` (import everything from `@/components/kit`), and `/admin/kit`
+shows each item in both themes (Admin, System, Kit). `components/terms/term-body.tsx`
+now re-exports the kit term body, so Library, Read, Review and term cards already
+use it. Same props and layout rules; the old `term-detail-section.tsx` and
+`term-more-footer.tsx` are gone.
+
+**Kit items and paths.**
+
+- Surfaces: `Card`, `SectionCard`, `Tile`, `Divider` (`surface/card.tsx`), `ListRow` (`surface/list-row.tsx`).
+- Controls: `Pill`, `IconButton`, `SegmentedControl`, `ToggleRow`, `RadioList`, `Chip`, `Stepper` (`controls/`).
+- Progress: `ProgressRing`, `ProgressBar`, `QuizSegments`, `MasteryStack` (`progress/`).
+- Sheet: `BottomSheet` (`sheet.tsx`): bottom sheet under `md`, dialog from `md`. `full` makes the phone sheet fill the screen (use it for Goal met).
+- Shell: `TabBar`, `Rail`, `PageHeader`, `StudyTopBar` (`shell/`). Nav items are in `shell/nav-items.ts` (`/app`, `/app/library`, `/app/goals`, `/app/me`). The kit has no breakpoint classes on them; Phase 1 hides the tab bar from `lg` up and shows the rail.
+- Study: `StudyCard`, `GradeTiles` (four grades, optional interval line), `AnswerOption`, `FeedbackNote`, `ListenButton` (`study/`).
+- Term body: `TermBody`, `TermDefinition` (`term-body/`).
+- States: `EmptyPanel`, `StatusScreen`, `Skeleton` (`states/states.tsx`).
+- Helpers in `lib/kit/text.ts`: `termTitleClass`, `collectionTitleClass`, `definitionClass`, `formatCount`, `CLAMP_ONE_LINE`, `CLAMP_TWO_LINES`.
+- Not in the barrel (knip flags unused exports): import `Tone`/`TONES` from `@/components/kit/tones`, `NAV_ITEMS`/`NavItem` from `shell/nav-items`, and the `AnswerState`, `KitGrade`, `FeedbackKind` and `ListenStatus` types from their own files.
+
+**Tokens** (`app/globals.css`, both themes). DaisyUI: `neutral` is the ink (primary
+pill), `primary` and `success` are green, `info` is Read blue, `accent` is coral
+(streak flame), `secondary` is Quiz purple, `error` is deep coral, `warning` is
+yellow. Tailwind colors: `read`, `review`, `quiz` each with `-tint`, `-text`,
+`-ring`; `success-tint`; `hard`, `hard-tint`, `hard-text`; `wrong`, `wrong-tint`,
+`wrong-text`; `mastered`, `learning`, `debated-tint`; `muted`, `ink-soft`, `line`.
+Utilities: `shadow-card`, `shadow-sheet`. `--primary-text` and its siblings now
+point at the text steps. `--shadow-rgb` switches per theme.
+
+**Data.** None added. Kit components take props only.
+
+**Left as is.** Global `h1`–`h6` styles (kit titles use `font-heading font-extrabold`),
+`components/ui/*`, the English-only More/Less labels in the term body, and the
+layout editor's portal. `term-layout-customize.tsx` got a 44px, bolder button.
+
+**Frames that didn't match.** Review has four grade tiles, not three (decision).
+The frame's Customize always shows; the code only shows it with `customize`.
+Frame-only colors became tokens; their dim values are my own and need a look
+(`hard`, `mastered`, `wrong`, `debated-tint`, and the dim ring steps).
+
+**Care.** `app/globals.css` and `components/kit/` are shared by every phase; add
+tokens there instead of hard-coding hex. A stateful story shares its state across
+both theme panels (use `Story single` for anything that opens over the page).
+
+**Open.** The Settings frame still shows Telegram (removed in #301): drop it in
+Phase 9. Not run: `pnpm test:e2e:smoke` and the e2e specs (Chromium for Playwright
+isn't installed here and wasn't downloaded). I did not add an e2e spec for
+`/admin/kit`. The 390px look was only checked for overflow and tap targets, not
+against the frames. The dev overlay logs a React "script tag" error that comes
+from the root layout's theme scripts, not the kit.

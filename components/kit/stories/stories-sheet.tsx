@@ -1,0 +1,37 @@
+"use client";
+
+import { useState } from "react";
+import { BottomSheet, Pill } from "@/components/kit";
+import { Story } from "./story";
+
+export function SheetStories() {
+  const [open, setOpen] = useState(false);
+  return (
+    <Story
+      single
+      title="Sheet"
+      note="A bottom sheet under 768 px, a centered dialog from there up. The sheet opens over the whole page, in the page's theme."
+    >
+      <Pill variant="secondary" onClick={() => setOpen(true)}>
+        Open sheet
+      </Pill>
+      <BottomSheet
+        isOpen={open}
+        onOpenChange={setOpen}
+        title="Blocker"
+        subline="Meetings · Standup"
+        footer={
+          <Pill size="lg" onClick={() => setOpen(false)}>
+            Done
+          </Pill>
+        }
+      >
+        {Array.from({ length: 14 }, (_, index) => (
+          <p key={index} className="mt-0 mb-3 text-base font-semibold">
+            The body scrolls while the handle, title and footer stay put. Line {index + 1}.
+          </p>
+        ))}
+      </BottomSheet>
+    </Story>
+  );
+}

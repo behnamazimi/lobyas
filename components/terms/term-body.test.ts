@@ -57,4 +57,50 @@ describe("TermBody", () => {
     const html = render(toPlacement({ antiExample: "more", discussion: "more" }));
     expect(html).not.toContain("More (");
   });
+
+  it("shows only the definition and the search link for a bare term", () => {
+    const html = renderToStaticMarkup(
+      createElement(TermBody, {
+        term: { ...term, example: "", mentalModel: undefined, note: undefined },
+      }),
+    );
+    expect(html).toContain("Maakt een zin extra positief.");
+    expect(html).not.toContain("Example");
+    expect(html).toContain("google.com/search");
+  });
+
+  it("links a related term only when it has an address", () => {
+    const related = {
+      ...term,
+      relationships: [
+        {
+          id: "r1",
+          relationshipType: "leads_to",
+          description: "Daarna.",
+          direction: "outgoing" as const,
+          relatedTermId: "a",
+          relatedTermName: "Ja",
+        },
+        {
+          id: "r2",
+          relationshipType: "opposite_of",
+          description: "",
+          direction: "outgoing" as const,
+          relatedTermId: "b",
+          relatedTermName: "Nee",
+        },
+      ],
+    };
+    const html = renderToStaticMarkup(
+      createElement(TermBody, {
+        term: related,
+        language: "nl",
+        getRelationshipHref: (id: string) => (id === "a" ? "/terms/a" : undefined),
+      }),
+    );
+    expect(html).toContain('href="/terms/a"');
+    expect(html).not.toContain('href="/terms/b"');
+    expect(html).toContain("leads to");
+    expect(html).toContain("Verwante termen");
+  });
 });
