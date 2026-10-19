@@ -30,10 +30,7 @@ const CLOSE_MISS_HINT = {
 } as const;
 
 /** Says when a miss was only the accents or the article. */
-export function closeMissHint(
-  question: QuizTextQuestion,
-  response: QuizResponse | null,
-): string | null {
+function closeMissHint(question: QuizTextQuestion, response: QuizResponse | null): string | null {
   const miss =
     response?.interaction === "text" ? closeMiss(response.text, question.acceptedAnswers) : null;
   return miss ? CLOSE_MISS_HINT[miss] : null;

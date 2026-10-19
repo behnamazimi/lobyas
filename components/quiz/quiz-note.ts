@@ -1,0 +1,55 @@
+import type { FeedbackKind } from "@/components/kit/study/feedback-note";
+import { booleanLabelsFor, quizFeedbackLine } from "@/lib/quiz/templates/registry";
+import type { QuizQuestion, QuizResponse } from "@/lib/quiz/types";
+
+export type QuizNote = { kind: FeedbackKind; title: string; detail: string };
+
+function answerText(question: QuizQuestion): string | null {
+  switch (question.interaction) {
+    case "choice":
+      return (
+        question.options.find((option) => question.correctOptionIds.includes(option.id))?.text ??
+        null
+      );
+    case "boolean": {
+      const labels = booleanLabelsFor(question);
+      return (question.correctAnswer ? labels.yes : labels.no).toLowerCase();
+    }
+    case "text":
+      return question.acceptedAnswers[0] ?? null;
+  }
+}
+
+/** What the note under a checked question says. The template's own line often
+ *  names the answer already; when it doesn't, a miss gets "The answer is …". */
+export function quizNote(
+  question: QuizQuestion,
+  result: { passed: boolean; skipped: boolean; response: QuizResponse | null },
+): QuizNote {
+  const { passed, skipped, response } = result;
+  const line = quizFeedbackLine(question, passed && !skipped, skipped ? null : response);
+  const answer = answerText(question);
+  const needsAnswer = !passed && answer !== null && !line?.includes(answer);
+  const detail = [needsAnswer ? `The answer is “${answer}”.` : null, line]
+    .filter(Boolean)
+    .join(" ");
+
+  if (skipped) return { kind: "skipped", title: "Skipped, no problem", detail };
+  return passed
+    ? { kind: "correct", title: "Correct", detail }
+    : { kind: "wrong", title: "Not quite", detail };
+}
+
+const LABELS: Record<QuizQuestion["template"], string> = {
+  definition_to_term: "Pick the match",
+  term_to_meaning: "Pick the meaning",
+  masked_example: "Fill the blank",
+  does_it_fit: "Does it fit?",
+  typed_cloze: "Fill the blank",
+  typed_meaning_to_word: "Type it",
+  dictation: "Listen and type",
+};
+
+export function questionLabel(question: QuizQuestion): string {
+  return LABELS[question.template];
+}

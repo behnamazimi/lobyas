@@ -1,7 +1,8 @@
-import type { QuizChoiceResult } from "@/components/quiz/quiz-controls";
 import type { QuizResponse } from "@/lib/quiz/types";
 
 /** How one answer option shows once the answer is submitted. */
+export type QuizChoiceResult = "default" | "correct" | "wrong";
+
 export function answerResult(
   isCorrect: boolean,
   isSelected: boolean,
@@ -9,7 +10,7 @@ export function answerResult(
 ): QuizChoiceResult {
   if (!submitted) return "default";
   if (isCorrect) return "correct";
-  if (isSelected) return "incorrect";
+  if (isSelected) return "wrong";
   return "default";
 }
 
@@ -22,17 +23,21 @@ export type QuizAnswerState = {
   phase: QuizAnswerPhase;
   response: QuizResponse | null;
   passed: boolean;
+  /** The learner couldn't listen: nothing was graded. */
+  skipped: boolean;
 };
 
 export type QuizAnswerAction =
   | { type: "RESPOND"; response: QuizResponse }
   | { type: "SUBMIT"; passed: boolean }
+  | { type: "SKIP" }
   | { type: "UNLOCK" };
 
 export const initialAnswerState: QuizAnswerState = {
   phase: "answering",
   response: null,
   passed: false,
+  skipped: false,
 };
 
 export function quizAnswerReducer(
@@ -46,6 +51,9 @@ export function quizAnswerReducer(
     case "SUBMIT":
       if (state.phase !== "answering") return state;
       return { ...state, phase: "locked", passed: action.passed };
+    case "SKIP":
+      if (state.phase !== "answering") return state;
+      return { ...state, phase: "locked", passed: false, skipped: true };
     case "UNLOCK":
       if (state.phase !== "locked") return state;
       return { ...state, phase: "ready" };

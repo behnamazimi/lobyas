@@ -19,9 +19,6 @@ export type InitialQuizSetup = {
   style: QuizQuestionStyle;
   collectionId: string;
   count: number | null;
-  savedCollectionId: string | null;
-  /** The collection came from a `?collection=` link, not from the picker. */
-  collectionFromLink: boolean;
   /** They last used AI quizzes but AI isn't available now, so we opened on Simple. */
   aiFellBack: boolean;
 };
@@ -62,7 +59,6 @@ export function resolveInitialQuizSetup(input: {
   aiAvailable: boolean;
 }): InitialQuizSetup {
   const { saved, collectionParam, currentId, activeIds, aiAvailable } = input;
-  const savedCollectionId = saved?.collectionId ?? null;
   const wantedAi = saved?.style === "ai";
 
   return {
@@ -72,12 +68,10 @@ export function resolveInitialQuizSetup(input: {
     collectionId: resolveAppCollection({
       collectionParam,
       currentId,
-      rememberedId: savedCollectionId,
+      rememberedId: saved?.collectionId ?? null,
       activeIds,
     }),
     count: saved?.count ?? null,
-    savedCollectionId,
-    collectionFromLink: Boolean(collectionParam && activeIds.includes(collectionParam)),
   };
 }
 
@@ -88,24 +82,13 @@ export function questionCountFor(preferred: number | null, max: number): number 
   return Math.min(preferred ?? DEFAULT_QUIZ_QUESTION_COUNT, max);
 }
 
-/** What to remember when a quiz starts. A collection that arrived via a
- *  link (e.g. the Library's Quiz button) and wasn't changed is a one-off,
- *  so the previously remembered collection is kept. */
+/** What to remember when a quiz starts. The collection is the app's current
+ *  one, so it isn't stored here (an old cookie may still carry one). */
 export function quizSetupToSave(input: {
   style: QuizQuestionStyle;
   preferredCount: number | null;
-  selectedCollectionId: string;
-  collectionChanged: boolean;
-  initial: InitialQuizSetup;
 }): SavedQuizSetup {
-  const { initial } = input;
-  const collectionId =
-    initial.collectionFromLink && !input.collectionChanged
-      ? initial.savedCollectionId
-      : input.selectedCollectionId;
-
   const setup: SavedQuizSetup = { style: input.style };
   if (input.preferredCount !== null) setup.count = input.preferredCount;
-  if (collectionId) setup.collectionId = collectionId;
   return setup;
 }

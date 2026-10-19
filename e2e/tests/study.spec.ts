@@ -143,7 +143,10 @@ test.describe("Studying a collection", () => {
              having count(*) filter (where e.is_retry) > 0`,
             [user.id],
           );
-          return rows.map((row) => ({ retries: Number(row.retries), tests: Number(row.tests) }));
+          return rows.map((row) => ({
+            retries: Number(row.retries),
+            tests: Number(row.tests),
+          }));
         })
         .toEqual([{ retries: 1, tests: 1 }]);
     },
@@ -155,17 +158,17 @@ test.describe("Studying a collection", () => {
     async ({ page, user }) => {
       const { collectionId } = await seedCollection(user);
       await gotoReady(page, `/app/quiz?collection=${collectionId}`);
-      await page.getByRole("button", { name: "5", exact: true }).click();
+      await page.getByRole("radio", { name: "5", exact: true }).click({ force: true });
       await page.getByRole("button", { name: "Start quiz" }).click();
 
       // A wrong answer queues a retry, so the quiz can run past five questions.
       const choices = page.getByRole("radiogroup", { name: "Answer choices" });
-      const results = page.getByRole("heading", { name: /Quiz complete|Practice complete/ });
+      const results = page.getByRole("heading", { name: /\d+ of \d+ right/ });
       await expect(page.getByText("Question 1 of 5")).toBeVisible();
       for (let answered = 0; answered < 10; answered++) {
         await choices.locator("label").first().click();
-        await page.getByRole("button", { name: "Check answer" }).click();
-        await page.getByRole("button", { name: /Next question|See results/ }).click();
+        await page.getByRole("button", { name: "Check", exact: true }).click();
+        await page.getByRole("button", { name: /^(Next|See results)$/ }).click();
         await expect(results.or(choices)).toBeVisible();
         if (await results.isVisible()) break;
       }

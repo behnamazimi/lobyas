@@ -53,27 +53,6 @@ export function QuizPanelBody({
   return <div className={cn("space-y-6 px-5 py-5 sm:px-6", className)}>{children}</div>;
 }
 
-export function QuizSetupFooter({
-  hint,
-  notice,
-  children,
-  className,
-}: {
-  hint?: ReactNode;
-  /** A block that explains why the main button can't be used, shown above it. */
-  notice?: ReactNode;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex flex-col gap-3 border-t border-base-300/60 pt-4", className)}>
-      {notice}
-      {hint ? <p className="m-0 text-xs text-base-content/70">{hint}</p> : null}
-      <div className="w-full">{children}</div>
-    </div>
-  );
-}
-
 export function QuizStat({
   label,
   value,
@@ -103,38 +82,5 @@ export function QuizKeyboardHint({ action }: { action: string }) {
     <span className="hidden md:inline coarse:hidden">
       Press <kbd className="kbd kbd-xs">Enter</kbd> to {action}
     </span>
-  );
-}
-
-export function QuizCenteredState({
-  icon: Icon,
-  illustration,
-  title,
-  description,
-  children,
-  iconClassName,
-}: {
-  icon?: LucideIcon;
-  /** Shown instead of the icon, e.g. a scene from components/illustrations. */
-  illustration?: ReactNode;
-  title: string;
-  description?: string;
-  children?: ReactNode;
-  iconClassName?: string;
-}) {
-  return (
-    <div className="mx-auto flex max-w-sm flex-col items-center gap-3 py-2 text-center">
-      {illustration ??
-        (Icon ? (
-          <div className="flex size-10 items-center justify-center rounded-field bg-primary/10 text-primary">
-            <Icon className={cn("size-5", iconClassName)} aria-hidden strokeWidth={1.5} />
-          </div>
-        ) : null)}
-      <div className="space-y-1">
-        <h2 className="m-0 text-sm font-medium text-base-content/80">{title}</h2>
-        {description ? <p className="m-0 text-sm text-base-content/70">{description}</p> : null}
-      </div>
-      {children}
-    </div>
   );
 }

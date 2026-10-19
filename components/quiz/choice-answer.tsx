@@ -1,5 +1,5 @@
 import { RadioGroup } from "react-aria-components";
-import { QuizChoice } from "@/components/quiz/quiz-controls";
+import { AnswerRadio } from "@/components/kit";
 import { answerResult } from "@/components/quiz/quiz-question-state";
 import type { QuizChoiceQuestion, QuizResponse } from "@/lib/quiz/types";
 
@@ -19,20 +19,21 @@ export function ChoiceAnswer({ question, response, submitted, onRespond }: Choic
       value={selectedIds[0] ?? ""}
       onChange={(optionId) => onRespond({ interaction: "choice", optionIds: [optionId] })}
       isDisabled={submitted}
-      className="flex flex-col gap-2 pt-5"
+      className="mt-4 flex flex-col gap-2.5"
     >
       {question.options.map((option, index) => (
-        <QuizChoice
+        <AnswerRadio
           key={option.id}
           value={option.id}
-          label={option.text}
           shortcut={index + 1}
-          result={answerResult(
+          state={answerResult(
             question.correctOptionIds.includes(option.id),
             selectedIds.includes(option.id),
             submitted,
           )}
-        />
+        >
+          {option.text}
+        </AnswerRadio>
       ))}
     </RadioGroup>
   );

@@ -1,5 +1,5 @@
 import { RadioGroup } from "react-aria-components";
-import { QuizChoice } from "@/components/quiz/quiz-controls";
+import { AnswerTile } from "@/components/kit";
 import { answerResult } from "@/components/quiz/quiz-question-state";
 import { booleanLabelsFor } from "@/lib/quiz/templates/registry";
 import type { QuizBooleanQuestion, QuizResponse } from "@/lib/quiz/types";
@@ -21,16 +21,17 @@ export function BooleanAnswer({ question, response, submitted, onRespond }: Bool
       value={selected === null ? "" : String(selected)}
       onChange={(value) => onRespond({ interaction: "boolean", value: value === "true" })}
       isDisabled={submitted}
-      className="grid gap-2 pt-5 sm:grid-cols-2"
+      className="mt-4 grid grid-cols-2 gap-2.5"
     >
-      {[true, false].map((value, index) => (
-        <QuizChoice
+      {[true, false].map((value) => (
+        <AnswerTile
           key={String(value)}
           value={String(value)}
-          label={value ? labels.yes : labels.no}
-          shortcut={index + 1}
-          result={answerResult(question.correctAnswer === value, selected === value, submitted)}
-        />
+          icon={value ? "yes" : "no"}
+          state={answerResult(question.correctAnswer === value, selected === value, submitted)}
+        >
+          {value ? labels.yes : labels.no}
+        </AnswerTile>
       ))}
     </RadioGroup>
   );

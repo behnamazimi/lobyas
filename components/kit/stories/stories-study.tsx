@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { RadioGroup } from "react-aria-components";
 import {
+  AnswerInput,
   AnswerOption,
+  AnswerRadio,
+  AnswerTile,
+  ChoiceCards,
+  QuestionCard,
   FeedbackNote,
   GradeTiles,
   ListenButton,
@@ -20,6 +26,9 @@ import { TermBody } from "@/components/kit";
 export function StudyStories() {
   const [listen, setListen] = useState<ListenStatus>("idle");
   const [picked, setPicked] = useState(-1);
+  const [radio, setRadio] = useState("b");
+  const [style, setStyle] = useState("simple");
+  const [count, setCount] = useState("10");
   return (
     <>
       <Story
@@ -131,6 +140,91 @@ export function StudyStories() {
         <div className="mt-4">
           <TermDefinition term={FULL_TERM} />
         </div>
+      </Story>
+      <Story
+        title="Quiz question"
+        note="Radio answers keep arrow keys and digit shortcuts; the number shows on desktop keyboards only. The tiles are the does-it-fit pair."
+      >
+        <QuestionCard
+          label="Pick the term"
+          prompt="Which term matches this definition?"
+          quote="Something that stops you from making progress until it is cleared."
+        />
+        <RadioGroup
+          aria-label="Answer choices"
+          value={radio}
+          onChange={setRadio}
+          className="mt-4 flex flex-col gap-2.5"
+        >
+          <AnswerRadio value="a" shortcut={1}>
+            Deadline
+          </AnswerRadio>
+          <AnswerRadio value="b" shortcut={2}>
+            Blocker
+          </AnswerRadio>
+          <AnswerRadio value="c" state="correct">
+            A data structure many machines can change at once without coordinating first
+          </AnswerRadio>
+          <AnswerRadio value="d" state="wrong">
+            Retro
+          </AnswerRadio>
+        </RadioGroup>
+        <RadioGroup aria-label="Yes or no" className="mt-4 grid grid-cols-2 gap-2.5">
+          <AnswerTile value="yes" icon="yes">
+            Yes
+          </AnswerTile>
+          <AnswerTile value="no" icon="no" state="wrong">
+            No
+          </AnswerTile>
+        </RadioGroup>
+        <QuestionCard
+          className="mt-4"
+          label="Type it"
+          prompt="Type the word or phrase that means this."
+          quote="thank you"
+          quoteStyle="word"
+        />
+        <div className="mt-3 flex flex-col gap-2">
+          <AnswerInput aria-label="Typed answer" placeholder="Type here" />
+          <AnswerInput aria-label="Correct" state="correct" defaultValue="dank je" readOnly />
+          <AnswerInput aria-label="Wrong" state="wrong" defaultValue="dank" readOnly />
+          <AnswerInput aria-label="Skipped" state="skipped" readOnly />
+        </div>
+      </Story>
+      <Story
+        title="Choice cards"
+        note="Cards with a note for the question style; pills for the count."
+      >
+        <ChoiceCards
+          label="Question style"
+          value={style}
+          onChange={setStyle}
+          options={[
+            {
+              value: "simple",
+              label: "Simple",
+              note: "Built from your definitions and examples.",
+            },
+            {
+              value: "ai",
+              label: "AI",
+              note: "Fresh questions written for you. Uses credits.",
+            },
+          ]}
+        />
+        <ChoiceCards
+          className="mt-3"
+          label="How many questions"
+          columns={4}
+          value={count}
+          onChange={setCount}
+          options={[
+            { value: "5", label: "5" },
+            { value: "10", label: "10" },
+            { value: "20", label: "20" },
+            { value: "custom", label: "Custom" },
+          ]}
+        />
       </Story>
     </>
   );
