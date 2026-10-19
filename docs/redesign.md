@@ -756,3 +756,29 @@ Branch `redesign-p4-review`.
 **Care.** `components/review/review-playing-step.tsx` still exports `SOFT_ACTION_BUTTON_CLASS` and `releaseFocusAfterPointerPress` for Triage, and `review-card.tsx` plus `term-card-header.tsx` stay for Triage; Phase 6 should move or drop them. `review-options.spec.ts` now finds the options by role `switch`. `StudyNoActiveCollectionsState` is no longer wrapped in `QuizPanel` on Review (Read's page still wraps it).
 
 **Open.** Checked at 390 and 1280 in light and dim for front, back (term with every field) and the options sheet. Not checked against frames: Japanese and definition-only terms, retry showing, caught-up, paused and load-error states, touch swipes. `e2e/tests/zz-visual.spec.ts` (Phase 3's scratch screenshot script with a hard-coded path) is still there.
+
+### Phase 5 · Quiz
+
+Branch `redesign-p5-quiz`.
+
+**Built.** Quiz sits in Review's 640 px column under the shell's study bar (goal pill from `<StudyDay/>` in the layout). Setup is two section cards (Question style, How many questions) with **Start quiz** pinned under them. A question is a segmented progress row, a caption ("Question 3 of 10", plus the practice note), a `QuestionCard`, the answers (radio rows, Yes/No tiles or a typed field), and a pinned footer with the feedback note, the Enter hint and **Check** / **Next** / **See results**. Results are "N of M right", a lobya scene, Correct / Missed / Score tiles, the Quiz goal row (only with a goal set), expandable **Terms to revisit**, and **Quiz again**, **Practice missed (not scored)**, **Change setup**. Generating is an `EmptyPanel` with `PreparingScene`; an error is a `StatusScreen`.
+
+**Kit.** From `@/components/kit`: `AnswerRadio` and `AnswerTile` (react-aria radios, so `radiogroup`, arrow keys and digit shortcuts still work; `AnswerRadio` shows the digit on desktop keyboards only), `AnswerInput` (typed field, default/correct/wrong/skipped), `QuestionCard`, `ChoiceCards` (cards with a note, or pills). `ANSWER_SURFACE` is exported from `study/answer-option.tsx`. Stories are on `/admin/kit` ("Quiz question", "Choice cards").
+
+**Data.** None added. `components/quiz/quiz-note.ts` builds the note under a checked question from the template's own line (it adds "The answer is …" when the line doesn't name the answer) and maps a template to the card's label. `quizCountPresets` in `lib/quiz/question-limit.ts` gives the 5, 10, 20 chips that fit the collection.
+
+**Left as is.** Templates, builders, grading, `generateQuizAction`, TRACE writes, the write queue, retries, session storage and Resume, dictation prefetch and autoplay, keyboard handling, credit gate and top-up (`CreditGateNotice`, `TopUpButton` untouched, Phase 9), `PromoVisit`, tour target `quiz-style`, `components/quiz/quiz-ui.tsx` (Triage and Read still import its panels).
+
+**Decisions taken.**
+
+- **Current collection.** The collection picker and **All active collections** are gone. Setup uses the current collection; `?collection=all` follows it. A shell switch remounts the page, and a quiz in progress offers **Resume**. The `lb-quiz-setup` cookie no longer stores a collection (an old one is still read as a fallback); `InitialQuizSetup` lost `savedCollectionId` and `collectionFromLink`.
+- **Count chips.** They are 5, 10, 20 (those that fit) and **Custom**, which opens the old numeric field with its validation. The old "all terms" chip is dropped. Default stays 10.
+- **Skipped dictation.** **Can't listen now** now shows **Skipped, no problem** with the answer and meaning, then **Next** moves on. It is still unscored and never sent to TRACE. A clip that won't load takes the same path.
+- **Layout and copy.** Segments sit under the shell bar, not in it. The "N correct" tally is dropped. Copy is **Check** / **Next**; the results heading is "N of M right" for real and practice rounds. Removed: `study-setup-panel.tsx`, `study-progress.tsx`, `quiz-controls.tsx`, `text-feedback.tsx`, `studyCountPresetValues`, `allCollectionsTermCount`.
+- **Related fix.** "What cards show" uses plain `ToggleRow` switches (on is shown) instead of the labeled Shown / More control.
+
+**Frames that didn't match.** Frame counts are 5, 10, 20 with no Custom; the frame's skip is a note the code never had; frame explanation strings are mock text; the frame draws its own lobya, the app keeps `QuizCheerScene` / `KeepTrainingScene`; Results rows are static in the frame and expand in the app.
+
+**Care.** `e2e` locators changed: counts and style are radios (click with `{ force: true }`, the inputs are visually hidden); buttons are **Check** and **Next**. A quiz can run past its size because of retries, so specs match `Question n of \d+`. The credit-gate notice and top-up button still use the old `ui` look inside the new setup card until Phase 9.
+
+**Open.** Checked at 390 and 1280, light and dim: setup, Custom count, choice question open, picked and checked, results, and the error state. Not checked against frames: Yes/No tiles, typed and dictation questions, the Resume banner, AI over balance, and a 100-question quiz (the seeded terms had no examples, so only choice questions appeared). `e2e/tests/zz-visual.spec.ts` (Phase 3) is still there.

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 export type AnswerState = "default" | "picked" | "correct" | "wrong";
 
-const SURFACE: Record<AnswerState, string> = {
+export const ANSWER_SURFACE: Record<AnswerState, string> = {
   default: "bg-base-100 text-base-content shadow-card",
   picked: "bg-quiz-tint text-base-content shadow-[inset_0_0_0_2.5px_var(--color-quiz-ring)]",
   correct: "bg-success-tint text-success-text shadow-[inset_0_0_0_2.5px_var(--color-mastered)]",
@@ -44,7 +44,7 @@ export function AnswerOption({
       onClick={onPress}
       className={cn(
         "flex min-h-14 w-full items-center gap-3 rounded-[20px] px-4 py-3 text-start text-base font-extrabold",
-        SURFACE[state],
+        ANSWER_SURFACE[state],
         className,
       )}
     >

@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, type CSSProperties } from "react";
-import { ChevronDown, Dumbbell, RotateCcw, SlidersHorizontal, Trophy } from "lucide-react";
+import { useEffect } from "react";
+import { ChevronDown } from "lucide-react";
 import { KeepTrainingScene, QuizCheerScene } from "@/components/illustrations/scenes/quiz-results";
-import { feedback } from "@/lib/feedback";
-import { QuizPanel, QuizPanelBody, QuizPanelHeader } from "@/components/quiz/quiz-ui";
-import { Button } from "@/components/ui/button";
+import { Card, Divider, Pill, ProgressRing } from "@/components/kit";
+import { TONES, type Tone } from "@/components/kit/tones";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useGoalCount } from "@/components/goals/use-goal-count";
+import { feedback } from "@/lib/feedback";
+import { formatCount } from "@/lib/kit/text";
 import type { QuizTerm } from "@/lib/quiz/types";
+import { cn } from "@/lib/utils";
 
 type QuizResultsProps = {
   score: number;
@@ -19,57 +22,80 @@ type QuizResultsProps = {
   onChangeSetup: () => void;
 };
 
-function scoreMessage(score: number, total: number) {
+function scoreMessage(score: number, total: number, missed: number) {
   if (total === 0) return "No questions answered.";
-  const ratio = score / total;
-  if (ratio === 1) return "All correct.";
-  if (ratio >= 0.8) return "Strong round.";
-  if (ratio >= 0.5) return "Review the terms you missed.";
-  return "Review the terms you missed.";
+  if (score === total) return "All correct.";
+  if (score / total >= 0.8) return "Strong round.";
+  if (missed === 0) return "Keep at it.";
+  return `${missed === 1 ? "One term" : `${missed} terms`} could use another look.`;
+}
+
+function StatTile({ tone, value, label }: { tone: Tone; value: string; label: string }) {
+  return (
+    <div className={cn("rounded-[18px] px-2 py-3 text-center", TONES[tone].soft)}>
+      <div className="text-2xl leading-none font-extrabold tabular-nums">{value}</div>
+      <div className="mt-1 text-[13px] font-bold">{label}</div>
+    </div>
+  );
+}
+
+function GoalRow() {
+  const today = useGoalCount("quiz");
+  if (!today || today.goal === null) return null;
+  return (
+    <Card radius="md" className="flex items-center gap-3 px-3.5 py-2.5">
+      <ProgressRing value={today.count / today.goal} tone="quiz" size={30} strokeWidth={14} />
+      <div className="flex-1 text-sm font-bold">Quiz goal today</div>
+      <div className="text-sm font-extrabold text-quiz-text tabular-nums">
+        {formatCount(today.count)} of {formatCount(today.goal)}
+      </div>
+    </Card>
+  );
 }
 
 /** Expands in place: a finished quiz can't be restored after navigating
  *  away, so the definitions live here rather than behind links. */
 function MissedTerms({ terms }: { terms: QuizTerm[] }) {
   return (
-    <section aria-labelledby="quiz-missed-heading" className="space-y-2">
-      <h3
-        id="quiz-missed-heading"
-        className="m-0 text-xs font-semibold tracking-wider text-base-content/70 uppercase"
-      >
-        Missed ({terms.length})
-      </h3>
-      <ul className="m-0 list-none divide-y divide-base-300/60 rounded-field p-0 ring-1 ring-base-content/10">
-        {terms.map((term) => (
-          <li key={term.id}>
-            <Collapsible className="group">
-              <CollapsibleTrigger className="flex min-h-11 w-full cursor-pointer items-center justify-between gap-3 rounded-field border-none bg-transparent px-3 py-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-medium text-base-content">
-                    {term.term}
+    <section aria-labelledby="quiz-missed-heading">
+      <h2 id="quiz-missed-heading" className="m-0 mb-2 ml-1 text-base font-extrabold">
+        Terms to revisit
+      </h2>
+      <Card radius="md" className="overflow-hidden">
+        <ul className="m-0 list-none p-0">
+          {terms.map((term, index) => (
+            <li key={term.id}>
+              {index > 0 ? <Divider className="mx-4" /> : null}
+              <Collapsible className="group">
+                <CollapsibleTrigger className="flex min-h-14 w-full cursor-pointer items-start gap-3 px-4 py-3.5 text-start outline-none focus-visible:ring-2 focus-visible:ring-base-content focus-visible:ring-inset">
+                  <span className="min-w-0 flex-1">
+                    <span className="block font-heading text-[19px] font-extrabold [overflow-wrap:anywhere]">
+                      {term.term}
+                    </span>
+                    <span className="mt-0.5 block truncate text-sm font-semibold text-muted">
+                      {term.collectionName}
+                    </span>
                   </span>
-                  <span className="block truncate text-xs text-base-content/70">
-                    {term.collectionName}
+                  <span className="flex h-[26px] shrink-0 items-center rounded-full bg-wrong-tint px-2.5 text-xs font-extrabold text-wrong-text">
+                    Missed
                   </span>
-                </span>
-                <ChevronDown
-                  className="size-4 shrink-0 text-base-content/70 transition-transform duration-200 group-data-[expanded]:rotate-180"
-                  aria-hidden
-                  strokeWidth={1.5}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="space-y-2 px-3 pb-3 text-sm text-base-content/75">
-                  <p className="m-0">{term.definition}</p>
-                  {term.example ? (
-                    <p className="m-0 text-base-content/70 italic">{term.example}</p>
-                  ) : null}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </li>
-        ))}
-      </ul>
+                  <ChevronDown
+                    className="mt-0.5 size-5 shrink-0 text-muted transition-transform duration-200 group-data-[expanded]:rotate-180"
+                    aria-hidden
+                    strokeWidth={2.4}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <div className="space-y-2 px-4 pb-4 text-[15px] leading-snug font-semibold">
+                    <p className="m-0">{term.definition}</p>
+                    {term.example ? <p className="m-0 text-muted italic">{term.example}</p> : null}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            </li>
+          ))}
+        </ul>
+      </Card>
     </section>
   );
 }
@@ -83,99 +109,84 @@ export function QuizResults({
   onPractice,
   onChangeSetup,
 }: QuizResultsProps) {
-  const percent = total > 0 ? Math.round((score / total) * 100) : 0;
   const hasMisses = missedTerms.length > 0;
   const strongRound = !practice && total > 0 && score / total >= 0.8;
+  const percent = total > 0 ? Math.round((score / total) * 100) : 0;
 
   useEffect(() => {
     if (strongRound) feedback("quiz-finish");
   }, [strongRound]);
 
   return (
-    <QuizPanel className="flex max-h-full min-h-0 flex-col">
-      <QuizPanelHeader
-        icon={practice ? Dumbbell : Trophy}
-        title={practice ? "Practice complete" : "Quiz complete"}
-        description={
-          practice ? "Practice round: not counted toward mastery." : scoreMessage(score, total)
-        }
-      />
-      <QuizPanelBody className="min-h-0 flex-1 space-y-6 overflow-y-auto">
-        <div className="flex justify-center">
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-1">
+        <div className="flex items-center gap-3.5">
           {strongRound ? (
-            <QuizCheerScene className="w-40 sm:w-48" />
+            <QuizCheerScene className="w-[132px] shrink-0" />
           ) : (
-            <KeepTrainingScene className="w-40 sm:w-48" />
+            <KeepTrainingScene className="w-[132px] shrink-0" />
           )}
-        </div>
-        <div className="flex flex-col items-center gap-4 py-2 text-center sm:flex-row sm:gap-8 sm:text-left">
-          <div
-            className="radial-progress text-primary"
-            style={
-              {
-                "--value": percent,
-                "--size": "5.5rem",
-                "--thickness": "4px",
-              } as CSSProperties
-            }
-            role="progressbar"
-            aria-valuenow={percent}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label={`${percent}% correct`}
-          >
-            <span className="text-base font-semibold tabular-nums">{percent}%</span>
-          </div>
-          <div>
-            <p className="m-0 text-3xl font-semibold tabular-nums">
-              {score}
-              <span className="text-lg font-medium text-base-content/40">/{total}</span>
+          <div className="min-w-0">
+            <h1 className="m-0 font-heading text-4xl leading-[1.02] font-extrabold">
+              {total === 0 ? "Nothing scored" : `${score} of ${total} right`}
+            </h1>
+            <p className="m-0 mt-2 text-[15px] leading-snug font-semibold text-muted">
+              {practice
+                ? "Practice round: not counted toward mastery."
+                : scoreMessage(score, total, missedTerms.length)}
             </p>
-            <p className="mt-1 mb-0 text-sm text-base-content/70">questions answered correctly</p>
           </div>
         </div>
 
-        {hasMisses ? <MissedTerms terms={missedTerms} /> : null}
-
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          {practice ? (
-            <>
-              {hasMisses ? (
-                <Button type="button" onPress={onPractice} className="min-h-11">
-                  <Dumbbell className="size-3.5" aria-hidden strokeWidth={1.5} />
-                  Practice again
-                </Button>
-              ) : null}
-              <Button
-                type="button"
-                variant={hasMisses ? "outline" : "default"}
-                onPress={onQuizAgain}
-                className="min-h-11"
-              >
-                <RotateCcw className="size-3.5" aria-hidden strokeWidth={1.5} />
-                Start a real quiz
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button type="button" onPress={onQuizAgain} className="min-h-11">
-                <RotateCcw className="size-3.5" aria-hidden strokeWidth={1.5} />
-                Quiz again
-              </Button>
-              {hasMisses ? (
-                <Button type="button" variant="outline" onPress={onPractice} className="min-h-11">
-                  <Dumbbell className="size-3.5" aria-hidden strokeWidth={1.5} />
-                  Practice missed (not scored)
-                </Button>
-              ) : null}
-            </>
-          )}
-          <Button type="button" variant="ghost" onPress={onChangeSetup} className="min-h-11">
-            <SlidersHorizontal className="size-3.5" aria-hidden strokeWidth={1.5} />
-            Change setup
-          </Button>
+        <div className="grid grid-cols-3 gap-2">
+          <StatTile tone="success" value={String(score)} label="Correct" />
+          <StatTile tone="wrong" value={String(Math.max(total - score, 0))} label="Missed" />
+          <StatTile tone="read" value={`${percent}%`} label="Score" />
         </div>
-      </QuizPanelBody>
-    </QuizPanel>
+
+        {practice ? null : <GoalRow />}
+        {hasMisses ? <MissedTerms terms={missedTerms} /> : null}
+      </div>
+
+      <div className="flex shrink-0 flex-col items-stretch gap-2">
+        {practice ? (
+          <>
+            {hasMisses ? (
+              <Pill size="lg" onClick={onPractice}>
+                Practice again
+              </Pill>
+            ) : null}
+            <Pill
+              size="lg"
+              variant={hasMisses ? "secondary" : "primary"}
+              onClick={onQuizAgain}
+              className={hasMisses ? "h-[52px] text-base" : undefined}
+            >
+              Start a real quiz
+            </Pill>
+          </>
+        ) : (
+          <>
+            <Pill size="lg" onClick={onQuizAgain}>
+              Quiz again
+            </Pill>
+            {hasMisses ? (
+              <Pill
+                variant="secondary"
+                size="lg"
+                onClick={onPractice}
+                className="h-[52px] text-base"
+              >
+                Practice missed
+                <span className="font-semibold text-muted">(not scored)</span>
+              </Pill>
+            ) : null}
+          </>
+        )}
+        <Pill variant="ghost" onClick={onChangeSetup} className="self-center text-read-text">
+          Change setup
+        </Pill>
+      </div>
+    </div>
   );
 }

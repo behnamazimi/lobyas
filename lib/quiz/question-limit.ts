@@ -7,3 +7,8 @@ export function maxQuizQuestions(style: QuizQuestionStyle, availableTermCount: n
   const max = getMaxStudyCount(availableTermCount);
   return style === "ai" ? Math.min(max, AI_QUIZ_MAX_QUESTIONS) : max;
 }
+
+/** The quick count choices that fit the terms available; a custom count covers the rest. */
+export function quizCountPresets(max: number): number[] {
+  return [5, 10, 20].filter((count) => count <= max);
+}

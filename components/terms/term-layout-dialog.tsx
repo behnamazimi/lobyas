@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { BottomSheet, Pill, SegmentedControl } from "@/components/kit";
+import { BottomSheet, Pill, SegmentedControl, ToggleRow } from "@/components/kit";
 import { TERM_LABELS } from "@/lib/terms/term-labels";
 import { TERM_BLOCKS, type TermBlock } from "@/lib/terms/term-layout";
 import type { TermLayoutAccess } from "./term-layout-provider";
@@ -22,11 +22,6 @@ type Target = "collection" | "default";
 const TARGETS: { value: Target; label: string }[] = [
   { value: "collection", label: "This collection" },
   { value: "default", label: "All collections" },
-];
-
-const PLACEMENTS = [
-  { value: "shown", label: "Shown" },
-  { value: "more", label: "More" },
 ];
 
 /** Edits what sits under "More" for this collection or for all of them: a
@@ -74,19 +69,11 @@ export function TermLayoutDialog({
       ) : null}
       <ul className="m-0 list-none p-0">
         {TERM_BLOCKS.map((block) => (
-          <li
-            key={block}
-            className="flex min-h-14 items-center gap-2.5 border-b border-line last:border-b-0"
-          >
-            <span className="min-w-0 flex-1 text-[15px] font-extrabold">{BLOCK_LABELS[block]}</span>
-            <SegmentedControl
-              label={BLOCK_LABELS[block]}
-              options={PLACEMENTS}
-              value={draft[block]}
-              onChange={(value) =>
-                setDraft({ ...draft, [block]: value === "shown" ? "shown" : "more" })
-              }
-              className="flex shrink-0"
+          <li key={block} className="border-b border-line last:border-b-0">
+            <ToggleRow
+              label={<span className="text-[15px]">{BLOCK_LABELS[block]}</span>}
+              checked={draft[block] === "shown"}
+              onChange={(shown) => setDraft({ ...draft, [block]: shown ? "shown" : "more" })}
             />
           </li>
         ))}

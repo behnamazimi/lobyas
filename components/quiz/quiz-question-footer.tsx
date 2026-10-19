@@ -1,11 +1,32 @@
 import { ArrowRight, Trophy } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import type { ReactNode } from "react";
+import { FeedbackNote, Pill } from "@/components/kit";
 import { QuizKeyboardHint } from "@/components/quiz/quiz-ui";
+import type { QuizNote } from "@/components/quiz/quiz-note";
 import { cn } from "@/lib/utils";
 
-type QuizQuestionFooterProps = {
-  correct: number;
+/** The line under the progress segments: where you are, and the practice round note. */
+export function QuestionStepCaption({
+  progressLabel,
+  practice,
+}: {
   progressLabel: string;
+  practice: boolean;
+}) {
+  return (
+    <div className="mt-2 flex items-baseline justify-between gap-3 text-[13px] font-bold text-muted tabular-nums">
+      <span>{progressLabel}</span>
+      {practice ? (
+        <span className="text-right">Practice round: not counted toward mastery</span>
+      ) : null}
+    </div>
+  );
+}
+
+type QuizQuestionFooterProps = {
+  note: QuizNote | null;
+  /** Shown above Check, for a dictation question the learner can't listen to. */
+  skipSlot: ReactNode;
   submitted: boolean;
   isLast: boolean;
   canSubmit: boolean;
@@ -16,8 +37,8 @@ type QuizQuestionFooterProps = {
 };
 
 export function QuizQuestionFooter({
-  correct,
-  progressLabel,
+  note,
+  skipSlot,
   submitted,
   isLast,
   canSubmit,
@@ -27,32 +48,37 @@ export function QuizQuestionFooter({
   onAdvance,
 }: QuizQuestionFooterProps) {
   return (
-    <footer className="flex shrink-0 flex-col gap-2 border-t border-base-300/60 px-5 py-3 sm:px-6">
-      <div className="flex items-center justify-between gap-3 [[data-keyboard=open]_&]:max-md:hidden">
-        <p className="m-0 text-left text-xs tabular-nums text-base-content/70">
-          {correct} correct · {progressLabel}
-        </p>
-        <p className="m-0 hidden text-xs text-base-content/70 md:block coarse:hidden">
-          <QuizKeyboardHint action={!submitted ? "check" : isLast ? "see results" : "continue"} />
-        </p>
-      </div>
-      {!submitted ? (
-        <Button
-          type="button"
-          onPress={onSubmit}
-          isDisabled={!canSubmit}
-          preventFocusOnPress
-          className="min-h-11 w-full transition-transform active:scale-[0.96]"
+    <footer className="flex shrink-0 flex-col gap-2 pt-1">
+      {note ? (
+        <FeedbackNote
+          kind={note.kind}
+          title={note.title}
+          className="max-h-[132px] overflow-y-auto py-3"
         >
-          Check answer
-        </Button>
+          {note.detail}
+        </FeedbackNote>
+      ) : null}
+      {!submitted ? skipSlot : null}
+      <p className="m-0 hidden text-center text-xs font-semibold text-muted md:block coarse:hidden [[data-keyboard=open]_&]:max-md:hidden">
+        <QuizKeyboardHint action={!submitted ? "check" : isLast ? "see results" : "continue"} />
+      </p>
+      {!submitted ? (
+        <Pill
+          size="lg"
+          onClick={onSubmit}
+          disabled={!canSubmit}
+          onMouseDown={(event) => event.preventDefault()}
+          className="transition-transform active:scale-[0.97]"
+        >
+          Check
+        </Pill>
       ) : (
-        <Button
-          type="button"
-          onPress={onAdvance}
-          isDisabled={!canAdvance}
+        <Pill
+          size="lg"
+          onClick={onAdvance}
+          disabled={!canAdvance}
           className={cn(
-            "min-h-11 w-full gap-2 transition-transform active:scale-[0.96]",
+            "gap-2 transition-transform active:scale-[0.97]",
             justUnlocked && "quiz-advance-ready",
           )}
         >
@@ -60,14 +86,14 @@ export function QuizQuestionFooter({
             key={isLast ? "results" : "next"}
             className="quiz-advance-label-enter inline-flex items-center gap-2"
           >
-            {isLast ? "See results" : "Next question"}
+            {isLast ? "See results" : "Next"}
             {isLast ? (
-              <Trophy className="size-4 shrink-0" aria-hidden strokeWidth={2} />
+              <Trophy className="size-[18px] shrink-0" aria-hidden strokeWidth={2.4} />
             ) : (
-              <ArrowRight className="size-4 shrink-0" aria-hidden strokeWidth={2} />
+              <ArrowRight className="size-[18px] shrink-0" aria-hidden strokeWidth={2.4} />
             )}
           </span>
-        </Button>
+        </Pill>
       )}
     </footer>
   );

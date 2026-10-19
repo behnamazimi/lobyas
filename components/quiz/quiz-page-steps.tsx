@@ -1,40 +1,32 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
 import { PreparingScene } from "@/components/illustrations/scenes/preparing";
+import { QuestionStepCaption } from "@/components/quiz/quiz-question-footer";
 import { QuizQuestionView } from "@/components/quiz/quiz-question";
-import {
-  QuizCenteredState,
-  QuizPanel,
-  QuizPanelBody,
-  QuizPanelHeader,
-} from "@/components/quiz/quiz-ui";
 import { QuizPickerStep } from "@/components/quiz/quiz-picker-step";
-import { StudyProgress } from "@/components/read/study/study-progress";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { EmptyPanel, FeedbackNote, Pill, QuizSegments, StatusScreen } from "@/components/kit";
 import type { AiAccessView } from "@/lib/llm/types";
 import { type PausedStudyCollection, type StudyCollection } from "@/lib/study/types";
 import { type useQuizSession } from "@/components/quiz/use-quiz-session";
+import { SomethingWentWrongScene } from "@/components/illustrations/scenes/something-went-wrong";
 
 export type UseQuizSessionResult = ReturnType<typeof useQuizSession>;
 
 export function QuizGeneratingStep({ quiz }: { quiz: UseQuizSessionResult }) {
   const isSimple = quiz.questionStyle === "simple";
+  const questions = `${quiz.questionCount} question${quiz.questionCount === 1 ? "" : "s"}`;
   return (
-    <QuizPanel className="flex min-h-0 flex-1 flex-col">
-      <QuizPanelBody className="flex min-h-0 flex-1 items-center justify-center">
-        <QuizCenteredState
-          illustration={<PreparingScene className="w-48" />}
-          title={isSimple ? "Preparing your quiz" : "Building your quiz"}
-          description={
-            isSimple
-              ? `Setting up ${quiz.questionCount} question${quiz.questionCount === 1 ? "" : "s"}…`
-              : `Writing ${quiz.questionCount} question${quiz.questionCount === 1 ? "" : "s"}… This usually takes a few seconds.`
-          }
-        />
-      </QuizPanelBody>
-    </QuizPanel>
+    <div className="flex min-h-0 flex-1 items-center justify-center py-6">
+      <EmptyPanel
+        illustration={<PreparingScene className="w-full" />}
+        title={isSimple ? "Preparing your quiz" : "Building your quiz"}
+        description={
+          isSimple
+            ? `Setting up ${questions}…`
+            : `Writing ${questions}… This usually takes a few seconds.`
+        }
+      />
+    </div>
   );
 }
 
@@ -47,29 +39,18 @@ function QuizActiveQuestionStep({ quiz }: { quiz: UseQuizSessionResult }) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <StudyProgress
-        className="shrink-0 max-md:-mx-5 max-md:-mt-3 max-md:w-[calc(100%+2.5rem)] md:rounded-full"
-        current={quiz.currentIndex + 1}
-        total={quiz.questions.length}
-        label={progressLabel}
-        barClassName="text-[var(--ill-blue)]"
-      />
-      {quiz.practice ? (
-        <p className="m-0 shrink-0 text-xs text-base-content/70">
-          Practice round: answers aren&apos;t counted toward mastery.
-        </p>
-      ) : null}
+      <div className="shrink-0">
+        <QuizSegments total={quiz.questions.length} current={quiz.currentIndex} />
+        <QuestionStepCaption progressLabel={progressLabel} practice={quiz.practice} />
+      </div>
       {quiz.errorMessage ? (
-        <Alert variant="destructive" className="shrink-0">
-          <AlertDescription>{quiz.errorMessage}</AlertDescription>
-        </Alert>
+        <FeedbackNote kind="wrong" title="Something went wrong" className="shrink-0">
+          {quiz.errorMessage}
+        </FeedbackNote>
       ) : null}
       <QuizQuestionView
         key={`${question.termId}-${quiz.currentIndex}`}
         question={question}
-        termLabel={quiz.termById.get(question.termId)?.term ?? "Term"}
-        correct={quiz.correctSoFar}
-        progressLabel={progressLabel}
         isLast={quiz.isLastAfter}
         onAnswer={quiz.handleQuestionAnswer}
         onSkip={quiz.handleQuestionSkip}
@@ -87,6 +68,7 @@ export function QuizPickerStepSection({
   ai,
   aiFellBack,
   canUseAi,
+  collectionName,
   collections,
   paused,
   aiRequiresSetup,
@@ -95,6 +77,7 @@ export function QuizPickerStepSection({
   ai: AiAccessView;
   aiFellBack: boolean;
   canUseAi: boolean;
+  collectionName: string;
   collections: StudyCollection[];
   paused: PausedStudyCollection[];
   aiRequiresSetup: boolean;
@@ -103,6 +86,7 @@ export function QuizPickerStepSection({
     <QuizPickerStep
       collections={collections}
       paused={paused}
+      collectionName={collectionName}
       ai={ai}
       aiFellBack={aiFellBack}
       savedSession={quiz.savedSession}
@@ -114,8 +98,6 @@ export function QuizPickerStepSection({
       }}
       aiRequiresSetup={aiRequiresSetup}
       errorMessage={quiz.errorMessage}
-      selectedCollectionId={quiz.selectedCollectionId}
-      onSelectedCollectionIdChange={quiz.setSelectedCollectionId}
       availableTermCount={quiz.availableTermCount}
       questionCount={quiz.questionCount}
       questionCountInput={quiz.questionCountInput}
@@ -133,29 +115,17 @@ export function QuizPickerStepSection({
 
 export function QuizErrorStep({ quiz }: { quiz: UseQuizSessionResult }) {
   return (
-    <QuizPanel className="flex min-h-0 flex-1 flex-col">
-      <QuizPanelHeader
-        icon={AlertCircle}
-        title="Quiz didn't finish"
-        description="Something interrupted the quiz."
-      />
-      <QuizPanelBody className="space-y-4">
-        <Alert variant="destructive">
-          <AlertDescription>
-            {quiz.errorMessage ?? "Couldn't complete the quiz. Try again."}
-          </AlertDescription>
-        </Alert>
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <Button
-            type="button"
-            variant="outline"
-            onPress={quiz.resetQuizState}
-            className="min-h-11"
-          >
-            Try again
-          </Button>
-        </div>
-      </QuizPanelBody>
-    </QuizPanel>
+    <StatusScreen
+      illustration={<SomethingWentWrongScene className="w-full" />}
+      title="Quiz didn’t finish"
+      description={
+        <span role="alert">{quiz.errorMessage ?? "Couldn't complete the quiz. Try again."}</span>
+      }
+      actions={
+        <Pill variant="secondary" onClick={quiz.resetQuizState}>
+          Try again
+        </Pill>
+      }
+    />
   );
 }

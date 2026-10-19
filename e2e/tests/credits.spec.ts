@@ -10,8 +10,8 @@ async function startAiQuiz(
   count: string,
 ) {
   await gotoReady(page, `/app/quiz?collection=${collectionId}`);
-  await page.getByRole("radio", { name: "AI" }).click({ force: true });
-  await page.getByRole("button", { name: count, exact: true }).click();
+  await page.getByRole("radio", { name: /^AI/ }).click({ force: true });
+  await page.getByRole("radio", { name: count, exact: true }).click({ force: true });
   await page.getByRole("button", { name: "Start quiz" }).click();
 }
 
@@ -32,11 +32,26 @@ test.describe("AI credits", () => {
 
   test("a quiz the model fails to write gives the credits back", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user, [
-      { term: `${LLM_FAIL_MARKER} one`, definition: "Makes the model call fail." },
-      { term: `${LLM_FAIL_MARKER} two`, definition: "Makes the model call fail." },
-      { term: `${LLM_FAIL_MARKER} three`, definition: "Makes the model call fail." },
-      { term: `${LLM_FAIL_MARKER} four`, definition: "Makes the model call fail." },
-      { term: `${LLM_FAIL_MARKER} five`, definition: "Makes the model call fail." },
+      {
+        term: `${LLM_FAIL_MARKER} one`,
+        definition: "Makes the model call fail.",
+      },
+      {
+        term: `${LLM_FAIL_MARKER} two`,
+        definition: "Makes the model call fail.",
+      },
+      {
+        term: `${LLM_FAIL_MARKER} three`,
+        definition: "Makes the model call fail.",
+      },
+      {
+        term: `${LLM_FAIL_MARKER} four`,
+        definition: "Makes the model call fail.",
+      },
+      {
+        term: `${LLM_FAIL_MARKER} five`,
+        definition: "Makes the model call fail.",
+      },
     ]);
     const before = await creditsLeft(user.id);
 
@@ -52,7 +67,7 @@ test.describe("AI credits", () => {
     expect(await creditsLeft(user.id)).toBe(0);
 
     await gotoReady(page, `/app/quiz?collection=${collectionId}`);
-    await page.getByRole("radio", { name: "AI" }).click({ force: true });
+    await page.getByRole("radio", { name: /^AI/ }).click({ force: true });
     await page.getByRole("button", { name: /free credits/i }).click();
 
     await expect.poll(() => creditsLeft(user.id)).toBe(30);
