@@ -2,30 +2,22 @@ import { cn } from "@/lib/utils";
 
 export type KitGrade = "again" | "hard" | "good" | "easy";
 
-const TILES: {
-  grade: KitGrade;
-  label: string;
-  className: string;
-}[] = [
-  {
-    grade: "again",
-    label: "Again",
-    className: "bg-wrong-tint text-wrong-text",
-  },
-  {
-    grade: "hard",
-    label: "Hard",
-    className: "bg-hard-tint text-hard-text",
-  },
-  {
-    grade: "good",
-    label: "Good",
-    className: "bg-success-tint text-success-text",
-  },
+/** The tile colours, shared by the review buttons and the Mastery grading summary. */
+export const GRADE_TILE_COLORS: Record<KitGrade, string> = {
+  again: "bg-[color-mix(in_oklab,var(--color-wrong-tint),var(--color-wrong)_14%)] text-wrong-text",
+  hard: "bg-[color-mix(in_oklab,var(--color-hard-tint),var(--color-hard)_55%)] text-hard-text",
+  good: "bg-[color-mix(in_oklab,var(--color-success-tint),var(--color-success)_30%)] text-success-text",
+  easy: "bg-success text-success-content",
+};
+
+const TILES: { grade: KitGrade; label: string; className: string }[] = [
+  { grade: "again", label: "Again", className: GRADE_TILE_COLORS.again },
+  { grade: "hard", label: "Hard", className: GRADE_TILE_COLORS.hard },
+  { grade: "good", label: "Good", className: GRADE_TILE_COLORS.good },
   {
     grade: "easy",
     label: "Easy",
-    className: "bg-success text-success-content shadow-[0_10px_20px_-12px_rgb(20_86_58/0.7)]",
+    className: cn(GRADE_TILE_COLORS.easy, "shadow-[0_10px_20px_-12px_rgb(20_86_58/0.7)]"),
   },
 ];
 
