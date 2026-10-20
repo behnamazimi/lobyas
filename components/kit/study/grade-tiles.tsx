@@ -17,7 +17,7 @@ const TILES: { grade: KitGrade; label: string; className: string }[] = [
   {
     grade: "easy",
     label: "Easy",
-    className: cn(GRADE_TILE_COLORS.easy, "shadow-[0_10px_20px_-12px_rgb(20_86_58/0.7)]"),
+    className: GRADE_TILE_COLORS.easy,
   },
 ];
 
