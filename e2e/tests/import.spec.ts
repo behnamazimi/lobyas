@@ -5,10 +5,7 @@ import { gotoReady } from "../support/navigation";
 import { SAMPLE_TERMS, seedCollection } from "../support/seed";
 
 async function chooseKind(page: Page, kind: "Field terms" | "Words and phrases") {
-  await page
-    .getByRole("radiogroup", { name: "What it teaches" })
-    .getByRole("radio", { name: kind })
-    .click();
+  await page.getByRole("radiogroup", { name: "What it teaches" }).getByText(kind).click();
 }
 
 const LIST = [
@@ -83,7 +80,7 @@ test.describe("Adding terms", () => {
 
       await page.getByLabel("Term", { exact: true }).fill("Idempotent retry");
       await page.getByLabel("Definition").fill("Repeating the call is safe.");
-      await page.getByRole("button", { name: "Save", exact: true }).click();
+      await page.getByRole("button", { name: "Save term", exact: true }).click();
 
       await expect(page.getByText("Saved “Idempotent retry”")).toBeVisible();
       const rows = await sql(
@@ -109,5 +106,35 @@ test.describe("Adding terms", () => {
       [user.id],
     );
     expect(rows.map((row) => row.name)).toEqual(["My first collection"]);
+  });
+
+  test("updating a term that is already there keeps its history", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user, [
+      { term: "Latency", definition: "The old meaning." },
+    ]);
+    const [before] = await sql<{ id: string }>(
+      "select id from public.terms where collection_id = $1 and term = 'Latency'",
+      [collectionId],
+    );
+
+    await gotoReady(page, `/app/import/paste?to=${collectionId}`);
+    await page.getByLabel("Your list").fill("Latency\tThe delay before a response");
+    await page.getByRole("button", { name: "Check your list" }).click();
+    await page
+      .getByRole("radiogroup", { name: "What to do with terms already there" })
+      .getByText("Update them")
+      .click();
+    await page.getByRole("button", { name: /^Add \d+ terms?/ }).click();
+    await expect(page).toHaveURL(/\/app\/library\?collection=/);
+
+    await expect
+      .poll(async () => {
+        const rows = await sql<{ id: string; definition: string }>(
+          "select id, definition from public.terms where collection_id = $1 and term = 'Latency'",
+          [collectionId],
+        );
+        return rows.map((row) => [row.id === before!.id, row.definition]);
+      })
+      .toEqual([[true, "The delay before a response"]]);
   });
 });

@@ -4,8 +4,7 @@ import { CircleHelp } from "lucide-react";
 import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { CopyIconButton } from "@/components/import/copy-icon-button";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BottomSheet, IconButton } from "@/components/kit";
 
 function Format({
   title,
@@ -20,12 +19,12 @@ function Format({
   copyLabel?: string;
 }) {
   return (
-    <section className="space-y-1">
-      <h3 className="m-0 text-sm font-medium">{title}</h3>
-      <p className="m-0 text-sm text-base-content/70">{children}</p>
+    <section className="space-y-1 py-2">
+      <h3 className="m-0 text-sm font-extrabold">{title}</h3>
+      <p className="m-0 text-sm font-semibold text-muted">{children}</p>
       {example ? (
         <div className="relative">
-          <pre className="m-0 rounded-field bg-base-200/60 px-3 py-2 font-mono text-xs leading-5 whitespace-pre-wrap">
+          <pre className="m-0 rounded-2xl bg-base-200 px-3 py-2 font-mono text-xs leading-5 whitespace-pre-wrap">
             {example}
           </pre>
           {copyLabel ? (
@@ -39,7 +38,7 @@ function Format({
   );
 }
 
-const linkClass = "link link-primary";
+const linkClass = "font-extrabold text-read-text underline";
 
 /** A "?" button that explains what the paste box accepts. */
 export function FormatHelpButton({ className }: { className?: string }) {
@@ -47,24 +46,20 @@ export function FormatHelpButton({ className }: { className?: string }) {
 
   return (
     <>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon-sm"
-        aria-label="What formats can I paste?"
-        className={`min-h-11 min-w-11 text-base-content/70 md:min-h-8 md:min-w-8 ${className ?? ""}`}
-        onPress={() => setOpen(true)}
+      <IconButton
+        label="What formats can I paste?"
+        className={className}
+        onClick={() => setOpen(true)}
       >
-        <CircleHelp className="size-5" aria-hidden strokeWidth={1.5} />
-      </Button>
-      <Dialog isOpen={open} onOpenChange={setOpen}>
-        <DialogHeader>
-          <DialogTitle>What you can paste</DialogTitle>
-          <DialogDescription>
-            Only the term is required. Everything else is optional.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
+        <CircleHelp className="size-5" aria-hidden strokeWidth={2.4} />
+      </IconButton>
+      <BottomSheet
+        isOpen={open}
+        onOpenChange={setOpen}
+        title="What you can paste"
+        subline="Only the term is required. Everything else is optional."
+      >
+        <div className="space-y-2">
           <Format
             title="A list of terms and definitions"
             example="API – a way for programs to talk to each other"
@@ -98,7 +93,7 @@ export function FormatHelpButton({ className }: { className?: string }) {
             </Link>
           </Format>
         </div>
-      </Dialog>
+      </BottomSheet>
     </>
   );
 }

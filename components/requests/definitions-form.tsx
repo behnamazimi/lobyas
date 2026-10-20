@@ -3,8 +3,7 @@
 import { useState, useTransition } from "react";
 import { createDefinitionsRequest } from "@/app/(private)/app/import/request/actions";
 import { RequestSent } from "@/components/requests/request-sent";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Banner, PinnedAction, Pill } from "@/components/kit";
 import { REQUEST_COPY } from "@/lib/requests/copy";
 
 const FORM = REQUEST_COPY.form;
@@ -30,9 +29,11 @@ export function DefinitionsForm({
   used: number;
 }) {
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState<{ id: string; topic: string; estimateDays: number } | null>(
-    null,
-  );
+  const [sent, setSent] = useState<{
+    id: string;
+    topic: string;
+    estimateDays: number;
+  } | null>(null);
   const [isSending, startSending] = useTransition();
 
   if (sent) return <RequestSent {...sent} />;
@@ -40,48 +41,52 @@ export function DefinitionsForm({
   function send() {
     setError(null);
     startSending(async () => {
-      const result = await createDefinitionsRequest({ collectionId, notifyEmail: true });
+      const result = await createDefinitionsRequest({
+        collectionId,
+        notifyEmail: true,
+      });
       if (result.ok) setSent(result);
       else setError(result.message);
     });
   }
 
   return (
-    <div className="space-y-5">
-      <p className="m-0 text-sm text-base-content/70">{FORM.quota(used)}</p>
-      {paused ? (
-        <Alert>
-          <AlertDescription>{FORM.paused(estimateDays)}</AlertDescription>
-        </Alert>
-      ) : null}
+    <div className="flex flex-1 flex-col gap-4">
+      <p className="m-0 text-sm font-semibold text-muted">{FORM.quota(used)}</p>
+      {paused ? <Banner>{FORM.paused(estimateDays)}</Banner> : null}
 
-      <div className="space-y-2">
-        <p className="m-0">{DEFS.intro(name)}</p>
-        <p className="m-0 text-sm font-medium">{DEFS.waiting(count)}</p>
+      <div className="flex flex-col gap-2">
+        <p className="m-0 text-[15px] font-semibold">{DEFS.intro(name)}</p>
+        <p className="m-0 text-sm font-extrabold">{DEFS.waiting(count)}</p>
         <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
           {words.slice(0, SHOWN_WORDS).map((word) => (
-            <li key={word} className="rounded-field bg-base-200 px-2 py-1 text-sm">
+            <li
+              key={word}
+              className="rounded-full bg-base-100 px-3 py-1.5 text-sm font-bold shadow-card"
+            >
               {word}
             </li>
           ))}
           {count > SHOWN_WORDS ? (
-            <li className="px-1 py-1 text-sm text-base-content/70">+{count - SHOWN_WORDS}</li>
+            <li className="px-1 py-1.5 text-sm font-semibold text-muted">+{count - SHOWN_WORDS}</li>
           ) : null}
         </ul>
       </div>
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <p className="m-0 text-sm font-bold text-wrong-text" role="alert">
+          {error}
+        </p>
       ) : null}
 
-      <div className="space-y-2 pb-4">
-        <Button type="button" className="min-h-12 w-full" isDisabled={isSending} onPress={send}>
+      <PinnedAction>
+        <Pill size="lg" disabled={isSending} onClick={send}>
           {isSending ? FORM.sending : FORM.submit}
-        </Button>
-        <p className="m-0 text-center text-sm text-base-content/70">{FORM.eta(estimateDays)}</p>
-      </div>
+        </Pill>
+        <p className="m-0 mt-2 text-center text-[13px] font-semibold text-muted">
+          {FORM.eta(estimateDays)}
+        </p>
+      </PinnedAction>
     </div>
   );
 }

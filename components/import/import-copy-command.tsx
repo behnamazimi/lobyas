@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
+import { Pill } from "@/components/kit";
 import { CopyIconSwap } from "@/components/settings/ui";
 
 export function CopyCommand({
@@ -24,16 +24,16 @@ export function CopyCommand({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="space-y-1">
-        <p className="m-0 text-sm font-medium">{label}</p>
-        {hint ? <p className="m-0 text-xs text-base-content/70">{hint}</p> : null}
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-0.5">
+        <p className="m-0 text-sm font-extrabold">{label}</p>
+        {hint ? <p className="m-0 text-[13px] font-semibold text-muted">{hint}</p> : null}
       </div>
 
       {children}
 
       <div className="flex flex-col gap-2 md:flex-row md:items-start">
-        <pre className="m-0 min-w-0 flex-1 overflow-x-auto rounded-field bg-base-200/60 px-3 py-3 font-mono text-xs leading-5 whitespace-pre-wrap text-base-content">
+        <pre className="m-0 min-w-0 flex-1 overflow-x-auto rounded-2xl bg-base-200 px-3 py-3 font-mono text-xs leading-5 whitespace-pre-wrap text-base-content">
           {prefix ? (
             <span className="select-none text-base-content/40" aria-hidden>
               {prefix}{" "}
@@ -41,16 +41,10 @@ export function CopyCommand({
           ) : null}
           {value}
         </pre>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onPress={handleCopy}
-          className="min-h-11 w-full shrink-0 transition-transform duration-150 ease-out active:scale-[0.96] md:w-auto"
-        >
+        <Pill variant="soft" onClick={handleCopy} className="shrink-0">
           <CopyIconSwap copied={copied} />
           {copied ? "Copied" : "Copy"}
-        </Button>
+        </Pill>
       </div>
     </div>
   );

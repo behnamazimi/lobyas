@@ -5,10 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { KindToggle } from "@/components/shared/kind-toggle";
 import { LanguageToggle } from "@/components/shared/language-toggle";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { FormField, PinnedAction, Pill, TextInput } from "@/components/kit";
 import { useCollectionActions } from "@/hooks/use-collection-actions";
 import { CAPTURE_COPY } from "@/lib/capture/copy";
 import type { CollectionKind } from "@/lib/terms/kinds";
@@ -28,7 +25,11 @@ export function FirstCollectionForm() {
     event.preventDefault();
     if (!canCreate || !kind) return;
     await createEmptyCollection({ name: name.trim(), language, kind }, (collectionId) => {
-      track("collection_created", { language, kind, creation_source: "first_capture" });
+      track("collection_created", {
+        language,
+        kind,
+        creation_source: "first_capture",
+      });
       const params = new URLSearchParams(searchParams.toString());
       params.set("to", collectionId);
       router.replace(`/app/capture?${params.toString()}`);
@@ -36,39 +37,37 @@ export function FirstCollectionForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4">
-      <div className="space-y-1">
-        <h2 className="m-0 text-lg font-medium">{CAPTURE_COPY.firstTitle}</h2>
-        <p className="m-0 text-sm text-base-content/70">{CAPTURE_COPY.firstBody}</p>
+    <form onSubmit={submit} className="flex flex-1 flex-col gap-4">
+      <div>
+        <h2 className="m-0 font-sans text-lg font-extrabold">{CAPTURE_COPY.firstTitle}</h2>
+        <p className="m-0 text-[15px] font-semibold text-muted">{CAPTURE_COPY.firstBody}</p>
       </div>
-      <Field>
-        <FieldLabel htmlFor="first-collection-name">{CAPTURE_COPY.firstName}</FieldLabel>
-        <Input
+      <FormField label={CAPTURE_COPY.firstName} htmlFor="first-collection-name">
+        <TextInput
           id="first-collection-name"
           value={name}
           maxLength={100}
-          className="text-base"
           placeholder={CAPTURE_COPY.firstNamePlaceholder}
           disabled={isBusy}
           onChange={(event) => setName(event.target.value)}
         />
-      </Field>
-      <Field>
-        <FieldLabel>{CAPTURE_COPY.language}</FieldLabel>
+      </FormField>
+      <FormField label={CAPTURE_COPY.language}>
         <LanguageToggle value={language} onChange={setLanguage} isDisabled={isBusy} />
-      </Field>
-      <Field>
-        <FieldLabel>{CAPTURE_COPY.kind}</FieldLabel>
+      </FormField>
+      <FormField label={CAPTURE_COPY.kind}>
         <KindToggle value={kind} onChange={setKind} isDisabled={isBusy} />
-      </Field>
+      </FormField>
       {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <p className="m-0 text-sm font-bold text-wrong-text" role="alert">
+          {error}
+        </p>
       ) : null}
-      <Button type="submit" className="min-h-12 w-full" isDisabled={!canCreate}>
-        {isBusy ? CAPTURE_COPY.creating : CAPTURE_COPY.firstCreate}
-      </Button>
+      <PinnedAction>
+        <Pill size="lg" type="submit" disabled={!canCreate}>
+          {isBusy ? CAPTURE_COPY.creating : CAPTURE_COPY.firstCreate}
+        </Pill>
+      </PinnedAction>
     </form>
   );
 }

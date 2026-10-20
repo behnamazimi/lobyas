@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { TabBar } from "@/components/kit";
 import { cn } from "@/lib/utils";
-import { navKey, shellLayout } from "@/lib/chrome";
+import { navKey, ownsHeader, shellLayout } from "@/lib/chrome";
 import { AppRail } from "./app-rail";
 import { CollectionSwitcher } from "./collection-switcher";
 import { StudyBar } from "./study-bar";
@@ -26,7 +26,7 @@ export function ShellFrame({ children }: { children: ReactNode }) {
         className={cn("flex min-h-0 min-w-0 flex-1 flex-col", layout === "study" && "bg-base-200")}
       >
         {layout === "study" ? <StudyBar /> : null}
-        {layout === "sub" ? <SubPageBar /> : null}
+        {layout === "sub" && !ownsHeader(pathname) ? <SubPageBar /> : null}
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
           <main className="flex min-h-0 flex-1 flex-col">{children}</main>
         </div>

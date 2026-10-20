@@ -2,6 +2,7 @@ export { BottomSheet } from "./sheet";
 export { ConfirmDialog } from "./confirm-dialog";
 export { Card, Divider, SectionCard, Tile } from "./surface/card";
 export { Banner } from "./surface/banner";
+export { PinnedAction } from "./surface/pinned-action";
 export { ListRow } from "./surface/list-row";
 export { StatTile } from "./surface/stat-tile";
 export { ModeSwitch } from "./controls/mode-switch";

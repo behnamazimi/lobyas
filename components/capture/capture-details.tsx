@@ -27,23 +27,25 @@ export function CaptureDetails({
   onDraftsChange: (drafts: RelationshipDraft[]) => void;
 }) {
   return (
-    <Collapsible isExpanded={open} onExpandedChange={onOpenChange}>
-      <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between gap-2 text-left text-sm">
+    <Collapsible isExpanded={open} onExpandedChange={onOpenChange} className="border-t border-line">
+      <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between gap-2 text-left text-[15px] font-extrabold">
         <span>
-          <span className="font-medium">{CAPTURE_COPY.moreDetails}</span>
-          <span className="block text-xs text-base-content/70">{CAPTURE_COPY.moreDetailsHint}</span>
+          {CAPTURE_COPY.moreDetails}
+          <span className="block text-[13px] font-semibold text-muted">
+            {CAPTURE_COPY.moreDetailsHint}
+          </span>
         </span>
         <ChevronDown
           className={cn(
-            "size-4 shrink-0 text-base-content/70 transition-transform motion-reduce:transition-none",
+            "size-4 shrink-0 transition-transform motion-reduce:transition-none",
             open && "rotate-180",
           )}
           aria-hidden
-          strokeWidth={1.5}
+          strokeWidth={2.6}
         />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="space-y-4 pt-2">
+        <div className="flex flex-col gap-3 pt-2 pb-2">
           <CategoryField form={form} onFieldChange={onFieldChange} />
           <OptionalDetailFields form={form} onFieldChange={onFieldChange} />
           {terms.length > 0 ? (

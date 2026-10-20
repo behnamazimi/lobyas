@@ -1,177 +1,33 @@
-"use client";
-
-import { ChevronDown } from "lucide-react";
-import { useState, type ReactNode } from "react";
-import { Card } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { cn } from "@/lib/utils";
-
-function ImportCardHeaderContent({
-  icon,
-  title,
-  headerDescription,
-  collapsible,
-  expanded,
-}: {
-  icon: ReactNode;
-  title: string;
-  headerDescription?: string;
-  collapsible: boolean;
-  expanded: boolean;
-}) {
-  return (
-    <>
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-field bg-primary/10 text-primary [&>svg]:size-5">
-        {icon}
-      </div>
-      <div className="min-w-0 flex-1 space-y-1 text-left">
-        <h2 className="m-0 text-base font-medium">{title}</h2>
-        {headerDescription ? (
-          <p className="m-0 text-sm text-base-content/70">{headerDescription}</p>
-        ) : null}
-      </div>
-      {collapsible ? (
-        <ChevronDown
-          className={cn(
-            "size-4 shrink-0 text-base-content/70 transition-transform duration-200 ease-out motion-reduce:transition-none",
-            expanded && "rotate-180",
-          )}
-          aria-hidden
-          strokeWidth={1.5}
-        />
-      ) : null}
-    </>
-  );
-}
-
-function ImportCardBody({
-  collapsible,
-  description,
-  children,
-}: {
-  collapsible: boolean;
-  description?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="space-y-4 px-4 py-4 sm:px-6 sm:py-5">
-      {collapsible && description ? (
-        <p className="m-0 text-sm text-base-content/70">{description}</p>
-      ) : null}
-      {children}
-    </div>
-  );
-}
-
-const cardShellClassName = (className?: string) =>
-  cn("shadow-surface overflow-hidden rounded-box ring-1 ring-base-content/5", className);
-
-type ImportCardShellProps = {
-  className?: string;
-  headerClassName: string;
-  header: ReactNode;
-  body: ReactNode;
-};
-
-function StaticImportCard({ className, headerClassName, header, body }: ImportCardShellProps) {
-  return (
-    <Card className={cardShellClassName(className)}>
-      <div className={cn(headerClassName, "border-b border-base-300/60")}>{header}</div>
-      {body}
-    </Card>
-  );
-}
-
-function CollapsibleImportCard({
-  className,
-  headerClassName,
-  header,
-  body,
-  expanded,
-  onExpandedChange,
-}: ImportCardShellProps & { expanded: boolean; onExpandedChange: (expanded: boolean) => void }) {
-  return (
-    <Collapsible isExpanded={expanded} onExpandedChange={onExpandedChange}>
-      <Card className={cardShellClassName(className)}>
-        <CollapsibleTrigger
-          className={cn(
-            headerClassName,
-            "w-full text-left transition-colors hover:bg-base-200/60 motion-reduce:transition-none",
-          )}
-          aria-expanded={expanded}
-        >
-          {header}
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="border-t border-base-300/60">{body}</div>
-        </CollapsibleContent>
-      </Card>
-    </Collapsible>
-  );
-}
+import type { ReactNode } from "react";
+import { SectionCard, Tile } from "@/components/kit";
 
 export function ImportCard({
   icon,
   title,
   description,
   children,
-  className,
-  collapsible = false,
-  defaultExpanded = true,
 }: {
   /** An element, not a component, so server pages can pass it. */
   icon: ReactNode;
   title: string;
   description?: string;
   children: ReactNode;
-  className?: string;
-  collapsible?: boolean;
-  defaultExpanded?: boolean;
 }) {
-  const [expanded, setExpanded] = useState(defaultExpanded);
-  const headerDescription = !collapsible && description ? description : undefined;
-
-  const header = (
-    <ImportCardHeaderContent
-      icon={icon}
-      title={title}
-      headerDescription={headerDescription}
-      collapsible={collapsible}
-      expanded={expanded}
-    />
-  );
-
-  const headerClassName = cn(
-    "flex gap-3 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5",
-    headerDescription ? "items-start" : "items-center",
-  );
-
-  const body = (
-    <ImportCardBody collapsible={collapsible} description={description}>
-      {children}
-    </ImportCardBody>
-  );
-
-  if (!collapsible) {
-    return (
-      <StaticImportCard
-        className={className}
-        headerClassName={headerClassName}
-        header={header}
-        body={body}
-      />
-    );
-  }
-
   return (
-    <CollapsibleImportCard
-      className={className}
-      headerClassName={headerClassName}
-      header={header}
-      body={body}
-      expanded={expanded}
-      onExpandedChange={setExpanded}
-    />
+    <SectionCard>
+      <div className="flex items-start gap-3">
+        <Tile tone="read">{icon}</Tile>
+        <div className="min-w-0 flex-1">
+          <h2 className="m-0 font-sans text-base font-extrabold">{title}</h2>
+          {description ? (
+            <p className="m-0 mt-0.5 text-[13px] leading-snug font-semibold text-muted">
+              {description}
+            </p>
+          ) : null}
+        </div>
+      </div>
+      <div className="mt-4 flex flex-col gap-4">{children}</div>
+    </SectionCard>
   );
 }
 
@@ -184,12 +40,12 @@ export function ImportCodePanel({
 }) {
   return (
     <div className="relative">
-      <div className="shadow-surface max-h-[320px] overflow-auto rounded-field bg-base-200/60 p-1">
-        <pre className="m-0 rounded-field bg-base-100 p-3 text-xs leading-5 whitespace-pre-wrap text-base-content ring-1 ring-base-content/[0.06] dark:ring-base-100/[0.06]">
+      <div className="max-h-[320px] overflow-auto rounded-2xl bg-base-200 p-3">
+        <pre className="m-0 font-mono text-xs leading-5 whitespace-pre-wrap text-base-content">
           {children}
         </pre>
       </div>
-      {actions ? <div className="absolute top-3 right-3">{actions}</div> : null}
+      {actions ? <div className="absolute top-2 right-2">{actions}</div> : null}
     </div>
   );
 }

@@ -1,11 +1,9 @@
 "use client";
 
-import { FolderPlus, Layers, List, Plus, Search } from "lucide-react";
+import { FolderPlus, LayoutGrid, NotebookText, Plus } from "lucide-react";
 import { useState } from "react";
+import { Card, Divider, ListRow, Pill, SearchField } from "@/components/kit";
 import { CreateCollectionDialog } from "@/components/library/create-collection-dialog";
-import { NAV_FORWARD } from "@/components/shared/view-transitions";
-import { LinkButton } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { RequestRow } from "@/components/requests/request-row";
 import { useBrowseSearch } from "@/hooks/use-browse-search";
 import { SearchResults } from "@/components/import/chooser-search-results";
@@ -13,32 +11,7 @@ import { REQUEST_COPY } from "@/lib/requests/copy";
 import type { RequestEntry } from "@/lib/requests/entry";
 import type { ImportDestination } from "@/lib/import/import-collections";
 
-const SECTION_HEADING = "m-0 text-xs font-semibold tracking-wider text-base-content/70 uppercase";
-
-const ROW_CLASS =
-  "flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left text-base font-normal outline-none transition-colors hover:bg-base-200/60 focus-visible:ring-2 focus-visible:ring-primary";
-
-function RowContent({
-  icon: Icon,
-  title,
-  description,
-}: {
-  icon: typeof List;
-  title: string;
-  description: string;
-}) {
-  return (
-    <>
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-field bg-primary/10 text-primary">
-        <Icon className="size-5" aria-hidden strokeWidth={1.5} />
-      </span>
-      <span className="min-w-0 flex-1 text-left">
-        <span className="block font-medium">{title}</span>
-        <span className="block text-sm text-base-content/70">{description}</span>
-      </span>
-    </>
-  );
-}
+const ICON = "size-5";
 
 export function ImportChooser({
   collections,
@@ -51,33 +24,14 @@ export function ImportChooser({
   const [createOpen, setCreateOpen] = useState(false);
 
   return (
-    <div className="space-y-8">
-      <section
-        className="flex flex-col gap-2"
-        data-tour="import-search"
-        aria-labelledby="find-shared"
-      >
-        <h2 id="find-shared" className={SECTION_HEADING}>
-          Find a collection
-        </h2>
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2 text-base-content/70"
-            aria-hidden
-            strokeWidth={1.5}
-          />
-          <Input
-            type="search"
-            value={query}
-            aria-label="What do you want to learn?"
-            placeholder="What do you want to learn?"
-            className="min-h-12 pl-9 text-base"
-            onChange={(event) => handleQuery(event.target.value)}
-          />
-        </div>
-        {query.trim() ? null : (
-          <p className="m-0 text-sm text-base-content/70">Search collections.</p>
-        )}
+    <div className="flex flex-col gap-5">
+      <section className="flex flex-col gap-3" data-tour="import-search">
+        <SearchField
+          value={query}
+          onChange={handleQuery}
+          label="What do you want to learn?"
+          className="h-[52px] rounded-2xl"
+        />
         <SearchResults
           state={search}
           addingId={addingId}
@@ -94,81 +48,52 @@ export function ImportChooser({
       </section>
 
       <section
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-3"
         data-tour="import-routes"
-        aria-labelledby="start-from"
+        aria-labelledby="start-own"
       >
-        <h2 id="start-from" className={SECTION_HEADING}>
-          Or add your own
+        <h2 id="start-own" className="m-0 mt-1 text-base font-extrabold">
+          Or start your own
         </h2>
-        <ul className="shadow-surface m-0 list-none divide-y divide-base-300/60 overflow-hidden rounded-box bg-base-100 p-0">
-          <li>
-            <LinkButton
-              href="/app/import/paste"
-              transitionTypes={NAV_FORWARD}
-              variant="ghost"
-              className={`${ROW_CLASS} h-auto rounded-none`}
-            >
-              <RowContent
-                icon={List}
-                title="I have a list"
-                description="Notes, a spreadsheet, a doc or a chat message"
-              />
-            </LinkButton>
-          </li>
-          <li>
-            <LinkButton
-              href="/app/import/apps"
-              transitionTypes={NAV_FORWARD}
-              variant="ghost"
-              className={`${ROW_CLASS} h-auto rounded-none`}
-            >
-              <RowContent
-                icon={Layers}
-                title="Export from another app"
-                description="How to copy your deck out of Quizlet, Anki and more"
-              />
-            </LinkButton>
-          </li>
-          <li>
-            <LinkButton
-              href="/app/capture"
-              variant="ghost"
-              className={`${ROW_CLASS} h-auto rounded-none`}
-            >
-              <RowContent
-                icon={Plus}
-                title="Just one term"
-                description="Save a word you just came across"
-              />
-            </LinkButton>
-          </li>
-          <li>
-            <button
-              type="button"
-              className={`btn btn-ghost ${ROW_CLASS} h-auto rounded-none`}
-              onClick={() => setCreateOpen(true)}
-            >
-              <RowContent
-                icon={FolderPlus}
-                title="Start an empty collection"
-                description="Name it now and add terms later"
-              />
-            </button>
-          </li>
-        </ul>
+        <Card radius="md" className="px-3 py-1">
+          <ListRow
+            href="/app/import/paste"
+            tone="read"
+            icon={<NotebookText className={ICON} aria-hidden />}
+            label="Paste a list"
+            subline="From a doc, a sheet or your notes"
+          />
+          <Divider />
+          <ListRow
+            href="/app/import/apps"
+            tone="review"
+            icon={<LayoutGrid className={ICON} aria-hidden />}
+            label="From another app"
+            subline="Quizlet, Anki, Google Translate and more"
+          />
+          <Divider />
+          <ListRow
+            href="/app/capture"
+            tone="success"
+            icon={<Plus className={ICON} aria-hidden />}
+            label="One term"
+            subline="Save a single term in a few seconds"
+          />
+          <Divider />
+          <ListRow
+            onPress={() => setCreateOpen(true)}
+            tone="quiz"
+            icon={<FolderPlus className={ICON} aria-hidden />}
+            label="Start an empty collection"
+            subline="Name it now and add terms later"
+          />
+        </Card>
       </section>
 
       <div className="flex justify-center">
-        <LinkButton
-          href="/app/import/more"
-          transitionTypes={NAV_FORWARD}
-          variant="ghost"
-          size="sm"
-          className="min-h-11 text-base-content/70"
-        >
+        <Pill variant="ghost" href="/app/import/more">
           More ways to add
-        </LinkButton>
+        </Pill>
       </div>
 
       <CreateCollectionDialog

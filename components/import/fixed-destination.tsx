@@ -7,7 +7,7 @@ export function FixedDestinationNote({ flow }: { flow: ImportFlowState }) {
   if (!fixed) return null;
   if (flow.adapter?.destinationNote) {
     return (
-      <p className="m-0 text-sm text-base-content/70" role="status">
+      <p className="m-0 text-sm font-semibold text-muted" role="status">
         {flow.adapter.destinationNote}
       </p>
     );
@@ -16,7 +16,7 @@ export function FixedDestinationNote({ flow }: { flow: ImportFlowState }) {
     COLLECTION_LANGUAGE_OPTIONS.find((option) => option.value === fixed.language)?.label ??
     fixed.language;
   return (
-    <p className="m-0 text-sm text-base-content/70" role="status">
+    <p className="m-0 text-sm font-semibold text-muted" role="status">
       New collection · {fixed.name} · {language}
     </p>
   );
@@ -26,7 +26,7 @@ export function FixedDestinationNote({ flow }: { flow: ImportFlowState }) {
 export function UnfinishedNote({ flow }: { flow: ImportFlowState }) {
   if (!flow.adapter?.requireAllDefinitions || flow.summary.toFinish === 0) return null;
   return (
-    <p className="m-0 text-sm text-warning-text" role="status">
+    <p className="m-0 text-sm font-bold text-hard-text" role="status">
       {flow.adapter.unfinishedNote}
     </p>
   );

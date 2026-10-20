@@ -3,8 +3,7 @@
 import { Check } from "lucide-react";
 import { useState } from "react";
 import { setRequestNotify } from "@/app/(private)/app/actions-requests";
-import { LinkButton } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
+import { Card, PinnedAction, Pill, Tile, ToggleRow } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { REQUEST_COPY } from "@/lib/requests/copy";
 
@@ -32,42 +31,36 @@ export function RequestSent({
   }
 
   return (
-    <div className="space-y-5 pt-2">
-      <div className="flex size-12 items-center justify-center rounded-box bg-success/15 text-success-text">
-        <Check className="size-6" aria-hidden strokeWidth={1.5} />
-      </div>
-      <div className="space-y-1">
-        <h2 tabIndex={-1} className="m-0 text-xl font-medium outline-none">
+    <div className="flex flex-1 flex-col gap-5 pt-2">
+      <Tile tone="success" size={48}>
+        <Check className="size-6" aria-hidden strokeWidth={2.6} />
+      </Tile>
+      <div className="flex flex-col gap-1">
+        <h2 tabIndex={-1} className="m-0 font-heading text-2xl font-extrabold outline-none">
           {SENT.title}
         </h2>
-        <p className="m-0 text-base-content/80" role="status">
+        <p className="m-0 text-[15px] font-semibold text-ink-soft" role="status">
           {SENT.body(topic, estimateDays)}
         </p>
       </div>
 
-      <div className="shadow-surface space-y-3 rounded-box bg-base-100 p-4">
-        <h3 className="m-0 text-sm font-medium">{SENT.howTitle}</h3>
-        <label className="flex min-h-11 items-center justify-between gap-3">
-          <span>
-            <span className="block font-medium">{SENT.email}</span>
-            <span className="block text-sm text-base-content/70">{SENT.emailHint}</span>
-          </span>
-          <Switch
-            aria-label={SENT.email}
-            checked={notify}
-            onCheckedChange={(next) => void changeNotify(next)}
-          />
-        </label>
-      </div>
+      <Card radius="md" className="px-4 py-1">
+        <ToggleRow
+          label={SENT.email}
+          description={SENT.emailHint}
+          checked={notify}
+          onChange={(next) => void changeNotify(next)}
+        />
+      </Card>
 
-      <div className="flex flex-col gap-2 pb-4">
-        <LinkButton href="/app/import" className="min-h-12 w-full">
+      <PinnedAction className="flex flex-col gap-2">
+        <Pill size="lg" href="/app/import">
           {SENT.done}
-        </LinkButton>
-        <LinkButton href="/app/browse" variant="ghost" className="min-h-11 w-full">
+        </Pill>
+        <Pill variant="ghost" href="/app/browse">
           {SENT.browse}
-        </LinkButton>
-      </div>
+        </Pill>
+      </PinnedAction>
     </div>
   );
 }

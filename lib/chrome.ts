@@ -51,3 +51,8 @@ export function subPageFallback(pathname: string): string {
   if (pathname.startsWith("/c/")) return "/app";
   return "/app/me";
 }
+
+/** Pages that draw their own back button and title instead of the shell's phone bar. */
+export function ownsHeader(pathname: string): boolean {
+  return pathname.startsWith("/app/import") || pathname === "/app/capture";
+}

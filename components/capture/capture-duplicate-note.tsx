@@ -1,5 +1,4 @@
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { LinkButton } from "@/components/ui/button";
+import { Banner, Pill } from "@/components/kit";
 import { CAPTURE_COPY } from "@/lib/capture/copy";
 
 export function CaptureDuplicateNote({
@@ -14,18 +13,19 @@ export function CaptureDuplicateNote({
   collectionId: string;
 }) {
   return (
-    <Alert>
-      <AlertTitle>
+    <Banner
+      action={
+        <Pill variant="secondary" href={`/app/library?collection=${collectionId}`}>
+          {CAPTURE_COPY.openIt}
+        </Pill>
+      }
+    >
+      <strong className="block font-extrabold">
         {finished
           ? CAPTURE_COPY.duplicate(term, collectionName)
           : CAPTURE_COPY.duplicateUnfinished(term, collectionName)}
-      </AlertTitle>
-      <AlertDescription>{CAPTURE_COPY.qualifierHint}</AlertDescription>
-      <AlertAction>
-        <LinkButton href={`/app/library?collection=${collectionId}`} size="sm" variant="outline">
-          {CAPTURE_COPY.openIt}
-        </LinkButton>
-      </AlertAction>
-    </Alert>
+      </strong>
+      {CAPTURE_COPY.qualifierHint}
+    </Banner>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CopyIconSwap } from "@/components/settings/ui";
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/kit";
 
 export function CopyIconButton({ value, label }: { value: string; label: string }) {
   const [copied, setCopied] = useState(false);
@@ -18,15 +18,13 @@ export function CopyIconButton({ value, label }: { value: string; label: string 
   }
 
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon-sm"
-      aria-label={copied ? "Copied" : label}
-      onPress={handleCopy}
-      className="min-h-11 min-w-11 bg-base-100/80 backdrop-blur-sm md:min-h-8 md:min-w-8"
+    <IconButton
+      tone="soft"
+      label={copied ? "Copied" : label}
+      onClick={handleCopy}
+      className="bg-base-100/90"
     >
       <CopyIconSwap copied={copied} />
-    </Button>
+    </IconButton>
   );
 }
