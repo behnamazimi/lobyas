@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { SMALL_TITLE_CLASS } from "@/components/public/title-class";
 import { cn } from "@/lib/utils";
 
@@ -56,13 +56,16 @@ export function StatusScreen(props: Omit<React.ComponentProps<typeof EmptyPanel>
 export function Skeleton({
   shape = "line",
   className,
+  style,
 }: {
   shape?: "line" | "block" | "circle";
   className?: string;
+  style?: CSSProperties;
 }) {
   return (
     <div
       aria-hidden
+      style={style}
       className={cn(
         "skeleton",
         shape === "line" && "h-4 w-full rounded-full",
