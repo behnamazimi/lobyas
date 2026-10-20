@@ -1,6 +1,6 @@
 import type { TourChapter } from "./types";
 
-/** Progress and the pages reached from the More menu. */
+/** Triage, Browse, Import and Settings, reached from Me and the Library. */
 export const MORE_CHAPTERS = [
   {
     id: "triage",

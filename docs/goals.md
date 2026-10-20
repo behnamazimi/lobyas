@@ -33,7 +33,7 @@ The feature is spread across a few small modules, all under `goals` names.
 | `lib/goals/`                                         | Levels, progress math, settings repository, and the forecast loader |
 | `lib/trace/forecast.ts`                              | The pure forecast simulation                                        |
 | `app/(private)/app/goals/`                           | The page and its server actions                                     |
-| `components/goals/`                                  | The page UI, the live store, and the celebration dialog             |
+| `components/goals/`                                  | The page UI, the live store, and the celebration sheet              |
 | `components/illustrations/scenes/goal-*.tsx`         | The lobya team poses and the celebration scene                      |
 
 `user_settings.daily_goals` is null until the learner saves goals once.
@@ -60,7 +60,8 @@ write after their response, so the browser only asks when a goal looks met.
    counted before the page loaded can't keep a goal looking met. If the claim
    fails (a read may still be in flight), the store asks again up to three times,
    1.5 seconds apart, then waits for the next credit.
-5. A true claim opens `GoalCelebrationDialog` over the current screen.
+5. A true claim opens `GoalCelebrationDialog` over the current screen: a
+   full-height sheet on a phone and a dialog from `md`.
 
 Running out of terms counts as meeting the goal. `ReadCaughtUp` takes a `goal`
 prop and calls `goalCaughtUp(tier)` when every active collection is caught up

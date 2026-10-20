@@ -44,7 +44,7 @@ test.describe("Public pages", () => {
     await page.goto("/about");
     await page.getByRole("link", { name: "Study" }).click();
 
-    await expect(page).toHaveURL(/\/app\//);
+    await expect(page).toHaveURL(/\/app$/);
     await expect(page.locator("[data-chrome]")).toHaveAttribute("data-chrome", "study");
   });
 
