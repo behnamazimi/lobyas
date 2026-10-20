@@ -14,25 +14,7 @@ import {
 import { cardKey } from "@/lib/review/retry";
 import type { ReviewRating, ReviewTerm } from "@/lib/review/types";
 import type { ReviewGrade } from "@/lib/trace";
-import type { PressEvent } from "react-aria-components";
 import { cn } from "@/lib/utils";
-
-/** Tinted study-action buttons (Triage choices). */
-export const SOFT_ACTION_BUTTON_CLASS = cn(
-  "btn-soft min-h-11 text-base-content transition-transform active:scale-[0.96]",
-  "[--btn-bg:color-mix(in_oklab,var(--btn-color)_45%,var(--color-base-100))]",
-  "[--btn-border:color-mix(in_oklab,var(--btn-color)_55%,var(--color-base-100))]",
-  "[color:var(--btn-fg)]",
-);
-
-/** A clicked or tapped button keeps focus, and a focused button owns
- *  Enter — so the next Enter would press it again instead of revealing.
- *  Keyboard presses keep focus where the user put it. */
-export function releaseFocusAfterPointerPress(event: PressEvent) {
-  if (event.pointerType === "mouse" || event.pointerType === "touch") {
-    (event.target as HTMLElement).blur();
-  }
-}
 
 type ReviewPlayingStepProps = {
   currentCard: ReviewTerm;

@@ -42,11 +42,25 @@ test.describe("Daily goals", () => {
       await gradeGood(page, 5);
 
       const dialog = page.getByRole("dialog");
-      await expect(dialog.getByRole("heading", { name: "Review goal done!" })).toBeVisible();
+      await expect(dialog.getByRole("heading", { name: "Review goal met!" })).toBeVisible();
       await dialog.getByRole("link", { name: /^Go to Quiz/ }).click();
       await expect(page).toHaveURL(/\/app\/quiz/);
     },
   );
+
+  test("Done for today closes the celebration and goes Home", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await sql(
+      `insert into public.user_settings (user_id, daily_goals)
+       values ($1, '{"read": null, "review": 1, "quiz": null}')
+       on conflict (user_id) do update set daily_goals = excluded.daily_goals`,
+      [user.id],
+    );
+    await gotoReady(page, `/app/review?collection=${collectionId}`);
+    await gradeGood(page, 1);
+    await page.getByRole("dialog").getByRole("button", { name: "Done for today" }).click();
+    await expect(page).toHaveURL(/\/app$/);
+  });
 
   test("the last goal of the day celebrates once", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
@@ -60,8 +74,8 @@ test.describe("Daily goals", () => {
     await gotoReady(page, `/app/review?collection=${collectionId}`);
     await gradeGood(page, 1);
     const dialog = page.getByRole("dialog");
-    await expect(dialog.getByRole("heading", { name: "Today's goals done!" })).toBeVisible();
-    await dialog.getByRole("button", { name: "Done for today" }).click();
+    await expect(dialog.getByRole("heading", { name: "Today’s goals met!" })).toBeVisible();
+    await dialog.getByRole("button", { name: "Keep going" }).click();
     await expect(dialog).toBeHidden();
     await expect(page.getByRole("status").filter({ hasText: "Review goal met." })).toBeVisible();
 

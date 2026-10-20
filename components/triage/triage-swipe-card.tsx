@@ -1,9 +1,9 @@
 "use client";
 
 import { useImperativeHandle, useRef } from "react";
-import { ReviewCard } from "@/components/review/review-card";
 import { SwipeActionLabel } from "@/components/terms/swipe-action";
 import type { ReviewTerm } from "@/lib/review/types";
+import { TriageCard } from "./triage-card";
 
 const AXIS_LOCK_PX = 8;
 const COMMIT_FRACTION = 0.3;
@@ -33,8 +33,6 @@ type TriageSwipeCardProps = {
   onKnew: () => void;
   onNotYet: () => void;
 };
-
-function noop() {}
 
 /** Review's flashcard with a drag layer on top: swipe right for "I knew
  *  this", left for "Not yet". Styles are written straight to the DOM while
@@ -149,7 +147,7 @@ export function TriageSwipeCard({
       // Every descendant too: the revealed definition scrolls on its own, and a
       // scroll area would otherwise let the browser take horizontal pans.
       data-tour="triage-card"
-      className="relative flex min-h-0 flex-1 touch-pan-y flex-col rounded-box select-none [&_*]:touch-pan-y"
+      className="relative flex min-h-0 flex-1 touch-pan-y flex-col rounded-[28px] select-none [&_*]:touch-pan-y"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -162,17 +160,11 @@ export function TriageSwipeCard({
         event.preventDefault();
       }}
     >
-      <ReviewCard
+      <TriageCard
         term={term}
         revealed={revealed}
-        onReveal={onReveal}
-        onPrevious={noop}
-        onNext={noop}
-        onMarkedKnown={noop}
-        reduceMotion={reduceMotion}
-        swipeEnabled={false}
         narrationAccess={narrationAccess}
-        showRevealHint={false}
+        onReveal={onReveal}
       />
       <SwipeActionLabel
         ref={knewLabelRef}

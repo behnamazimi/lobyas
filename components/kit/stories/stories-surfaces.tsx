@@ -1,5 +1,5 @@
 import { BookOpen, Eye, Pencil, Trash2 } from "lucide-react";
-import { Card, Divider, ListRow, SectionCard, Tile } from "@/components/kit";
+import { Card, Divider, ListRow, SectionCard, StatTile, Tile } from "@/components/kit";
 import { Story } from "./story";
 
 export function SurfaceStories() {
@@ -24,6 +24,13 @@ export function SurfaceStories() {
           <Tile tone="quiz" size={48} serif>
             日
           </Tile>
+        </div>
+      </Story>
+      <Story title="Stat tiles" note="White on the page, or tinted when it carries a result.">
+        <div className="grid grid-cols-3 gap-2.5">
+          <StatTile value="12" label="day streak" />
+          <StatTile value="20" label="reviewed today" />
+          <StatTile tone="success" value="8" label="Correct" />
         </div>
       </Story>
       <Story

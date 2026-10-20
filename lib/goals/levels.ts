@@ -43,13 +43,6 @@ export const GOAL_TIER_HREFS: Record<GoalTier, string> = {
   quiz: "/app/quiz",
 };
 
-/** What one unit of a tier's goal is, for "20 terms a day" style lines. */
-export const GOAL_TIER_UNITS: Record<GoalTier, { one: string; many: string }> = {
-  read: { one: "term read", many: "terms read" },
-  review: { one: "card graded", many: "cards graded" },
-  quiz: { one: "question answered", many: "questions answered" },
-};
-
 export function goalForLevel(tier: GoalTier, level: GoalLevel): number | null {
   return level === "off" ? null : GOAL_PRESETS[tier][level];
 }

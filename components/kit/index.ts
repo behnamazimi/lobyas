@@ -1,6 +1,7 @@
 export { BottomSheet } from "./sheet";
 export { Card, Divider, SectionCard, Tile } from "./surface/card";
 export { ListRow } from "./surface/list-row";
+export { StatTile } from "./surface/stat-tile";
 export { ModeSwitch } from "./controls/mode-switch";
 export { Chip } from "./controls/chip";
 export { ChoiceCards } from "./controls/choice-cards";

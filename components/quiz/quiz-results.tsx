@@ -3,14 +3,12 @@
 import { useEffect } from "react";
 import { ChevronDown } from "lucide-react";
 import { KeepTrainingScene, QuizCheerScene } from "@/components/illustrations/scenes/quiz-results";
-import { Card, Divider, Pill, ProgressRing } from "@/components/kit";
-import { TONES, type Tone } from "@/components/kit/tones";
+import { Card, Divider, Pill, ProgressRing, StatTile } from "@/components/kit";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useGoalCount } from "@/components/goals/use-goal-count";
 import { feedback } from "@/lib/feedback";
 import { formatCount } from "@/lib/kit/text";
 import type { QuizTerm } from "@/lib/quiz/types";
-import { cn } from "@/lib/utils";
 
 type QuizResultsProps = {
   score: number;
@@ -28,15 +26,6 @@ function scoreMessage(score: number, total: number, missed: number) {
   if (score / total >= 0.8) return "Strong round.";
   if (missed === 0) return "Keep at it.";
   return `${missed === 1 ? "One term" : `${missed} terms`} could use another look.`;
-}
-
-function StatTile({ tone, value, label }: { tone: Tone; value: string; label: string }) {
-  return (
-    <div className={cn("rounded-[18px] px-2 py-3 text-center", TONES[tone].soft)}>
-      <div className="text-2xl leading-none font-extrabold tabular-nums">{value}</div>
-      <div className="mt-1 text-[13px] font-bold">{label}</div>
-    </div>
-  );
 }
 
 function GoalRow() {

@@ -1,6 +1,7 @@
 import { getSessionUser } from "@/lib/auth/require-session";
 import { EMPTY_GOAL_DAY, getRequestGoalSettings, loadGoalDay } from "@/lib/goals/settings";
 import { getStudyPhoneUserSettings } from "@/lib/streak/settings";
+import { withTodayDone } from "@/lib/streak/status";
 import { studyTimezone } from "@/lib/trace/local-day";
 import { GoalTracker } from "./goal-tracker";
 
@@ -21,6 +22,8 @@ export async function GoalsIsland() {
         celebrate={settings.celebrate}
         timeZone={studyTimezone(phone.timezone)}
         day={day}
+        // A goal is only met once something counted today.
+        streak={withTodayDone(phone.streak).current}
       />
     );
   } catch {
