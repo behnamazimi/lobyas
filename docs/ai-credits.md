@@ -221,11 +221,11 @@ real cost.
 
 ## What users see
 
-The account menu, and the More sheet on phones, show one plain line under the
-email: how many credits are left, or that the credits are used up. The line is
-hidden when credits aren't offered. The balance is looked up only when the menu
-opens, so ordinary page loads don't pay for it. The line links to the AI section
-of Settings.
+The public account menu shows one plain line under the email: how many credits
+are left, or that the credits are used up. The line is hidden when credits aren't
+offered. The balance is looked up only when the menu opens, so ordinary page loads
+don't pay for it. The line links to the AI section of Settings. Me shows the same
+balance on the profile card, with a Details button.
 
 That section also says when the credits next change (`lib/ai-credits/explainer.ts`): when the next monthly refill comes and when the soonest credits expire, in UTC. `my_credit_schedule()` supplies the dates, so the page never guesses. A part that doesn't apply, such as a refill for an account without a monthly policy, is left out, and the row is hidden when credits are switched off.
 

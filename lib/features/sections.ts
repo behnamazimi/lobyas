@@ -38,6 +38,11 @@ export const FEATURE_SECTIONS: FeatureSection[] = [
     items: [
       {
         icon: "phone",
+        title: "Phone and a wide screen",
+        body: "Home, Library, Goals and Me sit in a tab bar on a phone. On a wide screen they sit in a rail that stays put while the page scrolls.",
+      },
+      {
+        icon: "phone",
         title: "Install as an app",
         body: "Add it to your phone. The layout is built for thumbs.",
       },

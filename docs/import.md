@@ -67,8 +67,8 @@ with no collection is asked to name their first. It writes through the same
 saved unfinished. While you type, `findCaptureDuplicate` checks the chosen
 collection only (the unique index is per collection). Pasting several lines offers
 "Add N terms", which hands off to the paste importer. Capture writes no
-`import_batches` row. It lives under `/app/library` so it gets the app chrome and hides
-the dock while you type.
+`import_batches` row. It draws its own header (`ownsHeader` in `lib/chrome.ts`)
+and sits in the sub-page chrome, so the tab bar is not on screen.
 
 On Android, the installed app is also a share target (`share_target` in
 `app/manifest.ts`, GET to `/app/capture`). A shared sentence is parsed by

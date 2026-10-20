@@ -21,8 +21,9 @@ test.describe("Shared collections", () => {
     const card = member.getByRole("article").filter({ hasText: name });
     await card.getByRole("button", { name: "More actions" }).click();
     await member.getByRole("menuitem", { name: "Report collection" }).click();
-    await member.getByRole("radio").first().check({ force: true });
-    await member.getByRole("button", { name: "Report", exact: true }).click();
+    const report = member.getByRole("dialog");
+    await report.getByRole("radio", { name: "Breaks the rules" }).click({ force: true });
+    await report.getByRole("button", { name: "Report", exact: true }).click();
     await expect
       .poll(async () => {
         const rows = await sql("select 1 from public.collection_reports where collection_id = $1", [

@@ -160,6 +160,16 @@ add a chapter, add an entry to the matching area file, add any new target ids to
 components only carry that attribute and never import tour code. Progress
 lives in `user_settings.tour_status` / `tour_seen`.
 
+# App shell
+
+Signed-in app routes use the shell in `components/app/shell/`. Four destinations:
+Home (`/app`), Library, Goals and Me. Under `lg` those four show a tab bar; from
+`lg` up a rail stays fixed to the window (brand, collection switcher, the four
+destinations, the streak and the account row). Read, Review, Quiz and Triage
+hide the tab bar and show the study top bar. Other app pages are sub-pages, with
+a phone back bar, unless the page draws its own header (`ownsHeader` in
+`lib/chrome.ts`). The current collection is the `lb_lib_collection` cookie.
+
 # Term body layout
 
 While studying (Triage, Read, Review) a learner decides which parts of a term
@@ -224,7 +234,7 @@ runs in this path, and no user-facing string may name the admin or imply automat
 
 # Issue reports
 
-"Report an issue" (account menu and phone More sheet) opens a modal for a
+"Report an issue" on Me, and in the public account menu, opens a sheet for a
 problem or an idea with one optional screenshot; admins triage them at
 `/admin/issues`. Code: `lib/issues/`, `components/issues/`,
 `app/(private)/app/issues/`, `lib/admin/issues/`, `components/admin/issues/`.

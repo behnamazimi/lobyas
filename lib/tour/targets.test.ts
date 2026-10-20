@@ -6,7 +6,7 @@ import { TOUR_TARGETS } from "./targets";
 // Some anchors are built from other names (`nav-${label}`, `settings-${id}`);
 // these keep a rename there from silently dropping a tour step.
 describe("derived tour targets", () => {
-  it("has a nav target for every dock tab, and no others", () => {
+  it("has a nav target for every tab, and no others", () => {
     const fromTabs = NAV_ITEMS.map((item) => `nav-${item.key}`).toSorted();
     const navTargets = TOUR_TARGETS.filter((id) => id.startsWith("nav-")).toSorted();
     expect(navTargets).toEqual(fromTabs);

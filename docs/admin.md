@@ -134,8 +134,8 @@ hold ids and counts, never the topic, the terms or emails. SQL checks:
 
 ## Issue reports
 
-Members send a problem or an idea from "Report an issue" in the account menu (desktop) or the
-More sheet (phone). The modal is `components/issues/report-issue-dialog.tsx`; the copy, limits and
+Members send a problem or an idea from "Report an issue" on Me and in the public
+account menu. The sheet is `components/issues/report-issue-sheet.tsx`; the copy, limits and
 image shrinking live in `lib/issues/`. It saves through `submitIssueReport`
 (`app/(private)/app/issues/actions.ts`), which calls `submit_issue_report`. That function checks
 the input and allows 10 reports per person per 24 hours. The page path, browser and window size

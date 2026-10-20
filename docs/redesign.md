@@ -880,3 +880,25 @@ Branch `redesign-p10-status`.
 **Frames that didn't match.** No brand mark row above the status screens (the shell or site header carries it); the `Empty` frame's own header (the study bar has it); Browse collections only for signed-in visitors; status pages outside `/app` sit on the site's white page, not cream.
 
 **Tests.** `e2e/tests/status.spec.ts` (not found, caught-up switcher); `admin.spec.ts` and `share.spec.ts` expect the new not-found heading.
+
+### Phase 11 · Hardening and merge
+
+Branch `redesign-p11-hardening`.
+
+**Built.** No new screens. Removed the Phase 3 scratch spec `e2e/tests/zz-visual.spec.ts`. Knip reports no unused files (`components/ui/**` stays ignored, and anything still imported stays). Docs now describe the shell: Home, Library, Goals and Me; the tab bar under `lg`; the fixed rail from `lg`; study routes without the tab bar. Issue reports, legal links, the credits line and Capture's chrome are described as they are. The Features page adds Home, sorting a collection, and the phone tab bar with the desktop rail. `origin/main` was already contained in `redesign`, so merging it in changed nothing.
+
+**Kit.** None added.
+
+**Data.** None.
+
+**Left as is.** TRACE, server actions, routes and the database. Every Decisions row. The public account menu. Phone Home still has no Triage link (Library and desktop Home do). Admin and the public site keep their look. `components/ui/*` stays where it is imported.
+
+**Frames.** This phase has none. Earlier frame gaps were not reopened.
+
+**Walk.** At 390, 768 and 1280, in Light and Dim, signed out and signed in: auth, public pages, a collection, a shared link, not-found, offline, Home, Library, Goals, Me, Mastery, Settings, Browse, Read, Stories, Review, Quiz, Triage, the add-terms flow, Capture, a request, and Admin. Phone and tablet show the tab bar on the four destinations and hide it on study routes. Desktop shows the 240px rail and, on Library, the 420px term panel. A long collection name truncates on the phone and in the rail, and wraps on desktop Home. `LobyasApp/ios` and `LobyasApp/android` set `data-shell` and did not overflow. No layout bug to fix. The dev overlay's hydration warning is the browser tool's `data-cursor-ref`, not the app. Real Xcode and Android Studio shells were not opened; they load the live site unless pointed at a preview.
+
+**Tests.** `pnpm check`, the features, content-page and tour-target unit tests, then the full `pnpm test:e2e` (110 passed, 2 skipped) and `pnpm test:e2e:smoke` (60 passed, 1 skipped). Two specs still expected the old app: Study from a public page now lands on `/app`, and Browse's report reasons are radios inside the dialog. Both updated before the green run.
+
+**Care.** Do not merge this into `main` until the author says so. The next step is a PR from `redesign` into `main`.
+
+**Open.** Dim token values Phase 0 flagged (`hard`, `mastered`, `wrong`, `debated-tint`, dim ring steps) were not retuned. Listen with no clip, reduced motion, and a swipe on a real touch device were not exercised.
