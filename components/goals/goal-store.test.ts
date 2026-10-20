@@ -7,9 +7,11 @@ vi.mock("@/app/(private)/app/goals/actions", () => ({
 }));
 
 const {
+  closeGoalCelebration,
   getGoalsSnapshot,
   goalCaughtUp,
   goalCountFor,
+  goalMetSettled,
   holdGoalCelebration,
   resetGoals,
   seedGoals,
@@ -79,6 +81,27 @@ describe("goal store", () => {
 
     release();
     expect(getGoalsSnapshot()?.celebration?.tier).toBe("review");
+  });
+
+  it("settles a met goal only once its celebration has come and gone", async () => {
+    seed(2);
+    claim.mockResolvedValue({ claimed: true, day: day(3, ["review"]) });
+    const release = holdGoalCelebration("review");
+
+    tickGoal("review", "a");
+    expect(goalMetSettled("review")).toBe(false);
+    await settle();
+    expect(goalMetSettled("review")).toBe(false);
+    release();
+    expect(goalMetSettled("review")).toBe(false);
+    closeGoalCelebration();
+    expect(goalMetSettled("review")).toBe(true);
+  });
+
+  it("settles a met goal at once when celebrations are off", () => {
+    seed(3);
+    setLiveCelebrate(false);
+    expect(goalMetSettled("review")).toBe(true);
   });
 
   it("counts a term once per tab", async () => {

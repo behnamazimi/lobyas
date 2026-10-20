@@ -1,5 +1,6 @@
 import { ArrowRight, Eye } from "lucide-react";
 import { memo, useRef } from "react";
+import { HoldGoalCelebration } from "@/components/goals/hold-goal-celebration";
 import { Pill, StudyCard } from "@/components/kit";
 import { QuizKeyboardHint } from "@/components/quiz/quiz-ui";
 import { ReadCardHead } from "@/components/read/read-card-head";
@@ -93,6 +94,8 @@ export const ReadTermCard = memo(function ReadTermCard({
 
   return (
     <div data-tour="read-card" className="flex min-h-0 flex-1 flex-col gap-2">
+      {/* Outside the keyed card, so going back between revealed cards keeps it held. */}
+      {revealed ? <HoldGoalCelebration tier="read" /> : null}
       <div
         key={term.id}
         ref={cardRef}

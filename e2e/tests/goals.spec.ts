@@ -112,6 +112,35 @@ test.describe("Daily goals", () => {
     await expect(celebration).toBeVisible();
   });
 
+  test("a read goal celebrates on the next card's front, not its back", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await sql(
+      `insert into public.user_settings (user_id, daily_goals)
+       values ($1, '{"read": 1, "review": null, "quiz": null}')
+       on conflict (user_id) do update set daily_goals = excluded.daily_goals`,
+      [user.id],
+    );
+    await gotoReady(page, `/app/read?collection=${collectionId}&view=cards`);
+    const celebration = page.getByRole("dialog").getByRole("heading", { name: /goals? met!$/ });
+
+    await page.getByRole("button", { name: /^Show definition/ }).click();
+    await expect
+      .poll(async () => {
+        const [row] = await sql<{ count: string }>(
+          "select count(*) as count from public.review_state where user_id = $1 and read_count > 0",
+          [user.id],
+        );
+        return Number(row!.count);
+      })
+      .toBeGreaterThan(0);
+    // Give the claim, and a retry, time to land before checking nothing opened.
+    await page.waitForTimeout(2000);
+    await expect(celebration).toBeHidden();
+
+    await page.getByRole("button", { name: /^Next term/ }).click();
+    await expect(celebration).toBeVisible();
+  });
+
   test("the last goal of the day celebrates once", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
     await sql(
@@ -127,9 +156,11 @@ test.describe("Daily goals", () => {
     await expect(dialog.getByRole("heading", { name: "Today’s goals met!" })).toBeVisible();
     await dialog.getByRole("button", { name: "Keep going" }).click();
     await expect(dialog).toBeHidden();
-    await expect(page.getByRole("status").filter({ hasText: "Review goal met." })).toBeVisible();
 
+    const toast = page.getByText("Review goal met. Keep going as long as you like.");
+    await expect(toast).toBeHidden();
     await gotoReady(page, `/app/review?collection=${collectionId}`);
+    await expect(toast).toBeVisible();
     await gradeGood(page, 1);
     await expect
       .poll(async () => {

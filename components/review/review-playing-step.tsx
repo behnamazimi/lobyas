@@ -1,6 +1,6 @@
 import type { ReactNode, Ref } from "react";
 import { FeedbackNote, GradeTiles, Pill } from "@/components/kit";
-import { GoalMetNote } from "@/components/goals/goal-met-note";
+import { GoalMetToast } from "@/components/goals/goal-met-toast";
 import { ReviewControls } from "@/components/review/review-controls";
 import { ReviewTermCard } from "@/components/review/review-term-card";
 import type { TermNarrationHandle } from "@/components/terms/term-narration-player";
@@ -71,7 +71,7 @@ export function ReviewPlayingStep({
         onPrevious={onPrevious}
         onNext={onNext}
       />
-      <GoalMetNote tier="review" />
+      <GoalMetToast tier="review" />
 
       <ReviewTermCard
         key={cardKey(currentCard)}

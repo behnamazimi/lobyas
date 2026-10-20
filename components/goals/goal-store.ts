@@ -118,6 +118,14 @@ export function closeGoalCelebration() {
   update({ celebration: null });
 }
 
+/** Today's goal for the tier is met and no celebration for it is open or on its way. */
+export function goalMetSettled(tier: GoalTier): boolean {
+  const today = goalCountFor(tier);
+  if (!state || !today || today.goal === null || today.count < today.goal) return false;
+  const coming = state.celebrate && !state.day.celebrated.includes(tier);
+  return !coming && !claiming.has(tier) && !deferred.has(tier) && state.celebration?.tier !== tier;
+}
+
 /** Holds a tier's celebration until released, so it doesn't interrupt the
  *  session that earned it. */
 export function holdGoalCelebration(tier: GoalTier) {
