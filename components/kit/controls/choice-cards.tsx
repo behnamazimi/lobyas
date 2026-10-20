@@ -39,7 +39,7 @@ export function ChoiceCards({
       value={value}
       onChange={onChange}
       className={cn(
-        "grid gap-2",
+        "choice-cards grid gap-2",
         columns === 2 ? "grid-cols-2" : columns === 3 ? "grid-cols-3" : "grid-cols-4",
         className,
       )}

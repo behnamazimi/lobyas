@@ -548,8 +548,10 @@
   }
 }
 
-/* Fields sit directly on the cream page in the add-terms flows, so they are white there.
-   Fields inside sheets keep the cream fill: sheets render outside this element. */
+/* Fields and unselected choice cards sit directly on the cream page in the add-terms
+   flows, so they are white there. Fields inside sheets keep the cream fill: sheets
+   render outside this element. Segmented controls are not choice cards, so their
+   unselected options stay on the beige track. */
 .flow-fields
   :is(input, textarea, select):not(
     [type="checkbox"],
@@ -561,7 +563,7 @@
   box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / 0.08);
 }
 
-.flow-fields [role="radiogroup"] > label:not([data-selected]) {
+.flow-fields .choice-cards > label:not([data-selected]) {
   background-color: var(--color-base-100);
   box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / 0.08);
 }

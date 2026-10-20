@@ -11,7 +11,7 @@ import type { ReviewTerm } from "@/lib/review/types";
 import { cn } from "@/lib/utils";
 
 const PRESS_CLASS = "transition-transform duration-150 ease-out active:scale-[0.96]";
-const ACTION_CLASS = `h-[58px] text-[17px] ${PRESS_CLASS}`;
+const ACTION_CLASS = `h-[60px] text-[17px] ${PRESS_CLASS}`;
 
 function ReadCardMasked({
   term,

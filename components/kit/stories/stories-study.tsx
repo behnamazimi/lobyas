@@ -193,7 +193,7 @@ export function StudyStories() {
       </Story>
       <Story
         title="Choice cards"
-        note="Cards with a note for the question style; pills for the count."
+        note="Cards with a note for the question style; pills for the count. The chosen one is a mode tint with a ring."
       >
         <ChoiceCards
           label="Question style"
