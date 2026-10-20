@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Skeleton } from "@/components/kit";
 import { cn } from "@/lib/utils";
 import { PHONE_PATH, WIDE_PATH, type PathGeometry } from "./path-geometry";
@@ -46,12 +47,25 @@ function PathSkeleton({ geo, wide }: { geo: PathGeometry; wide: boolean }) {
   );
 }
 
-function MasteryLineSkeleton({ className }: { className?: string }) {
+/** A line of text's own height around a shorter bar, so rows keep the height the text will have. */
+function TextRow({
+  height,
+  className,
+  children,
+}: {
+  height: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return <div className={cn("flex items-center", height, className)}>{children}</div>;
+}
+
+function MasteryLineSkeleton({ height, className }: { height: string; className?: string }) {
   return (
-    <div className={cn("flex items-center gap-2.5", className)}>
-      <Skeleton className="h-2.5 w-24 lg:w-40" />
+    <TextRow height={height} className={cn("gap-2.5", className)}>
+      <Skeleton className="h-2 w-24 lg:w-40" />
       <Skeleton className="h-3.5 w-28" />
-    </div>
+    </TextRow>
   );
 }
 
@@ -61,17 +75,25 @@ export function HomeSkeleton() {
     <div className="flex flex-col gap-6 lg:gap-7" aria-busy="true" aria-label="Loading your day">
       <header className="flex items-start justify-between gap-3 lg:hidden">
         <div className="min-w-0">
-          <Skeleton className="ml-0.5 h-3.5 w-16" />
-          <Skeleton className="my-2.5 h-8 w-52 rounded-xl" />
-          <MasteryLineSkeleton className="pl-0.5" />
+          <TextRow height="h-[21.5px]" className="pl-0.5">
+            <Skeleton className="h-3.5 w-16" />
+          </TextRow>
+          <TextRow height="h-12">
+            <Skeleton className="h-8 w-52 rounded-xl" />
+          </TextRow>
+          <MasteryLineSkeleton height="h-[21.5px]" className="mt-1 pl-0.5" />
         </div>
         <Skeleton className="mt-5 h-11 w-16 shrink-0" />
       </header>
       <header className="hidden items-end justify-between gap-6 lg:flex">
         <div className="min-w-0">
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="mt-2.5 h-9 w-72 rounded-xl" />
-          <MasteryLineSkeleton className="mt-3.5" />
+          <TextRow height="h-[21.7px]">
+            <Skeleton className="h-4 w-40" />
+          </TextRow>
+          <TextRow height="h-[45px]" className="mt-1">
+            <Skeleton className="h-9 w-72 rounded-xl" />
+          </TextRow>
+          <MasteryLineSkeleton height="h-[21.7px]" className="mt-2.5" />
         </div>
         <div className="flex shrink-0 gap-2.5">
           <Skeleton className="h-12 w-32" />
@@ -81,10 +103,10 @@ export function HomeSkeleton() {
 
       <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:items-start">
         <section className="min-w-0 lg:flex-[999_1_560px]">
-          <div className="mb-3 flex items-baseline justify-between lg:hidden">
-            <Skeleton className="h-6 w-16" />
+          <TextRow height="h-7" className="mb-3 justify-between lg:hidden">
+            <Skeleton className="h-5 w-16" />
             <Skeleton className="h-3.5 w-28" />
-          </div>
+          </TextRow>
           <div className="lg:hidden">
             <PathSkeleton geo={PHONE_PATH} wide={false} />
           </div>
