@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { IconButton } from "../controls/pill";
 
-/** A page's top: a back button, the serif title, an optional subline and an action slot. */
+/** A page's top: a serif title, an optional subline, and an action. The action sits on the title row, or on the back row when there is one. */
 export function PageHeader({
   title,
   subline,
@@ -22,20 +22,21 @@ export function PageHeader({
   const hasBack = Boolean(backHref || onBack);
   return (
     <header className={cn("flex flex-col", className)}>
-      {hasBack || action ? (
+      {hasBack ? (
         <div className="flex items-center gap-2">
-          {hasBack ? (
-            <IconButton label="Back" href={backHref} onClick={onBack} className="-ml-2">
-              <ChevronLeft className="size-6" strokeWidth={2.6} aria-hidden />
-            </IconButton>
-          ) : null}
+          <IconButton label="Back" href={backHref} onClick={onBack} className="-ml-2">
+            <ChevronLeft className="size-6" strokeWidth={2.6} aria-hidden />
+          </IconButton>
           <div className="flex-1" />
           {action}
         </div>
       ) : null}
-      <h1 className="m-0 mt-1.5 font-heading text-[30px] leading-[1.1] font-extrabold [overflow-wrap:anywhere]">
-        {title}
-      </h1>
+      <div className={cn("flex items-start justify-between gap-2.5", hasBack && "mt-1.5")}>
+        <h1 className="m-0 min-w-0 font-heading text-[30px] leading-[1.1] font-extrabold [overflow-wrap:anywhere]">
+          {title}
+        </h1>
+        {hasBack ? null : action}
+      </div>
       {subline ? (
         <p className="mt-1 text-[15px] leading-snug font-semibold text-muted">{subline}</p>
       ) : null}

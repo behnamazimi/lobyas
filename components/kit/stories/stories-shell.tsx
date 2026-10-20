@@ -64,7 +64,10 @@ export function ShellStories() {
           />
         </div>
       </Story>
-      <Story title="Page header" note="Back, serif title, action. A long title wraps.">
+      <Story
+        title="Page header"
+        note="Back row, then the title. With no back button, the action sits on the title row. A long title wraps."
+      >
         <PageHeader title="Settings" backHref="/admin/kit" />
         <PageHeader
           className="mt-6"

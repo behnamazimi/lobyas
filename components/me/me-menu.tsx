@@ -55,140 +55,132 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
   const icon = (Icon: typeof Signal) => <Icon className="size-5" strokeWidth={2.3} aria-hidden />;
 
   return (
-    <div className="flex flex-1 flex-col bg-base-200">
-      <div className="mx-auto flex w-full max-w-[640px] flex-col gap-3 px-5 py-4 lg:py-9">
-        <h1 className="m-0 font-heading text-[30px] font-extrabold">Me</h1>
-        <SectionCard className="flex flex-col gap-3">
-          <div className="flex items-center gap-3">
-            <span
-              aria-hidden
-              className="flex size-[52px] shrink-0 items-center justify-center rounded-full bg-success-tint text-lg font-extrabold text-success-text"
-            >
-              {emailInitials(email)}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="m-0 truncate text-base font-extrabold">{email}</p>
-              <StreakBadge streak={streak} variant="row" className="min-h-0 p-0" />
-            </div>
+    <div className="flex flex-col gap-4">
+      <SectionCard className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <span
+            aria-hidden
+            className="flex size-[52px] shrink-0 items-center justify-center rounded-full bg-success-tint text-lg font-extrabold text-success-text"
+          >
+            {emailInitials(email)}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="m-0 truncate text-base font-extrabold">{email}</p>
+            <StreakBadge streak={streak} variant="row" className="min-h-0 p-0" />
           </div>
-          {credits ? (
-            <div className="flex items-center gap-2.5 rounded-2xl bg-quiz-tint py-2.5 pr-2 pl-3 text-quiz-text">
-              <Sparkles className="size-5 shrink-0" strokeWidth={2.2} aria-hidden />
-              <p className="m-0 flex-1 text-sm font-bold">
-                {credits.remaining > 0 ? (
-                  <>
-                    <strong className="font-extrabold">
-                      {pluralize(credits.remaining, "AI credit")}
-                    </strong>{" "}
-                    for AI quizzes and Stories
-                  </>
-                ) : (
-                  <strong className="font-extrabold">No AI credits left</strong>
-                )}
-              </p>
-              <Pill
-                variant="secondary"
-                className="text-quiz-text"
-                onClick={() => setCreditsOpen(true)}
-              >
-                Details
-              </Pill>
-            </div>
-          ) : null}
-        </SectionCard>
-        <SectionCard className="py-1">
-          <ListRow
-            href="/app/mastery"
-            label="Mastery"
-            subline="How well you remember your terms"
-            tone="success"
-            icon={icon(Signal)}
-          />
-          <ListRow
-            href="/app/browse"
-            label="Browse collections"
-            subline="Built-in and community collections"
-            tone="read"
-            icon={icon(Compass)}
-          />
-          <ListRow
-            href="/app/import"
-            label="Add a collection"
-            subline="Paste a list, import or add one term"
-            tone="wrong"
-            icon={icon(Upload)}
-          />
-        </SectionCard>
-        <SectionCard className="py-1">
-          <ListRow
-            href="/app/settings"
-            label="Settings"
-            subline="AI credits, widget, account"
-            icon={icon(Settings)}
-          />
-          {isAdmin
-            ? ADMIN_NAV_ITEMS.map((item) => (
-                <ListRow
-                  key={item.href}
-                  href={item.href}
-                  label={item.label}
-                  icon={icon(item.icon)}
-                />
-              ))
-            : null}
-          <div className="flex min-h-14 items-center gap-3 px-1 py-2">
-            <span className="min-w-0 flex-1 text-base font-extrabold">Theme</span>
-            <SegmentedControl
-              label="Theme"
-              value={theme}
-              onChange={(value) => applyTheme(value === DARK_THEME ? DARK_THEME : LIGHT_THEME)}
-              options={[
-                { value: LIGHT_THEME, label: "Light" },
-                { value: DARK_THEME, label: "Dim" },
-              ]}
-              className="w-44"
-            />
-          </div>
-          {install ? (
-            <ListRow
-              label={INSTALL_MENU_LABEL}
-              subline="Add it to your home screen"
-              icon={icon(Download)}
-              onPress={install}
-            />
-          ) : null}
-          <ListRow
-            label={ISSUE_COPY.menuLabel}
-            subline="Something broken, or an idea"
-            icon={icon(Bug)}
-            onPress={() => setReportOpen(true)}
-          />
-        </SectionCard>
-        <SectionCard className="py-1">
-          <ListRow
-            label={isBusy ? "Logging out…" : "Log out"}
-            icon={icon(LogOut)}
-            onPress={() => void handleLogout()}
-            danger
-          />
-        </SectionCard>
-        <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-5 px-2">
-          {LEGAL_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="flex min-h-11 items-center text-sm font-semibold text-muted underline underline-offset-2"
-            >
-              {link.label}
-            </a>
-          ))}
-          <ConsentSettingsButton className="flex min-h-11 items-center" />
-        </nav>
-        <ReportIssueSheet isOpen={reportOpen} onOpenChange={setReportOpen} />
+        </div>
         {credits ? (
-          <TopUpSheet isOpen={creditsOpen} onOpenChange={setCreditsOpen} credits={credits} />
+          <div className="flex items-center gap-2.5 rounded-2xl bg-quiz-tint py-2.5 pr-2 pl-3 text-quiz-text">
+            <Sparkles className="size-5 shrink-0" strokeWidth={2.2} aria-hidden />
+            <p className="m-0 flex-1 text-sm font-bold">
+              {credits.remaining > 0 ? (
+                <>
+                  <strong className="font-extrabold">
+                    {pluralize(credits.remaining, "AI credit")}
+                  </strong>{" "}
+                  for AI quizzes and Stories
+                </>
+              ) : (
+                <strong className="font-extrabold">No AI credits left</strong>
+              )}
+            </p>
+            <Pill
+              variant="secondary"
+              className="text-quiz-text"
+              onClick={() => setCreditsOpen(true)}
+            >
+              Details
+            </Pill>
+          </div>
         ) : null}
-      </div>
+      </SectionCard>
+      <SectionCard className="py-1">
+        <ListRow
+          href="/app/mastery"
+          label="Mastery"
+          subline="How well you remember your terms"
+          tone="success"
+          icon={icon(Signal)}
+        />
+        <ListRow
+          href="/app/browse"
+          label="Browse collections"
+          subline="Built-in and community collections"
+          tone="read"
+          icon={icon(Compass)}
+        />
+        <ListRow
+          href="/app/import"
+          label="Add a collection"
+          subline="Paste a list, import or add one term"
+          tone="wrong"
+          icon={icon(Upload)}
+        />
+      </SectionCard>
+      <SectionCard className="py-1">
+        <ListRow
+          href="/app/settings"
+          label="Settings"
+          subline="AI credits, widget, account"
+          icon={icon(Settings)}
+        />
+        {isAdmin
+          ? ADMIN_NAV_ITEMS.map((item) => (
+              <ListRow key={item.href} href={item.href} label={item.label} icon={icon(item.icon)} />
+            ))
+          : null}
+        <div className="flex min-h-14 items-center gap-3 px-1 py-2">
+          <span className="min-w-0 flex-1 text-base font-extrabold">Theme</span>
+          <SegmentedControl
+            label="Theme"
+            value={theme}
+            onChange={(value) => applyTheme(value === DARK_THEME ? DARK_THEME : LIGHT_THEME)}
+            options={[
+              { value: LIGHT_THEME, label: "Light" },
+              { value: DARK_THEME, label: "Dim" },
+            ]}
+            className="w-44"
+          />
+        </div>
+        {install ? (
+          <ListRow
+            label={INSTALL_MENU_LABEL}
+            subline="Add it to your home screen"
+            icon={icon(Download)}
+            onPress={install}
+          />
+        ) : null}
+        <ListRow
+          label={ISSUE_COPY.menuLabel}
+          subline="Something broken, or an idea"
+          icon={icon(Bug)}
+          onPress={() => setReportOpen(true)}
+        />
+      </SectionCard>
+      <SectionCard className="py-1">
+        <ListRow
+          label={isBusy ? "Logging out…" : "Log out"}
+          icon={icon(LogOut)}
+          onPress={() => void handleLogout()}
+          danger
+        />
+      </SectionCard>
+      <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-5 px-2">
+        {LEGAL_LINKS.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            className="flex min-h-11 items-center text-sm font-semibold text-muted underline underline-offset-2"
+          >
+            {link.label}
+          </a>
+        ))}
+        <ConsentSettingsButton className="flex min-h-11 items-center" />
+      </nav>
+      <ReportIssueSheet isOpen={reportOpen} onOpenChange={setReportOpen} />
+      {credits ? (
+        <TopUpSheet isOpen={creditsOpen} onOpenChange={setCreditsOpen} credits={credits} />
+      ) : null}
     </div>
   );
 }
