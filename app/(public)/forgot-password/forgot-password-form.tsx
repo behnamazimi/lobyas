@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { HomeBackButton } from "@/components/shared/back-link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -16,11 +16,7 @@ export default function ForgotPasswordForm() {
 
   return (
     <form action={action} className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
+      <HomeBackButton />
       <h1 className="text-2xl font-medium">Forgot password</h1>
 
       <AuthFormError error={state && "error" in state ? state.error : null} />

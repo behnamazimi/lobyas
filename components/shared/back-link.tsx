@@ -1,35 +1,21 @@
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { IconButton } from "@/components/kit";
 import { NAV_BACK } from "@/components/shared/view-transitions";
-import { LinkButton } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
-export const LIBRARY_HOME_PATH = "/app/library";
-export const LIBRARY_HOME_BACK_LABEL = "Back to library";
 export const PUBLIC_HOME_PATH = "/";
 export const PUBLIC_HOME_BACK_LABEL = "Back to home";
 
-type BackLinkProps = {
+/** The 44px chevron above a public page's title. The name is for assistive tech only. */
+export function HomeBackButton({
+  href = PUBLIC_HOME_PATH,
+  label = PUBLIC_HOME_BACK_LABEL,
+}: {
   href?: string;
   label?: string;
-  variant?: "ghost" | "outline";
-  className?: string;
-};
-
-export function BackLink({
-  href = LIBRARY_HOME_PATH,
-  label = LIBRARY_HOME_BACK_LABEL,
-  variant = "ghost",
-  className,
-}: BackLinkProps) {
+}) {
   return (
-    <LinkButton
-      href={href}
-      transitionTypes={NAV_BACK}
-      variant={variant}
-      className={cn("shrink-0 text-base-content/70 hover:text-base-content", className)}
-    >
-      <ArrowLeft className="size-3.5" aria-hidden />
-      <span className="hidden md:inline">{label}</span>
-    </LinkButton>
+    <IconButton label={label} href={href} transitionTypes={NAV_BACK} className="-ml-2 self-start">
+      <ChevronLeft className="size-6" strokeWidth={2.6} aria-hidden />
+    </IconButton>
   );
 }

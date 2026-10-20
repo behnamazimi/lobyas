@@ -99,21 +99,18 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           href="/app/mastery"
           label="Mastery"
           subline="How well you remember your terms"
-          tone="success"
           icon={icon(Signal)}
         />
         <ListRow
           href="/app/browse"
           label="Browse collections"
           subline="Built-in and community collections"
-          tone="read"
           icon={icon(Compass)}
         />
         <ListRow
           href="/app/import"
           label="Add a collection"
           subline="Paste a list, import or add one term"
-          tone="wrong"
           icon={icon(Upload)}
         />
       </SectionCard>

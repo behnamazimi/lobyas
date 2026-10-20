@@ -7,7 +7,7 @@ import { AuthFormError } from "@/components/auth/auth-form-error";
 import { LegalConsentLine } from "@/components/auth/legal-consent-line";
 import { GoogleSignInButton } from "@/components/auth/google-signin-button";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { HomeBackButton } from "@/components/shared/back-link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -141,11 +141,7 @@ export default function SignupForm({
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
+      <HomeBackButton />
       <h1 className="text-2xl font-medium">Sign up</h1>
       <LegalConsentLine action="signing up" className="-mt-2" />
 

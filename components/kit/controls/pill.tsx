@@ -58,6 +58,7 @@ export function IconButton({
   label,
   tone = "ghost",
   href,
+  transitionTypes,
   className,
   children,
   ...rest
@@ -65,17 +66,23 @@ export function IconButton({
   label: string;
   tone?: "ghost" | "soft";
   href?: string;
+  transitionTypes?: ComponentProps<typeof Link>["transitionTypes"];
   className?: string;
   children: ReactNode;
 } & Omit<ComponentProps<"button">, "className" | "children" | "aria-label">) {
   const classes = cn(
-    "flex size-11 shrink-0 items-center justify-center rounded-full text-muted",
+    "flex size-11 shrink-0 items-center justify-center rounded-full text-muted hover:bg-base-200",
     tone === "soft" && "bg-base-200 text-base-content",
     className,
   );
   if (href) {
     return (
-      <Link href={href} aria-label={label} className={classes}>
+      <Link
+        href={href}
+        aria-label={label}
+        className={classes}
+        {...(transitionTypes ? { transitionTypes } : {})}
+      >
         {children}
       </Link>
     );

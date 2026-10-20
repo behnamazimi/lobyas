@@ -23,7 +23,9 @@ export function Chip({
       onClick={onPress}
       className={cn(
         "hit-area inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-sm font-extrabold",
-        selected ? "bg-neutral text-neutral-content" : "bg-base-100 text-base-content shadow-card",
+        selected
+          ? "bg-neutral text-neutral-content"
+          : "bg-base-100 text-base-content shadow-card hover:bg-base-200",
         className,
       )}
     >

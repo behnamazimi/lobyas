@@ -59,7 +59,6 @@ export function ImportChooser({
         <Card radius="md" className="px-3 py-1">
           <ListRow
             href="/app/import/paste"
-            tone="read"
             icon={<NotebookText className={ICON} aria-hidden />}
             label="Paste a list"
             subline="From a doc, a sheet or your notes"
@@ -67,7 +66,6 @@ export function ImportChooser({
           <Divider />
           <ListRow
             href="/app/import/apps"
-            tone="review"
             icon={<LayoutGrid className={ICON} aria-hidden />}
             label="From another app"
             subline="Quizlet, Anki, Google Translate and more"
@@ -75,7 +73,6 @@ export function ImportChooser({
           <Divider />
           <ListRow
             href="/app/capture"
-            tone="success"
             icon={<Plus className={ICON} aria-hidden />}
             label="One term"
             subline="Save a single term in a few seconds"
@@ -83,7 +80,6 @@ export function ImportChooser({
           <Divider />
           <ListRow
             onPress={() => setCreateOpen(true)}
-            tone="quiz"
             icon={<FolderPlus className={ICON} aria-hidden />}
             label="Start an empty collection"
             subline="Name it now and add terms later"

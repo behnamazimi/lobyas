@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useActionState } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
 import { GoogleSignInButton } from "@/components/auth/google-signin-button";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { HomeBackButton } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -38,11 +38,7 @@ export default function LoginForm() {
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
+      <HomeBackButton />
       <h1 className="text-2xl font-medium">Log in</h1>
 
       <GoogleSignInButton next={next} />

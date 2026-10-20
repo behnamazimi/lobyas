@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Layers } from "lucide-react";
+import { ModeLabel } from "@/components/kit";
 import { ReadCaughtUp } from "@/components/read/read-caught-up";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import type { Collection, Term } from "@/lib/terms/types";
@@ -73,10 +74,9 @@ export function TriagePage({
 
   const topRow = (
     <div className="flex shrink-0 items-center gap-2">
-      <div className="flex h-[30px] shrink-0 items-center gap-1.5 rounded-full bg-success-tint pr-3 pl-2.5 text-[13px] font-extrabold text-success-text">
-        <Layers className="size-4" strokeWidth={2.4} aria-hidden />
+      <ModeLabel tone="success" icon={<Layers className="size-4" strokeWidth={2.4} aria-hidden />}>
         Triage
-      </div>
+      </ModeLabel>
       <p className="m-0 min-w-0 truncate text-[13px] font-bold text-muted">
         Sort what you already know
       </p>

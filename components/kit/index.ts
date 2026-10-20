@@ -23,6 +23,7 @@ export { ProgressRing } from "./progress/ring";
 export { CollectionSwitcherRow } from "./shell/collection-switcher-row";
 export { PageHeader } from "./shell/page-header";
 export { Rail } from "./shell/rail";
+export { ModeLabel } from "./shell/mode-label";
 export { GoalPill, StudyTopBar } from "./shell/study-top-bar";
 export { TabBar } from "./shell/tab-bar";
 export { AnswerInput } from "./study/answer-input";

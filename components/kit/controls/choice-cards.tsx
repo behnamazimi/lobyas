@@ -50,12 +50,12 @@ export function ChoiceCards({
           value={option.value}
           className={({ isSelected, isFocusVisible }) =>
             cn(
-              "flex cursor-pointer flex-col items-start justify-center gap-1 text-start text-base-content outline-none",
+              "flex cursor-pointer flex-col items-start justify-center gap-1 text-start text-base-content",
               option.note
                 ? "min-h-[88px] rounded-[14px] px-3.5 py-3"
                 : "h-12 items-center rounded-full px-2 text-[17px] font-extrabold",
               isSelected ? SELECTED[tone] : "bg-base-200",
-              isFocusVisible && "ring-2 ring-base-content ring-offset-2 ring-offset-base-100",
+              isFocusVisible && "outline outline-2 outline-offset-2",
             )
           }
         >

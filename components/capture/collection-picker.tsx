@@ -43,7 +43,6 @@ export function CollectionPicker({
             <ListRow
               label={collection.name}
               subline={pluralize(collection.termCount, "term")}
-              tone="read"
               icon={
                 <span className="font-heading text-lg">{collectionLetter(collection.name)}</span>
               }

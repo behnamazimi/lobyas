@@ -39,6 +39,7 @@ export function ListRow({
   const interactive = Boolean(href || onPress);
   const base = cn(
     "flex min-h-14 w-full items-center gap-3 px-1 py-2 text-start",
+    interactive && "hover:bg-base-200",
     danger ? "text-wrong-text" : "text-base-content",
     className,
   );

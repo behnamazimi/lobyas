@@ -17,7 +17,7 @@ const TIER_LOOK: Record<GoalTier, { tone: Tone; verb: string; Icon: typeof BookO
  *  has loaded today's counts (see `StudyDay`). */
 export function StudyGoalPill({ tier }: { tier: GoalTier }) {
   const today = useGoalCount(tier);
-  if (!today) return <div className="w-9" />;
+  if (!today) return null;
   const { tone, verb, Icon } = TIER_LOOK[tier];
   const { count, goal } = today;
 

@@ -2,7 +2,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 const FIELD =
-  "block w-full rounded-[14px] border-0 bg-base-200 px-3.5 text-[15px] font-bold text-base-content outline-none placeholder:font-semibold placeholder:text-muted focus-visible:ring-2 focus-visible:ring-base-content";
+  "block w-full rounded-[14px] border-0 bg-base-200 px-3.5 text-[15px] font-bold text-base-content placeholder:font-semibold placeholder:text-muted";
 
 /** A label above a field. Pass the same `htmlFor` as the field's `id`. */
 export function FormField({

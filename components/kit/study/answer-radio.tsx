@@ -15,10 +15,10 @@ const STATUS_TEXT: Partial<Record<ResultState, string>> = {
 
 function surface(state: ResultState, selected: boolean, focused: boolean, disabled: boolean) {
   return cn(
-    "transition-[color,background-color,box-shadow,transform] duration-150 outline-none",
+    "transition-[color,background-color,box-shadow,transform] duration-150",
     ANSWER_SURFACE[state === "default" && selected ? "picked" : state],
     state !== "default" && "quiz-choice-reveal",
-    focused && "ring-2 ring-base-content ring-offset-2 ring-offset-base-200",
+    focused && "outline outline-2 outline-offset-2",
     disabled ? "cursor-default" : "cursor-pointer active:scale-[0.97]",
   );
 }

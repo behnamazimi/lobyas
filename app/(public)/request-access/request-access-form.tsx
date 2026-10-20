@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { HomeBackButton } from "@/components/shared/back-link";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -25,11 +25,7 @@ export default function RequestAccessForm({
   if (state && "success" in state) {
     return (
       <div className="flex w-full max-w-sm flex-col gap-4">
-        <BackLink
-          href={PUBLIC_HOME_PATH}
-          label={PUBLIC_HOME_BACK_LABEL}
-          className="-ml-2 self-start"
-        />
+        <HomeBackButton />
         <h1 className="text-2xl font-medium">You&apos;re on the list</h1>
         <p className="text-sm text-base-content/70">
           Your invite will be emailed to <strong>{state.email}</strong>
@@ -41,11 +37,7 @@ export default function RequestAccessForm({
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
+      <HomeBackButton />
       <h1 className="text-2xl font-medium">Request access</h1>
       <p className="text-sm text-base-content/70">
         Lobyas is invite-only right now. Leave your email and we&apos;ll send you an invite when

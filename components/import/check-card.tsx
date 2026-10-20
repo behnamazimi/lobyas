@@ -32,7 +32,7 @@ export function CheckCard({
       <div className="flex items-center gap-1">
         <button
           type="button"
-          className="min-h-11 min-w-0 flex-1 rounded-xl py-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-base-content"
+          className="min-h-11 min-w-0 flex-1 rounded-xl py-1.5 text-left"
           aria-label={`Edit "${draft.term}"`}
           onClick={onEdit}
         >

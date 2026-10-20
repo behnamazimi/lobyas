@@ -56,7 +56,7 @@ function MissedTerms({ terms }: { terms: QuizTerm[] }) {
             <li key={term.id}>
               {index > 0 ? <Divider className="mx-4" /> : null}
               <Collapsible className="group">
-                <CollapsibleTrigger className="flex min-h-14 w-full cursor-pointer items-start gap-3 px-4 py-3.5 text-start outline-none focus-visible:ring-2 focus-visible:ring-base-content focus-visible:ring-inset">
+                <CollapsibleTrigger className="flex min-h-14 w-full cursor-pointer items-start gap-3 px-4 py-3.5 text-start">
                   <span className="min-w-0 flex-1">
                     <span className="block font-heading text-[19px] font-extrabold [overflow-wrap:anywhere]">
                       {term.term}

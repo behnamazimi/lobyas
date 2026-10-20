@@ -21,7 +21,6 @@ export function AddTermsSheet({
       title={`Add terms to ${collection.name}`}
     >
       <ListRow
-        tone="success"
         icon={<Plus className="size-5" aria-hidden />}
         label="One term"
         subline="Type it in a few seconds"
@@ -29,7 +28,6 @@ export function AddTermsSheet({
       />
       <Divider />
       <ListRow
-        tone="read"
         icon={<NotebookText className="size-5" aria-hidden />}
         label="Paste a list"
         subline="From a doc, a sheet or your notes"
@@ -37,7 +35,6 @@ export function AddTermsSheet({
       />
       <Divider />
       <ListRow
-        tone="review"
         icon={<LayoutGrid className="size-5" aria-hidden />}
         label="From another app"
         subline="Quizlet, Anki and more"

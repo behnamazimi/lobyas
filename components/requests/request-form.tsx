@@ -212,7 +212,7 @@ export function RequestForm({
       </FormField>
 
       <Collapsible isExpanded={detailsOpen} onExpandedChange={setDetailsOpen}>
-        <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between text-left text-[15px] font-extrabold outline-none focus-visible:ring-2 focus-visible:ring-base-content">
+        <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between text-left text-[15px] font-extrabold">
           {FORM.detailsToggle}
           <ChevronDown
             className={cn("size-4 transition-transform", detailsOpen && "rotate-180")}

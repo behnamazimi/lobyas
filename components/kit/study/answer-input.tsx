@@ -22,7 +22,7 @@ export function AnswerInput({
       type="text"
       {...rest}
       className={cn(
-        "h-[58px] w-full rounded-[14px] bg-base-200 px-[18px] text-[19px] font-bold text-base-content outline-none placeholder:text-muted/70",
+        "h-[58px] w-full rounded-[14px] bg-base-200 px-[18px] text-[19px] font-bold text-base-content placeholder:text-muted/70",
         RING[state],
         className,
       )}

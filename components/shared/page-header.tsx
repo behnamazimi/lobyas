@@ -1,9 +1,9 @@
 import { type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 import {
-  BackLink,
-  LIBRARY_HOME_BACK_LABEL,
-  LIBRARY_HOME_PATH,
+  HomeBackButton,
+  PUBLIC_HOME_BACK_LABEL,
+  PUBLIC_HOME_PATH,
 } from "@/components/shared/back-link";
 import { cn } from "@/lib/utils";
 
@@ -25,15 +25,14 @@ export function PageHeader({
   badge,
   title,
   description,
-  backHref = LIBRARY_HOME_PATH,
-  backLabel = LIBRARY_HOME_BACK_LABEL,
+  backHref = PUBLIC_HOME_PATH,
+  backLabel = PUBLIC_HOME_BACK_LABEL,
   showBack = true,
   compactOnPhone = false,
 }: PageHeaderProps) {
   return (
-    <div
-      className={cn("flex items-start justify-between gap-3", compactOnPhone && "max-md:sr-only")}
-    >
+    <div className={cn("flex flex-col", compactOnPhone && "max-md:sr-only")}>
+      {showBack ? <HomeBackButton href={backHref} label={backLabel} /> : null}
       <div className="flex min-w-0 items-start gap-3">
         {badge ? (
           <div className="hidden shrink-0 md:block">{badge}</div>
@@ -47,7 +46,6 @@ export function PageHeader({
           {description ? <p className="mt-1 text-sm text-base-content/70">{description}</p> : null}
         </div>
       </div>
-      {showBack ? <BackLink href={backHref} label={backLabel} /> : null}
     </div>
   );
 }

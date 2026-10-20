@@ -177,6 +177,25 @@
   color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
 }
 
+/* Unlayered so this wins over Tailwind's preflight, which resets buttons to the arrow cursor. */
+:where(button, a[href], summary, [role="button"]):not(
+  :disabled,
+  [disabled],
+  [aria-disabled="true"]
+) {
+  cursor: pointer;
+}
+
+:where(button, [role="button"]):is(:disabled, [disabled], [aria-disabled="true"]) {
+  cursor: default;
+}
+
+/* The same 2px ring DaisyUI buttons use. Dialog surfaces are not in this list. */
+:where(a[href], button, input, textarea, select, summary):focus-visible {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
 @utility pb-dock {
   padding-bottom: calc(var(--dock-bottom) + 0.5rem);
 }

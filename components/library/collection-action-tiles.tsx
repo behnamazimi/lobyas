@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { NAV_FORWARD } from "@/components/shared/view-transitions";
 
 const TILE_CLASS =
-  "flex min-h-[60px] flex-1 basis-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl bg-base-200 px-1 text-[13px] font-extrabold";
+  "flex min-h-[60px] flex-1 basis-0 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl bg-base-200 px-1 text-[13px] font-extrabold hover:bg-base-300";
 
 function ActionTile({
   icon,
