@@ -1,8 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import type { MouseEvent, ReactNode } from "react";
-import { IconButton, Pill } from "@/components/kit";
+import { IconButton, ModeLabel, Pill } from "@/components/kit";
 
 /** A clicked or tapped button keeps focus, and a focused button owns Enter,
  *  so a later Enter would press it again instead of revealing the next card. */
@@ -30,10 +31,9 @@ export function ReviewControls({
 }) {
   return (
     <div className="flex items-center gap-1">
-      <div className="flex h-[30px] items-center gap-1.5 rounded-full bg-review-tint pr-3 pl-2.5 text-[13px] font-extrabold text-review-text">
-        <RefreshCw className="size-4" strokeWidth={2.6} aria-hidden />
+      <ModeLabel tone="review" icon={<PageBadge page="review" className="size-6" />}>
         Review
-      </div>
+      </ModeLabel>
       <div className="ml-auto flex items-center">
         {canGoBack ? (
           <IconButton

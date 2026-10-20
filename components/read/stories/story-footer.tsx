@@ -26,7 +26,7 @@ function VoteButton({
       label={label}
       aria-pressed={selected}
       onClick={onPress}
-      className={cn(ROUND, selected && "bg-quiz-tint text-quiz-text")}
+      className={cn(ROUND, selected && "bg-read-tint text-read-text")}
     >
       {children}
     </IconButton>

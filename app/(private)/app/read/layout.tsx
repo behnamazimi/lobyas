@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { StudyDay } from "@/components/goals/study-day";
 import { ReadControls } from "@/components/read/read-controls";
 import { ReadFocusProvider } from "@/components/read/read-focus";
 import { KeepAwake } from "@/components/shared/keep-awake";
@@ -24,9 +23,6 @@ export default async function ReadLayout({ children }: { children: React.ReactNo
       <TermLayoutScope>
         <SectionTransition>
           <div className="mx-auto flex min-h-0 w-full max-w-[640px] flex-1 flex-col gap-3 px-5 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
-            <Suspense>
-              <StudyDay />
-            </Suspense>
             <PromoSlot route="read" />
             {user ? (
               <Suspense fallback={<div className="h-11" />}>

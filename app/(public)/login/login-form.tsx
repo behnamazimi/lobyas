@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useActionState } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
 import { GoogleSignInButton } from "@/components/auth/google-signin-button";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { AuthCard } from "@/components/public/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -37,14 +37,7 @@ export default function LoginForm() {
   const showResetLink = !state?.error && searchParams.get("error") === "reset-failed";
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
-      <h1 className="text-2xl font-medium">Log in</h1>
-
+    <AuthCard title="Log in">
       <GoogleSignInButton next={next} />
 
       <div className="flex items-center gap-3">
@@ -99,6 +92,6 @@ export default function LoginForm() {
           Sign up
         </Link>
       </p>
-    </div>
+    </AuthCard>
   );
 }

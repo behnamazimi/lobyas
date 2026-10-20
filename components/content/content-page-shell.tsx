@@ -1,9 +1,7 @@
-import type { ComponentProps, ReactNode } from "react";
-import { PageHeader } from "@/components/shared/page-header";
-import { PageShell } from "@/components/page-container";
+import type { ReactNode } from "react";
+import { pageContainerClass } from "@/components/page-container";
+import { SMALL_TITLE_CLASS } from "@/components/public/title-class";
 import { cn } from "@/lib/utils";
-
-const contentPageMaxWidthClass = "max-w-2xl";
 
 export const contentPageLinkClass =
   "font-medium text-primary underline underline-offset-2 transition-colors hover:text-primary/80";
@@ -11,33 +9,35 @@ export const contentPageLinkClass =
 type ContentPageShellProps = {
   children: ReactNode;
   className?: string;
-  innerClassName?: string;
 };
 
-export function ContentPageShell({ children, className, innerClassName }: ContentPageShellProps) {
+/** The document shell: a narrow reading column for legal and contact pages. */
+export function ContentPageShell({ children, className }: ContentPageShellProps) {
   return (
-    <PageShell
-      className={className}
-      innerClassName={cn(
-        "landing-enter mx-auto py-10 pb-24 sm:py-12",
-        contentPageMaxWidthClass,
-        innerClassName,
+    <div
+      className={cn(
+        pageContainerClass,
+        "landing-enter max-w-2xl flex-1 py-10 pb-24 sm:py-12",
+        className,
       )}
     >
       {children}
-    </PageShell>
+    </div>
   );
 }
 
-export function ContentPageHeader(props: ComponentProps<typeof PageHeader>) {
-  return <PageHeader {...props} />;
-}
-
-type ContentPageIntroProps = {
-  children: ReactNode;
-  className?: string;
+type ContentPageHeaderProps = {
+  badge: ReactNode;
+  title: ReactNode;
+  description: string;
 };
 
-export function ContentPageIntro({ children, className }: ContentPageIntroProps) {
-  return <div className={cn("space-y-5", className)}>{children}</div>;
+export function ContentPageHeader({ badge, title, description }: ContentPageHeaderProps) {
+  return (
+    <div className="flex flex-col items-start gap-3">
+      {badge}
+      <h1 className={SMALL_TITLE_CLASS}>{title}</h1>
+      <p className="m-0 text-base text-base-content/70">{description}</p>
+    </div>
+  );
 }

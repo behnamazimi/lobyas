@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getImportSetupData } from "@/app/(private)/app/import/actions";
 import { DefinitionsForm } from "@/components/requests/definitions-form";
 import { RequestForm, type RecentRequest } from "@/components/requests/request-form";
@@ -11,6 +12,8 @@ import { fetchMyRequests, fetchRequestQuota } from "@/lib/requests/repository";
 import { statusSentence } from "@/lib/requests/status";
 import { getStudyPhoneUserSettings } from "@/lib/streak/settings";
 import { withDirection } from "@/components/shared/view-transitions";
+
+export const metadata: Metadata = { title: REQUEST_COPY.form.title };
 
 type Client = SupabaseClient<Database>;
 

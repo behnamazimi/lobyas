@@ -12,7 +12,8 @@ import { useMountEffect } from "@/hooks/use-mount-effect";
 import type { GoalForecast } from "@/lib/goals/forecast";
 import { DEFAULT_GOALS, GOAL_TIERS, type DailyGoals, type GoalTier } from "@/lib/goals/levels";
 import type { GoalDay, GoalSettings } from "@/lib/goals/settings";
-import { setLiveGoals } from "./goal-store";
+import { useLiveGoalCounts } from "./use-goal-count";
+import { setLiveCelebrate, setLiveGoals } from "./goal-store";
 import { ForecastPanel } from "./goal-forecast-panel";
 import { TierCard } from "./goal-tier-card";
 import { IntroPanel } from "./goal-today-panel";
@@ -32,6 +33,7 @@ export function GoalsPage({ settings, day }: { settings: GoalSettings; day: Goal
   const latestRequest = useRef(0);
 
   const dirty = saved === null || GOAL_TIERS.some((tier) => saved[tier] !== draft[tier]);
+  const done = useLiveGoalCounts(day.counts);
 
   async function loadForecast(goals: DailyGoals) {
     const request = ++latestRequest.current;
@@ -76,7 +78,7 @@ export function GoalsPage({ settings, day }: { settings: GoalSettings; day: Goal
       toast(result.error, "destructive");
       return;
     }
-    if (saved) setLiveGoals({ goals: saved, celebrate: next, day });
+    if (saved) setLiveCelebrate(next);
   }
 
   return (
@@ -88,7 +90,7 @@ export function GoalsPage({ settings, day }: { settings: GoalSettings; day: Goal
           key={tier}
           tier={tier}
           goal={draft[tier]}
-          done={day.counts[tier]}
+          done={done[tier]}
           onChange={(g) => change(tier, g)}
         />
       ))}

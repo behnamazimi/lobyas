@@ -7,7 +7,7 @@ import { AuthFormError } from "@/components/auth/auth-form-error";
 import { LegalConsentLine } from "@/components/auth/legal-consent-line";
 import { GoogleSignInButton } from "@/components/auth/google-signin-button";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { AuthCard } from "@/components/public/auth-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -46,8 +46,7 @@ function CheckEmail({ email, rawNext, onChangeEmail }: CheckEmailProps) {
   }
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-4">
-      <h1 className="text-2xl font-medium">Check your email</h1>
+    <AuthCard title="Check your email">
       <Alert variant="success" icon={<Mail strokeWidth={1.5} />}>
         <AlertDescription>
           A confirmation link was sent to <strong>{email}</strong>. Open it to confirm your email.
@@ -93,7 +92,7 @@ function CheckEmail({ email, rawNext, onChangeEmail }: CheckEmailProps) {
         </Link>
         .
       </p>
-    </div>
+    </AuthCard>
   );
 }
 
@@ -140,13 +139,7 @@ export default function SignupForm({
   }
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
-      <h1 className="text-2xl font-medium">Sign up</h1>
+    <AuthCard title="Sign up">
       <LegalConsentLine action="signing up" className="-mt-2" />
 
       <GoogleSignInButton next={next} referenceCode={referenceCode} email={email} />
@@ -229,6 +222,6 @@ export default function SignupForm({
           Request access
         </Link>
       </p>
-    </div>
+    </AuthCard>
   );
 }

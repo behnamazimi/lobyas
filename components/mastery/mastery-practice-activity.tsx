@@ -1,5 +1,6 @@
-import { StatTile } from "@/components/kit";
+import { SECTION_TITLE, StatTile } from "@/components/kit";
 import type { GradeDistributionSummary, WebStatsSnapshot } from "@/lib/mastery/collection-stats";
+import type { GoalDayCounts } from "@/lib/goals/progress";
 import { AGAIN, EASY, GOOD, HARD, type ReviewGrade } from "@/lib/trace";
 import { cn, pluralize } from "@/lib/utils";
 
@@ -52,7 +53,7 @@ const GRADE_TONE = {
 function GradeDistribution({ summary }: { summary: GradeDistributionSummary }) {
   return (
     <>
-      <h3 className="m-0 mt-2 font-sans text-[15px] font-extrabold">Grading</h3>
+      <h3 className={cn(SECTION_TITLE, "mt-2")}>Grading</h3>
       <dl className="m-0 mt-2 grid grid-cols-4 gap-2">
         {GRADES.map(({ grade, label, className }) => (
           <div key={grade} className="flex flex-col-reverse">
@@ -73,30 +74,26 @@ function GradeDistribution({ summary }: { summary: GradeDistributionSummary }) {
 }
 
 /** Queue and grading diagnostics, secondary to the per-collection cards. */
-export function MasteryPracticeActivity({ stats }: { stats: WebStatsSnapshot }) {
+export function MasteryPracticeActivity({
+  stats,
+  today,
+}: {
+  stats: WebStatsSnapshot;
+  today: GoalDayCounts;
+}) {
   if (stats.activeCollections.length === 0) return null;
 
   return (
     <section role="group" aria-label="Practice activity">
-      <h3 className="m-0 font-sans text-[15px] font-extrabold">Practice activity</h3>
-      <RollupRow
-        label="Read"
-        verb="read"
-        unseen={stats.rollup.read.unseen}
-        today={stats.today.read}
-      />
+      <h3 className={SECTION_TITLE}>Practice activity</h3>
+      <RollupRow label="Read" verb="read" unseen={stats.rollup.read.unseen} today={today.read} />
       <RollupRow
         label="Review"
         verb="reviewed"
         unseen={stats.rollup.review.unseen}
-        today={stats.today.review}
+        today={today.review}
       />
-      <RollupRow
-        label="Quiz"
-        verb="quizzed"
-        unseen={stats.rollup.quiz.unseen}
-        today={stats.today.quiz}
-      />
+      <RollupRow label="Quiz" verb="quizzed" unseen={stats.rollup.quiz.unseen} today={today.quiz} />
       {stats.gradeDistribution ? <GradeDistribution summary={stats.gradeDistribution} /> : null}
     </section>
   );

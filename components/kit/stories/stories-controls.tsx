@@ -64,7 +64,10 @@ export function ControlsStories() {
           Show answer
         </Pill>
       </Story>
-      <Story title="Segmented control" note="A radio group on a pill track.">
+      <Story
+        title="Segmented control"
+        note="A radio group on a pill track. The chosen option is a white pill on the beige track."
+      >
         <SegmentedControl
           label="Mastery views"
           value={view}
@@ -99,7 +102,7 @@ export function ControlsStories() {
           ]}
         />
       </Story>
-      <Story title="Chips with counts">
+      <Story title="Chips with counts" note="A selected chip is an ink pill with white text.">
         <div className="flex flex-wrap gap-2">
           {[
             ["all", "All", 186],

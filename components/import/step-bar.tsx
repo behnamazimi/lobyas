@@ -13,7 +13,7 @@ export function StepBar({ current }: { current: 0 | 1 | 2 }) {
           className="flex flex-col gap-1"
         >
           <span
-            className={cn("h-1.5 rounded-full", index <= current ? "bg-quiz-ring" : "bg-base-300")}
+            className={cn("h-1.5 rounded-full", index <= current ? "bg-neutral" : "bg-base-300")}
           />
           <span
             className={cn(

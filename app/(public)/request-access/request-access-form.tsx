@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { AuthCard } from "@/components/public/auth-card";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -24,29 +25,17 @@ export default function RequestAccessForm({
 
   if (state && "success" in state) {
     return (
-      <div className="flex w-full max-w-sm flex-col gap-4">
-        <BackLink
-          href={PUBLIC_HOME_PATH}
-          label={PUBLIC_HOME_BACK_LABEL}
-          className="-ml-2 self-start"
-        />
-        <h1 className="text-2xl font-medium">You&apos;re on the list</h1>
+      <AuthCard title="You're on the list" backHref="/login">
         <p className="text-sm text-base-content/70">
           Your invite will be emailed to <strong>{state.email}</strong>
           {AFTER_ADDRESS}
         </p>
-      </div>
+      </AuthCard>
     );
   }
 
   return (
-    <div className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
-      <h1 className="text-2xl font-medium">Request access</h1>
+    <AuthCard title="Request access" backHref="/login">
       <p className="text-sm text-base-content/70">
         Lobyas is invite-only right now. Leave your email and we&apos;ll send you an invite when
         there&apos;s room.
@@ -93,6 +82,13 @@ export default function RequestAccessForm({
           {pending ? "Requesting…" : "Request access"}
         </Button>
       </form>
-    </div>
+
+      <p className="m-0 text-center text-sm text-base-content/70">
+        Already have an account?{" "}
+        <Link href="/login" className="underline underline-offset-2">
+          Log in
+        </Link>
+      </p>
+    </AuthCard>
   );
 }

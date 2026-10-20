@@ -36,9 +36,9 @@ export function SegmentedControl({
           value={option.value}
           className={({ isSelected, isFocusVisible }) =>
             cn(
-              "flex h-11 cursor-pointer items-center justify-center rounded-full text-sm font-extrabold outline-none",
+              "flex h-11 cursor-pointer items-center justify-center rounded-full text-sm font-extrabold",
               isSelected ? "bg-base-100 text-base-content shadow-sm" : "text-ink-soft",
-              isFocusVisible && "ring-2 ring-base-content",
+              isFocusVisible && "outline outline-2 outline-offset-2",
             )
           }
         >

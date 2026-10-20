@@ -1,4 +1,5 @@
-import { Bell, RefreshCw } from "lucide-react";
+import { Bell } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import {
   CollectionSwitcherRow,
   IconButton,
@@ -64,7 +65,10 @@ export function ShellStories() {
           />
         </div>
       </Story>
-      <Story title="Page header" note="Back, serif title, action. A long title wraps.">
+      <Story
+        title="Page header"
+        note="Back row, then the title. With no back button, the action sits on the title row. A long title wraps."
+      >
         <PageHeader title="Settings" backHref="/admin/kit" />
         <PageHeader
           className="mt-6"
@@ -93,7 +97,7 @@ export function ShellStories() {
             goal={{
               label: "312 reviewed today",
               tone: "review",
-              icon: <RefreshCw className="size-5 text-review-text" strokeWidth={2.4} aria-hidden />,
+              icon: <PageBadge page="review" className="size-6" />,
             }}
           />
           <StudyTopBar

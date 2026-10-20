@@ -24,7 +24,11 @@ export default function Error({ error, reset, unstable_retry }: ErrorProps) {
       description="This page didn’t load. Your terms and progress are fine. Try again in a moment."
       actions={
         <>
-          {retry ? <Pill onClick={retry}>Try again</Pill> : null}
+          {retry ? (
+            <Pill variant="brand" onClick={retry}>
+              Try again
+            </Pill>
+          ) : null}
           <Pill href="/" variant="secondary">
             Go home
           </Pill>

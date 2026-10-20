@@ -1,6 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import type { SharedCollection } from "@/lib/terms/types";
+import {
+  browseLibraryIds,
+  fetchOwnedBuiltinIds,
+  hidesOwnedRows,
+  mapBrowseCollection,
+  type CollectionRow,
+} from "./browse-owned";
 
 type Client = SupabaseClient<Database>;
 
@@ -42,16 +49,6 @@ export type BrowseQuery = {
 const COLLECTION_SELECT =
   "id, name, description, owner_id, is_builtin, love_count, terms(count)" as const;
 
-type CollectionRow = {
-  id: string;
-  name: string;
-  description: string | null;
-  owner_id: string;
-  is_builtin: boolean;
-  love_count: number;
-  terms: { count: number }[] | { count: number } | null;
-};
-
 export function escapeIlike(value: string) {
   return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
 }
@@ -61,33 +58,6 @@ export function browseSearchOr(query: string) {
   if (!trimmed) return null;
   const pattern = `%${escapeIlike(trimmed)}%`.replaceAll('"', '\\"');
   return `name.ilike."${pattern}",description.ilike."${pattern}"`;
-}
-
-function termCount(terms: CollectionRow["terms"]) {
-  if (!terms) return 0;
-  if (Array.isArray(terms)) return terms[0]?.count ?? 0;
-  return terms.count ?? 0;
-}
-
-function mapCollection(
-  row: CollectionRow,
-  inCollection: Set<string>,
-  loved: Set<string>,
-  reported: Set<string>,
-): SharedCollection {
-  return {
-    id: row.id,
-    name: row.name,
-    icon: "",
-    description: row.description ?? "",
-    ownerId: row.owner_id,
-    termCount: termCount(row.terms),
-    inCollection: inCollection.has(row.id),
-    isBuiltin: row.is_builtin,
-    loveCount: row.love_count,
-    lovedByMe: loved.has(row.id),
-    reportedByMe: reported.has(row.id),
-  };
 }
 
 async function fetchCollectionIds(client: Client, userId: string) {
@@ -147,7 +117,8 @@ function applyBrowseFilters<
   collectionIds: string[],
   group?: BrowseGroup,
 ): Query | null {
-  let next = query.eq("visibility", "shared").is("share_blocked_at", null).neq("owner_id", userId);
+  let next = query.eq("visibility", "shared").is("share_blocked_at", null);
+  if (hidesOwnedRows(group)) next = next.neq("owner_id", userId);
   if (group) next = next.eq("is_builtin", group === "builtin");
   const searchOr = browseSearchOr(search);
   if (searchOr) next = next.or(searchOr);
@@ -212,13 +183,17 @@ export async function fetchSharedCollectionsBrowse(
 ): Promise<BrowsePageResult> {
   const { search, filter, group, sort, offset, limit } = resolveBrowseQuery(query);
 
-  const collectionIds = await fetchCollectionIds(client, userId);
-  const inCollection = new Set(collectionIds);
+  const [collectionIds, ownedBuiltinIds] = await Promise.all([
+    fetchCollectionIds(client, userId),
+    group === "builtin" ? fetchOwnedBuiltinIds(client, userId) : Promise.resolve([]),
+  ]);
+  const membership = new Set(collectionIds);
+  const libraryIds = browseLibraryIds(collectionIds, ownedBuiltinIds, group);
 
   const [builtinTotal, communityTotal, inCollectionCount] = await Promise.all([
     countMatching(client, userId, search, "all", collectionIds, "builtin"),
     countMatching(client, userId, search, "all", collectionIds, "community"),
-    countMatching(client, userId, search, "in-collection", collectionIds, group),
+    countMatching(client, userId, search, "in-collection", libraryIds, group),
   ]);
   const groups = { builtin: builtinTotal, community: communityTotal };
   const all = group ? groups[group] : builtinTotal + communityTotal;
@@ -246,7 +221,7 @@ export async function fetchSharedCollectionsBrowse(
     userId,
     search,
     filter,
-    collectionIds,
+    libraryIds,
     group,
   );
 
@@ -267,7 +242,9 @@ export async function fetchSharedCollectionsBrowse(
     userId,
     rows.map((row) => row.id),
   );
-  const collections = rows.map((row) => mapCollection(row, inCollection, loved, reported));
+  const collections = rows.map((row) =>
+    mapBrowseCollection(row, membership, userId, loved, reported),
+  );
   const loaded = offset + collections.length;
 
   return {

@@ -1,5 +1,10 @@
 import { Resend } from "resend";
-import type { RequestEmail } from "@/lib/requests/email-copy";
+import {
+  EMAIL_BUTTON_STYLE,
+  EMAIL_MUTED_STYLE,
+  EMAIL_SHELL_STYLE,
+  type RequestEmail,
+} from "@/lib/requests/email-copy";
 import { SENDER_EMAIL } from "@/lib/site";
 
 const FROM = `Lobyas <${SENDER_EMAIL}>`;
@@ -40,15 +45,15 @@ export async function sendInviteEmail({ to, signupUrl }: SendInviteEmailParams):
     subject: "Your Lobyas invite is here",
     text: `Hi,\n\nGood news: your Lobyas invite just came through. Use the link below to finish signing up; your invite code is already filled in. You can start learning right away.\n\n${signupUrl}\n\nSee you inside,\nThe Lobyas team`,
     html: `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto;">
+      <div style="${EMAIL_SHELL_STYLE}">
         <h1 style="font-size: 20px;">Your invite is here</h1>
         <p>Good news: your Lobyas invite just came through. Use the button below to finish signing up; your invite code is already filled in. You can start learning right away.</p>
         <p>
-          <a href="${signupUrl}" style="display:inline-block;padding:10px 16px;background:#111;color:#fff;text-decoration:none;border-radius:6px;">
+          <a href="${signupUrl}" style="${EMAIL_BUTTON_STYLE}">
             Finish signing up
           </a>
         </p>
-        <p style="color:#666;font-size:13px;">Or paste this link into your browser: ${signupUrl}</p>
+        <p style="${EMAIL_MUTED_STYLE}">Or paste this link into your browser: ${signupUrl}</p>
         <p>See you inside,<br />The Lobyas team</p>
       </div>
     `,
@@ -73,11 +78,11 @@ export async function sendWaitlistRequestNotification({
     subject: `${requesterEmail} asked for access to Lobyas`,
     text: `Hi,\n\n${requesterEmail} just asked for access to Lobyas and is waiting on the waitlist. You can approve or review the request here:\n\n${adminUrl}`,
     html: `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto;">
+      <div style="${EMAIL_SHELL_STYLE}">
         <h1 style="font-size: 20px;">Someone new wants in</h1>
         <p><strong>${requesterEmail}</strong> just asked for access to Lobyas and is waiting on the waitlist. You can approve or review the request below.</p>
         <p>
-          <a href="${adminUrl}" style="display:inline-block;padding:10px 16px;background:#111;color:#fff;text-decoration:none;border-radius:6px;">
+          <a href="${adminUrl}" style="${EMAIL_BUTTON_STYLE}">
             Review request
           </a>
         </p>

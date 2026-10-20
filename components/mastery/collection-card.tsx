@@ -76,7 +76,7 @@ export function CollectionCard({
         <MasteryStack
           className="mt-3"
           name={collection.name}
-          mastered={buckets.mastered}
+          mastered={buckets.mastered + collection.markedKnownCount}
           learning={buckets.learningNotMastered}
           notStarted={buckets.neverLearning}
         />

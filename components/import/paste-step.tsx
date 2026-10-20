@@ -6,12 +6,11 @@ import { Banner, FormField, PinnedAction, Pill, TextArea } from "@/components/ki
 import { FormatHelpButton } from "@/components/import/format-help-dialog";
 import { ImportFailurePanel } from "@/components/import/import-errors";
 import { decodeFileBytes } from "@/lib/import/parse/decode";
-import { type PasteProblem } from "@/lib/import/read-input";
+import { PASTE_EXAMPLE, PASTE_SEPARATOR_RULE, type PasteProblem } from "@/lib/import/read-input";
 
 const MAX_FILE_BYTES = 2 * 1024 * 1024;
 
-const PLACEHOLDER =
-  "Put each term on its own line, with a dash or colon before its definition.\n\nFor example:\nAPI – a way for programs to talk to each other";
+const PLACEHOLDER = PASTE_EXAMPLE;
 
 type PasteStepProps = {
   draft: string;
@@ -99,7 +98,7 @@ export function PasteStep({
               ref={textareaRef}
               value={draft}
               placeholder={PLACEHOLDER}
-              className="min-h-64 w-full rounded-2xl bg-base-100 p-3.5 pr-12 font-mono text-sm leading-relaxed font-medium shadow-card"
+              className="min-h-64 pr-12 font-mono text-sm leading-relaxed font-medium"
               onChange={(event) => onTextChange(event.target.value)}
               onPaste={handlePaste}
             />
@@ -149,9 +148,8 @@ export function PasteStep({
         ) : null}
 
         <p className="m-0 text-[13px] leading-snug font-semibold text-muted">
-          One term per line. Put a definition after a dash, tab or comma. A term without one is
-          saved to finish later. Works with lists from Notes, Google Sheets, Excel, Docs and
-          WhatsApp, and with exports from Quizlet and Anki.
+          {PASTE_SEPARATOR_RULE} A term without one is saved to finish later. Works with lists from
+          Notes, Google Sheets, Excel, Docs and WhatsApp, and with exports from Quizlet and Anki.
         </p>
 
         <div className="flex justify-center">

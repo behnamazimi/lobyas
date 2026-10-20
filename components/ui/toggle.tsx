@@ -53,7 +53,6 @@ export function choiceClassName(className?: string) {
     "transition-[background-color,border-color,scale] duration-150 motion-reduce:transition-none hover:bg-base-200/60",
     "data-selected:border-primary/60 data-selected:bg-primary/10 data-selected:text-[color-mix(in_oklab,var(--color-primary)_35%,var(--color-base-content))] data-selected:hover:bg-primary/15",
     "data-pressed:scale-[0.97] data-disabled:cursor-not-allowed data-disabled:opacity-50",
-    "data-focus-visible:ring-2 data-focus-visible:ring-primary data-focus-visible:ring-offset-2 data-focus-visible:ring-offset-base-100",
     className,
   );
 }

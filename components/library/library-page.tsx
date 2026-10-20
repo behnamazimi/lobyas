@@ -2,13 +2,13 @@
 
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import type { LibraryPageData, LibraryTerm, Term } from "@/lib/terms/types";
 import { loadTermDetails, TermDetailsScope } from "@/lib/library/details-store";
 import { useLibraryList } from "@/hooks/use-library-list";
 import { useMediaQuery } from "@/hooks/use-platform";
 import { useSlashToFocus } from "@/hooks/use-slash-to-focus";
-import { BottomSheet, Card, EmptyPanel, Pill } from "@/components/kit";
+import { BottomSheet, Card, EmptyPanel, PageHeader, Pill } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { ImportedNotice, type ImportedSummary } from "@/components/import/imported-banner";
 import { UnfinishedSection } from "@/components/terms/unfinished-section";
@@ -29,11 +29,13 @@ type LibraryPageProps = {
   filtersCookie: string;
   /** What the import that just finished added (from ?added=). */
   importedSummary: Promise<ImportedSummary | undefined>;
+  /** A banner under the title. Passed in from the server page. */
+  promo?: ReactNode;
 };
 
 /** One collection in the Library: header, filters and the term list. The
  *  collection switcher lives in the app shell; switching is a navigation. */
-export function LibraryPage({ data, filtersCookie, importedSummary }: LibraryPageProps) {
+export function LibraryPage({ data, filtersCookie, importedSummary, promo }: LibraryPageProps) {
   const [finishOpen, setFinishOpen] = useState(false);
   const [editing, setEditing] = useState<Term | null>(null);
   const [deleting, setDeleting] = useState<LibraryTerm | null>(null);
@@ -123,82 +125,87 @@ export function LibraryPage({ data, filtersCookie, importedSummary }: LibraryPag
   return (
     <TermDetailsScope value={detailsScope}>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
-        <div className="flex min-w-0 flex-1 flex-col gap-3">
-          <div className="flex items-center justify-between gap-2.5">
-            <h1 className="m-0 font-heading text-[30px] font-extrabold">Library</h1>
-            <Pill variant="secondary" href="/app/import">
-              <Plus className="size-4" strokeWidth={2.6} aria-hidden />
-              Collection
-            </Pill>
-          </div>
-          <CollectionRow name={collection.name} />
-
-          <Suspense fallback={null}>
-            <ImportedNotice
-              summary={importedSummary}
-              collection={collection}
-              onFinish={() => setFinishOpen(true)}
-            />
-          </Suspense>
-          <LibraryCollectionHeader
-            collection={liveCollection}
-            categoryCount={categories.length}
-            isOwner={isOwner}
-            untriagedCount={untriagedCount}
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <PageHeader
+            title="Library"
+            action={
+              <Pill variant="secondary" href="/app/import">
+                <Plus className="size-4" strokeWidth={2.6} aria-hidden />
+                Collection
+              </Pill>
+            }
           />
+          {promo}
+          <div className="flex flex-col gap-3">
+            <CollectionRow name={collection.name} />
 
-          {isOwner ? (
             <Suspense fallback={null}>
-              <UnfinishedSection
-                collectionId={collection.id}
-                terms={data.unfinishedTerms}
-                isOpen={finishOpen}
-                onOpenChange={setFinishOpen}
-                onRemoved={() => router.refresh()}
+              <ImportedNotice
+                summary={importedSummary}
+                collection={collection}
+                onFinish={() => setFinishOpen(true)}
               />
             </Suspense>
-          ) : null}
+            <LibraryCollectionHeader
+              collection={liveCollection}
+              categoryCount={categories.length}
+              isOwner={isOwner}
+              untriagedCount={untriagedCount}
+            />
 
-          <LibraryFilters
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            searchInputRef={searchInputRef}
-            categories={categories}
-            categoryCounts={categoryCounts}
-            totalCount={terms.length}
-            activeCategories={activeCategories}
-            onToggleCategory={toggleCategory}
-            hideKnown={hideKnown}
-            onHideKnownChange={setHideKnown}
-            sortMode={sortMode}
-            onSortChange={setSortMode}
-            visibleCount={filteredTerms.length}
-          />
+            {isOwner ? (
+              <Suspense fallback={null}>
+                <UnfinishedSection
+                  collectionId={collection.id}
+                  terms={data.unfinishedTerms}
+                  isOpen={finishOpen}
+                  onOpenChange={setFinishOpen}
+                  onRemoved={() => router.refresh()}
+                />
+              </Suspense>
+            ) : null}
 
-          <TermList
-            terms={filteredTerms}
-            windowKey={windowKey}
-            knownTerms={knownTerms}
-            markedKnownTerms={markedKnownTerms}
-            selectedTermId={selectedTermId}
-            isOwner={isOwner}
-            totalCount={terms.length}
-            hasUnfinished={data.unfinishedTerms.length > 0}
-            collectionId={collection.id}
-            onSelect={selectTerm}
-            onToggleMarkedKnown={toggleMarkedKnown}
-            onActions={setActionsTerm}
-          />
-          {filteredTerms.length > 0 ? (
-            <p className="m-0 px-1 text-[13px] font-semibold text-muted">
-              <span className="md:hidden coarse:inline">
-                Tap a term to open it. Swipe it right to mark it known.
-              </span>
-              <span className="hidden md:inline coarse:hidden">
-                Click a term to open it. The check on a row marks it known.
-              </span>
-            </p>
-          ) : null}
+            <LibraryFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchInputRef={searchInputRef}
+              categories={categories}
+              categoryCounts={categoryCounts}
+              totalCount={terms.length}
+              activeCategories={activeCategories}
+              onToggleCategory={toggleCategory}
+              hideKnown={hideKnown}
+              onHideKnownChange={setHideKnown}
+              sortMode={sortMode}
+              onSortChange={setSortMode}
+              visibleCount={filteredTerms.length}
+            />
+
+            <TermList
+              terms={filteredTerms}
+              windowKey={windowKey}
+              knownTerms={knownTerms}
+              markedKnownTerms={markedKnownTerms}
+              selectedTermId={selectedTermId}
+              isOwner={isOwner}
+              totalCount={terms.length}
+              hasUnfinished={data.unfinishedTerms.length > 0}
+              collectionId={collection.id}
+              onSelect={selectTerm}
+              onToggleMarkedKnown={toggleMarkedKnown}
+              onActions={setActionsTerm}
+            />
+            {filteredTerms.length > 0 ? (
+              <p className="m-0 px-1 text-[13px] font-semibold text-muted">
+                <span className="md:hidden coarse:inline">
+                  Tap a term to open it. Swipe it right to mark it known.
+                </span>
+                <span className="hidden md:inline coarse:hidden">
+                  Click a term to open it. The check on a row marks it known.
+                </span>
+              </p>
+            ) : null}
+          </div>
         </div>
 
         <aside

@@ -34,8 +34,8 @@ export function RadioList({
           value={option.value}
           className={({ isFocusVisible }) =>
             cn(
-              "flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl px-3 py-2 outline-none",
-              isFocusVisible && "ring-2 ring-base-content",
+              "flex min-h-14 cursor-pointer items-center gap-3 rounded-2xl px-3 py-2",
+              isFocusVisible && "outline outline-2 outline-offset-2",
             )
           }
         >

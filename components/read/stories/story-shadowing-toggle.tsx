@@ -41,7 +41,7 @@ export function StoryShadowingToggle({ on }: { on: boolean }) {
         onPress={toggle}
         className={cn(
           "absolute top-1.5 right-2 size-11 rounded-full",
-          shownOn ? "bg-quiz-tint text-quiz-text" : "text-muted",
+          shownOn ? "bg-read-tint text-read-text" : "text-muted",
         )}
       >
         <Speech className="size-5" aria-hidden strokeWidth={2.2} />

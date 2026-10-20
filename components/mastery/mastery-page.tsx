@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getMasteryTermRowsAction } from "@/app/(private)/app/mastery/actions";
+import type { GoalDayCounts } from "@/lib/goals/progress";
 import type { WebStatsSnapshot } from "@/lib/mastery/collection-stats";
 import type { MasteryCollectionOption, MasteryTermRow } from "@/lib/mastery/mastery";
 import { PanelSkeleton } from "@/components/page-skeleton";
@@ -16,6 +17,7 @@ type MasteryPageProps = {
   initialCollectionId: string;
   collections: MasteryCollectionOption[];
   stats: WebStatsSnapshot;
+  today: GoalDayCounts;
   termsLearning: number;
   termsLearned: number;
 };
@@ -39,6 +41,7 @@ export function MasteryPage({
   initialCollectionId,
   collections,
   stats,
+  today,
   termsLearning,
   termsLearned,
 }: MasteryPageProps) {
@@ -81,6 +84,7 @@ export function MasteryPage({
       {activeTab === "overview" ? (
         <MasteryOverview
           stats={stats}
+          today={today}
           termsLearning={termsLearning}
           termsLearned={termsLearned}
           onSelectCollection={(collectionId) => {

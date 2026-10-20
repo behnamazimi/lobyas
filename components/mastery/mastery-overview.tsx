@@ -1,5 +1,7 @@
 "use client";
 
+import type { GoalDayCounts } from "@/lib/goals/progress";
+import { useLiveGoalCounts } from "@/components/goals/use-goal-count";
 import type { WebStatsSnapshot } from "@/lib/mastery/collection-stats";
 import { Card, Divider } from "@/components/kit";
 import { CollectionCard, PausedCollectionCard } from "./collection-card";
@@ -9,6 +11,7 @@ import { pluralize } from "@/lib/utils";
 
 type MasteryOverviewProps = {
   stats: WebStatsSnapshot;
+  today: GoalDayCounts;
   /** Ever touched (any activity), not yet Mastered, not marked known. */
   termsLearning: number;
   /** §8 "terms learned" — high-water mark, never decreases. */
@@ -22,10 +25,12 @@ type MasteryOverviewProps = {
  *  at very different stages into one aggregate obscured more than it told. */
 export function MasteryOverview({
   stats,
+  today,
   termsLearning,
   termsLearned,
   onSelectCollection,
 }: MasteryOverviewProps) {
+  const live = useLiveGoalCounts(today);
   const hasLifetimeTotals =
     stats.lifetimeTotals.reviews +
       stats.lifetimeTotals.quizAnswers +
@@ -55,7 +60,7 @@ export function MasteryOverview({
           </p>
         ) : null}
         <Divider className="mx-0 my-3" />
-        <MasteryPracticeActivity stats={stats} />
+        <MasteryPracticeActivity stats={stats} today={live} />
       </Card>
 
       {stats.activeCollections.map((collection) => (

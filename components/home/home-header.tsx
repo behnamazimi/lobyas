@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 
 function desktopTitleClass(name: string): string {
   const length = Array.from(name).length;
-  if (length <= 24) return "text-4xl";
-  if (length <= 40) return "text-3xl";
-  return "text-2xl";
+  if (length <= 24) return "text-4xl/[1.25]";
+  if (length <= 40) return "text-3xl/[1.25]";
+  return "text-2xl/[1.25]";
 }
 
 function MasteryLine({
@@ -73,7 +73,7 @@ export function HomeHeader({
             >
               <span
                 className={cn(
-                  "font-heading leading-tight font-extrabold",
+                  "font-heading font-extrabold",
                   collectionTitleClass(name),
                   CLAMP_TWO_LINES,
                 )}
@@ -95,7 +95,7 @@ export function HomeHeader({
           <div className="text-sm font-bold text-muted">Today · {note}</div>
           <h1
             className={cn(
-              "m-0 mt-1 font-heading leading-[1.05] font-extrabold",
+              "m-0 mt-1 font-heading font-extrabold",
               desktopTitleClass(name),
               CLAMP_TWO_LINES,
             )}

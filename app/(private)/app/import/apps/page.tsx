@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { Divider, ListRow, PageHeader, SectionCard } from "@/components/kit";
 import { APP_GUIDES } from "@/lib/import/guides";
 import { withDirection } from "@/components/shared/view-transitions";
+
+export const metadata: Metadata = { title: "From another app" };
 
 function AppPickerPage() {
   return (

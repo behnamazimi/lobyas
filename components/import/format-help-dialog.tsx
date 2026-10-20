@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { CopyIconButton } from "@/components/import/copy-icon-button";
 import { BottomSheet, IconButton } from "@/components/kit";
+import { PASTE_EXAMPLE, PASTE_SEPARATOR_RULE } from "@/lib/import/read-input";
+import { cn } from "@/lib/utils";
 
 function Format({
   title,
@@ -24,7 +26,12 @@ function Format({
       <p className="m-0 text-sm font-semibold text-muted">{children}</p>
       {example ? (
         <div className="relative">
-          <pre className="m-0 rounded-2xl bg-base-200 px-3 py-2 font-mono text-xs leading-5 whitespace-pre-wrap">
+          <pre
+            className={cn(
+              "m-0 rounded-2xl bg-base-200 py-2 pl-3 font-mono text-xs leading-5 whitespace-pre-wrap [overflow-wrap:anywhere]",
+              copyLabel ? "pr-14" : "pr-3",
+            )}
+          >
             {example}
           </pre>
           {copyLabel ? (
@@ -60,11 +67,8 @@ export function FormatHelpButton({ className }: { className?: string }) {
         subline="Only the term is required. Everything else is optional."
       >
         <div className="space-y-2">
-          <Format
-            title="A list of terms and definitions"
-            example="API – a way for programs to talk to each other"
-          >
-            One term per line, with a dash, colon, equals sign or tab before its definition.
+          <Format title="A list of terms and definitions" example={PASTE_EXAMPLE}>
+            {PASTE_SEPARATOR_RULE}
           </Format>
           <Format title="Just words">
             One word per line. Each is saved as a term to finish later.

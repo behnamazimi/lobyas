@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { AnswerInput, ChoiceCards } from "@/components/kit";
+import { AnswerInput, ChoiceCards, SECTION_TITLE } from "@/components/kit";
+import { cn } from "@/lib/utils";
 
 type QuizCountFieldProps = {
   presets: number[];
@@ -31,12 +32,13 @@ export function QuizCountField({
 
   return (
     <section aria-labelledby="quiz-count-heading">
-      <h2 id="quiz-count-heading" className="m-0 mb-2.5 text-[15px] font-extrabold">
+      <h2 id="quiz-count-heading" className={cn(SECTION_TITLE, "mb-2.5")}>
         How many questions
       </h2>
       <fieldset disabled={disabled} className="m-0 min-w-0 border-0 p-0">
         <ChoiceCards
           label="How many questions"
+          tone="quiz"
           columns={Math.min(4, Math.max(2, options.length)) as 2 | 3 | 4}
           value={custom ? "custom" : String(value)}
           onChange={(next) => {

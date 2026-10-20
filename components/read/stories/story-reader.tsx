@@ -105,7 +105,7 @@ function StoryGlossary({ story, termById }: { story: Story; termById: Map<string
 
   return (
     <Collapsible className="group border-t border-base-300 pt-1">
-      <CollapsibleTrigger className="-mx-2 flex min-h-11 w-[calc(100%+1rem)] cursor-pointer items-center justify-between gap-3 rounded-field border-none bg-transparent px-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary">
+      <CollapsibleTrigger className="-mx-2 flex min-h-11 w-[calc(100%+1rem)] cursor-pointer items-center justify-between gap-3 rounded-field border-none bg-transparent px-2 text-left">
         <span className="text-sm font-extrabold">Terms in this piece ({occurrences.length})</span>
         <ChevronDown
           className="size-4 shrink-0 text-base-content/70 transition-transform duration-200 group-data-[expanded]:rotate-180"

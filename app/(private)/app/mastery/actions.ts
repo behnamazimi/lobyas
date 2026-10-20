@@ -1,6 +1,7 @@
 "use server";
 
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
+import { EMPTY_GOAL_DAY, loadGoalDay } from "@/lib/goals/settings";
 import { fetchStatsSnapshot } from "@/lib/mastery/collection-stats";
 import { loadMasteryCounts, loadMasteryTermRows } from "@/lib/mastery/mastery";
 
@@ -10,12 +11,13 @@ export async function getMasterySetupData() {
     return { error: "Log in to view your mastery overview." as const };
   }
 
-  const [{ collections, termsLearning, termsLearned }, stats] = await Promise.all([
+  const [{ collections, termsLearning, termsLearned }, stats, day] = await Promise.all([
     loadMasteryCounts(auth.supabase, auth.user.id),
     fetchStatsSnapshot(auth.supabase, auth.user.id),
+    loadGoalDay(auth.supabase).catch(() => EMPTY_GOAL_DAY),
   ]);
 
-  return { collections, termsLearning, termsLearned, stats };
+  return { collections, termsLearning, termsLearned, stats, today: day.counts };
 }
 
 export async function getMasteryTermRowsAction() {

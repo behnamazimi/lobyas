@@ -1,21 +1,8 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { resolveReviewCollectionIds } from "@/lib/mastery/known-state";
-import {
-  fetchActiveTraceCandidates,
-  type PickContext,
-  type TraceCandidate,
-} from "@/lib/trace-queue";
-import {
-  AGAIN,
-  EASY,
-  GOOD,
-  HARD,
-  isSameLocalDay,
-  studyTimezone,
-  type ReviewGrade,
-} from "@/lib/trace";
-import { getStudyPhoneUserSettings } from "@/lib/streak/settings";
+import { fetchActiveTraceCandidates, type TraceCandidate } from "@/lib/trace-queue";
+import { AGAIN, EASY, GOOD, HARD, type ReviewGrade } from "@/lib/trace";
 import type { CollectionRow } from "@/lib/library/collections";
 import {
   buildStatsSnapshot,
@@ -102,36 +89,12 @@ export async function fetchGradeDistribution(
   return { counts, total };
 }
 
-/** Adds momentum (today) on top of the base `StatsSnapshot`. */
+/** Web extras on top of the base `StatsSnapshot`. */
 export type WebStatsSnapshot = StatsSnapshot & {
-  today: { read: number; review: number; quiz: number };
   pausedCollections: PausedCollectionSummary[];
   lifetimeTotals: LifetimeTotals;
   gradeDistribution: GradeDistributionSummary | null;
 };
-
-function lastActivityAtForContext(candidate: TraceCandidate, context: PickContext): Date | null {
-  switch (context) {
-    case "read":
-      return candidate.lastReadAt;
-    case "review":
-      return candidate.lastReviewRecallAt;
-    case "quiz":
-      return candidate.lastQuizTestedAt;
-  }
-}
-
-function countActivityToday(
-  candidates: TraceCandidate[],
-  context: PickContext,
-  now: Date,
-  timeZone: string,
-): number {
-  return candidates.filter((candidate) => {
-    const lastActivityAt = lastActivityAtForContext(candidate, context);
-    return lastActivityAt !== null && isSameLocalDay(lastActivityAt, now, timeZone);
-  }).length;
-}
 
 function toPausedCollectionSummary(row: CollectionRow): PausedCollectionSummary {
   const totalCount = row.termCount;
@@ -149,14 +112,12 @@ function toPausedCollectionSummary(row: CollectionRow): PausedCollectionSummary 
 
 const EMPTY_WEB_STATS_SNAPSHOT: WebStatsSnapshot = {
   ...EMPTY_STATS_SNAPSHOT,
-  today: { read: 0, review: 0, quiz: 0 },
   pausedCollections: [],
   lifetimeTotals: { reviews: 0, quizAnswers: 0, termsRead: 0 },
   gradeDistribution: null,
 };
 
-/** Web `/app/mastery`: session-scoped client, RLS via `auth.uid()`. Layers
- *  momentum (today) numbers on top of the base snapshot. */
+/** Web `/app/mastery`: session-scoped client, RLS via `auth.uid()`. */
 export async function fetchStatsSnapshot(
   client: Client,
   userId: string,
@@ -164,15 +125,12 @@ export async function fetchStatsSnapshot(
   const { collectionRows, reviewCollectionIds } = await resolveReviewCollectionIds(client, userId);
   if (collectionRows.length === 0) return EMPTY_WEB_STATS_SNAPSHOT;
 
-  const [candidates, gradeDistribution, settings] = await Promise.all([
+  const [candidates, gradeDistribution] = await Promise.all([
     fetchActiveTraceCandidates(client, userId),
     fetchGradeDistribution(client),
-    getStudyPhoneUserSettings(userId),
   ]);
 
   const now = new Date();
-  // The same day boundary as the streak, so "today" agrees with it.
-  const timeZone = studyTimezone(settings.timezone);
   const base = buildStatsSnapshot(collectionRows, reviewCollectionIds, candidates, now);
   const activeSet = new Set(reviewCollectionIds);
   const pausedCollections = collectionRows
@@ -182,11 +140,6 @@ export async function fetchStatsSnapshot(
 
   return {
     ...base,
-    today: {
-      read: countActivityToday(candidates, "read", now, timeZone),
-      review: countActivityToday(candidates, "review", now, timeZone),
-      quiz: countActivityToday(candidates, "quiz", now, timeZone),
-    },
     pausedCollections,
     lifetimeTotals: sumLifetimeTotals(candidates),
     gradeDistribution,

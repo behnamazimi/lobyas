@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
-import { BackLink, PUBLIC_HOME_BACK_LABEL, PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { AuthCard } from "@/components/public/auth-card";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -29,14 +29,7 @@ export default function ResetPasswordForm() {
   const passwordsMatch = password.length > 0 && password === confirmPassword;
 
   return (
-    <form action={action} className="flex w-full max-w-sm flex-col gap-4">
-      <BackLink
-        href={PUBLIC_HOME_PATH}
-        label={PUBLIC_HOME_BACK_LABEL}
-        className="-ml-2 self-start"
-      />
-      <h1 className="text-2xl font-medium">Reset password</h1>
-
+    <AuthCard title="Reset password" backHref="/login" action={action}>
       <AuthFormError error={state?.error} />
 
       <FieldGroup>
@@ -85,6 +78,6 @@ export default function ResetPasswordForm() {
       <Button type="submit" isDisabled={pending} className="mt-2">
         {pending ? "Resetting…" : "Reset password"}
       </Button>
-    </form>
+    </AuthCard>
   );
 }

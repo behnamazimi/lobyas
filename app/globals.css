@@ -177,6 +177,25 @@
   color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
 }
 
+/* Unlayered so this wins over Tailwind's preflight, which resets buttons to the arrow cursor. */
+:where(button, a[href], summary, [role="button"]):not(
+  :disabled,
+  [disabled],
+  [aria-disabled="true"]
+) {
+  cursor: pointer;
+}
+
+:where(button, [role="button"]):is(:disabled, [disabled], [aria-disabled="true"]) {
+  cursor: default;
+}
+
+/* The same 2px ring DaisyUI buttons use. Dialog surfaces are not in this list. */
+:where(a[href], button, input, textarea, select, summary):focus-visible {
+  outline: 2px solid;
+  outline-offset: 2px;
+}
+
 @utility pb-dock {
   padding-bottom: calc(var(--dock-bottom) + 0.5rem);
 }
@@ -548,8 +567,10 @@
   }
 }
 
-/* Fields sit directly on the cream page in the add-terms flows, so they are white there.
-   Fields inside sheets keep the cream fill: sheets render outside this element. */
+/* Fields and unselected choice cards sit directly on the cream page in the add-terms
+   flows, so they are white there. Fields inside sheets keep the cream fill: sheets
+   render outside this element. Segmented controls are not choice cards, so their
+   unselected options stay on the beige track. */
 .flow-fields
   :is(input, textarea, select):not(
     [type="checkbox"],
@@ -561,7 +582,7 @@
   box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / 0.08);
 }
 
-.flow-fields [role="radiogroup"] > label:not([data-selected]) {
+.flow-fields .choice-cards > label:not([data-selected]) {
   background-color: var(--color-base-100);
   box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / 0.08);
 }

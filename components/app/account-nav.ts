@@ -1,12 +1,4 @@
-import {
-  Compass,
-  LayoutDashboard,
-  Settings,
-  Signal,
-  Target,
-  Upload,
-  type LucideIcon,
-} from "lucide-react";
+import { LayoutDashboard, type LucideIcon } from "lucide-react";
 
 export function emailInitials(email: string): string {
   const local = email.split("@")[0] ?? email;
@@ -24,16 +16,6 @@ export type AccountNavItem = {
   label: string;
   icon: LucideIcon;
 };
-
-const ACCOUNT_OVERFLOW_NAV: AccountNavItem[] = [
-  { href: "/app/browse", label: "Browse", icon: Compass },
-  { href: "/app/import", label: "Add collection", icon: Upload },
-  { href: "/app/mastery", label: "Mastery", icon: Signal },
-  { href: "/app/goals", label: "Goals", icon: Target },
-  { href: "/app/settings", label: "Settings", icon: Settings },
-];
-
-export const ACCOUNT_HOME_NAV: AccountNavItem[] = [...ACCOUNT_OVERFLOW_NAV];
 
 export const ADMIN_NAV_ITEMS: AccountNavItem[] = [
   { href: "/admin", label: "Admin panel", icon: LayoutDashboard },

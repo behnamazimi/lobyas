@@ -30,7 +30,7 @@ export function TriageCard({ term, revealed, narrationAccess, onReveal }: Triage
           <span
             lang={term.collectionLanguage}
             className={cn(
-              "block max-w-full font-heading leading-[1.08] font-extrabold [overflow-wrap:anywhere]",
+              "block max-w-full font-heading font-extrabold [overflow-wrap:break-word]",
               termTitleClass(term.term),
             )}
           >
@@ -55,7 +55,7 @@ export function TriageCard({ term, revealed, narrationAccess, onReveal }: Triage
               <div className="min-w-0">
                 <h1
                   className={cn(
-                    "m-0 font-heading leading-[1.1] font-extrabold [overflow-wrap:anywhere] hyphens-auto",
+                    "m-0 font-heading font-extrabold [overflow-wrap:break-word]",
                     termTitleClass(term.term, "back"),
                   )}
                 >

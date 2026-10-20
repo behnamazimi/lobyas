@@ -56,7 +56,7 @@ export function ProgressRing({
           />
         ) : null}
       </svg>
-      {children ? <span className="relative">{children}</span> : null}
+      {children ? <span className="relative flex">{children}</span> : null}
     </span>
   );
 }

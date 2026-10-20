@@ -1,6 +1,6 @@
 export { BottomSheet } from "./sheet";
 export { ConfirmDialog } from "./confirm-dialog";
-export { Card, Divider, SectionCard, Tile } from "./surface/card";
+export { Card, Divider, SECTION_TITLE, SectionCard, Tile } from "./surface/card";
 export { Banner } from "./surface/banner";
 export { PinnedAction } from "./surface/pinned-action";
 export { ListRow } from "./surface/list-row";
@@ -23,6 +23,7 @@ export { ProgressRing } from "./progress/ring";
 export { CollectionSwitcherRow } from "./shell/collection-switcher-row";
 export { PageHeader } from "./shell/page-header";
 export { Rail } from "./shell/rail";
+export { ModeLabel } from "./shell/mode-label";
 export { GoalPill, StudyTopBar } from "./shell/study-top-bar";
 export { TabBar } from "./shell/tab-bar";
 export { AnswerInput } from "./study/answer-input";

@@ -38,7 +38,7 @@ export function SurfaceStories() {
       </Story>
       <Story
         title="Pinned action"
-        note="Sticks to the bottom of the page; the page scrolls under it."
+        note="On the phone it sticks above the safe area. From lg up it sits under the content."
       >
         <PinnedAction>
           <Pill size="lg">Add 22 terms</Pill>

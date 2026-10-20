@@ -1,10 +1,12 @@
 import { cookies, headers } from "next/headers";
+import { Suspense } from "react";
 import { RememberCollectionFromLink } from "@/components/collections/remember-collection";
 import { LibraryPage } from "@/components/library/library-page";
 import type { ImportedSummary } from "@/components/import/imported-banner";
 import { EmptyCollection } from "@/components/library/empty-collection";
 import { NarrationAccess } from "@/components/library/narration-access";
 import { RequestsAvailable } from "@/components/requests/requests-availability";
+import { PromoSlot } from "@/components/promos/promo-slot";
 import { PageCenter } from "@/components/page-container";
 import { LinkButton } from "@/components/ui/button";
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
@@ -100,7 +102,18 @@ async function LibraryRoute({ searchParams }: PageProps) {
     return <LoadError message={LOAD_FAILED_MESSAGE} />;
   }
 
-  if (result.kind === "empty") return <EmptyCollection />;
+  if (result.kind === "empty") {
+    return (
+      <>
+        <Suspense fallback={null}>
+          <div className="mb-4 empty:hidden">
+            <PromoSlot route="library" />
+          </div>
+        </Suspense>
+        <EmptyCollection />
+      </>
+    );
+  }
 
   return (
     <RequestsAvailable available={canRequest}>
@@ -109,6 +122,11 @@ async function LibraryRoute({ searchParams }: PageProps) {
           data={result.data}
           filtersCookie={readLibraryFiltersCookie(requestHeaders.get("cookie") ?? "")}
           importedSummary={importedSummary}
+          promo={
+            <Suspense fallback={null}>
+              <PromoSlot route="library" />
+            </Suspense>
+          }
         />
         {requestedCollectionId && requestedCollectionId === result.data.collection.id ? (
           <RememberCollectionFromLink collectionId={result.data.collection.id} />

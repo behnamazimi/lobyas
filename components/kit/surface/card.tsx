@@ -27,6 +27,9 @@ export function Card({
   );
 }
 
+/** Figtree 18px extra-bold. The one heading for a block inside the app. */
+export const SECTION_TITLE = "m-0 font-sans text-lg font-extrabold";
+
 /** A settings-style section: optional serif-free title and subline, then rows. */
 export function SectionCard({
   title,
@@ -41,7 +44,7 @@ export function SectionCard({
 }) {
   return (
     <Card radius="md" className={cn("p-4", className)}>
-      {title ? <h2 className="m-0 font-sans text-lg font-extrabold">{title}</h2> : null}
+      {title ? <h2 className={SECTION_TITLE}>{title}</h2> : null}
       {description ? (
         <p className="mt-1 mb-2 text-[13px] leading-snug font-semibold text-muted">{description}</p>
       ) : null}

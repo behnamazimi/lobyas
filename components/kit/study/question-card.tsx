@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import type { ReactNode } from "react";
 import { termTitleClass } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ export function QuestionCard({
       )}
     >
       <div className="flex items-center gap-1.5 text-[13px] font-extrabold text-quiz-text">
-        <Zap className="size-[15px]" strokeWidth={2.6} aria-hidden />
+        <PageBadge page="quiz" className="size-6" />
         {label}
       </div>
       <h2 className="m-0 mt-2 text-[21px] leading-[1.3] font-extrabold [overflow-wrap:anywhere]">
@@ -40,7 +40,7 @@ export function QuestionCard({
         quoteStyle === "word" ? (
           <p
             className={cn(
-              "m-0 mt-2.5 font-heading leading-[1.1] font-extrabold [overflow-wrap:anywhere]",
+              "m-0 mt-2.5 font-heading font-extrabold [overflow-wrap:break-word]",
               termTitleClass(quote),
             )}
           >

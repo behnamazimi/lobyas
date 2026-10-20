@@ -57,7 +57,7 @@ export function ShareLink({ collection }: { collection: Collection }) {
           value={link}
           aria-label="Link to this collection"
           onFocus={(event) => event.currentTarget.select()}
-          className="h-12 min-w-0 flex-1 rounded-full border-0 bg-base-200 px-4 text-sm font-bold text-ink-soft outline-none focus-visible:ring-2 focus-visible:ring-base-content"
+          className="h-12 min-w-0 flex-1 rounded-full border-0 bg-base-200 px-4 text-sm font-bold text-ink-soft"
         />
         <Pill className="h-12" onClick={() => void copy()}>
           {copied ? (

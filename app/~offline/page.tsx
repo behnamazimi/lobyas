@@ -7,11 +7,13 @@ export const metadata: Metadata = { title: "Offline" };
 
 export default function OfflinePage() {
   return (
-    <StatusScreen
-      illustration={<OfflineScene />}
-      title="You’re offline"
-      description="Lobyas needs a connection to load your terms. Check your Wi-Fi or mobile data, then try again."
-      actions={<OfflineRetryButton />}
-    />
+    <div className="flex min-h-full flex-1 flex-col bg-base-200">
+      <StatusScreen
+        illustration={<OfflineScene />}
+        title="You’re offline"
+        description="Lobyas needs a connection to load your terms. Check your Wi-Fi or mobile data, then try again."
+        actions={<OfflineRetryButton />}
+      />
+    </div>
   );
 }

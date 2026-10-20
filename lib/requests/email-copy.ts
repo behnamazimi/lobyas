@@ -4,6 +4,13 @@ import type { DeclineReason } from "./types";
 
 export type RequestEmail = { subject: string; text: string; html: string };
 
+/** Emails stay plain on purpose: mail apps drop web fonts. The button is the app's ink. */
+export const EMAIL_SHELL_STYLE =
+  "font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto;";
+export const EMAIL_BUTTON_STYLE =
+  "display:inline-block;padding:10px 16px;background:#2A2420;color:#fff;text-decoration:none;border-radius:6px;";
+export const EMAIL_MUTED_STYLE = "color:#6F675D;font-size:13px;";
+
 export function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
@@ -25,13 +32,13 @@ function layout({ heading, paragraphs, button }: Layout): { text: string; html: 
     "\n\n",
   );
   const html = `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, sans-serif; max-width: 480px; margin: 0 auto;">
+      <div style="${EMAIL_SHELL_STYLE}">
         <h1 style="font-size: 20px;">${escapeHtml(heading)}</h1>
         ${paragraphs.map((p) => `<p>${escapeHtml(p)}</p>`).join("\n        ")}
         ${
           button
             ? `<p>
-          <a href="${escapeHtml(button.url)}" style="display:inline-block;padding:10px 16px;background:#111;color:#fff;text-decoration:none;border-radius:6px;">
+          <a href="${escapeHtml(button.url)}" style="${EMAIL_BUTTON_STYLE}">
             ${escapeHtml(button.label)}
           </a>
         </p>`

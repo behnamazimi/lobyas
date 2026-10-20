@@ -65,7 +65,6 @@ export function TermActionsSheet({
       ) : null}
       <Divider />
       <ListRow
-        tone="success"
         icon={
           markedKnown ? (
             <Undo2 className="size-5" aria-hidden />

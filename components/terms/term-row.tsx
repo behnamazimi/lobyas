@@ -79,7 +79,7 @@ export const TermRow = memo(function TermRow({
             // The lift at the end of a row swipe also reads as a press.
             if (!swipe.justSwipedRef.current) onSelect(term.id);
           }}
-          className="min-h-14 min-w-0 flex-1 cursor-pointer py-1.5 text-start outline-none focus-visible:ring-2 focus-visible:ring-base-content"
+          className="min-h-14 min-w-0 flex-1 cursor-pointer py-1.5 text-start"
         >
           <span className="block">
             <span

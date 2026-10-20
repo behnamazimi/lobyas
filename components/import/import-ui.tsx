@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SectionCard, Tile } from "@/components/kit";
+import { SECTION_TITLE, SectionCard, Tile } from "@/components/kit";
 
 export function ImportCard({
   icon,
@@ -18,7 +18,7 @@ export function ImportCard({
       <div className="flex items-start gap-3">
         <Tile tone="read">{icon}</Tile>
         <div className="min-w-0 flex-1">
-          <h2 className="m-0 font-sans text-base font-extrabold">{title}</h2>
+          <h2 className={SECTION_TITLE}>{title}</h2>
           {description ? (
             <p className="m-0 mt-0.5 text-[13px] leading-snug font-semibold text-muted">
               {description}
@@ -40,8 +40,8 @@ export function ImportCodePanel({
 }) {
   return (
     <div className="relative">
-      <div className="max-h-[320px] overflow-auto rounded-2xl bg-base-200 p-3">
-        <pre className="m-0 font-mono text-xs leading-5 whitespace-pre-wrap text-base-content">
+      <div className="max-h-[320px] overflow-x-hidden overflow-y-auto rounded-2xl bg-base-200 p-3 pe-14">
+        <pre className="m-0 font-mono text-xs leading-5 whitespace-pre-wrap text-base-content [overflow-wrap:anywhere]">
           {children}
         </pre>
       </div>

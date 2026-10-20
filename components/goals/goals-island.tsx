@@ -1,5 +1,5 @@
 import { getSessionUser } from "@/lib/auth/require-session";
-import { EMPTY_GOAL_DAY, getRequestGoalSettings, loadGoalDay } from "@/lib/goals/settings";
+import { getRequestGoalSettings, loadGoalDay } from "@/lib/goals/settings";
 import { getStudyPhoneUserSettings } from "@/lib/streak/settings";
 import { withTodayDone } from "@/lib/streak/status";
 import { studyTimezone } from "@/lib/trace/local-day";
@@ -10,11 +10,11 @@ export async function GoalsIsland() {
   if (!user) return null;
 
   try {
-    const [settings, phone] = await Promise.all([
+    const [settings, phone, day] = await Promise.all([
       getRequestGoalSettings(user.id),
       getStudyPhoneUserSettings(user.id),
+      loadGoalDay(supabase),
     ]);
-    const day = settings.goals && settings.celebrate ? await loadGoalDay(supabase) : EMPTY_GOAL_DAY;
     return (
       <GoalTracker
         key={user.id}

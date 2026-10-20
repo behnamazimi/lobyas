@@ -1,6 +1,6 @@
 "use client";
 
-import { Card } from "@/components/kit";
+import { Card, SECTION_TITLE } from "@/components/kit";
 import type { GoalForecast } from "@/lib/goals/forecast";
 import { FORECAST_SHORT_DAYS } from "@/lib/trace";
 import { cn, pluralize } from "@/lib/utils";
@@ -52,7 +52,7 @@ export function ForecastPanel({
   return (
     <Card radius="md" className="p-4">
       <section aria-labelledby="goals-forecast-heading" aria-busy={isLoading}>
-        <h2 id="goals-forecast-heading" className="m-0 font-sans text-[17px] font-extrabold">
+        <h2 id="goals-forecast-heading" className={SECTION_TITLE}>
           Where these goals take you
         </h2>
         <p className="mt-1 mb-1 text-[13px] leading-snug font-semibold text-muted">

@@ -6,13 +6,10 @@ import { EmptyBoxScene } from "@/components/illustrations/scenes/empty-box";
 import { getSessionUser } from "@/lib/auth/require-session";
 import { CURRENT_COLLECTION_COOKIE, parseCurrentCollectionId } from "@/lib/collections/current";
 import { EMPTY_GOAL_DAY, getRequestGoalSettings, loadGoalDay } from "@/lib/goals/settings";
-import { buildHomePath } from "@/lib/home/path";
 import { loadLibraryCollections } from "@/lib/library/load";
-import { HomeBareHeader, HomeHeader } from "./home-header";
-import { HomePath } from "./home-path";
-import { HomeSide } from "./home-side";
+import { HomeBareHeader } from "./home-header";
 import { HomeSkeleton } from "./home-skeleton";
-import { GoalPrompt } from "./goal-prompt";
+import { HomeStudy } from "./home-study";
 import type { ShellCollection } from "@/components/app/shell/shell-context";
 
 const FRAME =
@@ -91,44 +88,14 @@ async function HomeContent() {
     language: picked.language,
     isActiveForReview: true,
   };
-  const path = buildHomePath({
-    goals: settings.goals,
-    counts: day.counts,
-    celebrated: day.celebrated,
-    queues: picked.queues,
-  });
-
   return (
-    <div className="flex flex-col gap-6 lg:gap-7">
-      <HomeHeader
-        name={collection.name}
-        mastered={collection.termsLearnedCount}
-        total={collection.termCount}
-        note={path.note}
-        cta={path.cta}
-        addTermsHref={`/app/import/paste?to=${collection.id}`}
-      />
-      <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:items-start">
-        <section aria-label="Today’s path" className="min-w-0 lg:flex-[999_1_560px]">
-          <div className="mb-3 flex items-baseline justify-between lg:hidden">
-            <h2 className="m-0 font-sans text-base font-extrabold">Today</h2>
-            <div className="text-[13px] font-bold text-muted">{path.note}</div>
-          </div>
-          <div className="lg:hidden">
-            <HomePath data={path} prompt={<PhonePrompt />} />
-          </div>
-          <div className="hidden lg:block">
-            <HomePath data={path} wide />
-          </div>
-        </section>
-        <HomeSide data={path} collection={collection} />
-      </div>
-    </div>
+    <HomeStudy
+      goals={settings.goals}
+      counts={day.counts}
+      celebrated={day.celebrated}
+      collection={collection}
+    />
   );
-}
-
-function PhonePrompt() {
-  return <GoalPrompt className="absolute top-[426px] right-0 left-0" />;
 }
 
 export function HomePage() {

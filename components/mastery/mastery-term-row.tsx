@@ -24,7 +24,7 @@ function JourneyLine({ journey }: { journey: MasteryTermJourney }) {
   const days = pluralize(journey.learnedInDays, "day");
   return (
     <Collapsible>
-      <CollapsibleTrigger className="m-0 mt-0.5 cursor-pointer rounded border-none bg-transparent p-0 text-left text-xs text-success-text underline decoration-dotted underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-primary">
+      <CollapsibleTrigger className="m-0 mt-0.5 cursor-pointer rounded border-none bg-transparent p-0 text-left text-xs text-success-text underline decoration-dotted underline-offset-2">
         Mastered in {days}.
       </CollapsibleTrigger>
       <CollapsibleContent>

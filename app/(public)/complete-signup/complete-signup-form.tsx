@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
 import { LegalConsentLine } from "@/components/auth/legal-consent-line";
+import { AuthCard } from "@/components/public/auth-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -30,9 +31,8 @@ export default function CompleteSignupForm({
   const error = state?.error ?? initialError;
 
   return (
-    <form action={action} className="flex w-full max-w-sm flex-col gap-4">
+    <AuthCard title="Complete sign up" action={action}>
       <input type="hidden" name="next" value={next} />
-      <h1 className="text-2xl font-medium">Complete sign up</h1>
       <p className="text-sm text-base-content/70">
         Almost there. Enter your invite code to finish setting up your account.
       </p>
@@ -86,6 +86,6 @@ export default function CompleteSignupForm({
         {pending ? "Verifying…" : "Continue"}
       </Button>
       <LegalConsentLine action="continuing" className="text-center" />
-    </form>
+    </AuthCard>
   );
 }
