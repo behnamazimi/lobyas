@@ -2,7 +2,7 @@
 
 import { resetAnalytics } from "@/lib/analytics/track";
 import { Bug, Compass, Download, LogOut, Settings, Signal, Sparkles, Upload } from "lucide-react";
-import { useState, useSyncExternalStore } from "react";
+import { Fragment, useState, useSyncExternalStore } from "react";
 import { logout } from "@/app/(private)/auth/actions";
 import { ADMIN_NAV_ITEMS, emailInitials } from "@/components/app/account-nav";
 import { useShell } from "@/components/app/shell/shell-context";
@@ -11,7 +11,7 @@ import { pluralize } from "@/lib/utils";
 import { ReportIssueSheet } from "@/components/issues/report-issue-sheet";
 import { INSTALL_MENU_LABEL, useInstallAction } from "@/components/pwa/install-prompt";
 import { ConsentSettingsButton } from "@/components/consent/consent-settings-button";
-import { ListRow, Pill, SectionCard, SegmentedControl } from "@/components/kit";
+import { Divider, ListRow, Pill, SectionCard, SegmentedControl } from "@/components/kit";
 import { TopUpSheet, type CreditsSummary } from "@/components/ai-credits/top-up-sheet";
 import { markSignedOut, restoreSignedIn } from "@/lib/auth/auth-state";
 import { ISSUE_COPY } from "@/lib/issues/copy";
@@ -53,8 +53,6 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
   }
 
   const icon = (Icon: typeof Signal) => <Icon className="size-5" strokeWidth={2.3} aria-hidden />;
-  // Rows reach the card edge, so a hover on the first or last row follows its radius.
-  const menuCard = "overflow-hidden p-0 [&>a]:px-5 [&>button]:px-5 [&>div]:px-5";
 
   return (
     <div className="flex flex-col gap-4">
@@ -96,19 +94,21 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           </div>
         ) : null}
       </SectionCard>
-      <SectionCard className={menuCard}>
+      <SectionCard className="py-1">
         <ListRow
           href="/app/mastery"
           label="Mastery"
           subline="How well you remember your terms"
           icon={icon(Signal)}
         />
+        <Divider />
         <ListRow
           href="/app/browse"
           label="Browse collections"
           subline="Built-in and community collections"
           icon={icon(Compass)}
         />
+        <Divider />
         <ListRow
           href="/app/import"
           label="Add a collection"
@@ -116,7 +116,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           icon={icon(Upload)}
         />
       </SectionCard>
-      <SectionCard className={menuCard}>
+      <SectionCard className="py-1">
         <ListRow
           href="/app/settings"
           label="Settings"
@@ -125,9 +125,13 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
         />
         {isAdmin
           ? ADMIN_NAV_ITEMS.map((item) => (
-              <ListRow key={item.href} href={item.href} label={item.label} icon={icon(item.icon)} />
+              <Fragment key={item.href}>
+                <Divider />
+                <ListRow href={item.href} label={item.label} icon={icon(item.icon)} />
+              </Fragment>
             ))
           : null}
+        <Divider />
         <div className="flex min-h-14 items-center gap-3 px-1 py-2">
           <span className="min-w-0 flex-1 text-base font-extrabold">Theme</span>
           <SegmentedControl
@@ -142,13 +146,17 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           />
         </div>
         {install ? (
-          <ListRow
-            label={INSTALL_MENU_LABEL}
-            subline="Add it to your home screen"
-            icon={icon(Download)}
-            onPress={install}
-          />
+          <>
+            <Divider />
+            <ListRow
+              label={INSTALL_MENU_LABEL}
+              subline="Add it to your home screen"
+              icon={icon(Download)}
+              onPress={install}
+            />
+          </>
         ) : null}
+        <Divider />
         <ListRow
           label={ISSUE_COPY.menuLabel}
           subline="Something broken, or an idea"
@@ -156,7 +164,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           onPress={() => setReportOpen(true)}
         />
       </SectionCard>
-      <SectionCard className={menuCard}>
+      <SectionCard className="py-1">
         <ListRow
           label={isBusy ? "Logging out…" : "Log out"}
           icon={icon(LogOut)}
