@@ -1,16 +1,17 @@
 "use client";
 
-import { BookOpen, Check, RefreshCw, SquareCheckBig } from "lucide-react";
+import { Check } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import { GoalPill } from "@/components/kit";
-import { TONES, type Tone } from "@/components/kit/tones";
+import type { Tone } from "@/components/kit/tones";
 import { useGoalCount } from "@/components/goals/use-goal-count";
 import type { GoalTier } from "@/lib/goals/levels";
 import { formatCount } from "@/lib/kit/text";
 
-const TIER_LOOK: Record<GoalTier, { tone: Tone; verb: string; Icon: typeof BookOpen }> = {
-  read: { tone: "read", verb: "read", Icon: BookOpen },
-  review: { tone: "review", verb: "reviewed", Icon: RefreshCw },
-  quiz: { tone: "quiz", verb: "answered", Icon: SquareCheckBig },
+const TIER_LOOK: Record<GoalTier, { tone: Tone; verb: string }> = {
+  read: { tone: "read", verb: "read" },
+  review: { tone: "review", verb: "reviewed" },
+  quiz: { tone: "quiz", verb: "answered" },
 };
 
 /** Today's progress for the tier being studied. Shows nothing until the shell
@@ -18,14 +19,14 @@ const TIER_LOOK: Record<GoalTier, { tone: Tone; verb: string; Icon: typeof BookO
 export function StudyGoalPill({ tier }: { tier: GoalTier }) {
   const today = useGoalCount(tier);
   if (!today) return null;
-  const { tone, verb, Icon } = TIER_LOOK[tier];
+  const { tone, verb } = TIER_LOOK[tier];
   const { count, goal } = today;
 
   if (goal === null) {
     return (
       <GoalPill
         tone={tone}
-        icon={<Icon className={`size-5 ${TONES[tone].text}`} strokeWidth={2.4} aria-hidden />}
+        icon={<PageBadge page={tier} className="size-6" />}
         label={count === 0 ? "Just started" : `${formatCount(count)} ${verb} today`}
       />
     );

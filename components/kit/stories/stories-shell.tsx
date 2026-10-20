@@ -1,4 +1,5 @@
-import { Bell, RefreshCw } from "lucide-react";
+import { Bell } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import {
   CollectionSwitcherRow,
   IconButton,
@@ -96,7 +97,7 @@ export function ShellStories() {
             goal={{
               label: "312 reviewed today",
               tone: "review",
-              icon: <RefreshCw className="size-5 text-review-text" strokeWidth={2.4} aria-hidden />,
+              icon: <PageBadge page="review" className="size-6" />,
             }}
           />
           <StudyTopBar

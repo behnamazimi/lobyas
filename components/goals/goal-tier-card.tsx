@@ -1,8 +1,7 @@
 "use client";
 
-import { BookOpen, RotateCw, Zap, type LucideIcon } from "lucide-react";
-import { Card, SECTION_TITLE, Stepper, Tile } from "@/components/kit";
-import type { Tone } from "@/components/kit/tones";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
+import { Card, SECTION_TITLE, Stepper } from "@/components/kit";
 import {
   GOAL_LEVEL_LABELS,
   GOAL_LEVELS,
@@ -17,10 +16,10 @@ import { cn } from "@/lib/utils";
 
 const PER_DAY = "terms a day";
 
-const LOOK: Record<GoalTier, { icon: LucideIcon; tone: Tone; selected: string }> = {
-  read: { icon: BookOpen, tone: "read", selected: "bg-read-tint ring-2 ring-read-ring" },
-  review: { icon: RotateCw, tone: "review", selected: "bg-review-tint ring-2 ring-review-ring" },
-  quiz: { icon: Zap, tone: "quiz", selected: "bg-quiz-tint ring-2 ring-quiz-ring" },
+const SELECTED: Record<GoalTier, string> = {
+  read: "bg-read-tint ring-2 ring-read-ring",
+  review: "bg-review-tint ring-2 ring-review-ring",
+  quiz: "bg-quiz-tint ring-2 ring-quiz-ring",
 };
 
 /** One mode's pace: presets, a stepper for fine-tuning and what is done today. */
@@ -37,14 +36,12 @@ export function TierCard({
 }) {
   const level = nearestLevel(tier, goal);
   const label = GOAL_TIER_LABELS[tier];
-  const { icon: Icon, tone, selected } = LOOK[tier];
+  const selected = SELECTED[tier];
 
   return (
     <Card radius="md" className="p-4">
       <div className="flex items-center gap-3">
-        <Tile tone={tone} size={44}>
-          <Icon className="size-[22px]" strokeWidth={2.3} aria-hidden />
-        </Tile>
+        <PageBadge page={tier} />
         <div className="min-w-0 flex-1">
           <h3 className={SECTION_TITLE}>{label}</h3>
           <p className="m-0 text-[13px] font-bold text-muted tabular-nums">

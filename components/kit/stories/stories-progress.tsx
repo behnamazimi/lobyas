@@ -1,4 +1,4 @@
-import { BookOpen, RotateCw, Zap } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import { MasteryStack, PathStop, ProgressBar, ProgressRing, QuizSegments } from "@/components/kit";
 import { CLAMP_TWO_LINES, formatCount } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,7 @@ export function ProgressStories() {
             label="Read, 4 of 10 today"
             ringValue={0.4}
             highlighted
-            icon={<BookOpen className="size-8" strokeWidth={2.2} />}
+            icon={<PageBadge page="read" className="size-14" />}
           />
           <PathStop
             href="#"
@@ -47,13 +47,13 @@ export function ProgressStories() {
             label="Review, 10 of 10 today"
             ringValue={1}
             met
-            icon={<RotateCw className="size-8" strokeWidth={2.2} />}
+            icon={<PageBadge page="review" className="size-14" />}
           />
           <PathStop
             href="#"
             tone="quiz"
             label="Quiz"
-            icon={<Zap className="size-8" strokeWidth={2.2} />}
+            icon={<PageBadge page="quiz" className="size-14" />}
           />
         </div>
       </Story>

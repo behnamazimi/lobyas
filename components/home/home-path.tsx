@@ -1,16 +1,12 @@
-import { BookOpen, RotateCw, Trophy, Zap, Check } from "lucide-react";
+import { Trophy, Check } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import { PathStop, Pill } from "@/components/kit";
 import type { GoalTier } from "@/lib/goals/levels";
 import type { HomePathData, PathStopData } from "@/lib/home/path";
 import { cn } from "@/lib/utils";
 import { WIDE_PATH, PHONE_PATH, type PathGeometry } from "./path-geometry";
 
-const ICONS: Record<GoalTier, typeof BookOpen> = {
-  read: BookOpen,
-  review: RotateCw,
-  quiz: Zap,
-};
 const HALO: Record<GoalTier, string> = {
   read: "bg-read-tint",
   review: "bg-review-tint",
@@ -190,7 +186,6 @@ export function HomePath({
       ) : null}
       {data.stops.map((stop, index) => {
         const point = geo.stops[index];
-        const Icon = ICONS[stop.tier];
         return (
           <div key={stop.tier}>
             <div className="absolute" style={centered(geo, point.cx, point.cy)}>
@@ -203,7 +198,7 @@ export function HomePath({
                 highlighted={stop.highlighted}
                 onCard={wide}
                 size={geo.nodeSize}
-                icon={<Icon className={wide ? "size-9" : "size-[34px]"} strokeWidth={2.2} />}
+                icon={<PageBadge page={stop.tier} className={wide ? "size-14" : "size-[52px]"} />}
               />
             </div>
             <StopText

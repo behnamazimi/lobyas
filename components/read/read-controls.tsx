@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ModeLabel } from "@/components/kit";
 import { ReadFocusButton } from "@/components/read/read-focus";
@@ -17,7 +17,7 @@ export function ReadControls({ options }: { options: ReadOptions }) {
 
   return (
     <div className="flex items-center gap-1">
-      <ModeLabel tone="read" icon={<BookOpen className="size-4" strokeWidth={2.6} aria-hidden />}>
+      <ModeLabel tone="read" icon={<PageBadge page="read" className="size-6" />}>
         Read
       </ModeLabel>
       <div className="ml-auto mr-1">

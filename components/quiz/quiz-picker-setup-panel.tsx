@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import { PageBadge } from "@/components/illustrations/scenes/page-badge";
 import { Card, FeedbackNote, ModeLabel, Pill } from "@/components/kit";
 import { QuizCountField } from "@/components/quiz/quiz-count-field";
 import { QuizQuestionStyleField } from "@/components/quiz/quiz-question-style-field";
@@ -91,7 +91,7 @@ export function QuizPickerSetupPanel(props: QuizPickerStepProps) {
     <div className="flex min-h-0 flex-1 flex-col gap-3">
       <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-1">
         <div>
-          <ModeLabel tone="quiz" icon={<Zap className="size-4" strokeWidth={2.6} aria-hidden />}>
+          <ModeLabel tone="quiz" icon={<PageBadge page="quiz" className="size-6" />}>
             Quiz
           </ModeLabel>
           <h1 className="m-0 mt-2.5 font-heading text-[32px] leading-[1.1] font-extrabold">
