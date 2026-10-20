@@ -75,7 +75,10 @@ function StoryHeader({
         {story.title}
       </h1>
       {narrationAccess ? <StoryShadowingToggle on={shadowing !== null} /> : null}
-      <p className="mt-1 mb-0 text-[13px] font-bold text-muted">{meta.join(" · ")}</p>
+      <div className="mt-1 flex items-baseline justify-between gap-3 text-[13px] font-bold text-muted">
+        <p className="m-0 min-w-0">{meta.join(" · ")}</p>
+        {narrationAccess ? <p className="m-0 shrink-0 text-xs">AI voice</p> : null}
+      </div>
       {story.outline ? (
         <p className="mt-1 mb-0 line-clamp-2 text-[13px] font-semibold text-muted">
           Outline: {story.outline}
