@@ -86,9 +86,11 @@ export function GoalPill({
 }) {
   return (
     <div className={cn(pill, "w-full min-w-0 pr-3 pl-2 tabular-nums")}>
-      <span className="shrink-0">
+      <span className="flex shrink-0">
         {value !== undefined ? (
-          <ProgressRing value={value} tone={tone} size={24} strokeWidth={10} />
+          <ProgressRing value={value} tone={tone} size={24} strokeWidth={10}>
+            {icon}
+          </ProgressRing>
         ) : (
           icon
         )}

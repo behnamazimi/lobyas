@@ -35,15 +35,13 @@ export function StudyGoalPill({ tier }: { tier: GoalTier }) {
     <GoalPill
       tone={met ? "success" : tone}
       value={count / goal}
+      icon={
+        met ? <Check className="size-3 text-success-text" strokeWidth={3} aria-hidden /> : undefined
+      }
       label={
-        met ? (
-          <span className="inline-flex items-center gap-1">
-            {count > goal ? `${formatCount(count)} today` : `${goal} of ${goal} today`}
-            <Check className="size-3.5" strokeWidth={3} aria-hidden />
-          </span>
-        ) : (
-          `${formatCount(count)} of ${formatCount(goal)} today`
-        )
+        met && count > goal
+          ? `${formatCount(count)} today`
+          : `${formatCount(met ? goal : count)} of ${formatCount(goal)} today`
       }
     />
   );

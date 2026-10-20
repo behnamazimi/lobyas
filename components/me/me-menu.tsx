@@ -53,6 +53,8 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
   }
 
   const icon = (Icon: typeof Signal) => <Icon className="size-5" strokeWidth={2.3} aria-hidden />;
+  // Rows reach the card edge, so a hover on the first or last row follows its radius.
+  const menuCard = "overflow-hidden p-0 [&>a]:px-5 [&>button]:px-5 [&>div]:px-5";
 
   return (
     <div className="flex flex-col gap-4">
@@ -94,7 +96,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           </div>
         ) : null}
       </SectionCard>
-      <SectionCard className="py-1">
+      <SectionCard className={menuCard}>
         <ListRow
           href="/app/mastery"
           label="Mastery"
@@ -114,7 +116,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           icon={icon(Upload)}
         />
       </SectionCard>
-      <SectionCard className="py-1">
+      <SectionCard className={menuCard}>
         <ListRow
           href="/app/settings"
           label="Settings"
@@ -154,7 +156,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
           onPress={() => setReportOpen(true)}
         />
       </SectionCard>
-      <SectionCard className="py-1">
+      <SectionCard className={menuCard}>
         <ListRow
           label={isBusy ? "Logging out…" : "Log out"}
           icon={icon(LogOut)}

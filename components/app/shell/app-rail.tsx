@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button, Dialog, DialogTrigger, Popover } from "react-aria-components";
 import { emailInitials } from "@/components/app/account-nav";
-import { BrandIcon } from "@/components/brand-icon";
+import { Wordmark } from "@/components/illustrations/scenes/lobya-mark";
 import { Rail } from "@/components/kit";
 import { StreakBadge } from "@/components/streak-badge";
 import { CLAMP_ONE_LINE } from "@/lib/kit/text";
@@ -54,9 +54,12 @@ export function AppRail({ activeKey }: { activeKey: string }) {
       activeKey={activeKey}
       className="hidden h-dvh shrink-0 lg:flex"
       brand={
-        <Link href="/app" className="flex items-center gap-2 rounded-xl hover:bg-base-200">
-          <BrandIcon />
-          <span className="font-heading text-2xl font-extrabold">Lobyas</span>
+        <Link
+          href="/app"
+          aria-label="Lobyas"
+          className="flex items-center rounded-xl hover:bg-base-200"
+        >
+          <Wordmark className="h-9 w-auto" />
         </Link>
       }
       switcher={degraded ? null : <RailCollectionMenu chip={chip} />}

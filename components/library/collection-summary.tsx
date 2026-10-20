@@ -3,10 +3,18 @@ import type { ReactNode } from "react";
 import { collectionLetter, collectionTone } from "@/components/app/shell/collection-look";
 import { Banner, ProgressBar, Tile } from "@/components/kit";
 import { ownerNoticeFor } from "@/lib/collections/moderation";
-import { CLAMP_TWO_LINES, collectionTitleClass, formatCount } from "@/lib/kit/text";
+import { CLAMP_TWO_LINES, formatCount } from "@/lib/kit/text";
 import { countLabel, kindLabel } from "@/lib/terms/kinds";
 import type { Collection } from "@/lib/terms/types";
 import { cn, pluralize } from "@/lib/utils";
+
+/** One step under the page-title sizes, so the name sits with the 48px tile. */
+function libraryTitleClass(name: string): string {
+  const length = Array.from(name).length;
+  if (length <= 12) return "text-[28px]/[1.25]";
+  if (length <= 20) return "text-2xl/[1.25]";
+  return "text-xl/[1.25]";
+}
 
 /** The top of the Library's collection card: letter tile, kind and count, name,
  *  mastery bar, description, meta line and the owner's share notice. */
@@ -38,18 +46,18 @@ export function CollectionSummary({
 
   return (
     <>
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <Tile tone={collectionTone(collection.kind)} size={48} serif>
           {collection.icon || collectionLetter(collection.name)}
         </Tile>
         <div className="min-w-0 flex-1">
-          <div className="text-[13px] font-bold text-muted">
+          <div className="text-[13px] font-bold leading-none text-muted">
             {kindLabel(collection.kind)} · {countLabel(collection.kind, collection.termCount)}
           </div>
           <h2
             className={cn(
-              "m-0 mt-0.5 font-heading font-extrabold [overflow-wrap:anywhere]",
-              collectionTitleClass(collection.name),
+              "m-0 mt-1 font-heading font-extrabold [overflow-wrap:anywhere]",
+              libraryTitleClass(collection.name),
               CLAMP_TWO_LINES,
             )}
           >
