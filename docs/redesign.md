@@ -782,3 +782,23 @@ Branch `redesign-p5-quiz`.
 **Care.** `e2e` locators changed: counts and style are radios (click with `{ force: true }`, the inputs are visually hidden); buttons are **Check** and **Next**. A quiz can run past its size because of retries, so specs match `Question n of \d+`. The credit-gate notice and top-up button still use the old `ui` look inside the new setup card until Phase 9.
 
 **Open.** Checked at 390 and 1280, light and dim: setup, Custom count, choice question open, picked and checked, results, and the error state. Not checked against frames: Yes/No tiles, typed and dictation questions, the Resume banner, AI over balance, and a 100-question quiz (the seeded terms had no examples, so only choice questions appeared). `e2e/tests/zz-visual.spec.ts` (Phase 3) is still there.
+
+### Phase 6 · Triage and goal celebration
+
+Branch `redesign-p6-triage`.
+
+**Built.** Triage sits in Review's 640 px column under the shell's study bar. A controls row (Triage chip, "Sort what you already know", "N left to sort / N known"), a `StudyCard` front (term, collection · category, "Tap to see the meaning") and back (title, category, Listen, full term body with the learner's layout), a swipe layer that is unchanged, and an Undo icon with **Not yet** and **I know this** pills. The summary and caught-up states use `EmptyPanel`, `StatTile`s and kit pills. Goal met is a `BottomSheet` (`full` on a phone, a dialog from `md`): yellow hero with `GoalCheerScene`, "<Tier> goal met!" or "Today's goals met!", tiles for the day streak and today's counts, a "Today's goals" card with a **Go to <next>** link, **Done for today** (closes and goes to `/app`) and **Keep going** (closes).
+
+**Kit.** `BottomSheet` takes `hero` (art in place of the handle and close button, centered title, cream body); story "Sheet with hero". `StatTile` (`surface/stat-tile.tsx`, from `@/components/kit`): white card, or tinted with a `tone`; story "Stat tiles". Quiz Results now uses it instead of its own copy.
+
+**Data.** None new in the database. The Triage page follows `?collection=` then the app cookie (`lb_lib_collection`) and passes it to `getLibrarySetupData`. `GoalsIsland` passes `withTodayDone(streak).current` to `GoalTracker`, which hands it to the celebration (a goal is only met once something counted today). The goal store is unchanged.
+
+**Left as is.** TRACE, every action and route, the claim flow (once per tier per day, celebrate toggle), `use-triage-deck.ts`, `use-triage-keyboard.ts`, the swipe logic, `PromoVisit`, tour targets `triage-card` and `triage-actions`, the Library's Triage links, `PageBadge page="triage"`.
+
+**Decisions taken.** The collection picker is gone from Triage (the shell switcher is the only one). Reveal stays one-way. The "set aside" count is dropped from the counts line. The second count tile is the busiest other tier, shown only with activity. Keep going is the same label for every tier (the old "Keep reading/reviewing/quizzing" are gone). `GOAL_TIER_UNITS`, `QuizPanelHeader`, `QuizPanelBody` and `QuizStat` were unused and removed; `review-card.tsx`, `term-card-header.tsx`, `SOFT_ACTION_BUTTON_CLASS` and `releaseFocusAfterPointerPress` are deleted.
+
+**Frames that didn't match.** The Triage frame's reveal toggles and shows only the definition (kept one-way and every field). The frame has a close button and collection chip on the page (the study bar has them). GoalMet draws Review's tiles; built from the finished tier. One purple lobya in the frame; the app keeps the three-lobya scene.
+
+**Care.** `e2e/tests/goals.spec.ts` now expects "Review goal met!" and "Today's goals met!". The celebration dialog is mounted by `GoalTracker` in the root chrome, outside the shell, so it can't use `useShell`.
+
+**Open.** Phone Home has no Triage link (only the desktop chip and the Library header link): Phase 7 or 8 should check it stays reachable. Checked at 390 and 1280, light and dim: Triage front, back (definition-only and full term), summary; Goal met partial and all-met. Not checked: Listen pill (no narration in e2e), reduced motion, a failed mark toast, a 40-character collection name on the study bar, `e2e/tests/zz-visual.spec.ts` (Phase 3's scratch file) is still there.

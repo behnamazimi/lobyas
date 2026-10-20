@@ -48,6 +48,19 @@ test.describe("Studying a collection", () => {
       .toBe(1);
   });
 
+  test("triage undo brings the card back and clears the mark", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await gotoReady(page, `/app/triage?collection=${collectionId}`);
+
+    await page.getByRole("button", { name: "I know this" }).click();
+    await expect(page.getByText("9 left to sort")).toBeVisible();
+    await expect.poll(() => reviewState(user.id)).toMatchObject({ markedKnown: 1 });
+
+    await page.getByRole("button", { name: "Undo last choice" }).click();
+    await expect(page.getByText("10 left to sort")).toBeVisible();
+    await expect.poll(() => reviewState(user.id)).toMatchObject({ markedKnown: 0 });
+  });
+
   test("reading a card counts as exposure", { tag: "@smoke" }, async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
     await gotoReady(page, `/app/read?collection=${collectionId}`);

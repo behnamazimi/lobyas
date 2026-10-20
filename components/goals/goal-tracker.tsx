@@ -6,15 +6,19 @@ import type { GoalDay } from "@/lib/goals/settings";
 import { GoalCelebrationDialog } from "./goal-celebration-dialog";
 import { resetGoals, seedGoals } from "./goal-store";
 
-export function GoalTracker(props: {
+export function GoalTracker({
+  streak,
+  ...seed
+}: {
   goals: DailyGoals | null;
   celebrate: boolean;
   timeZone: string;
   day: GoalDay;
+  streak: number;
 }) {
   useMountEffect(() => {
-    seedGoals(props);
+    seedGoals(seed);
     return resetGoals;
   });
-  return <GoalCelebrationDialog />;
+  return <GoalCelebrationDialog streak={streak} />;
 }

@@ -14,6 +14,7 @@ export function BottomSheet({
   subline,
   footer,
   full = false,
+  hero,
   children,
 }: {
   isOpen: boolean;
@@ -22,6 +23,9 @@ export function BottomSheet({
   subline?: ReactNode;
   footer?: ReactNode;
   full?: boolean;
+  /** Art across the top for a celebration. It replaces the handle and the close
+   *  button, and the title is centered under it. */
+  hero?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -40,35 +44,54 @@ export function BottomSheet({
         <Dialog className="flex min-h-0 flex-1 flex-col outline-none">
           {({ close }) => (
             <>
-              <div className="flex-none px-5 pt-2.5">
-                <div
-                  className="mx-auto h-[5px] w-10 rounded-full bg-base-300 md:hidden"
-                  aria-hidden
-                />
-                <div className="mt-3 flex items-start gap-2">
-                  <div className="min-w-0 flex-1">
+              {hero ? (
+                <>
+                  <div className="flex-none">{hero}</div>
+                  <div className="flex-none px-5 pt-4 text-center">
                     <Heading
                       slot="title"
-                      className="m-0 font-heading text-2xl leading-[1.15] font-extrabold [overflow-wrap:anywhere]"
+                      className="m-0 font-heading text-4xl leading-[1.05] font-extrabold [overflow-wrap:anywhere]"
                     >
                       {title}
                     </Heading>
                     {subline ? (
-                      <p className="mt-1 text-sm leading-snug font-semibold text-muted">
+                      <p className="mt-2 text-base leading-snug font-semibold text-muted">
                         {subline}
                       </p>
                     ) : null}
                   </div>
-                  <button
-                    type="button"
-                    aria-label="Close"
-                    onClick={close}
-                    className="-mt-1 -mr-1.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-base-200"
-                  >
-                    <X className="size-[18px]" strokeWidth={2.6} aria-hidden />
-                  </button>
+                </>
+              ) : (
+                <div className="flex-none px-5 pt-2.5">
+                  <div
+                    className="mx-auto h-[5px] w-10 rounded-full bg-base-300 md:hidden"
+                    aria-hidden
+                  />
+                  <div className="mt-3 flex items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <Heading
+                        slot="title"
+                        className="m-0 font-heading text-2xl leading-[1.15] font-extrabold [overflow-wrap:anywhere]"
+                      >
+                        {title}
+                      </Heading>
+                      {subline ? (
+                        <p className="mt-1 text-sm leading-snug font-semibold text-muted">
+                          {subline}
+                        </p>
+                      ) : null}
+                    </div>
+                    <button
+                      type="button"
+                      aria-label="Close"
+                      onClick={close}
+                      className="-mt-1 -mr-1.5 flex size-11 shrink-0 items-center justify-center rounded-full bg-base-200"
+                    >
+                      <X className="size-[18px]" strokeWidth={2.6} aria-hidden />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
               <div className="min-h-0 flex-1 overflow-y-auto px-5 pt-3 pb-7">{children}</div>
               {footer ? <div className="flex-none px-5 pt-2 pb-safe md:pb-5">{footer}</div> : null}
             </>
