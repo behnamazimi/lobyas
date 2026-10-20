@@ -89,65 +89,67 @@ export function StreakModal({
       }
       subline={`Longest ${streak.longest}`}
     >
-      {noticeDate ? (
-        <div role="status" className="alert alert-info alert-soft text-sm">
-          <ShieldCheck className="size-4 shrink-0" aria-hidden />
-          <span>Your shield covered {weekdayLabel(noticeDate)}. Your streak is safe.</span>
+      <div className="flex flex-col gap-3">
+        {noticeDate ? (
+          <div role="status" className="alert alert-info alert-soft text-sm">
+            <ShieldCheck className="size-4 shrink-0" aria-hidden />
+            <span>Your shield covered {weekdayLabel(noticeDate)}. Your streak is safe.</span>
+          </div>
+        ) : null}
+
+        <StreakFlameScene
+          state={streak.doneToday ? "done" : streak.current > 0 ? "open" : "none"}
+          className="mx-auto max-w-44"
+        />
+
+        <div className="flex gap-2">
+          {showSkeleton
+            ? Array.from({ length: 7 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex flex-1 flex-col items-center gap-1 rounded-field border border-transparent bg-base-200/60 py-2"
+                  aria-hidden
+                >
+                  <span className="h-4 w-6 animate-pulse rounded bg-base-300/60" />
+                  <span className="size-4 animate-pulse rounded-full bg-base-300/60" />
+                </div>
+              ))
+            : days.map((day, index) => (
+                <DayChip
+                  key={day.date}
+                  day={day}
+                  isToday={index === days.length - 1}
+                  isSelected={day.date === selectedDate}
+                  onSelect={() => setSelectedDate(day.date)}
+                />
+              ))}
         </div>
-      ) : null}
 
-      <StreakFlameScene
-        state={streak.doneToday ? "done" : streak.current > 0 ? "open" : "none"}
-        className="mx-auto my-3 max-w-52"
-      />
+        <ShieldLine shield={streak.shield} />
 
-      <div className="flex gap-2">
-        {showSkeleton
-          ? Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex flex-1 flex-col items-center gap-1 rounded-field border border-transparent bg-base-200/60 py-2"
-                aria-hidden
-              >
-                <span className="h-4 w-6 animate-pulse rounded bg-base-300/60" />
-                <span className="size-4 animate-pulse rounded-full bg-base-300/60" />
-              </div>
-            ))
-          : days.map((day, index) => (
-              <DayChip
-                key={day.date}
-                day={day}
-                isToday={index === days.length - 1}
-                isSelected={day.date === selectedDate}
-                onSelect={() => setSelectedDate(day.date)}
-              />
-            ))}
+        <div className="grid grid-cols-3 gap-2 rounded-field bg-base-200/60 p-3 text-center">
+          <div>
+            <p className="text-xl font-semibold tabular-nums">{selected?.readCount ?? 0}</p>
+            <p className="text-xs text-base-content/70">Terms read</p>
+          </div>
+          <div>
+            <p className="text-xl font-semibold tabular-nums">{selected?.reviewedCount ?? 0}</p>
+            <p className="text-xs text-base-content/70">Reviewed</p>
+          </div>
+          <div>
+            <p className="text-xl font-semibold tabular-nums">{selected?.quizzedCount ?? 0}</p>
+            <p className="text-xs text-base-content/70">Quizzed</p>
+          </div>
+        </div>
+
+        <p className="m-0 px-1 text-xs text-base-content/70">
+          A day counts when you read, review or quiz at least one term.
+        </p>
+
+        <GoalsRow today={days.at(-1)} onNavigate={() => onOpenChange(false)} />
+
+        {error ? <p className="text-sm text-error-text">{error}</p> : null}
       </div>
-
-      <ShieldLine shield={streak.shield} />
-
-      <div className="grid grid-cols-3 gap-2 rounded-field bg-base-200/60 p-3 text-center">
-        <div>
-          <p className="text-xl font-semibold tabular-nums">{selected?.readCount ?? 0}</p>
-          <p className="text-xs text-base-content/70">Terms read</p>
-        </div>
-        <div>
-          <p className="text-xl font-semibold tabular-nums">{selected?.reviewedCount ?? 0}</p>
-          <p className="text-xs text-base-content/70">Reviewed</p>
-        </div>
-        <div>
-          <p className="text-xl font-semibold tabular-nums">{selected?.quizzedCount ?? 0}</p>
-          <p className="text-xs text-base-content/70">Quizzed</p>
-        </div>
-      </div>
-
-      <p className="m-0 text-xs text-base-content/70">
-        A day counts when you read, review or quiz at least one term.
-      </p>
-
-      <GoalsRow today={days.at(-1)} onNavigate={() => onOpenChange(false)} />
-
-      {error ? <p className="text-sm text-error-text">{error}</p> : null}
     </BottomSheet>
   );
 }
@@ -225,7 +227,7 @@ function ShieldLine({ shield }: { shield: ShieldSummary }) {
       : `${shield.progress}/${SHIELD_DAYS} active days to your next shield.`;
 
   return (
-    <p className="m-0 flex items-center gap-2 text-xs text-base-content/70">
+    <p className="m-0 flex items-center gap-2 px-1 text-xs text-base-content/70">
       <ShieldCheck className="size-4 shrink-0 text-info" aria-hidden />
       {text}
     </p>
