@@ -6,10 +6,10 @@ import { ProgressRing } from "./ring";
 
 type StopTone = "read" | "review" | "quiz";
 
-const SOLID: Record<StopTone, string> = {
-  read: "bg-info text-info-content",
-  review: "bg-accent text-accent-content",
-  quiz: "bg-secondary text-secondary-content",
+const HIGHLIGHT_RING: Record<StopTone, string> = {
+  read: "ring-[5px] ring-info",
+  review: "ring-[5px] ring-accent",
+  quiz: "ring-[5px] ring-secondary",
 };
 
 const SOFT_ICON: Record<StopTone, string> = {
@@ -19,7 +19,7 @@ const SOFT_ICON: Record<StopTone, string> = {
 };
 
 /** A stop on Home's path: a round node with an icon, an optional goal ring, and a
- *  check once the goal is met. `highlighted` fills the node with the mode's color.
+ *  check once the goal is met. `highlighted` rings the node in the mode's color.
  *  `onCard` says the stop sits on a white panel, so the check's border matches it. */
 export function PathStop({
   href,
@@ -60,7 +60,8 @@ export function PathStop({
       <span
         className={cn(
           "absolute inset-2.5 flex items-center justify-center rounded-full shadow-card",
-          highlighted ? SOLID[tone] : cn("bg-base-100", SOFT_ICON[tone]),
+          "bg-base-100",
+          highlighted ? HIGHLIGHT_RING[tone] : SOFT_ICON[tone],
         )}
         style={{ width: node, height: node }}
       >

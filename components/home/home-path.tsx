@@ -198,7 +198,7 @@ export function HomePath({
                 highlighted={stop.highlighted}
                 onCard={wide}
                 size={geo.nodeSize}
-                icon={<PageBadge page={stop.tier} className={wide ? "size-14" : "size-[52px]"} />}
+                icon={<PageBadge page={stop.tier} bare className={wide ? "w-[60px]" : "w-14"} />}
               />
             </div>
             <StopText

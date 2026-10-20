@@ -280,8 +280,24 @@ const BADGES = {
  */
 type Page = keyof typeof BADGES;
 
-export function PageBadge({ page, className }: { page: Page; className?: string }) {
+export function PageBadge({
+  page,
+  bare = false,
+  className,
+}: {
+  page: Page;
+  /** Only the drawing, for a surface that already has its own circle. */
+  bare?: boolean;
+  className?: string;
+}) {
   const { tint, viewBox, art } = BADGES[page];
+  if (bare) {
+    return (
+      <Illustration viewBox={viewBox} className={cn("ill-mark h-auto", className)}>
+        <g transform={`scale(${SCALE})`}>{art}</g>
+      </Illustration>
+    );
+  }
   return (
     <span
       className={cn(

@@ -39,7 +39,7 @@ export function ProgressStories() {
             label="Read, 4 of 10 today"
             ringValue={0.4}
             highlighted
-            icon={<PageBadge page="read" className="size-14" />}
+            icon={<PageBadge page="read" bare className="w-14" />}
           />
           <PathStop
             href="#"
@@ -47,13 +47,13 @@ export function ProgressStories() {
             label="Review, 10 of 10 today"
             ringValue={1}
             met
-            icon={<PageBadge page="review" className="size-14" />}
+            icon={<PageBadge page="review" bare className="w-14" />}
           />
           <PathStop
             href="#"
             tone="quiz"
             label="Quiz"
-            icon={<PageBadge page="quiz" className="size-14" />}
+            icon={<PageBadge page="quiz" bare className="w-14" />}
           />
         </div>
       </Story>
