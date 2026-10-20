@@ -1,5 +1,14 @@
 import { BookOpen, Eye, Pencil, Trash2 } from "lucide-react";
-import { Card, Divider, ListRow, SectionCard, StatTile, Tile } from "@/components/kit";
+import {
+  Banner,
+  Card,
+  Divider,
+  ListRow,
+  Pill,
+  SectionCard,
+  StatTile,
+  Tile,
+} from "@/components/kit";
 import { Story } from "./story";
 
 export function SurfaceStories() {
@@ -65,6 +74,26 @@ export function SurfaceStories() {
             subline="Removes it and its progress"
           />
         </SectionCard>
+      </Story>
+      <Story
+        title="Banner"
+        note="Yellow for something to do, green for done. The action and dismiss are optional."
+      >
+        <div className="flex flex-col gap-2.5">
+          <Banner
+            action={
+              <Pill variant="secondary" href="/admin/kit">
+                Finish
+              </Pill>
+            }
+          >
+            <strong className="font-extrabold">1 term to finish.</strong> Add a definition so it can
+            be studied.
+          </Banner>
+          <Banner tone="success" onDismiss={() => {}}>
+            <strong className="font-extrabold">Added 24 terms to Standup</strong>
+          </Banner>
+        </div>
       </Story>
     </>
   );

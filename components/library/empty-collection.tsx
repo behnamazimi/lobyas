@@ -1,34 +1,27 @@
-import { Sparkles } from "lucide-react";
 import { EmptyBoxScene } from "@/components/illustrations/scenes/empty-box";
-import { EmptyState } from "@/components/shared/empty-state";
-import { PageShell } from "@/components/page-container";
+import { EmptyPanel, Pill } from "@/components/kit";
 import { StartCollectionButton } from "@/components/library/start-collection-button";
-import { LinkButton } from "@/components/ui/button";
 
 export function EmptyCollection() {
   return (
-    <PageShell innerClassName="flex min-h-[60vh] flex-col items-center justify-center gap-6">
-      <EmptyState
-        icon={Sparkles}
-        illustration={<EmptyBoxScene className="w-56 sm:w-64" />}
+    <div className="flex min-h-[60vh] flex-1 items-center justify-center">
+      <EmptyPanel
         titleAs="h1"
-        title={
+        illustration={<EmptyBoxScene />}
+        title="Your library is empty"
+        description="Add a built-in or community collection in one tap, or start your own."
+        actions={
           <>
-            <span className="text-primary-text">Your library</span> is empty
+            <Pill href="/app/browse" data-tour="library-browse">
+              Browse collections
+            </Pill>
+            <Pill href="/app/import" variant="secondary" data-tour="library-import">
+              Add your own terms
+            </Pill>
+            <StartCollectionButton />
           </>
         }
-        description="Add a built-in or community collection in one tap, or start your own."
-      >
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <LinkButton href="/app/browse" data-tour="library-browse">
-            Browse collections
-          </LinkButton>
-          <LinkButton href="/app/import" variant="outline" data-tour="library-import">
-            Add your own terms
-          </LinkButton>
-          <StartCollectionButton />
-        </div>
-      </EmptyState>
-    </PageShell>
+      />
+    </div>
   );
 }

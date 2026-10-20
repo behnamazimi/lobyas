@@ -1,26 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Textarea } from "@/components/ui/textarea";
+import { BottomSheet, ConfirmDialog, FormField, Pill, TextArea } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { useTermActions } from "@/hooks/use-term-actions";
 import type { UnfinishedLibraryTerm } from "@/lib/terms/types";
@@ -54,56 +35,40 @@ function FinishRow({ term, onRemoved }: { term: UnfinishedLibraryTerm; onRemoved
   }
 
   return (
-    <li className="space-y-2 rounded-field bg-base-200/60 p-3">
-      <Field>
-        <FieldLabel htmlFor={inputId}>{term.term}</FieldLabel>
-        <Textarea
+    <li className="m-0 flex list-none flex-col gap-2 rounded-2xl bg-base-200 p-3">
+      <FormField label={term.term} htmlFor={inputId}>
+        <TextArea
           id={inputId}
+          rows={3}
           value={definition}
-          className="min-h-20 text-base"
           placeholder="What does it mean?"
           onChange={(event) => setDefinition(event.target.value)}
+          className="bg-base-100"
         />
-      </Field>
+      </FormField>
       {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <p role="alert" className="m-0 text-sm font-bold text-wrong-text">
+          {error}
+        </p>
       ) : null}
       <div className="flex justify-end gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="min-h-11 md:min-h-8"
-          isDisabled={isBusy}
-          onPress={() => setConfirmRemove(true)}
-        >
+        <Pill variant="ghost" disabled={isBusy} onClick={() => setConfirmRemove(true)}>
           Remove
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          className="min-h-11 md:min-h-8"
-          isDisabled={isBusy || !definition.trim()}
-          onPress={() => void handleSave()}
-        >
+        </Pill>
+        <Pill disabled={isBusy || !definition.trim()} onClick={() => void handleSave()}>
           {isBusy ? "Saving…" : "Save"}
-        </Button>
+        </Pill>
       </div>
 
-      <AlertDialog isOpen={confirmRemove} onOpenChange={setConfirmRemove}>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Remove &ldquo;{term.term}&rdquo;?</AlertDialogTitle>
-          <AlertDialogDescription>
-            It has no progress yet, so nothing else is lost.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onPress={() => void handleRemove()}>Remove</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialog>
+      <ConfirmDialog
+        isOpen={confirmRemove}
+        onOpenChange={setConfirmRemove}
+        title={<>Remove &ldquo;{term.term}&rdquo;?</>}
+        confirmLabel="Remove"
+        onConfirm={() => void handleRemove()}
+      >
+        It has no progress yet, so nothing else is lost.
+      </ConfirmDialog>
     </li>
   );
 }
@@ -115,29 +80,26 @@ export function FinishTermsDialog({
   onRemoved,
 }: FinishTermsDialogProps) {
   return (
-    <Dialog isOpen={isOpen} onOpenChange={onOpenChange}>
-      <DialogHeader>
-        <DialogTitle>Finish terms</DialogTitle>
-        <DialogDescription>
-          Add a definition and the term joins Read, Review and Quiz.
-        </DialogDescription>
-      </DialogHeader>
-
+    <BottomSheet
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      title="Finish terms"
+      subline="Add a definition and the term joins Read, Review and Quiz."
+      footer={
+        <Pill variant="secondary" size="lg" onClick={() => onOpenChange(false)}>
+          Done
+        </Pill>
+      }
+    >
       {terms.length === 0 ? (
-        <p className="m-0 py-6 text-center text-sm text-base-content/70">All terms finished.</p>
+        <p className="m-0 py-6 text-center text-sm font-semibold text-muted">All terms finished.</p>
       ) : (
-        <ul className="m-0 flex min-h-0 list-none flex-col gap-3 overflow-y-auto p-0">
+        <ul className="m-0 flex list-none flex-col gap-3 p-0">
           {terms.map((term) => (
             <FinishRow key={term.id} term={term} onRemoved={onRemoved} />
           ))}
         </ul>
       )}
-
-      <DialogFooter className="shrink-0">
-        <Button type="button" variant="outline" onPress={() => onOpenChange(false)}>
-          Done
-        </Button>
-      </DialogFooter>
-    </Dialog>
+    </BottomSheet>
   );
 }

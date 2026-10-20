@@ -178,16 +178,19 @@ Aria's document-level `pointerup`, so its buttons stop working.
 
 # Library (/app/library)
 
-The Library's layout (`app/(private)/app/library/layout.tsx`) holds the
-collection sidebar, and the page loads one collection. Switching collections
-is a plain `?collection=` link, so only the page reloads. The page sends a lean
-row per term (`LibraryTerm`, from `lib/library/load.ts`). Full details
-load in batches from `GET /api/terms/details` as rows near the screen
-(`lib/library/details-store.ts`). Marking known and deleting don't
-revalidate the page. They record a local edit in
+The Library shows the app's current collection (the shell's switcher changes
+it; there is no sidebar). The page sends a lean row per term (`LibraryTerm`,
+from `lib/library/load.ts`). Full details load in batches from
+`GET /api/terms/details` as rows near the screen
+(`lib/library/details-store.ts`). A tap on a row selects it: a sheet on a
+phone, a panel beside the list from `lg` (`useLibraryList`'s `selectedTermId`;
+the first opening of a term counts as a read). Marking known and deleting
+don't revalidate the page. They record a local edit in
 `lib/library/overrides.ts`, which wins over any older server snapshot,
 so call `overrideMarkedKnown` wherever a term is marked known. Filters live in
-the `lb_lib_filters` cookie so the server renders them.
+the `lb_lib_filters` cookie so the server renders them. Every collection
+action (More, Share, Edit, Report, Export, Add terms) is a `BottomSheet`;
+confirmations use the kit `ConfirmDialog`.
 
 # Import
 

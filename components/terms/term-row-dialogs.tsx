@@ -2,15 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { forgetTermDetails } from "@/lib/library/details-store";
 import type { LibraryTerm, Term } from "@/lib/terms/types";
@@ -64,7 +56,6 @@ export function TermRowDialogs({
             key={editing.id}
             collectionTerms={collectionTerms}
             initialTerm={editing}
-            isOpen
             onOpenChange={(open) => {
               if (!open) onEditingChange(null);
             }}
@@ -72,30 +63,20 @@ export function TermRowDialogs({
         </Suspense>
       ) : null}
 
-      <AlertDialog
+      <ConfirmDialog
         isOpen={deleting !== null}
         onOpenChange={(open) => {
           if (!open) onDeletingChange(null);
         }}
+        title="Delete term?"
+        confirmLabel="Delete"
+        onConfirm={() => {
+          if (deleting) void confirmDelete(deleting);
+        }}
       >
-        <AlertDialogHeader>
-          <AlertDialogTitle>Delete term?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Delete &ldquo;{deleting?.term}&rdquo;? This can&apos;t be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onPress={() => {
-              if (deleting) void confirmDelete(deleting);
-            }}
-          >
-            Delete
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialog>
+        &ldquo;{deleting?.term}&rdquo; and its progress will be removed from this collection. This
+        can&apos;t be undone.
+      </ConfirmDialog>
     </>
   );
 }

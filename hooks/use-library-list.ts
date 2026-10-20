@@ -9,7 +9,6 @@ import {
 import { tickGoal } from "@/components/goals/goal-store";
 import { filterTerms, getCategories, getCategoryCounts } from "@/lib/library/filter-terms";
 import {
-  overrideCollectionCounts,
   overrideMarkedKnown,
   overrideRemoved,
   termOverride,
@@ -74,7 +73,7 @@ export function useLibraryList(data: LibraryPageData, filtersCookie: string) {
   }, [data.markedKnownTermIds, data.terms, data.loadedAt, pendingMarks, overrides]);
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [openTerms, setOpenTerms] = useState<ReadonlySet<string>>(new Set());
+  const [selectedTermId, setSelectedTermId] = useState<string | null>(null);
   const countedShownRef = useRef(new Set<string>());
 
   const categories = useMemo(() => getCategories(terms), [terms]);
@@ -95,14 +94,10 @@ export function useLibraryList(data: LibraryPageData, filtersCookie: string) {
     [terms, searchQuery, activeCategories, hideKnown, sortMode, knownTerms, markedKnownTerms],
   );
 
-  const toggleOpen = useCallback((termId: string) => {
-    setOpenTerms((prev) => {
-      const next = new Set(prev);
-      if (next.has(termId)) next.delete(termId);
-      else next.add(termId);
-      return next;
-    });
-    if (countedShownRef.current.has(termId)) return;
+  /** Opens a term's detail; the first opening of a term counts as a read. */
+  const selectTerm = useCallback((termId: string | null) => {
+    setSelectedTermId(termId);
+    if (!termId || countedShownRef.current.has(termId)) return;
     countedShownRef.current.add(termId);
     void recordTermReadAction(termId);
     tickGoal("read", termId);
@@ -112,94 +107,39 @@ export function useLibraryList(data: LibraryPageData, filtersCookie: string) {
 
   // Read in event handlers only, so the callbacks below stay stable for the
   // memoized rows.
-  const latest = useRef({
-    terms,
-    markedKnownTerms,
-    knownTerms,
-    everMasteredTerms,
-    collection: data.collection,
-  });
-  latest.current = {
-    terms,
-    markedKnownTerms,
-    knownTerms,
-    everMasteredTerms,
-    collection: data.collection,
-  };
-
-  /** Tells the sidebar this collection's counts after a saved change. */
-  const publishCounts = useCallback(
-    (termIds: string[], marked: ReadonlySet<string>, savedAt: number) => {
-      const { knownTerms, everMasteredTerms, collection } = latest.current;
-      let knownCount = 0;
-      let termsLearnedCount = 0;
-      for (const id of termIds) {
-        if (knownTerms.has(id) || marked.has(id)) knownCount += 1;
-        if (everMasteredTerms.has(id) || marked.has(id)) termsLearnedCount += 1;
-      }
-      overrideCollectionCounts(collection.id, {
-        termCount: termIds.length,
-        knownCount,
-        termsLearnedCount,
-        savedAt,
-      });
-    },
-    [],
-  );
+  const latest = useRef({ markedKnownTerms });
+  latest.current = { markedKnownTerms };
 
   /** Resolves true once the change is saved, false if it was rolled back. */
-  const toggleMarkedKnown = useCallback(
-    async (termId: string): Promise<boolean> => {
-      const marked = !latest.current.markedKnownTerms.has(termId);
-      const tap = ++lastTap;
-      setPendingMarks((prev) => new Map(prev).set(termId, { marked, tap }));
+  const toggleMarkedKnown = useCallback(async (termId: string): Promise<boolean> => {
+    const marked = !latest.current.markedKnownTerms.has(termId);
+    const tap = ++lastTap;
+    setPendingMarks((prev) => new Map(prev).set(termId, { marked, tap }));
 
-      const { savedAt } = await settle(setTermMarkedKnownAction(termId, marked));
-      if (savedAt) {
-        overrideMarkedKnown(termId, marked, savedAt);
-        const next = new Set(latest.current.markedKnownTerms);
-        if (marked) next.add(termId);
-        else next.delete(termId);
-        publishCounts(
-          latest.current.terms.map((term) => term.id),
-          next,
-          savedAt,
-        );
-      }
-      setPendingMarks((prev) => {
-        if (prev.get(termId)?.tap !== tap) return prev;
-        const next = new Map(prev);
-        next.delete(termId);
-        return next;
-      });
-      return Boolean(savedAt);
-    },
-    [publishCounts],
-  );
+    const { savedAt } = await settle(setTermMarkedKnownAction(termId, marked));
+    if (savedAt) overrideMarkedKnown(termId, marked, savedAt);
+    setPendingMarks((prev) => {
+      if (prev.get(termId)?.tap !== tap) return prev;
+      const next = new Map(prev);
+      next.delete(termId);
+      return next;
+    });
+    return Boolean(savedAt);
+  }, []);
 
   /** Hides the term at once and deletes it. Resolves false (and shows it
    *  again) if the delete fails. */
-  const removeTerm = useCallback(
-    async (termId: string): Promise<boolean> => {
-      setPendingRemovals((prev) => new Set(prev).add(termId));
-      const { savedAt } = await settle(deleteTerm(termId));
-      if (savedAt) {
-        overrideRemoved(termId, savedAt);
-        publishCounts(
-          latest.current.terms.flatMap((term) => (term.id === termId ? [] : [term.id])),
-          latest.current.markedKnownTerms,
-          savedAt,
-        );
-      }
-      setPendingRemovals((prev) => {
-        const next = new Set(prev);
-        next.delete(termId);
-        return next;
-      });
-      return Boolean(savedAt);
-    },
-    [publishCounts],
-  );
+  const removeTerm = useCallback(async (termId: string): Promise<boolean> => {
+    setPendingRemovals((prev) => new Set(prev).add(termId));
+    const { savedAt } = await settle(deleteTerm(termId));
+    if (savedAt) overrideRemoved(termId, savedAt);
+    setPendingRemovals((prev) => {
+      const next = new Set(prev);
+      next.delete(termId);
+      return next;
+    });
+    return Boolean(savedAt);
+  }, []);
 
   return {
     collection: data.collection,
@@ -215,12 +155,12 @@ export function useLibraryList(data: LibraryPageData, filtersCookie: string) {
     setHideKnown,
     sortMode,
     setSortMode,
-    openTerms,
+    selectedTermId,
     knownTerms,
     markedKnownTerms,
     everMasteredTerms,
     toggleCategory,
-    toggleOpen,
+    selectTerm,
     toggleMarkedKnown,
     clearSearch,
   };

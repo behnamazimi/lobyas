@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { TONES, type Tone } from "../tones";
 
@@ -7,13 +7,15 @@ export function Card({
   radius = "lg",
   className,
   children,
+  ...rest
 }: {
   radius?: "md" | "lg";
   className?: string;
   children: ReactNode;
-}) {
+} & Omit<ComponentProps<"div">, "className" | "children">) {
   return (
     <div
+      {...rest}
       className={cn(
         "bg-base-100 shadow-card",
         radius === "lg" ? "rounded-[28px]" : "rounded-3xl",

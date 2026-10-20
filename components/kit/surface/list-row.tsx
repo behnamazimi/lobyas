@@ -17,6 +17,8 @@ type ListRowProps = {
   onPress?: () => void;
   /** Coral label, for an action that removes something. */
   danger?: boolean;
+  /** Greys the row out; an `onPress` row stops responding. */
+  disabled?: boolean;
   className?: string;
 };
 
@@ -31,6 +33,7 @@ export function ListRow({
   href,
   onPress,
   danger,
+  disabled,
   className,
 }: ListRowProps) {
   const interactive = Boolean(href || onPress);
@@ -63,7 +66,12 @@ export function ListRow({
   }
   if (onPress) {
     return (
-      <button type="button" onClick={onPress} className={cn(base, "cursor-pointer")}>
+      <button
+        type="button"
+        onClick={onPress}
+        disabled={disabled}
+        className={cn(base, "cursor-pointer disabled:cursor-default disabled:opacity-50")}
+      >
         {body}
       </button>
     );

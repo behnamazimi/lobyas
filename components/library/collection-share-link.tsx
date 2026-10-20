@@ -2,15 +2,11 @@
 
 import { Check, Copy, Share2 } from "lucide-react";
 import { useState, useSyncExternalStore } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Pill } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { track } from "@/lib/analytics/track";
 import { shareLink } from "@/lib/collections/share";
 import type { Collection } from "@/lib/terms/types";
-
-export const SHARE_ICON_BUTTON_CLASS =
-  "min-h-11 min-w-11 text-base-content/70 hover:text-base-content md:min-h-8 md:min-w-8";
 
 const noSubscribe = () => () => {};
 const canShareNatively = () => typeof navigator.share === "function";
@@ -56,31 +52,27 @@ export function ShareLink({ collection }: { collection: Collection }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
-        <Input
+        <input
           readOnly
           value={link}
           aria-label="Link to this collection"
-          className="min-h-11 min-w-0 flex-1 md:min-h-9"
           onFocus={(event) => event.currentTarget.select()}
+          className="h-12 min-w-0 flex-1 rounded-[14px] border-0 bg-base-200 px-3.5 text-sm font-bold text-ink-soft outline-none focus-visible:ring-2 focus-visible:ring-base-content"
         />
-        <Button
-          variant="outline"
-          className="min-h-11 shrink-0 gap-1.5 md:min-h-9"
-          onPress={() => void copy()}
-        >
+        <Pill className="h-12 rounded-[14px]" onClick={() => void copy()}>
           {copied ? (
             <Check className="size-4" aria-hidden />
           ) : (
             <Copy className="size-4" aria-hidden />
           )}
-          {copied ? "Copied" : "Copy"}
-        </Button>
+          {copied ? "Copied" : "Copy link"}
+        </Pill>
       </div>
       {nativeShare ? (
-        <Button className="min-h-11 gap-1.5 md:min-h-9" onPress={() => void share()}>
+        <Pill variant="secondary" onClick={() => void share()}>
           <Share2 className="size-4" aria-hidden />
           Share…
-        </Button>
+        </Pill>
       ) : null}
     </div>
   );

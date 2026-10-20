@@ -1,11 +1,15 @@
 export { BottomSheet } from "./sheet";
+export { ConfirmDialog } from "./confirm-dialog";
 export { Card, Divider, SectionCard, Tile } from "./surface/card";
+export { Banner } from "./surface/banner";
 export { ListRow } from "./surface/list-row";
 export { StatTile } from "./surface/stat-tile";
 export { ModeSwitch } from "./controls/mode-switch";
 export { Chip } from "./controls/chip";
 export { ChoiceCards } from "./controls/choice-cards";
 export { IconButton, Pill } from "./controls/pill";
+export { FormField, SelectInput, TextArea, TextInput } from "./controls/form-fields";
+export { SearchField } from "./controls/search-field";
 export { RadioList } from "./controls/radio-list";
 export { SegmentedControl } from "./controls/segmented";
 export { Stepper } from "./controls/stepper";

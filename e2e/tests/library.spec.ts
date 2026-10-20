@@ -58,7 +58,7 @@ test.describe("Managing the library", () => {
       await gotoReady(page, `/app/library?collection=${collectionId}`);
 
       await page.getByRole("button", { name: `Actions for ${FIRST_TERM}` }).click();
-      await page.getByRole("menuitem", { name: "Delete" }).click();
+      await page.getByRole("button", { name: "Delete term" }).click();
       await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
 
       await expect(page.getByRole("article").filter({ hasText: FIRST_TERM })).toHaveCount(0);
@@ -76,11 +76,11 @@ test.describe("Managing the library", () => {
     const { collectionId } = await seedCollection(user);
     await gotoReady(page, `/app/library?collection=${collectionId}`);
 
-    await page.getByRole("button", { name: "Collection actions" }).click();
-    await page.getByRole("menuitem", { name: "Edit collection" }).click();
-    const dialog = page.getByRole("dialog");
+    await page.getByRole("button", { name: "More", exact: true }).click();
+    await page.getByRole("button", { name: "Edit collection" }).click();
+    const dialog = page.getByRole("dialog", { name: "Edit collection" });
     await expect(dialog.getByRole("radio", { name: "Field terms" })).toBeChecked();
-    await dialog.getByRole("radio", { name: "Words and phrases" }).click();
+    await dialog.getByRole("radio", { name: "Words and phrases" }).click({ force: true });
     await dialog.getByRole("button", { name: "Save changes" }).click();
 
     await expect
@@ -99,8 +99,8 @@ test.describe("Managing the library", () => {
     const { collectionId, name } = await seedCollection(user);
     await gotoReady(page, `/app/library?collection=${collectionId}`);
 
-    await page.getByRole("button", { name: "Collection actions" }).click();
-    await page.getByRole("menuitem", { name: "Delete collection" }).click();
+    await page.getByRole("button", { name: "More", exact: true }).click();
+    await page.getByRole("button", { name: "Delete collection" }).click();
     await page.getByRole("alertdialog").getByRole("button", { name: "Delete" }).click();
 
     await expect(page.getByRole("link", { name })).toHaveCount(0);
@@ -110,5 +110,52 @@ test.describe("Managing the library", () => {
           (await sql("select 1 from public.collections where id = $1", [collectionId])).length,
       )
       .toBe(0);
+  });
+
+  test("opening a term shows every part of it", { tag: "@smoke" }, async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await gotoReady(page, `/app/library?collection=${collectionId}`);
+
+    await page
+      .getByRole("article")
+      .filter({ hasText: FIRST_TERM })
+      .getByRole("button")
+      .first()
+      .click();
+    const detail = page
+      .getByRole("dialog", { name: FIRST_TERM })
+      .or(page.getByRole("complementary", { name: "Term" }));
+    await expect(detail.getByRole("button", { name: "Edit" })).toBeVisible();
+    await expect(
+      detail.getByText("Slowing producers down when consumers fall behind."),
+    ).toBeVisible();
+  });
+
+  test("the filters sheet hides known terms and remembers it", async ({ page, user, isMobile }) => {
+    test.skip(isMobile, "Phones mark known by swiping a row");
+    const { collectionId } = await seedCollection(user);
+    await gotoReady(page, `/app/library?collection=${collectionId}`);
+    const row = page.getByRole("article").filter({ hasText: FIRST_TERM });
+    await row.getByRole("button", { name: "Mark known" }).click();
+    await expect.poll(() => markedKnown(user.id, FIRST_TERM)).toBe(true);
+
+    await page.getByRole("button", { name: "Filters" }).click();
+    await page.getByRole("switch", { name: "Hide terms I know" }).check({ force: true });
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("article").filter({ hasText: FIRST_TERM })).toHaveCount(0);
+
+    await page.reload();
+    await expect(page.getByRole("article").filter({ hasText: FIRST_TERM })).toHaveCount(0);
+  });
+
+  test("pausing a collection offers Resume", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await gotoReady(page, `/app/library?collection=${collectionId}`);
+
+    await page.getByRole("button", { name: "More", exact: true }).click();
+    await page.getByRole("button", { name: "Pause review" }).click();
+    await expect(page.getByRole("button", { name: "Resume" })).toBeVisible();
+    await page.getByRole("button", { name: "Resume" }).click();
+    await expect(page.getByRole("navigation", { name: /^Study / })).toBeVisible();
   });
 });

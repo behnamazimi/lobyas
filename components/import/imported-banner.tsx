@@ -1,14 +1,11 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
 import { use, useState } from "react";
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Banner, Pill } from "@/components/kit";
 import { useMountEffect } from "@/hooks/use-mount-effect";
 import { clearDraft } from "@/lib/import/draft-store";
 import { pluralize } from "@/lib/utils";
 import { dropSearchParamFromUrl } from "@/components/library/library-page-helpers";
-import { NAV_FORWARD } from "@/components/shared/view-transitions";
 
 export type ImportedSummary = {
   collectionId: string;
@@ -87,32 +84,31 @@ function ImportedBanner({
   const details = detailLine(summary);
 
   return (
-    <Alert variant="success" onDismiss={onDismiss}>
-      <AlertTitle>{title}</AlertTitle>
-      {details ? <AlertDescription>{details}</AlertDescription> : null}
-      <AlertAction className="flex-row flex-wrap items-center max-md:[&>*]:min-h-0">
-        {studyable ? (
-          <LinkButton href={`/app/read?collection=${collection.id}`} size="sm" className="gap-2">
-            Start reading
-            <ArrowRight className="size-4" aria-hidden strokeWidth={1.5} />
-          </LinkButton>
-        ) : null}
-        {studyable ? (
-          <LinkButton
-            href={`/app/triage?collection=${collection.id}`}
-            transitionTypes={NAV_FORWARD}
-            size="sm"
-            variant="outline"
-          >
-            Mark what you know
-          </LinkButton>
-        ) : null}
-        {summary.unfinished > 0 ? (
-          <Button type="button" size="sm" variant="outline" onPress={onFinish}>
-            Finish {pluralize(summary.unfinished, "term")}
-          </Button>
-        ) : null}
-      </AlertAction>
-    </Alert>
+    <Banner
+      tone="success"
+      onDismiss={onDismiss}
+      action={
+        <>
+          {studyable ? (
+            <Pill variant="secondary" href={`/app/read?collection=${collection.id}`}>
+              Start reading
+            </Pill>
+          ) : null}
+          {studyable ? (
+            <Pill variant="secondary" href={`/app/triage?collection=${collection.id}`}>
+              Mark what you know
+            </Pill>
+          ) : null}
+          {summary.unfinished > 0 ? (
+            <Pill variant="secondary" onClick={onFinish}>
+              Finish {pluralize(summary.unfinished, "term")}
+            </Pill>
+          ) : null}
+        </>
+      }
+    >
+      <strong className="font-extrabold">{title}</strong>
+      {details ? <span className="block font-semibold">{details}</span> : null}
+    </Banner>
   );
 }

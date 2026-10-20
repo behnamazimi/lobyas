@@ -24,8 +24,8 @@ export const LIBRARY_CHAPTERS = [
     steps: [
       {
         target: "library-collections",
-        title: "Your collections",
-        body: "Pick one to see its terms and progress.",
+        title: "Your collection",
+        body: "Its progress, study links and settings are here. Switch collections from the picker.",
       },
     ],
   },

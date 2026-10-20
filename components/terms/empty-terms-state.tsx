@@ -1,23 +1,21 @@
-import { FilePlus } from "lucide-react";
+import { EmptyPanel, Pill } from "@/components/kit";
 import { EmptyBoxScene } from "@/components/illustrations/scenes/empty-box";
-import { EmptyState } from "@/components/shared/empty-state";
-import { LinkButton } from "@/components/ui/button";
 
 export function EmptyTermsState({ collectionId }: { collectionId: string }) {
   return (
-    <EmptyState
-      icon={FilePlus}
-      illustration={<EmptyBoxScene className="w-44 sm:w-52" />}
+    <EmptyPanel
+      className="py-8"
+      illustration={<EmptyBoxScene />}
       title="No terms yet"
       description="Add your first term, or paste a list."
-      className="py-10"
-    >
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <LinkButton href={`/app/capture?to=${collectionId}`}>Add a term</LinkButton>
-        <LinkButton href="/app/import" variant="outline">
-          Import terms
-        </LinkButton>
-      </div>
-    </EmptyState>
+      actions={
+        <>
+          <Pill href={`/app/capture?to=${collectionId}`}>Add a term</Pill>
+          <Pill href="/app/import" variant="secondary">
+            Import terms
+          </Pill>
+        </>
+      }
+    />
   );
 }
