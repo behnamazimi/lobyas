@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ReportCollectionDialog } from "@/components/library/report-collection-dialog";
+import { ReportCollectionSheet } from "@/components/library/report-collection-sheet";
 import { SharedCollectionCard } from "@/components/library/shared-collection-card";
 import { BROWSE_PANEL_ID } from "@/components/library/shared-collections-tabs";
 import { SharedCollectionsFilterBar } from "@/components/library/shared-collections-filter-bar";
@@ -169,7 +169,7 @@ export function SharedCollectionsBrowse({
       </div>
 
       {reporting ? (
-        <ReportCollectionDialog
+        <ReportCollectionSheet
           collectionId={reporting.id}
           collectionName={reporting.name}
           onReported={() => browse.markReported(reporting.id)}

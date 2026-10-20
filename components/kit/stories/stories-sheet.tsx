@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { BottomSheet, Pill } from "@/components/kit";
+import { BottomSheet, ConfirmDialog, Pill } from "@/components/kit";
 import { Story } from "./story";
 
 export function SheetStories() {
   const [open, setOpen] = useState(false);
   const [heroOpen, setHeroOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   return (
     <>
       <Story
@@ -58,6 +59,24 @@ export function SheetStories() {
         >
           <p className="m-0 text-center text-base font-semibold">Body</p>
         </BottomSheet>
+      </Story>
+      <Story
+        single
+        title="Confirm dialog"
+        note="A centered alert dialog for something that can't be undone. While busy it can't be dismissed."
+      >
+        <Pill variant="danger" onClick={() => setConfirmOpen(true)}>
+          Delete term
+        </Pill>
+        <ConfirmDialog
+          isOpen={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          title="Delete term?"
+          confirmLabel="Delete"
+          onConfirm={() => setConfirmOpen(false)}
+        >
+          “Blocker” and its progress will be removed from Standup. This can’t be undone.
+        </ConfirmDialog>
       </Story>
     </>
   );

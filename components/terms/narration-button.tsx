@@ -31,6 +31,7 @@ export function NarrationButton({
       type="button"
       variant="ghost"
       size="icon-sm"
+      className="size-11 rounded-full text-ink-soft"
       onPress={onPress}
       isDisabled={status === "loading"}
       aria-label={ariaLabel}

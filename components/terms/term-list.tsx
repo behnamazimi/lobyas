@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { CollectionLanguage } from "@/lib/terms/languages";
 import type { LibraryTerm } from "@/lib/terms/types";
 import { EmptyTermsState } from "./empty-terms-state";
-import { TermCard } from "./term-card";
+import { Card, EmptyPanel } from "@/components/kit";
+import { TermRow } from "./term-row";
 
 /** Rows rendered up front (also on the server); more follow as the list
  *  scrolls, so a long collection doesn't render and hydrate every row. */
@@ -17,46 +17,43 @@ type TermListProps = {
   windowKey: string;
   knownTerms: Set<string>;
   markedKnownTerms: Set<string>;
-  openTerms: ReadonlySet<string>;
+  selectedTermId: string | null;
   isOwner: boolean;
-  language: CollectionLanguage;
   /** Studyable terms in the collection, before filters. */
   totalCount: number;
   /** The owner has terms that are saved but not finished yet. */
   hasUnfinished: boolean;
   collectionId: string;
-  onToggleOpen: (termId: string) => void;
+  onSelect: (termId: string) => void;
   onToggleMarkedKnown: (termId: string) => Promise<boolean>;
-  onEdit: (termId: string) => void;
-  onDelete: (term: LibraryTerm) => void;
+  onActions: (term: LibraryTerm) => void;
 };
 
 function EmptyMessage({ title, detail }: { title: string; detail?: string }) {
   return (
-    <div className="shadow-surface rounded-box bg-base-100 px-6 py-12 text-center">
-      <p className="text-sm text-base-content/70">{title}</p>
-      {detail ? <p className="mt-1 text-xs text-base-content/70">{detail}</p> : null}
-    </div>
+    <Card radius="md" className="py-10">
+      <EmptyPanel titleAs="h2" title={title} description={detail} />
+    </Card>
   );
 }
 
 export function TermList({ windowKey, totalCount, hasUnfinished, ...props }: TermListProps) {
   if (totalCount === 0 && hasUnfinished) {
-    return <EmptyMessage title="Nothing to study yet. Add a definition to start." />;
+    return <EmptyMessage title="Nothing to study yet" detail="Add a definition to start." />;
   }
 
   if (totalCount === 0) {
     return props.isOwner ? (
       <EmptyTermsState collectionId={props.collectionId} />
     ) : (
-      <EmptyMessage title="No terms in this collection yet." />
+      <EmptyMessage title="No terms yet" detail="Nothing has been added to this collection." />
     );
   }
 
   if (props.terms.length === 0) {
     return (
       <EmptyMessage
-        title="No terms match your filters."
+        title="No terms match"
         detail="Clear your search or category filters, or turn off “Hide terms I know”."
       />
     );
@@ -69,15 +66,12 @@ function TermRows({
   terms,
   knownTerms,
   markedKnownTerms,
-  openTerms,
-  isOwner,
-  language,
-  onToggleOpen,
+  selectedTermId,
+  onSelect,
   onToggleMarkedKnown,
-  onEdit,
-  onDelete,
+  onActions,
   windowKey,
-}: Omit<TermListProps, "totalCount" | "hasUnfinished" | "collectionId">) {
+}: Omit<TermListProps, "totalCount" | "hasUnfinished" | "collectionId" | "isOwner">) {
   // Back to the first rows whenever the filters change. Adjusted during
   // render rather than by remounting, so rows still on screen keep their state.
   const [rowWindow, setRowWindow] = useState({ key: windowKey, limit: ROWS_PER_STEP });
@@ -99,20 +93,17 @@ function TermRows({
   }, []);
 
   return (
-    <div className="shadow-surface divide-y divide-base-300/60 overflow-hidden rounded-box bg-base-100">
+    <Card radius="md" className="divide-y divide-base-300 overflow-hidden">
       {terms.slice(0, limit).map((term) => (
         <div key={term.id} className="content-visibility-auto [contain-intrinsic-size:auto_4.5rem]">
-          <TermCard
+          <TermRow
             term={term}
             known={knownTerms.has(term.id)}
             markedKnown={markedKnownTerms.has(term.id)}
-            open={openTerms.has(term.id)}
-            isOwner={isOwner}
-            language={language}
-            onToggleOpen={onToggleOpen}
+            selected={selectedTermId === term.id}
+            onSelect={onSelect}
             onToggleMarkedKnown={onToggleMarkedKnown}
-            onEdit={onEdit}
-            onDelete={onDelete}
+            onActions={onActions}
           />
         </div>
       ))}
@@ -121,6 +112,6 @@ function TermRows({
       {limit < terms.length ? (
         <div key={limit} ref={watchEnd} aria-hidden className="h-px" />
       ) : null}
-    </div>
+    </Card>
   );
 }

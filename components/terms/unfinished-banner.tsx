@@ -1,7 +1,6 @@
 "use client";
 
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Banner, Pill } from "@/components/kit";
 import { REQUEST_COPY } from "@/lib/requests/copy";
 import { pluralize } from "@/lib/utils";
 import type { UnfinishedLibraryTerm } from "@/lib/terms/types";
@@ -18,21 +17,22 @@ export function UnfinishedBanner({ terms, onFinish, requestHref }: UnfinishedBan
   if (terms.length === 0) return null;
 
   return (
-    <Alert variant="warning">
-      <AlertTitle>{pluralize(terms.length, "term")} to finish</AlertTitle>
-      <AlertDescription>
-        They stay out of Read, Review and Quiz until they have a definition.
-      </AlertDescription>
-      <AlertAction>
-        <Button type="button" size="sm" onPress={onFinish}>
-          Finish {pluralize(terms.length, "term")}
-        </Button>
-        {requestHref ? (
-          <LinkButton href={requestHref} size="sm" variant="outline">
-            {REQUEST_COPY.definitions.link}
-          </LinkButton>
-        ) : null}
-      </AlertAction>
-    </Alert>
+    <Banner
+      action={
+        <>
+          <Pill variant="secondary" onClick={onFinish}>
+            Finish {pluralize(terms.length, "term")}
+          </Pill>
+          {requestHref ? (
+            <Pill variant="secondary" href={requestHref}>
+              {REQUEST_COPY.definitions.link}
+            </Pill>
+          ) : null}
+        </>
+      }
+    >
+      <strong className="font-extrabold">{pluralize(terms.length, "term")} to finish.</strong> They
+      stay out of Read, Review and Quiz until they have a definition.
+    </Banner>
   );
 }

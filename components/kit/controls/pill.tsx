@@ -19,6 +19,8 @@ type PillProps = {
   /** Renders a link instead of a button. */
   href?: string;
   className?: string;
+  /** Marks the pill as a guided-tour target. */
+  "data-tour"?: string;
   children: ReactNode;
 } & Omit<ComponentProps<"button">, "className" | "children">;
 
@@ -39,7 +41,7 @@ export function Pill({
   );
   if (href) {
     return (
-      <Link href={href} className={classes}>
+      <Link href={href} className={classes} data-tour={rest["data-tour"]}>
         {children}
       </Link>
     );

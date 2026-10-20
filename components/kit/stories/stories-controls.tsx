@@ -4,10 +4,14 @@ import { Check, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import {
   Chip,
+  FormField,
   IconButton,
   ModeSwitch,
   Pill,
   RadioList,
+  SearchField,
+  TextArea,
+  TextInput,
   SegmentedControl,
   Stepper,
   ToggleRow,
@@ -20,6 +24,7 @@ export function ControlsStories() {
   const [pace, setPace] = useState("daily");
   const [daily, setDaily] = useState(10);
   const [chip, setChip] = useState("all");
+  const [query, setQuery] = useState("");
 
   return (
     <>
@@ -124,6 +129,22 @@ export function ControlsStories() {
           onIncrease={() => setDaily((value) => Math.min(200, value + 5))}
           disableDecrease={daily === 0}
         />
+      </Story>
+      <Story title="Search field" note="White, 48 px, with a clear button once there is text.">
+        <SearchField label="Search terms" value={query} onChange={setQuery} />
+      </Story>
+      <Story
+        title="Form fields"
+        note="Cream fields with a label above, for the edit and report sheets."
+      >
+        <div className="flex flex-col gap-3.5 rounded-[28px] bg-base-100 p-5 shadow-card">
+          <FormField label="Name" htmlFor="kit-name">
+            <TextInput id="kit-name" defaultValue="Standup" />
+          </FormField>
+          <FormField label="Description (optional)" htmlFor="kit-desc">
+            <TextArea id="kit-desc" rows={3} placeholder="What is this collection about?" />
+          </FormField>
+        </div>
       </Story>
     </>
   );

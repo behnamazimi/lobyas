@@ -1,20 +1,14 @@
 "use client";
 
 import { SlidersHorizontal } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState, type RefObject } from "react";
+import { SearchField } from "@/components/kit";
 import type { SortMode } from "@/lib/terms/types";
-import type { RefObject } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { CategoryChips } from "@/components/terms/category-chips";
-import { SearchBar } from "@/components/shared/search-bar";
-import { Toolbar } from "@/components/shared/toolbar";
+import { FiltersSheet } from "./filters-sheet";
 
 type LibraryFiltersProps = {
   searchQuery: string;
   onSearchChange: (value: string) => void;
-  onSearchClear: () => void;
   searchInputRef: RefObject<HTMLInputElement | null>;
   categories: string[];
   categoryCounts: Record<string, number>;
@@ -39,81 +33,43 @@ function countActiveFilters(activeCategories: Set<string>, hideKnown: boolean, s
 export function LibraryFilters({
   searchQuery,
   onSearchChange,
-  onSearchClear,
   searchInputRef,
-  categories,
-  categoryCounts,
   totalCount,
-  activeCategories,
-  onToggleCategory,
-  hideKnown,
-  onHideKnownChange,
-  sortMode,
-  onSortChange,
-  visibleCount,
+  ...sheet
 }: LibraryFiltersProps) {
-  const [expanded, setExpanded] = useState(false);
-
-  const activeFilterCount = useMemo(
-    () => countActiveFilters(activeCategories, hideKnown, sortMode),
-    [activeCategories, hideKnown, sortMode],
+  const [open, setOpen] = useState(false);
+  const activeFilterCount = countActiveFilters(
+    sheet.activeCategories,
+    sheet.hideKnown,
+    sheet.sortMode,
   );
 
   if (totalCount === 0) return null;
 
   return (
-    <section aria-label="Filter terms" data-tour="library-search" className="space-y-3">
-      <div className="flex items-stretch gap-2">
-        <div className="min-w-0 flex-1">
-          <SearchBar
-            value={searchQuery}
-            onChange={onSearchChange}
-            onClear={onSearchClear}
-            inputRef={searchInputRef}
-          />
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          aria-expanded={expanded}
-          aria-controls="library-advanced-filters"
-          onPress={() => setExpanded((value) => !value)}
-          className={cn("min-h-10 shrink-0 gap-2", expanded && "bg-base-200")}
-        >
-          <SlidersHorizontal className="size-3.5" aria-hidden strokeWidth={1.5} />
-          Filters
-          {activeFilterCount > 0 ? (
-            <Badge
-              variant="default"
-              className={cn("min-w-5 px-1.5 py-0 text-xs tabular-nums", expanded && "invisible")}
-            >
-              {activeFilterCount}
-            </Badge>
-          ) : null}
-        </Button>
-      </div>
-
-      {expanded ? (
-        <div
-          id="library-advanced-filters"
-          className="shadow-surface space-y-3 rounded-box bg-base-100 p-4"
-        >
-          <CategoryChips
-            categories={categories}
-            counts={categoryCounts}
-            totalCount={totalCount}
-            activeCategories={activeCategories}
-            onToggle={onToggleCategory}
-          />
-          <Toolbar
-            hideKnown={hideKnown}
-            onHideKnownChange={onHideKnownChange}
-            sortMode={sortMode}
-            onSortChange={onSortChange}
-            visibleCount={visibleCount}
-          />
-        </div>
-      ) : null}
+    <section aria-label="Search and filter terms" data-tour="library-search" className="flex gap-2">
+      <SearchField
+        label="Search terms"
+        placeholder="Search terms"
+        value={searchQuery}
+        onChange={onSearchChange}
+        inputRef={searchInputRef}
+        className="min-w-0 flex-1"
+      />
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex h-12 shrink-0 cursor-pointer items-center gap-1.5 rounded-2xl bg-base-100 px-3.5 text-sm font-extrabold shadow-card"
+      >
+        <SlidersHorizontal className="size-[18px]" strokeWidth={2.4} aria-hidden />
+        Filters
+        {activeFilterCount > 0 ? (
+          <span className="flex size-5 items-center justify-center rounded-full bg-neutral text-xs text-neutral-content tabular-nums">
+            {activeFilterCount}
+          </span>
+        ) : null}
+      </button>
+      <FiltersSheet isOpen={open} onOpenChange={setOpen} totalCount={totalCount} {...sheet} />
     </section>
   );
 }

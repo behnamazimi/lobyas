@@ -2,14 +2,8 @@
 
 import { Download } from "lucide-react";
 import { Suspense, use, useMemo, useState } from "react";
+import { BottomSheet, Pill } from "@/components/kit";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { ImportCodePanel } from "@/components/import/import-ui";
 import { CopyIconSwap } from "@/components/settings/ui";
 import {
@@ -23,30 +17,26 @@ import type { Collection, Term } from "@/lib/terms/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SkeletonBar } from "@/components/page-skeleton";
 
-type CollectionExportDialogProps = {
+type CollectionExportSheetProps = {
   collection: Collection;
-  /** Started when the dialog was opened; the full terms load only for export. */
+  /** Started when the sheet was opened; the full terms load only for export. */
   terms: Promise<CollectionExport>;
-  isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
 /** Mounted only while open, so its state starts fresh every time. */
-export function CollectionExportDialog({
+export function CollectionExportSheet({
   collection,
   terms,
-  isOpen,
   onOpenChange,
-}: CollectionExportDialogProps) {
+}: CollectionExportSheetProps) {
   return (
-    <Dialog isOpen={isOpen} onOpenChange={onOpenChange} className="max-w-2xl">
-      <DialogHeader>
-        <DialogTitle>Export collection</DialogTitle>
-        <DialogDescription>
-          Export &ldquo;{collection.name}&rdquo; as JSON. Copy it or download a file you can
-          re-import later.
-        </DialogDescription>
-      </DialogHeader>
+    <BottomSheet
+      isOpen
+      onOpenChange={onOpenChange}
+      title="Export collection"
+      subline={`Export “${collection.name}” as JSON. Copy it or download a file you can re-import later.`}
+    >
       <Suspense
         fallback={
           <div className="space-y-2 py-4" aria-busy="true" aria-label="Loading collection">
@@ -56,7 +46,7 @@ export function CollectionExportDialog({
       >
         <ExportBody collection={collection} terms={terms} onOpenChange={onOpenChange} />
       </Suspense>
-    </Dialog>
+    </BottomSheet>
   );
 }
 
@@ -72,30 +62,20 @@ function ExportBody({
   const result = use(termsPromise);
   if ("error" in result) {
     return (
-      <>
+      <div className="flex flex-col gap-3">
         <Alert variant="destructive">
           <AlertDescription>{result.error}</AlertDescription>
         </Alert>
-        <DialogFooter className="shrink-0">
-          <Button type="button" variant="outline" onPress={() => onOpenChange(false)}>
-            Close
-          </Button>
-        </DialogFooter>
-      </>
+        <Pill variant="secondary" onClick={() => onOpenChange(false)}>
+          Close
+        </Pill>
+      </div>
     );
   }
-  return <ExportPanel collection={collection} terms={result.terms} onOpenChange={onOpenChange} />;
+  return <ExportPanel collection={collection} terms={result.terms} />;
 }
 
-function ExportPanel({
-  collection,
-  terms,
-  onOpenChange,
-}: {
-  collection: Collection;
-  terms: Term[];
-  onOpenChange: (open: boolean) => void;
-}) {
+function ExportPanel({ collection, terms }: { collection: Collection; terms: Term[] }) {
   const [copied, setCopied] = useState(false);
 
   const json = useMemo(
@@ -152,26 +132,18 @@ function ExportPanel({
         {json}
       </ImportCodePanel>
 
-      <DialogFooter className="shrink-0">
-        <Button type="button" variant="outline" onPress={() => onOpenChange(false)}>
-          Close
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onPress={() => void handleCopyText()}
-          isDisabled={!json}
-        >
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Pill variant="secondary" onClick={() => void handleCopyText()} disabled={!json}>
           Copy as text
-        </Button>
-        <Button type="button" variant="outline" onPress={handleDownloadCsv} isDisabled={!json}>
+        </Pill>
+        <Pill variant="secondary" onClick={handleDownloadCsv} disabled={!json}>
           Download CSV
-        </Button>
-        <Button type="button" onPress={handleDownload} isDisabled={!json}>
-          <Download className="size-4" />
+        </Pill>
+        <Pill onClick={handleDownload} disabled={!json}>
+          <Download className="size-4" aria-hidden />
           Download .json
-        </Button>
-      </DialogFooter>
+        </Pill>
+      </div>
     </>
   );
 }

@@ -11,17 +11,16 @@ const TWELVE_TERMS: SeedTerm[] = Array.from({ length: 12 }, (_, index) => ({
   definition: `What share term ${index + 1} means.`,
 }));
 
-/** On phones the Library header renders twice; only one is on screen. */
 function shareButton(page: Page) {
-  return page.getByRole("button", { name: "Share collection" }).filter({ visible: true });
+  return page.getByRole("button", { name: "Share", exact: true });
 }
 
 async function shareFromLibrary(page: Page, collectionId: string) {
   await gotoReady(page, `/app/library?collection=${collectionId}`);
   await shareButton(page).click();
   const sheet = page.getByRole("dialog", { name: "Share collection" });
-  await expect(sheet.getByRole("checkbox", { checked: false })).toBeVisible();
-  await sheet.getByRole("checkbox").check({ force: true });
+  await expect(sheet.getByRole("switch", { checked: false })).toBeVisible();
+  await sheet.getByRole("switch").check({ force: true });
   const link = sheet.getByRole("textbox", { name: "Link to this collection" });
   await expect(link).toHaveValue(new RegExp(`/c/${collectionId}$`));
   await expect
@@ -33,7 +32,7 @@ async function shareFromLibrary(page: Page, collectionId: string) {
       return row.visibility;
     })
     .toBe("shared");
-  await expect(sheet.getByRole("checkbox")).toBeEnabled();
+  await expect(sheet.getByRole("switch")).toBeEnabled();
   return sheet;
 }
 
@@ -95,11 +94,11 @@ test.describe("Sharing a collection", () => {
     const { collectionId } = await seedCollection(user);
     const sheet = await shareFromLibrary(page, collectionId);
 
-    await sheet.getByRole("checkbox").click({ force: true });
+    await sheet.getByRole("switch").click({ force: true });
     await expect(sheet.getByText("Stop sharing?")).toBeVisible();
     await expect(sheet.getByText("It leaves Browse and the link stops working.")).toBeVisible();
     await sheet.getByRole("button", { name: "Stop sharing" }).click();
-    await expect(sheet.getByRole("checkbox", { checked: false })).toBeVisible();
+    await expect(sheet.getByRole("switch", { checked: false })).toBeVisible();
 
     const response = await page.goto(`/c/${collectionId}`);
     expect(response?.status()).toBe(404);

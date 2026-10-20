@@ -14,19 +14,9 @@ import { useSyncExternalStore } from "react";
  */
 type TermOverride = { marked?: boolean; removed?: boolean; savedAt: number };
 
-export type CollectionCounts = {
-  termCount: number;
-  knownCount: number;
-  termsLearnedCount: number;
-  savedAt: number;
-};
+type State = { terms: ReadonlyMap<string, TermOverride> };
 
-type State = {
-  terms: ReadonlyMap<string, TermOverride>;
-  counts: ReadonlyMap<string, CollectionCounts>;
-};
-
-const EMPTY: State = { terms: new Map(), counts: new Map() };
+const EMPTY: State = { terms: new Map() };
 let state: State = EMPTY;
 const listeners = new Set<() => void>();
 
@@ -64,13 +54,6 @@ export function overrideRemoved(termId: string, savedAt: number) {
   setTerm(termId, { removed: true }, savedAt);
 }
 
-/** The collection's live counts, for the sidebar next to the list. */
-export function overrideCollectionCounts(collectionId: string, counts: CollectionCounts) {
-  const next = new Map(state.counts);
-  next.set(collectionId, counts);
-  emit({ ...state, counts: next });
-}
-
 /** The term's override when the snapshot may not include it, else undefined. */
 export function termOverride(
   overrides: State,
@@ -79,15 +62,6 @@ export function termOverride(
 ): TermOverride | undefined {
   const override = overrides.terms.get(termId);
   return override && override.savedAt >= loadedAt ? override : undefined;
-}
-
-export function collectionCountsOverride(
-  overrides: State,
-  collectionId: string,
-  loadedAt: number,
-): CollectionCounts | undefined {
-  const counts = overrides.counts.get(collectionId);
-  return counts && counts.savedAt >= loadedAt ? counts : undefined;
 }
 
 /** Test-only reset. */

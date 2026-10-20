@@ -84,56 +84,21 @@ export function PanelSkeleton() {
   );
 }
 
-/** Header card + filter bar + term rows, without the sidebar — reused for
- *  an in-place collection switch, where the sidebar stays mounted. */
+/** Title, collection card, search and term rows of the Library, while a collection loads. */
 export function LibraryListSkeleton() {
   return (
-    <div className="min-w-0 flex-1 space-y-4" aria-busy="true" aria-label="Loading collection">
-      <div className="shadow-surface space-y-4 rounded-box bg-base-100 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-2">
-            <SkeletonBar className="h-6 w-48" />
-            <SkeletonBar className="h-4 w-32" />
-          </div>
-          <SkeletonBar className="h-8 w-8 shrink-0 rounded-field" />
-        </div>
-        <SkeletonBar className="h-2 w-full rounded-full" />
+    <div className="flex flex-col gap-3" aria-busy="true" aria-label="Loading collection">
+      <div className="flex items-center justify-between">
+        <SkeletonBar className="h-9 w-32" />
+        <SkeletonBar className="h-11 w-32 rounded-full" />
       </div>
-
-      <div className="flex flex-wrap gap-3">
-        <SkeletonBar className="h-10 w-full max-w-xs rounded-field" />
-        <SkeletonBar className="h-10 w-24 rounded-field" />
-        <SkeletonBar className="h-10 w-24 rounded-field" />
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
+      <SkeletonBar className="h-48 w-full rounded-3xl" />
+      <SkeletonBar className="h-12 w-full rounded-2xl" />
+      <div className="flex flex-col gap-px overflow-hidden rounded-3xl">
+        {Array.from({ length: 6 }, (_, index) => (
+          <SkeletonBar key={index} className="h-[68px] w-full rounded-none" />
+        ))}
       </div>
     </div>
-  );
-}
-
-export function LibraryPageSkeleton() {
-  return (
-    <PageShell aria-busy="true" aria-label="Loading your library">
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <aside className="hidden md:flex md:w-68 md:shrink-0">
-          <div className="shadow-surface flex w-full flex-col gap-4 rounded-box bg-base-100 p-3">
-            <SkeletonBar className="h-9 w-full rounded-field" />
-            <div className="space-y-2">
-              <SkeletonBar className="h-9 w-full rounded-field" />
-              <SkeletonBar className="h-9 w-full rounded-field" />
-              <SkeletonBar className="h-9 w-full rounded-field" />
-            </div>
-          </div>
-        </aside>
-
-        <LibraryListSkeleton />
-      </div>
-    </PageShell>
   );
 }
