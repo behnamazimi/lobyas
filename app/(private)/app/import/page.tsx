@@ -1,7 +1,6 @@
 import { getImportSetupData } from "@/app/(private)/app/import/actions";
 import { ImportChooser } from "@/components/import/import-chooser";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageHeader } from "@/components/kit";
 import { RequestsSection } from "@/components/requests/requests-section";
 import { getSessionUser } from "@/lib/auth/require-session";
 import { fetchMyRequests, loadRequestEntryFor } from "@/lib/requests/repository";
@@ -31,17 +30,12 @@ async function ImportPage() {
   ]);
 
   if ("error" in setup) {
-    return <p className="text-sm text-base-content/70">{setup.error}</p>;
+    return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
   }
 
   return (
     <>
-      <PageHeader
-        badge={<PageBadge page="import" />}
-        title="Add a collection"
-        description="Find a collection, or start from what you have."
-        compactOnPhone
-      />
+      <PageHeader title="Add a collection" backHref="/app/library" />
       <RequestsSection requests={requests} />
       <ImportChooser collections={setup.collections} requestEntry={requestEntry} />
     </>

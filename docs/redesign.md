@@ -822,3 +822,23 @@ Branch `redesign-p7-library`.
 **Care.** `components/library/collection-actions.tsx` owns every collection flow, `collection-action-rows.tsx` only lays out rows. Removed: `library-sidebar`, `collection-sidebar`, `collection-sidebar-drawer`, `copy-collection-link-button`, `add-terms-menu`, `category-chips`, `shared/toolbar`, `term-card`, `term-actions-menu`. E2E locators changed: More tile (not "Collection actions"), Share tile, switch (not checkbox) in the share sheet, `Delete term` is a button.
 
 **Open.** Checked at 390 and 1280: list, detail sheet and panel, More sheet (dim), paused state. Not checked against frames: long names, a term with only a definition, Japanese terms, an added collection, blocked share, the empty library, swipe on a real touch device, and keyboard row navigation. `e2e/tests/zz-visual.spec.ts` (Phase 3) is still there.
+
+### Phase 8 · Adding terms
+
+Branch `redesign-p8-adding-terms`.
+
+**Built.** `/app/import`, `/app/import/paste`, `/apps`, `/apps/[app]`, `/more`, `/app/capture` and `/app/import/request` draw their own kit `PageHeader` at every width (the shell's phone bar skips them: `ownsHeader` in `lib/chrome.ts`, used by `shell-frame.tsx`). `FlowFrame` (`components/import/flow-frame.tsx`) is one centered 640 px column. The chooser has a search field, result rows ("Built-in · N terms" / "Community · N terms · N loves"), the request link row, the four start rows and **More ways to add**. Paste has the step bar (`StepBar`), the list box, **Paste** / **Choose a file** pills, format help (a sheet) and the pinned **Check your list**. Check has New / Already there / Unfinished tiles, a "Read as" line (`lib/import/read-as.ts`) with **Change how it's read** (separators, heading, column roles), the destination (`ChoiceCards`), category, notices, conflicts, Skip / Update, the term list and the pinned **Add N terms**. The step bar moves to Add while saving. Capture has the serif Term field, the collection chip (opens a sheet that changes only Capture's destination), Definition, More details, and pinned **Save term** with "Save and add another". Request, its sent screen, the definitions form, request cards and the blocked state follow the same conventions.
+
+**Kit.** `PinnedAction` (`surface/pinned-action.tsx`, from `@/components/kit`, story "Pinned action"): the page's primary action, sticky above the safe area. `KindToggle` and `LanguageToggle` (`components/shared/`) are now `ChoiceCards` and a native `SelectInput`; `create-collection-dialog` picks that up.
+
+**Data.** None new. `lib/import/read-as.ts` is a pure sentence for the Check screen.
+
+**Left as is.** Parser, Check state, commit, draft storage, adapter variant for `/admin/requests`, Android share target, `REQUEST_COPY`, tour targets `import-search` / `import-routes`, `ImportedNotice`. The destination stays on Check, not Paste. "Check your list" has no live count (it would parse every keystroke).
+
+**Decisions taken.** Questions went unanswered, so I took the recommended defaults: page-owned headers; destination on Check; `TermFormFields` and `TermRelationshipsEditor` restyled (they also serve the Library edit sheet); `PinnedAction` added; frame copy "Save term", "Definition (optional)", "Update them", "Paste a list / From another app / One term / Or start your own". The shared `ErrorAlert` stays for import failures (it renders issue lists). Request kind labels stay "A field's jargon" / "Language vocabulary".
+
+**Frames that didn't match.** Frame's destination on Paste; "Check 24 terms" count button; 5 rows + "and 19 more" (all rows shown); no separators, columns, filters, Restore, or "Start an empty collection" row (kept); Capture chip links to the shell Switcher (it sets only Capture's collection); Request frame shows only the blocked state.
+
+**Care.** `app/globals.css` has a `.flow-fields` rule: inputs and unselected choice cards are white inside the add-terms pages (the kit fields are cream, which vanishes on the cream page). Sheets render outside it and keep cream. A new field on these pages needs no class. `e2e/tests/import.spec.ts` clicks choice cards by text (the radios are hidden) and uses **Save term**.
+
+**Open.** Checked at 390 and 1280, light and dim: chooser with search, paste, check (existing collection, duplicate, long definition), edit sheet, capture with details and picker, apps, guide, JSON page, request (requests off). Not checked: requests switched on, the admin delivery screen, a 1100-line list, Japanese terms, a shared sentence (`?text=`), the Android share target, the dim primary pill (it looks grey; that's the kit token).

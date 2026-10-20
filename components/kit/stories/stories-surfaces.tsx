@@ -5,6 +5,7 @@ import {
   Divider,
   ListRow,
   Pill,
+  PinnedAction,
   SectionCard,
   StatTile,
   Tile,
@@ -34,6 +35,14 @@ export function SurfaceStories() {
             日
           </Tile>
         </div>
+      </Story>
+      <Story
+        title="Pinned action"
+        note="Sticks to the bottom of the page; the page scrolls under it."
+      >
+        <PinnedAction>
+          <Pill size="lg">Add 22 terms</Pill>
+        </PinnedAction>
       </Story>
       <Story title="Stat tiles" note="White on the page, or tinted when it carries a result.">
         <div className="grid grid-cols-3 gap-2.5">

@@ -1,10 +1,7 @@
 import { getImportSetupData } from "@/app/(private)/app/import/actions";
 import { DefinitionsForm } from "@/components/requests/definitions-form";
 import { RequestForm, type RecentRequest } from "@/components/requests/request-form";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LinkButton } from "@/components/ui/button";
+import { Banner, PageHeader, PinnedAction, Pill } from "@/components/kit";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { getSessionUser } from "@/lib/auth/require-session";
@@ -17,7 +14,9 @@ import { withDirection } from "@/components/shared/view-transitions";
 
 type Client = SupabaseClient<Database>;
 
-type PageProps = { searchParams: Promise<{ topic?: string; definitions?: string }> };
+type PageProps = {
+  searchParams: Promise<{ topic?: string; definitions?: string }>;
+};
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -41,16 +40,14 @@ async function loadDefinitions(supabase: Client, userId: string, collectionId: s
 async function RequestPage({ searchParams }: PageProps) {
   const { topic = "", definitions: definitionsId } = await searchParams;
   const { supabase, user } = await getSessionUser();
-  if (!user) return <p className="text-sm text-base-content/70">{REQUEST_COPY.form.signedOut}</p>;
+  if (!user)
+    return <p className="text-sm font-semibold text-muted">{REQUEST_COPY.form.signedOut}</p>;
 
   const header = (
     <PageHeader
-      badge={<PageBadge page="request" />}
       title={REQUEST_COPY.form.title}
-      description={REQUEST_COPY.form.intro}
+      subline={REQUEST_COPY.form.intro}
       backHref="/app/import"
-      backLabel="Add a collection"
-      compactOnPhone
     />
   );
 
@@ -68,17 +65,15 @@ async function RequestPage({ searchParams }: PageProps) {
       return (
         <>
           {header}
-          <Alert>
-            <AlertDescription>{blocked}</AlertDescription>
-          </Alert>
-          <div className="flex flex-wrap gap-2">
-            <LinkButton href="/app/import" className="min-h-11">
+          <Banner tone="hard">{blocked}</Banner>
+          <PinnedAction className="flex flex-col gap-2">
+            <Pill size="lg" href="/app/import">
               {REQUEST_COPY.form.seeRequests}
-            </LinkButton>
-            <LinkButton href="/app/browse" variant="outline" className="min-h-11">
+            </Pill>
+            <Pill variant="ghost" href="/app/browse">
               {REQUEST_COPY.card.browse}
-            </LinkButton>
-          </div>
+            </Pill>
+          </PinnedAction>
         </>
       );
     }
@@ -95,7 +90,7 @@ async function RequestPage({ searchParams }: PageProps) {
       return (
         <>
           {header}
-          <p className="text-sm text-base-content/70">
+          <p className="text-sm font-semibold text-muted">
             {found ? REQUEST_COPY.definitions.nothingToDefine : REQUEST_COPY.definitions.notYours}
           </p>
         </>
@@ -137,7 +132,7 @@ async function RequestPage({ searchParams }: PageProps) {
     return (
       <>
         {header}
-        <p className="text-sm text-base-content/70">{REQUEST_COPY.form.sendFailed}</p>
+        <p className="text-sm font-semibold text-muted">{REQUEST_COPY.form.sendFailed}</p>
       </>
     );
   }

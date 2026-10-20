@@ -1,6 +1,6 @@
 "use client";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ChoiceCards } from "@/components/kit";
 import { COLLECTION_KIND_OPTIONS, parseKind, type CollectionKind } from "@/lib/terms/kinds";
 
 const KIND_HINTS: Record<CollectionKind, string> = {
@@ -18,25 +18,15 @@ type KindToggleProps = {
 export function KindToggle({ value, onChange, isDisabled }: KindToggleProps) {
   return (
     <div className="space-y-1.5">
-      <ToggleGroup
-        aria-label="What it teaches"
-        selectionMode="single"
-        disallowEmptySelection
-        selectedKeys={value ? [value] : []}
-        isDisabled={isDisabled}
-        onSelectionChange={(keys) => {
-          const [key] = [...keys];
-          if (key) onChange(parseKind(String(key)));
-        }}
-        className="flex-nowrap"
-      >
-        {COLLECTION_KIND_OPTIONS.map((option) => (
-          <ToggleGroupItem key={option.value} id={option.value} className="flex-1 px-2">
-            {option.label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-      <p className="m-0 text-xs text-base-content/70">
+      <div className={isDisabled ? "pointer-events-none opacity-60" : undefined}>
+        <ChoiceCards
+          label="What it teaches"
+          options={COLLECTION_KIND_OPTIONS}
+          value={value ?? ""}
+          onChange={(next) => onChange(parseKind(next))}
+        />
+      </div>
+      <p className="m-0 text-[13px] font-semibold text-muted">
         {value ? KIND_HINTS[value] : "Pick the one that fits."}
       </p>
     </div>

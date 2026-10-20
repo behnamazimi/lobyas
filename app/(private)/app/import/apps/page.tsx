@@ -1,43 +1,28 @@
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
+import { Divider, ListRow, PageHeader, SectionCard } from "@/components/kit";
 import { APP_GUIDES } from "@/lib/import/guides";
-import { NAV_FORWARD, withDirection } from "@/components/shared/view-transitions";
+import { withDirection } from "@/components/shared/view-transitions";
 
 function AppPickerPage() {
   return (
     <>
       <PageHeader
-        badge={<PageBadge page="apps" />}
-        title="Export from another app"
+        title="From another app"
+        subline="Pick the app. You'll see where its export is, then paste it here."
         backHref="/app/import"
-        backLabel="Add a collection"
-        compactOnPhone
       />
-      <p className="m-0 text-sm text-base-content/70">
-        Pick the app. You&apos;ll see where its export is, then paste it here.
-      </p>
-      <ul className="shadow-surface m-0 list-none divide-y divide-base-300/60 overflow-hidden rounded-box bg-base-100 p-0">
-        {APP_GUIDES.map((guide) => (
-          <li key={guide.slug}>
-            <Link
+      <SectionCard>
+        {APP_GUIDES.map((guide, index) => (
+          <div key={guide.slug}>
+            {index > 0 ? <Divider /> : null}
+            <ListRow
               href={`/app/import/apps/${guide.slug}`}
-              transitionTypes={NAV_FORWARD}
-              className="flex min-h-16 items-center gap-3 px-4 py-3 no-underline outline-none transition-colors hover:bg-base-200/60 focus-visible:ring-2 focus-visible:ring-primary"
-            >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-field bg-base-200 font-medium">
-                {guide.name.charAt(0)}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span className="block font-medium text-base-content">{guide.name}</span>
-                <span className="block text-sm text-base-content/70">{guide.summary}</span>
-              </span>
-              <ChevronRight className="size-4 text-base-content/70" aria-hidden strokeWidth={1.5} />
-            </Link>
-          </li>
+              icon={<span className="font-heading text-lg">{guide.name.charAt(0)}</span>}
+              label={guide.name}
+              subline={guide.summary}
+            />
+          </div>
         ))}
-      </ul>
+      </SectionCard>
     </>
   );
 }

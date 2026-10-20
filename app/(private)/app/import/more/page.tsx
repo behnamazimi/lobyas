@@ -2,8 +2,7 @@ import { Braces } from "lucide-react";
 import { CopyIconButton } from "@/components/import/copy-icon-button";
 import { ImportCodePanel, ImportCard } from "@/components/import/import-ui";
 import { ImportLlmPrompt } from "@/components/import/import-llm-prompt";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
+import { PageHeader } from "@/components/kit";
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
 import { listImportDestinations } from "@/lib/import/import-collections";
 import { IMPORT_SAMPLE_PAYLOAD, stringifyImportPayload } from "@/lib/import/sample-payload";
@@ -12,7 +11,7 @@ import { withDirection } from "@/components/shared/view-transitions";
 async function MoreImportOptionsPage() {
   const auth = await requireAuthenticatedClient();
   if ("error" in auth) {
-    return <p className="text-sm text-base-content/70">Log in to add terms.</p>;
+    return <p className="text-sm font-semibold text-muted">Log in to add terms.</p>;
   }
   // The page is mostly documentation, so it still opens if the list can't load.
   const collections = await listImportDestinations(auth.supabase, auth.user.id)
@@ -23,19 +22,13 @@ async function MoreImportOptionsPage() {
 
   return (
     <>
-      <PageHeader
-        badge={<PageBadge page="more" />}
-        title="More ways to add"
-        backHref="/app/import"
-        backLabel="Add a collection"
-        compactOnPhone
-      />
+      <PageHeader title="More ways to add" backHref="/app/import" />
       <ImportCard
-        icon={<Braces aria-hidden strokeWidth={1.5} />}
+        icon={<Braces className="size-5" aria-hidden strokeWidth={2.4} />}
         title="Choose a JSON file"
         description="JSON works in the same place as any list. Paste it or choose the file there. Term is the only required field. Definition, category, example, mental model, in practice, anti-example, debated, note and links to other terms are optional."
       >
-        <h3 className="m-0 text-sm font-medium">The JSON format</h3>
+        <h3 className="m-0 font-sans text-sm font-extrabold">The JSON format</h3>
         <ImportCodePanel actions={<CopyIconButton value={sampleJson} label="Copy JSON" />}>
           {sampleJson}
         </ImportCodePanel>

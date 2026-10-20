@@ -1,8 +1,6 @@
 "use client";
 
-import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Banner, Card, Chip, Pill } from "@/components/kit";
 import { CheckCard } from "@/components/import/check-card";
 import type { CardFilter, ImportFlowState } from "@/components/import/use-import-flow";
 import { activeDrafts, effectivePolicy, matchFor } from "@/lib/import/check-state";
@@ -27,19 +25,15 @@ function RemovedNotice({ flow }: { flow: ImportFlowState }) {
   if (!removed) return null;
 
   return (
-    <Alert>
-      <AlertDescription>Removed &ldquo;{removed.term}&rdquo;</AlertDescription>
-      <AlertAction>
-        <Button
-          type="button"
-          size="sm"
-          variant="outline"
-          onPress={() => flow.restoreCard(removed.id)}
-        >
+    <Banner
+      action={
+        <Pill variant="secondary" onClick={() => flow.restoreCard(removed.id)}>
           Restore
-        </Button>
-      </AlertAction>
-    </Alert>
+        </Pill>
+      }
+    >
+      Removed &ldquo;{removed.term}&rdquo;
+    </Banner>
   );
 }
 
@@ -58,20 +52,14 @@ export function CheckList({
 
   if (!flow.reviewAll && quiet && drafts.length > 0) {
     return (
-      <div className="shadow-surface flex items-center justify-between gap-3 rounded-field bg-base-100 p-3">
-        <p className="m-0 font-medium" role="status">
+      <Card radius="md" className="flex items-center justify-between gap-3 px-4 py-1">
+        <p className="m-0 text-[15px] font-extrabold" role="status">
           {pluralize(toAdd, "term")} ready
         </p>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="min-h-11"
-          onPress={() => flow.setReviewAll(true)}
-        >
+        <Pill variant="ghost" onClick={() => flow.setReviewAll(true)}>
           Review all
-        </Button>
-      </div>
+        </Pill>
+      </Card>
     );
   }
 
@@ -81,43 +69,48 @@ export function CheckList({
     return true;
   });
 
+  const filters: { id: CardFilter; label: string }[] = [
+    { id: "all", label: "All" },
+    { id: "attention", label: "Needs a look" },
+    { id: "there", label: "Already there" },
+  ];
+
   return (
     <>
-      <div className="space-y-2">
-        <p className="m-0 text-sm font-medium" role="status">
+      <div className="flex flex-col gap-2">
+        <p className="m-0 text-sm font-extrabold" role="status">
           {summaryLine(flow)}
         </p>
-        <ToggleGroup
-          aria-label="Show"
-          selectionMode="single"
-          disallowEmptySelection
-          selectedKeys={[flow.filter]}
-          onSelectionChange={(keys) => {
-            const [key] = [...keys];
-            if (key) flow.setFilter(String(key) as CardFilter);
-          }}
-        >
-          <ToggleGroupItem id="all">All</ToggleGroupItem>
-          <ToggleGroupItem id="attention">Needs a look</ToggleGroupItem>
-          <ToggleGroupItem id="there">Already there</ToggleGroupItem>
-        </ToggleGroup>
+        <div role="group" aria-label="Show" className="flex flex-wrap gap-2">
+          {filters.map((item) => (
+            <Chip
+              key={item.id}
+              selected={flow.filter === item.id}
+              onPress={() => flow.setFilter(item.id)}
+            >
+              {item.label}
+            </Chip>
+          ))}
+        </div>
       </div>
 
       <RemovedNotice flow={flow} />
 
-      <ul className="m-0 flex list-none flex-col gap-2 p-0">
-        {visible.map((draft) => (
-          <CheckCard
-            key={draft.id}
-            draft={draft}
-            match={matchFor(flow.check, draft)}
-            policy={effectivePolicy(flow.check, draft)}
-            onEdit={() => onEdit(draft.id)}
-            onRemove={() => flow.removeCard(draft.id)}
-            onPolicyChange={(policy) => flow.setOverride(draft.id, policy)}
-          />
-        ))}
-      </ul>
+      <Card radius="md" className="px-4 py-1">
+        <ul className="m-0 list-none p-0">
+          {visible.map((draft) => (
+            <CheckCard
+              key={draft.id}
+              draft={draft}
+              match={matchFor(flow.check, draft)}
+              policy={effectivePolicy(flow.check, draft)}
+              onEdit={() => onEdit(draft.id)}
+              onRemove={() => flow.removeCard(draft.id)}
+              onPolicyChange={(policy) => flow.setOverride(draft.id, policy)}
+            />
+          ))}
+        </ul>
+      </Card>
     </>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Card, Divider, Pill, Tile } from "@/components/kit";
 import type { SharedCollection } from "@/lib/terms/types";
 import { pluralize } from "@/lib/utils";
 
@@ -10,6 +9,19 @@ export type SearchState =
   | { status: "loading" }
   | { status: "error" }
   | { status: "done"; query: string; collections: SharedCollection[] };
+
+const NOTE = "m-0 text-sm font-semibold text-muted";
+
+function subline(collection: SharedCollection) {
+  const parts = [
+    collection.isBuiltin ? "Built-in" : "Community",
+    pluralize(collection.termCount, "term"),
+  ];
+  if (!collection.isBuiltin && collection.loveCount > 0) {
+    parts.push(pluralize(collection.loveCount, "love"));
+  }
+  return parts.join(" · ");
+}
 
 export function SearchResults({
   state,
@@ -28,20 +40,18 @@ export function SearchResults({
   noMatchMessage?: (query: string) => string;
 }) {
   if (state.status === "idle") return null;
-  if (state.status === "loading") {
-    return <p className="m-0 text-sm text-base-content/70">Searching…</p>;
-  }
+  if (state.status === "loading") return <p className={NOTE}>Searching…</p>;
   if (state.status === "error") {
     return (
-      <Alert variant="destructive">
-        <AlertDescription>Couldn&apos;t search right now. Try again.</AlertDescription>
-      </Alert>
+      <p className="m-0 text-sm font-bold text-wrong-text" role="alert">
+        Couldn&apos;t search right now. Try again.
+      </p>
     );
   }
   if (state.collections.length === 0) {
     if (hideWhenEmpty) return null;
     return (
-      <p className="m-0 text-sm text-base-content/70" role="status">
+      <p className={NOTE} role="status">
         {noMatchMessage
           ? noMatchMessage(state.query)
           : `No built-in or community collection matches “${state.query}”. Try a list, or start an empty collection.`}
@@ -50,44 +60,43 @@ export function SearchResults({
   }
 
   return (
-    <ul className="m-0 flex list-none flex-col gap-2 p-0">
-      {state.collections.map((collection) => {
-        const added = collection.inCollection || addedIds.includes(collection.id);
-        return (
-          <li
-            key={collection.id}
-            className="shadow-surface flex items-center gap-3 rounded-field bg-base-100 p-3"
-          >
-            <div className="min-w-0 flex-1">
-              <p className="m-0 truncate font-medium">{collection.name}</p>
-              <p className="m-0 text-sm text-base-content/70">
-                {pluralize(collection.termCount, "term")} · Shared
-              </p>
-            </div>
-            {added ? (
-              <LinkButton
-                href={`/app/library?collection=${collection.id}`}
-                variant="outline"
-                size="sm"
-                className="min-h-11 md:min-h-8"
-              >
-                Added · Open
-              </LinkButton>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="min-h-11 md:min-h-8"
-                isDisabled={addingId === collection.id}
-                onPress={() => onAdd(collection.id)}
-              >
-                {addingId === collection.id ? "Adding…" : "Add"}
-              </Button>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+    <Card radius="md" className="px-3.5 py-1">
+      <ul className="m-0 list-none p-0">
+        {state.collections.map((collection, index) => {
+          const added = collection.inCollection || addedIds.includes(collection.id);
+          return (
+            <li key={collection.id}>
+              {index > 0 ? <Divider /> : null}
+              <div className="flex min-h-16 items-center gap-3 py-2">
+                <Tile tone={collection.isBuiltin ? "success" : "read"} serif>
+                  {collection.name.charAt(0).toUpperCase()}
+                </Tile>
+                <div className="min-w-0 flex-1">
+                  <p className="m-0 truncate text-[15px] font-extrabold">{collection.name}</p>
+                  <p className="m-0 text-[13px] font-semibold text-muted">{subline(collection)}</p>
+                </div>
+                {added ? (
+                  <Pill
+                    variant="soft"
+                    href={`/app/library?collection=${collection.id}`}
+                    className="shrink-0"
+                  >
+                    Added · Open
+                  </Pill>
+                ) : (
+                  <Pill
+                    className="shrink-0"
+                    disabled={addingId === collection.id}
+                    onClick={() => onAdd(collection.id)}
+                  >
+                    {addingId === collection.id ? "Adding…" : "Add"}
+                  </Pill>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </Card>
   );
 }

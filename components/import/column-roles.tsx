@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectInput } from "@/components/kit";
 import type { ColumnRole, ParsedList } from "@/lib/import/parse/types";
 
 const ROLE_OPTIONS: { value: ColumnRole; label: string }[] = [
@@ -24,15 +25,15 @@ export function ColumnRoles({ parsed, onRolesChange }: ColumnRolesProps) {
   const roles = Array.from({ length: width }, (_, index) => parsed.roles[index] ?? "ignore");
 
   return (
-    <fieldset className="m-0 space-y-2 border-0 p-0">
-      <legend className="mb-1 text-sm font-medium">What each column is</legend>
+    <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+      <legend className="mb-1 text-sm font-extrabold">What each column is</legend>
       {roles.map((role, index) => {
         const label = parsed.heading?.[index] || parsed.rows[0]?.[index] || `Column ${index + 1}`;
         return (
-          <label key={index} className="flex items-center gap-3 text-sm">
+          <label key={index} className="flex items-center gap-3 text-sm font-semibold">
             <span className="min-w-0 flex-1 truncate">{label}</span>
-            <select
-              className="select select-sm min-h-11 w-40 text-base md:min-h-8 md:text-sm"
+            <SelectInput
+              className="w-40"
               value={role}
               aria-label={`What column ${index + 1} is`}
               onChange={(event) => {
@@ -46,7 +47,7 @@ export function ColumnRoles({ parsed, onRolesChange }: ColumnRolesProps) {
                   {option.label}
                 </option>
               ))}
-            </select>
+            </SelectInput>
           </label>
         );
       })}
