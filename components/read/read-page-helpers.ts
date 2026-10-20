@@ -57,5 +57,5 @@ function collectionName(collectionId: string, collections: StudyCollection[]) {
 export function caughtUpDescription(collectionId: string, collections: StudyCollection[]) {
   const name = collectionName(collectionId, collections);
   if (!name) return "No terms in this collection. Pick another collection to keep reading.";
-  return `No terms in ${name}. Pick another collection to keep reading.`;
+  return `You’ve read every term in ${name}. Switch collection or add more terms.`;
 }

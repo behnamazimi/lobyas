@@ -842,3 +842,21 @@ Branch `redesign-p8-adding-terms`.
 **Care.** `app/globals.css` has a `.flow-fields` rule: inputs and unselected choice cards are white inside the add-terms pages (the kit fields are cream, which vanishes on the cream page). Sheets render outside it and keep cream. A new field on these pages needs no class. `e2e/tests/import.spec.ts` clicks choice cards by text (the radios are hidden) and uses **Save term**.
 
 **Open.** Checked at 390 and 1280, light and dim: chooser with search, paste, check (existing collection, duplicate, long definition), edit sheet, capture with details and picker, apps, guide, JSON page, request (requests off). Not checked: requests switched on, the admin delivery screen, a 1100-line list, Japanese terms, a shared sentence (`?text=`), the Android share target, the dim primary pill (it looks grey; that's the kit token).
+
+### Phase 10 · Status and empty states
+
+Branch `redesign-p10-status`.
+
+**Built.** Not found, error, global error and offline are kit `StatusScreen`s with the frames' copy and kit `Pill` actions (**Go home**, **Browse collections** for signed-in visitors, **Try again**). `components/status-page.tsx` and `components/shared/empty-state.tsx` are deleted. Read and Review's caught-up states have actions (`CaughtUpActions` in `components/read/read-caught-up.tsx`): **Switch collection** (opens the shell switcher), **Add terms**, and on Read "Review <name> instead" when that collection has a review queue. Read's caught-up title and description follow the `Empty` frame. Loading: `PageSkeleton` and `PanelSkeleton` in `components/page-skeleton.tsx` now use kit `Skeleton` (Goals, Mastery, Settings, Stories, the page-root fallback), Library, Read and the shared-link page have their own kit skeletons.
+
+**Kit.** None added; no kit page change.
+
+**Data.** None. "Review X instead" reads `current.queues.review` from the shell context.
+
+**Left as is.** Scenes (the app's animated lobyas, not the frames' simpler ones), Home's skeleton (already matches `HomeLoading`), `StudyNoActiveCollectionsState`, Triage's caught-up actions, admin error/loading, public-site loading, `HeaderSkeleton`/`SkeletonBar`/`AdminPageSkeleton`.
+
+**Frames that didn't match.** No brand mark row above the status screens (the shell or site header carries it); the `Empty` frame's own header (the study bar has it); Browse collections only for signed-in visitors; status pages outside `/app` sit on the site's white page, not cream.
+
+**Tests.** `e2e/tests/status.spec.ts` (not found, caught-up switcher); `admin.spec.ts` and `share.spec.ts` expect the new not-found heading.
+
+**Care.** Phase 9 has no handoff note in this file. Not checked: dim theme of every state, long (40-char) collection names in caught-up, global-error on a real crash, the focus-mode end slide.

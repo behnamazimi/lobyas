@@ -1,5 +1,5 @@
-import { PanelSkeleton } from "@/components/page-skeleton";
+import { PageSkeleton } from "@/components/page-skeleton";
 
 export default function StoriesLoading() {
-  return <PanelSkeleton />;
+  return <PageSkeleton />;
 }

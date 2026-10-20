@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useRef, useState } from "react";
-import { ReadCaughtUp } from "@/components/read/read-caught-up";
+import { CaughtUpActions, ReadCaughtUp } from "@/components/read/read-caught-up";
 import { ReadErrorAlert } from "@/components/read/read-error-alert";
 import { Skeleton } from "@/components/kit";
 import { ReviewOptionsMenu } from "@/components/review/review-options-menu";
@@ -123,6 +123,7 @@ export function ReviewPage({
         goal={{ tier: "review", collectionId }}
         title="No terms to review"
         description={caughtUpDescription(collectionId, collections)}
+        actions={<CaughtUpActions />}
       />
     );
   }

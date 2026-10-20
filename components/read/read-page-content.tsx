@@ -1,6 +1,6 @@
 "use client";
 
-import { ReadCaughtUp } from "@/components/read/read-caught-up";
+import { CaughtUpActions, ReadCaughtUp } from "@/components/read/read-caught-up";
 import { ReadErrorAlert } from "@/components/read/read-error-alert";
 import { ReadTermCard } from "@/components/read/read-term-card";
 import { caughtUpDescription } from "@/components/read/read-page-helpers";
@@ -29,6 +29,7 @@ export function ReadQueueContent({
       <ReadCaughtUp
         goal={{ tier: "read", collectionId: selectedCollectionId }}
         description={caughtUpDescription(selectedCollectionId, collections)}
+        actions={<CaughtUpActions offerReview />}
       />
     );
   }

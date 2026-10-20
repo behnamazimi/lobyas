@@ -1,12 +1,10 @@
 "use client";
 
 import { trackException } from "@/lib/analytics/track";
-import { AlertTriangle } from "lucide-react";
 import { Figtree, Fraunces } from "next/font/google";
 import { useEffect } from "react";
 import { SomethingWentWrongScene } from "@/components/illustrations/scenes/something-went-wrong";
-import { StatusPageBody } from "@/components/status-page";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Pill, StatusScreen } from "@/components/kit";
 import { DARK_THEME, LIGHT_THEME, THEME_COOKIE_NAME } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -49,32 +47,22 @@ export default function GlobalError({ error, reset, unstable_retry }: GlobalErro
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body
-        className="flex min-h-full flex-col items-center justify-center px-5 py-12 text-base-content"
+        className="flex min-h-full flex-col justify-center bg-base-200 px-5 text-base-content"
         suppressHydrationWarning
       >
-        <div className="mx-auto flex w-full max-w-6xl flex-col items-center gap-3">
-          <StatusPageBody
-            icon={AlertTriangle}
-            illustration={<SomethingWentWrongScene className="w-72 sm:w-96" />}
-            title="Something went wrong"
-            description="A critical error occurred. Try again, or return home if the problem continues."
-          >
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              {retry ? (
-                <Button onPress={retry} className="transition-transform active:scale-[0.96]">
-                  Try again
-                </Button>
-              ) : null}
-              <LinkButton
-                href="/"
-                variant="outline"
-                className="transition-transform active:scale-[0.96]"
-              >
-                Back to home
-              </LinkButton>
-            </div>
-          </StatusPageBody>
-        </div>
+        <StatusScreen
+          illustration={<SomethingWentWrongScene />}
+          title="Something went wrong"
+          description="This page didn’t load. Your terms and progress are fine. Try again in a moment."
+          actions={
+            <>
+              {retry ? <Pill onClick={retry}>Try again</Pill> : null}
+              <Pill href="/" variant="secondary">
+                Go home
+              </Pill>
+            </>
+          }
+        />
       </body>
     </html>
   );

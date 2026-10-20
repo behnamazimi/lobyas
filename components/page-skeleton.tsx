@@ -1,4 +1,5 @@
-import { PageShell, pageContainerClass } from "@/components/page-container";
+import { Skeleton } from "@/components/kit";
+import { pageContainerClass } from "@/components/page-container";
 import { cn } from "@/lib/utils";
 
 export function SkeletonBar({ className }: { className: string }) {
@@ -36,19 +37,16 @@ export function HeaderSkeleton({ hasLikelySession }: { hasLikelySession: boolean
   );
 }
 
+/** A page title and two cards, in the column the app's pages use. */
 export function PageSkeleton() {
   return (
-    <PageShell innerClassName="space-y-6" aria-busy="true" aria-label="Loading">
-      <div className="flex flex-col gap-4">
-        <SkeletonBar className="h-20 max-w-full" />
+    <div className="flex flex-1 flex-col bg-base-200" aria-busy="true" aria-label="Loading">
+      <div className="mx-auto flex w-full max-w-[640px] flex-col gap-3 px-5 py-4 lg:py-9">
+        <Skeleton className="h-9 w-40" />
+        <Skeleton shape="block" className="h-36" />
+        <Skeleton shape="block" className="h-48" />
       </div>
-
-      <div className="flex flex-wrap gap-4">
-        <SkeletonBar className="h-10 w-full max-w-xs" />
-        <SkeletonBar className="h-10 w-28 max-w-full" />
-        <SkeletonBar className="h-10 w-28 max-w-full" />
-      </div>
-    </PageShell>
+    </div>
   );
 }
 
@@ -68,37 +66,5 @@ export function AdminPageSkeleton() {
 }
 
 export function PanelSkeleton() {
-  return (
-    <div
-      className="shadow-surface overflow-hidden rounded-box bg-base-100 ring-1 ring-base-content/5"
-      aria-busy="true"
-      aria-label="Loading"
-    >
-      <div className="space-y-3 px-5 py-5 sm:px-6">
-        <SkeletonBar className="h-4 w-40" />
-        <SkeletonBar className="h-16 w-full" />
-        <SkeletonBar className="h-16 w-full" />
-        <SkeletonBar className="mt-4 h-10 w-full max-w-md" />
-      </div>
-    </div>
-  );
-}
-
-/** Title, collection card, search and term rows of the Library, while a collection loads. */
-export function LibraryListSkeleton() {
-  return (
-    <div className="flex flex-col gap-3" aria-busy="true" aria-label="Loading collection">
-      <div className="flex items-center justify-between">
-        <SkeletonBar className="h-9 w-32" />
-        <SkeletonBar className="h-11 w-32 rounded-full" />
-      </div>
-      <SkeletonBar className="h-48 w-full rounded-3xl" />
-      <SkeletonBar className="h-12 w-full rounded-2xl" />
-      <div className="flex flex-col gap-px overflow-hidden rounded-3xl">
-        {Array.from({ length: 6 }, (_, index) => (
-          <SkeletonBar key={index} className="h-[68px] w-full rounded-none" />
-        ))}
-      </div>
-    </div>
-  );
+  return <Skeleton shape="block" className="h-40" />;
 }
