@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 
 function desktopTitleClass(name: string): string {
   const length = Array.from(name).length;
-  if (length <= 24) return "text-5xl";
-  if (length <= 40) return "text-4xl";
-  return "text-3xl";
+  if (length <= 24) return "text-4xl";
+  if (length <= 40) return "text-3xl";
+  return "text-2xl";
 }
 
 function MasteryLine({
