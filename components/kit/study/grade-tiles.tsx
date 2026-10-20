@@ -7,7 +7,7 @@ export const GRADE_TILE_COLORS: Record<KitGrade, string> = {
   again: "bg-[color-mix(in_oklab,var(--color-wrong-tint),var(--color-wrong)_14%)] text-wrong-text",
   hard: "bg-[color-mix(in_oklab,var(--color-hard-tint),var(--color-hard)_35%)] text-hard-text",
   good: "bg-[color-mix(in_oklab,var(--color-success-tint),var(--color-success)_30%)] text-success-text",
-  easy: "bg-success text-success-content",
+  easy: "bg-[color-mix(in_oklab,var(--color-success-tint),var(--color-success)_75%)] text-success-content",
 };
 
 const TILES: { grade: KitGrade; label: string; className: string }[] = [
