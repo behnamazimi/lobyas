@@ -67,6 +67,51 @@ test.describe("Daily goals", () => {
     await expect(page).toHaveURL(/\/app$/);
   });
 
+  test("a quiz goal celebrates on the results, not mid-quiz", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await sql(
+      `insert into public.user_settings (user_id, daily_goals)
+       values ($1, '{"read": null, "review": null, "quiz": 1}')
+       on conflict (user_id) do update set daily_goals = excluded.daily_goals`,
+      [user.id],
+    );
+    await gotoReady(page, `/app/quiz?collection=${collectionId}`);
+    await page.getByRole("radio", { name: "5", exact: true }).click({ force: true });
+    await page.getByRole("button", { name: "Start quiz" }).click();
+
+    const choices = page.getByRole("radiogroup", { name: "Answer choices" });
+    const results = page.getByRole("heading", { name: /\d+ of \d+ right/ });
+    const celebration = page.getByRole("dialog").getByRole("heading", { name: /goals? met!$/ });
+    // An answer is saved when the quiz moves on, so answer one and go to the next.
+    await choices.locator("label").first().click();
+    await page.getByRole("button", { name: "Check", exact: true }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await expect(page.getByText(/^Question 2 of/)).toBeVisible();
+    await expect
+      .poll(async () => {
+        const [row] = await sql<{ count: string }>(
+          "select count(*) as count from public.review_state where user_id = $1 and quiz_test_count > 0",
+          [user.id],
+        );
+        return Number(row!.count);
+      })
+      .toBeGreaterThan(0);
+    // Give the claim, and a retry, time to land before checking nothing opened.
+    await page.waitForTimeout(2000);
+    await expect(celebration).toBeHidden();
+
+    // A wrong answer queues a retry, so the quiz can run past five questions.
+    for (let answered = 0; answered < 10; answered++) {
+      await choices.locator("label").first().click();
+      await page.getByRole("button", { name: "Check", exact: true }).click();
+      await page.getByRole("button", { name: /^(Next|See results)$/ }).click();
+      await expect(results.or(choices)).toBeVisible();
+      if (await results.isVisible()) break;
+    }
+    await expect(results).toBeVisible();
+    await expect(celebration).toBeVisible();
+  });
+
   test("the last goal of the day celebrates once", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
     await sql(

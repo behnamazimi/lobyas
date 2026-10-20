@@ -10,6 +10,7 @@ const {
   getGoalsSnapshot,
   goalCaughtUp,
   goalCountFor,
+  holdGoalCelebration,
   resetGoals,
   seedGoals,
   setLiveCelebrate,
@@ -63,6 +64,20 @@ describe("goal store", () => {
     await settle();
 
     expect(claim).toHaveBeenCalledExactlyOnceWith("review", false);
+    expect(getGoalsSnapshot()?.celebration?.tier).toBe("review");
+  });
+
+  it("keeps a held tier's celebration until it is released", async () => {
+    seed(2);
+    claim.mockResolvedValue({ claimed: true, day: day(3, ["review"]) });
+    const release = holdGoalCelebration("review");
+
+    tickGoal("review", "a");
+    await settle();
+    expect(claim).toHaveBeenCalledOnce();
+    expect(getGoalsSnapshot()?.celebration).toBeNull();
+
+    release();
     expect(getGoalsSnapshot()?.celebration?.tier).toBe("review");
   });
 
