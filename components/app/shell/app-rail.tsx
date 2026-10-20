@@ -67,7 +67,7 @@ export function AppRail({ activeKey }: { activeKey: string }) {
             href="/app/me"
             className="flex min-h-14 items-center gap-3 rounded-2xl px-2 hover:bg-base-200"
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-base-200 font-heading text-sm font-extrabold">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-success-tint font-heading text-sm font-extrabold text-success-text">
               {emailInitials(email)}
             </span>
             <span className={cn("min-w-0 flex-1 text-sm font-bold", CLAMP_ONE_LINE)}>{email}</span>

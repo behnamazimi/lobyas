@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { getImportSetupData } from "@/app/(private)/app/import/actions";
 import { ImportFlow } from "@/components/import/import-flow";
 import { withDirection } from "@/components/shared/view-transitions";
+
+export const metadata: Metadata = { title: "Paste a list" };
 
 type PageProps = {
   searchParams: Promise<{ to?: string; from?: string }>;

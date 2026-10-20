@@ -23,8 +23,13 @@ export const MAX_INPUT_CHARS = 1_000_000;
 export const TOO_MUCH_TEXT_MESSAGE =
   "That's too much to check at once. Split your list and add it in parts.";
 
-export const NO_TERMS_MESSAGE =
-  "Couldn't find any terms. Put each term on its own line, with a dash or colon before its definition. For example: API – a way for programs to talk to each other.";
+export const PASTE_EXAMPLE = "API – a way for programs to talk to each other";
+
+/** The separators the parser auto-detects. Custom split is chosen later, on Check. */
+export const PASTE_SEPARATOR_RULE =
+  "One term per line. Put a dash, colon, tab, equals sign or comma between the term and its definition.";
+
+export const NO_TERMS_MESSAGE = `Couldn't find any terms. ${PASTE_SEPARATOR_RULE} For example: ${PASTE_EXAMPLE}.`;
 
 export function overLimitMessage(count: number): string {
   return `That's ${count} terms. One import adds up to ${MAX_IMPORT_TERMS}, so split your list and add it in parts.`;

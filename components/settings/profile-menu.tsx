@@ -55,12 +55,12 @@ export function ProfileMenu({ email, isAdmin = false, aiCreditsMode }: ProfileMe
         <Button
           variant="ghost"
           size="sm"
-          className="btn-circle size-8 shrink-0 overflow-hidden p-0 text-xs font-semibold text-primary-text bg-primary/15 hover:bg-primary/25"
+          className="btn-circle size-8 shrink-0 overflow-hidden bg-success-tint p-0 text-xs font-semibold text-success-text"
           aria-label="Account menu"
           data-tour="app-account"
         >
           <Avatar className="size-8">
-            <AvatarFallback className="bg-transparent text-xs font-semibold leading-none text-primary-text">
+            <AvatarFallback className="bg-transparent text-xs font-semibold leading-none text-success-text">
               {initials}
             </AvatarFallback>
           </Avatar>
@@ -68,7 +68,7 @@ export function ProfileMenu({ email, isAdmin = false, aiCreditsMode }: ProfileMe
         <DropdownMenu className="min-w-[220px]">
           <DropdownMenuLabel className="flex items-start gap-3 px-3 py-3 font-normal">
             <Avatar>
-              <AvatarFallback className="text-xs font-semibold text-primary-text">
+              <AvatarFallback className="bg-success-tint text-xs font-semibold text-success-text">
                 {initials}
               </AvatarFallback>
             </Avatar>

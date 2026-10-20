@@ -40,8 +40,8 @@ export function ImportCodePanel({
 }) {
   return (
     <div className="relative">
-      <div className="max-h-[320px] overflow-auto rounded-2xl bg-base-200 p-3">
-        <pre className="m-0 font-mono text-xs leading-5 whitespace-pre-wrap text-base-content">
+      <div className="max-h-[320px] overflow-x-hidden overflow-y-auto rounded-2xl bg-base-200 p-3 pe-14">
+        <pre className="m-0 font-mono text-xs leading-5 whitespace-pre-wrap text-base-content [overflow-wrap:anywhere]">
           {children}
         </pre>
       </div>

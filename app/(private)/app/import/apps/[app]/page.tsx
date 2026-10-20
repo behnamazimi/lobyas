@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Banner, Card, PageHeader, PinnedAction, Pill } from "@/components/kit";
 import { APP_GUIDES, findGuide } from "@/lib/import/guides";
@@ -9,6 +10,11 @@ type PageProps = {
 
 export function generateStaticParams() {
   return APP_GUIDES.map((guide) => ({ app: guide.slug }));
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const guide = findGuide((await params).app);
+  return { title: guide ? `From ${guide.name}` : "From another app" };
 }
 
 async function AppGuidePage({ params }: PageProps) {

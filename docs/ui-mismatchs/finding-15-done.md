@@ -1,3 +1,5 @@
+The install screenshots were left unchanged for a later task.
+
 # Finding 15: Pre-redesign assets and colors remain (PWA screenshots, theme color, emails)
 
 **Severity:** medium | **Category:** legacy assets
