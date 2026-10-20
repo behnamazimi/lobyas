@@ -22,7 +22,7 @@ export function ClosingCta({
   collection,
 }: ClosingCtaProps) {
   return (
-    <section className="mt-20 border-t-2 border-base-content/80 pt-10 sm:mt-28 sm:pt-14">
+    <section className="mt-20 rounded-box border border-base-300 bg-base-100 p-6 sm:mt-28 sm:p-12">
       <SplitWithScene scene={scene} sceneFirstOnPhone>
         <h2 className="m-0 text-balance text-5xl font-medium tracking-tight sm:text-6xl">
           {title}

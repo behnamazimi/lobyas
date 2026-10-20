@@ -14,7 +14,7 @@ type ShowcasePageProps = {
 export function ShowcasePage({ title, lead, scene, children }: ShowcasePageProps) {
   return (
     <div className={cn(pageContainerClass, "landing-enter flex-1 py-10 pb-24 sm:py-16 lg:py-20")}>
-      <SplitWithScene scene={scene}>
+      <SplitWithScene scene={scene} className="lg:items-start">
         <h1 className="m-0 max-w-[16ch] text-balance text-[clamp(2.5rem,4vw+1rem,4rem)] font-medium leading-[1.05] tracking-tight">
           {title}
         </h1>

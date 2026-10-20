@@ -132,8 +132,9 @@ the nearest frame's layout:
 - A detail view follows **Term, every field** (`TermDetailSheet`).
 - An empty or error state uses the shared empty state with a lobya scene.
 
-Admin pages (`/admin`) and the public site keep their current look. They only
-need to keep working inside the new shell.
+Admin pages (`/admin`) keep their current look and only need to keep working
+inside the new shell. The public site follows the three shells described under
+"Public pages" in `AGENTS.md` (frames: <https://claude.ai/artifact/JrgUpb1ur8X7MXWd4etHoR>).
 
 ## Dependency map
 

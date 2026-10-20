@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
-import { HomeBackButton } from "@/components/shared/back-link";
+import { AuthCard } from "@/components/public/auth-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -15,10 +15,7 @@ export default function ForgotPasswordForm() {
   const success = state !== null && "success" in state;
 
   return (
-    <form action={action} className="flex w-full max-w-sm flex-col gap-4">
-      <HomeBackButton />
-      <h1 className="text-2xl font-medium">Forgot password</h1>
-
+    <AuthCard title="Forgot password" backHref="/login" action={action}>
       <AuthFormError error={state && "error" in state ? state.error : null} />
 
       {success ? (
@@ -58,6 +55,6 @@ export default function ForgotPasswordForm() {
           Log in
         </Link>
       </p>
-    </form>
+    </AuthCard>
   );
 }

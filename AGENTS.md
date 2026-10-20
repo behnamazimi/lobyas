@@ -273,6 +273,17 @@ Public pages are cached, so the server always renders the visitor CTA and
 `PublicCta` swaps it in the browser for signed-in users (on a collection it
 asks `/api/collections/[id]/membership` and offers Add or Open in library).
 
+Every public page sits on the cream `bg-base-200` page (set by the site chrome)
+between white header and footer bars, with green CTAs, and takes one of three
+shells: `ShowcasePage` (hero with a scene, wide), the document shell
+(`LegalPage`, `ContentPageShell`: a narrow column with the badge above a small
+serif title) or the small centered shell (`AuthCard` for login, sign-up and the
+password and access steps, `StatusScreen` for 404, offline and errors). The
+small title is `SMALL_TITLE_CLASS` (`components/public/title-class.ts`). Only
+steps that lead on from Log in (forgot, reset, request access) show a back
+chevron. Auth routes use the minimal header (`AUTH_ROUTES` in
+`components/site-header-nav.tsx`). Status actions use `Pill variant="brand"`.
+
 Public collection pages (`app/collections/`, `components/collections/`) are
 built from data for every public collection: the hero reads the collection's
 `kind` (`lib/terms/kinds.ts`), and the page shows only the newest 20 finished

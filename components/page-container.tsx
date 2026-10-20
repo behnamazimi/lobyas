@@ -1,30 +1,7 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export const pageContainerClass = "mx-auto w-full max-w-6xl px-5";
-
-type PageShellProps = {
-  children: ReactNode;
-  className?: string;
-  innerClassName?: string;
-} & Pick<HTMLAttributes<HTMLDivElement>, "aria-busy" | "aria-label">;
-
-export function PageShell({ children, className, innerClassName, ...aria }: PageShellProps) {
-  return (
-    <div
-      className={cn(
-        // The gradient is pinned to the screen, so it stays put while a long page scrolls.
-        "relative isolate min-h-full flex-1 bg-base-200 text-base-content before:pointer-events-none before:fixed before:inset-0 before:-z-10 before:bg-gradient-to-b before:from-primary/[0.07] before:to-base-200",
-        className,
-      )}
-      {...aria}
-    >
-      <div className={cn(pageContainerClass, "space-y-6 py-7 pb-20", innerClassName)}>
-        {children}
-      </div>
-    </div>
-  );
-}
 
 type PageCenterProps = {
   children: ReactNode;

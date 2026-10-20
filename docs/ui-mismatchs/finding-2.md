@@ -2,6 +2,8 @@
 
 **Severity:** medium | **Category:** visual / layout
 
+**Status:** fixed on `redesign-fixes`: three shells (Showcase, Document, Auth/Status) on the cream page with green CTAs; see "Public pages" in `AGENTS.md`. Screenshots at 390 and 1440 were not captured (the browser pane could not reach localhost).
+
 ## Summary
 
 The About-style pages, the Contact/Privacy/Terms pages, and the auth pages share a header and footer but look like three different sites: page background, title scale, column width, header contents and button color all differ.

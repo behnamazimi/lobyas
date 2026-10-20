@@ -23,7 +23,7 @@ export function AppShell({
 
   if (!app) {
     return (
-      <div className="flex min-h-full flex-1 flex-col" data-chrome="site">
+      <div className="flex min-h-full flex-1 flex-col bg-base-200" data-chrome="site">
         {header}
         {signedIn ? children : <main className="flex min-h-0 flex-1 flex-col">{children}</main>}
         {footer}

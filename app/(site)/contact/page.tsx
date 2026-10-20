@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import {
-  ContentPageHeader,
-  ContentPageIntro,
-  ContentPageShell,
-} from "@/components/content/content-page-shell";
-import { PUBLIC_HOME_PATH } from "@/components/shared/back-link";
+import { ContentPageHeader, ContentPageShell } from "@/components/content/content-page-shell";
 import { LinkButton } from "@/components/ui/button";
 import { SUPPORT_EMAIL, SUPPORT_MAILTO } from "@/lib/site";
 
@@ -20,15 +15,11 @@ export const metadata: Metadata = {
 export default function ContactPageRoute() {
   return (
     <ContentPageShell>
-      <ContentPageIntro>
-        <ContentPageHeader
-          badge={<PageBadge page="contact" />}
-          title="Contact"
-          description="Questions, problems and ideas are all welcome."
-          backHref={PUBLIC_HOME_PATH}
-          backLabel="Back to home"
-        />
-      </ContentPageIntro>
+      <ContentPageHeader
+        badge={<PageBadge page="contact" />}
+        title="Contact"
+        description="Questions, problems and ideas are all welcome."
+      />
       <div className="mt-10 space-y-4 text-sm text-base-content/80">
         <p className="m-0">Email us and a person will read it.</p>
         <LinkButton href={SUPPORT_MAILTO}>{SUPPORT_EMAIL}</LinkButton>

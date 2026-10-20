@@ -12,6 +12,7 @@ const AUTH_ROUTES = new Set([
   "/login",
   "/signup",
   "/forgot-password",
+  "/request-access",
   "/reset-password",
   "/complete-signup",
 ]);

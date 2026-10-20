@@ -1,11 +1,21 @@
 "use client";
 
 import { resetAnalytics } from "@/lib/analytics/track";
-import { Bug, Download, LogOut, Sparkles } from "lucide-react";
+import {
+  Bug,
+  Compass,
+  Download,
+  LogOut,
+  Settings,
+  Signal,
+  Sparkles,
+  Upload,
+  type LucideIcon,
+} from "lucide-react";
 import { useState } from "react";
 import { logout } from "@/app/(private)/auth/actions";
 import { markSignedOut, restoreSignedIn } from "@/lib/auth/auth-state";
-import { ACCOUNT_HOME_NAV, ADMIN_NAV_ITEMS, emailInitials } from "@/components/app/account-nav";
+import { ADMIN_NAV_ITEMS, emailInitials } from "@/components/app/account-nav";
 import { AppRouterProvider } from "@/components/app-router-provider";
 import { ReportIssueSheet } from "@/components/issues/report-issue-sheet";
 import { INSTALL_MENU_LABEL, useInstallAction } from "@/components/pwa/install-prompt";
@@ -22,6 +32,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const ITEM_CLASS =
+  "min-h-11 gap-3 rounded-2xl px-3 text-[15px] font-extrabold focus-visible:outline-none";
+const SEPARATOR_CLASS = "mx-3 my-1";
+
+const MENU_LINKS: { href: string; label: string; icon: LucideIcon }[] = [
+  { href: "/app/mastery", label: "Mastery", icon: Signal },
+  { href: "/app/browse", label: "Browse collections", icon: Compass },
+  { href: "/app/import", label: "Add a collection", icon: Upload },
+];
+
+function MenuIcon({ icon: Icon }: { icon: LucideIcon }) {
+  return <Icon className="size-5 shrink-0" strokeWidth={2.3} aria-hidden />;
+}
 
 type ProfileMenuProps = {
   email: string;
@@ -65,68 +89,72 @@ export function ProfileMenu({ email, isAdmin = false, aiCreditsMode }: ProfileMe
             </AvatarFallback>
           </Avatar>
         </Button>
-        <DropdownMenu className="min-w-[220px]">
-          <DropdownMenuLabel className="flex items-start gap-3 px-3 py-3 font-normal">
-            <Avatar>
-              <AvatarFallback className="bg-success-tint text-xs font-semibold text-success-text">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <p className="m-0 text-xs font-medium uppercase tracking-wider text-base-content/70">
-                Signed in as
-              </p>
-              <p className="mt-0.5 truncate text-sm font-medium text-base-content">{email}</p>
-            </div>
+        <DropdownMenu className="min-w-[260px] rounded-3xl p-2 shadow-card">
+          <DropdownMenuLabel className="flex items-center gap-3 px-3 py-3 font-normal">
+            <span
+              aria-hidden
+              className="flex size-11 shrink-0 items-center justify-center rounded-full bg-success-tint text-base font-extrabold text-success-text"
+            >
+              {initials}
+            </span>
+            <p className="m-0 min-w-0 truncate text-base font-extrabold text-base-content">
+              {email}
+            </p>
           </DropdownMenuLabel>
           {creditsLine ? (
             <DropdownMenuItem
               href={creditsLine.pending ? undefined : "/app/settings?tab=ai"}
               isDisabled={creditsLine.pending}
               textValue={creditsLine.label}
+              className={cn(
+                ITEM_CLASS,
+                "mb-1 bg-quiz-tint text-quiz-text data-focused:bg-quiz-tint",
+              )}
             >
-              <Sparkles className="h-4 w-4" aria-hidden />
-              <span className={cn(creditsLine.tone === "error" && "text-error-text")}>
+              <MenuIcon icon={Sparkles} />
+              <span className={cn("text-sm", creditsLine.tone === "error" && "text-error-text")}>
                 {creditsLine.label}
               </span>
             </DropdownMenuItem>
           ) : null}
-          <DropdownMenuSeparator />
-          {ACCOUNT_HOME_NAV.map((item) => {
-            const Icon = item.icon;
-            return (
-              <DropdownMenuItem key={item.href} href={item.href}>
-                <Icon className="h-4 w-4" />
-                {item.label}
-              </DropdownMenuItem>
-            );
-          })}
-          {isAdmin ? (
-            <>
-              <DropdownMenuSeparator />
-              {ADMIN_NAV_ITEMS.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <DropdownMenuItem key={item.href} href={item.href}>
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </DropdownMenuItem>
-                );
-              })}
-            </>
-          ) : null}
+          <DropdownMenuSeparator className={SEPARATOR_CLASS} />
+          {MENU_LINKS.map((item) => (
+            <DropdownMenuItem key={item.href} href={item.href} className={ITEM_CLASS}>
+              <MenuIcon icon={item.icon} />
+              {item.label}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator className={SEPARATOR_CLASS} />
+          <DropdownMenuItem href="/app/settings" className={ITEM_CLASS}>
+            <MenuIcon icon={Settings} />
+            Settings
+          </DropdownMenuItem>
+          {isAdmin
+            ? ADMIN_NAV_ITEMS.map((item) => (
+                <DropdownMenuItem key={item.href} href={item.href} className={ITEM_CLASS}>
+                  <MenuIcon icon={item.icon} />
+                  {item.label}
+                </DropdownMenuItem>
+              ))
+            : null}
           {install ? (
-            <DropdownMenuItem onAction={install}>
-              <Download className="h-4 w-4" />
+            <DropdownMenuItem onAction={install} className={ITEM_CLASS}>
+              <MenuIcon icon={Download} />
               {INSTALL_MENU_LABEL}
             </DropdownMenuItem>
           ) : null}
-          <DropdownMenuItem onAction={() => setReportOpen(true)}>
-            <Bug className="h-4 w-4" />
+          <DropdownMenuItem onAction={() => setReportOpen(true)} className={ITEM_CLASS}>
+            <MenuIcon icon={Bug} />
             {ISSUE_COPY.menuLabel}
           </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive" isDisabled={isBusy} onAction={handleLogout}>
-            <LogOut className="h-4 w-4" />
+          <DropdownMenuSeparator className={SEPARATOR_CLASS} />
+          <DropdownMenuItem
+            variant="destructive"
+            isDisabled={isBusy}
+            onAction={handleLogout}
+            className={ITEM_CLASS}
+          >
+            <MenuIcon icon={LogOut} />
             {isBusy ? "Logging out…" : "Log out"}
           </DropdownMenuItem>
         </DropdownMenu>

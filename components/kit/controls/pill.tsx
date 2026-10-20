@@ -2,10 +2,11 @@ import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
-type PillVariant = "primary" | "secondary" | "soft" | "danger" | "ghost";
+type PillVariant = "primary" | "brand" | "secondary" | "soft" | "danger" | "ghost";
 
 const VARIANT: Record<PillVariant, string> = {
   primary: "btn-neutral shadow-[0_10px_20px_-12px_rgb(var(--shadow-rgb)/0.6)]",
+  brand: "btn-primary",
   secondary: "bg-base-100 text-base-content shadow-card",
   soft: "bg-base-200 text-base-content",
   danger: "bg-wrong-tint text-wrong-text",
@@ -24,7 +25,7 @@ type PillProps = {
   children: ReactNode;
 } & Omit<ComponentProps<"button">, "className" | "children">;
 
-/** The fully rounded action: ink (primary), white (secondary), tinted (soft) coral (danger) or bare text (ghost). */
+/** The fully rounded action: ink (primary), green (brand, for public pages), white (secondary), tinted (soft) coral (danger) or bare text (ghost). */
 export function Pill({
   variant = "primary",
   size = "md",

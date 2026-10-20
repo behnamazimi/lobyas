@@ -18,7 +18,9 @@ export default async function NotFound() {
         description="The link may be old, or the collection may no longer be shared."
         actions={
           <>
-            <Pill href={signedIn ? AUTHENTICATED_HOME_PATH : "/"}>Go home</Pill>
+            <Pill variant="brand" href={signedIn ? AUTHENTICATED_HOME_PATH : "/"}>
+              Go home
+            </Pill>
             {signedIn ? (
               <Pill href="/app/browse" variant="secondary">
                 Browse collections

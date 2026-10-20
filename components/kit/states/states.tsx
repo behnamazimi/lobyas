@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { SMALL_TITLE_CLASS } from "@/components/public/title-class";
 import { cn } from "@/lib/utils";
 
 /** A lobya scene, a serif title, a line of copy and the actions: for an empty list or collection. */
@@ -8,6 +9,7 @@ export function EmptyPanel({
   description,
   actions,
   titleAs: Title = "h2",
+  titleClassName = "text-[26px] leading-tight font-extrabold",
   className,
 }: {
   illustration?: ReactNode;
@@ -15,6 +17,7 @@ export function EmptyPanel({
   description?: ReactNode;
   actions?: ReactNode;
   titleAs?: "h1" | "h2";
+  titleClassName?: string;
   className?: string;
 }) {
   return (
@@ -25,7 +28,7 @@ export function EmptyPanel({
       )}
     >
       {illustration ? <div className="w-full max-w-[260px]">{illustration}</div> : null}
-      <Title className="m-0 font-heading text-[26px] leading-tight font-extrabold [overflow-wrap:anywhere]">
+      <Title className={cn("m-0 font-heading [overflow-wrap:anywhere]", titleClassName)}>
         {title}
       </Title>
       {description ? (
@@ -44,7 +47,7 @@ export function EmptyPanel({
 export function StatusScreen(props: Omit<React.ComponentProps<typeof EmptyPanel>, "titleAs">) {
   return (
     <div className="flex min-h-[60dvh] flex-1 items-center justify-center py-10">
-      <EmptyPanel {...props} titleAs="h1" />
+      <EmptyPanel {...props} titleAs="h1" titleClassName={SMALL_TITLE_CLASS} />
     </div>
   );
 }
