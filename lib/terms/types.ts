@@ -119,6 +119,8 @@ export type SharedCollection = {
   ownerId: string;
   termCount: number;
   inCollection: boolean;
+  /** The viewer owns it, so it is already in the library without a membership row. */
+  ownedByMe: boolean;
   isBuiltin: boolean;
   loveCount: number;
   lovedByMe: boolean;

@@ -12,7 +12,7 @@ const {
   goalCountFor,
   resetGoals,
   seedGoals,
-  seedStudyDay,
+  setLiveCelebrate,
   tickGoal,
 } = await import("./goal-store");
 
@@ -160,16 +160,22 @@ describe("goal store", () => {
       expect(goalCountFor("review")).toEqual({ goal: 3, count: 2 });
     });
 
-    it("uses the study day when no celebration can load the store's own day", () => {
+    it("counts a credit on the loaded day when nothing can celebrate", () => {
       seedGoals({
         goals: null,
-        celebrate: true,
+        celebrate: false,
         timeZone: "UTC",
-        day: { date: null, counts: { read: 0, review: 0, quiz: 0 }, celebrated: [] },
+        day: { date: TODAY, counts: { read: 4, review: 0, quiz: 0 }, celebrated: [] },
       });
-      seedStudyDay({ date: TODAY, counts: { read: 4, review: 0, quiz: 0 }, celebrated: [] });
       tickGoal("read", "a");
       expect(goalCountFor("read")).toEqual({ goal: null, count: 5 });
+    });
+
+    it("keeps today's credits when celebrate is switched off", () => {
+      seed(1);
+      tickGoal("review", "a");
+      setLiveCelebrate(false);
+      expect(goalCountFor("review")).toEqual({ goal: 3, count: 2 });
     });
   });
 });

@@ -53,22 +53,15 @@ function update(next: Partial<State>) {
   emit();
 }
 
-/** Today's counts for a study screen's pill. They are loaded for any account,
- *  while `state.day` is only loaded when a goal can celebrate. */
-let studyDay: GoalDay | null = null;
-
-export function seedStudyDay(day: GoalDay) {
-  studyDay = day;
-  emit();
-}
-
 /** What the pill shows for a tier, or null until today's counts are known. */
 export type GoalCount = { goal: number | null; count: number };
 
 export function goalCountFor(tier: GoalTier): GoalCount | null {
-  const day = state?.day.date ? state.day : studyDay;
-  if (!day) return null;
-  return { goal: state?.goals?.[tier] ?? null, count: day.counts[tier] + credited[tier].size };
+  if (!state?.day.date) return null;
+  return {
+    goal: state.goals?.[tier] ?? null,
+    count: state.day.counts[tier] + credited[tier].size,
+  };
 }
 
 export function subscribeGoals(listener: () => void) {
@@ -89,7 +82,6 @@ export function seedGoals(seed: Omit<State, "celebration">) {
 /** Forgets everything, so the next account to sign in on this tab starts clean. */
 export function resetGoals() {
   state = null;
-  studyDay = null;
   clearCredits();
   claiming.clear();
   emit();
@@ -109,6 +101,11 @@ function clearCredits() {
 export function setLiveGoals(next: { goals: DailyGoals | null; celebrate: boolean; day: GoalDay }) {
   clearCredits();
   update(next);
+}
+
+/** The celebrate switch. Leaves today's counts alone. */
+export function setLiveCelebrate(celebrate: boolean) {
+  update({ celebrate });
 }
 
 export function closeGoalCelebration() {

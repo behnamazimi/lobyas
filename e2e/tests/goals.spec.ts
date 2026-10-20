@@ -34,7 +34,12 @@ test.describe("Daily goals", () => {
         .getByRole("group", { name: "Review pace" })
         .getByRole("button", { name: "Light" })
         .click();
-      await page.getByRole("button", { name: "Fewer cards a day" }).click();
+      await page
+        .getByRole("heading", { name: "Review" })
+        .locator("..")
+        .locator("..")
+        .getByRole("button", { name: "Fewer terms a day" })
+        .click();
       await page.getByRole("button", { name: "Start these goals" }).click();
       await expect.poll(() => storedGoals(user.id)).toEqual({ read: 20, review: 5, quiz: 10 });
 

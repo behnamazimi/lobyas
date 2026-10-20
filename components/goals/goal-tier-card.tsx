@@ -15,11 +15,7 @@ import {
 import { formatCount } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
 
-const PER_DAY: Record<GoalTier, string> = {
-  read: "terms a day",
-  review: "cards a day",
-  quiz: "questions a day",
-};
+const PER_DAY = "terms a day";
 
 const LOOK: Record<GoalTier, { icon: LucideIcon; tone: Tone; selected: string }> = {
   read: { icon: BookOpen, tone: "read", selected: "bg-read-tint ring-2 ring-read-ring" },
@@ -58,9 +54,9 @@ export function TierCard({
         <Stepper
           value={goal ?? 0}
           valueText={goal ? undefined : "Off"}
-          unit={PER_DAY[tier]}
-          decreaseLabel={`Fewer ${PER_DAY[tier]}`}
-          increaseLabel={`More ${PER_DAY[tier]}`}
+          unit={PER_DAY}
+          decreaseLabel={`Fewer ${PER_DAY}`}
+          increaseLabel={`More ${PER_DAY}`}
           disableDecrease={goal === null}
           onDecrease={() => onChange(stepGoal(goal, -1))}
           onIncrease={() => onChange(stepGoal(goal, 1))}

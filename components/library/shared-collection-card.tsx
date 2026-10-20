@@ -56,7 +56,7 @@ export function SharedCollectionCard({
             onToggle={onToggleLove}
           />
           <div className="ms-auto flex items-center gap-1">
-            {collection.inCollection ? (
+            {collection.inCollection || collection.ownedByMe ? (
               <Pill href={`/app/library?collection=${collection.id}`} variant="soft">
                 <CheckCircle2 className="size-4 text-success-text" strokeWidth={2.3} aria-hidden />
                 In library

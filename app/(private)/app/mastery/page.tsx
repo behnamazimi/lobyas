@@ -45,6 +45,7 @@ async function MasteryRoute({ searchParams }: PageProps) {
       }
       collections={collections}
       stats={stats}
+      today={setup.today}
       termsLearning={termsLearning}
       termsLearned={termsLearned}
     />

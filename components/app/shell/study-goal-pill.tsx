@@ -13,8 +13,8 @@ const TIER_LOOK: Record<GoalTier, { tone: Tone; verb: string; Icon: typeof BookO
   quiz: { tone: "quiz", verb: "answered", Icon: SquareCheckBig },
 };
 
-/** Today's progress for the tier being studied. Shows nothing until the page
- *  has loaded today's counts (see `StudyDay`). */
+/** Today's progress for the tier being studied. Shows nothing until the shell
+ *  has loaded today's counts. */
 export function StudyGoalPill({ tier }: { tier: GoalTier }) {
   const today = useGoalCount(tier);
   if (!today) return null;
