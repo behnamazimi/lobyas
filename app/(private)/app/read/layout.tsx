@@ -22,7 +22,7 @@ export default async function ReadLayout({ children }: { children: React.ReactNo
       <KeepAwake enabled={options.keepAwake} />
       <TermLayoutScope>
         <SectionTransition>
-          <div className="mx-auto flex min-h-0 w-full max-w-[640px] flex-1 flex-col gap-3 px-5 pt-1 pb-[max(1rem,env(safe-area-inset-bottom))] md:pb-6">
+          <div className="mx-auto flex min-h-0 w-full max-w-[640px] flex-1 flex-col gap-3 px-5 pt-1 pb-[max(1rem,var(--safe-bottom))] md:pb-6">
             <PromoSlot route="read" />
             {user ? (
               <Suspense fallback={<div className="h-11" />}>

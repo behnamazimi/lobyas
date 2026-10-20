@@ -30,6 +30,7 @@ describe("quizNote", () => {
       kind: "wrong",
       title: "Not quite",
       detail: "That definition is for Blocker.",
+      answer: "Blocker",
     });
   });
 
@@ -55,6 +56,7 @@ describe("quizNote", () => {
       kind: "skipped",
       title: "Skipped, no problem",
       detail: "The answer is goedemorgen. It means: good morning",
+      answer: "goedemorgen",
     });
   });
 

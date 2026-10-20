@@ -5,6 +5,19 @@ import { QuizKeyboardHint } from "@/components/quiz/quiz-ui";
 import type { QuizNote } from "@/components/quiz/quiz-note";
 import { cn } from "@/lib/utils";
 
+/** The note's detail, with the right answer in bold. */
+function NoteDetail({ note }: { note: QuizNote }) {
+  const at = note.answer ? note.detail.indexOf(note.answer) : -1;
+  if (!note.answer || at < 0) return note.detail;
+  return (
+    <>
+      {note.detail.slice(0, at)}
+      <strong className="font-extrabold">{note.answer}</strong>
+      {note.detail.slice(at + note.answer.length)}
+    </>
+  );
+}
+
 /** The line under the progress segments: where you are, and the practice round note. */
 export function QuestionStepCaption({
   progressLabel,
@@ -55,7 +68,7 @@ export function QuizQuestionFooter({
           title={note.title}
           className="max-h-[132px] overflow-y-auto py-3"
         >
-          {note.detail}
+          <NoteDetail note={note} />
         </FeedbackNote>
       ) : null}
       {!submitted ? skipSlot : null}

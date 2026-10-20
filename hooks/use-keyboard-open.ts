@@ -33,8 +33,11 @@ export function useKeyboardOpen() {
       const typing = isTextField(document.activeElement);
       if (!typing) fullHeight = Math.max(fullHeight, viewport.height);
       const open = typing && fullHeight - viewport.height > KEYBOARD_MIN_HEIGHT;
-      if (open) root.dataset.keyboard = "open";
-      else delete root.dataset.keyboard;
+      if (open) {
+        root.dataset.keyboard = "open";
+        // The page shrinks to the space above the keyboard; keep the field in view there.
+        document.activeElement?.scrollIntoView({ block: "nearest" });
+      } else delete root.dataset.keyboard;
     }
 
     viewport.addEventListener("resize", update);
