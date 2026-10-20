@@ -77,4 +77,33 @@ test.describe("App shell", () => {
       await expect(page).toHaveURL(new RegExp(`collection=${alpha.collectionId}`));
     },
   );
+
+  test("a paused collection is listed in the switcher and opens in the Library", async ({
+    page,
+    user,
+    isMobile,
+  }) => {
+    await seedCollection(user, SAMPLE_TERMS, "Alpha terms");
+    const beta = await seedCollection(user, SAMPLE_TERMS.slice(0, 3), "Beta terms");
+    await gotoReady(page, `/app/library?collection=${beta.collectionId}`);
+    await page.getByRole("button", { name: "More", exact: true }).click();
+    await page.getByRole("button", { name: "Pause review" }).click();
+    await expect(page.getByRole("button", { name: "Resume" })).toBeVisible();
+
+    await gotoReady(page, "/app");
+    if (isMobile) {
+      await page
+        .getByRole("button", { name: /^Studying|Alpha terms/ })
+        .first()
+        .click();
+    } else {
+      await page
+        .getByRole("button", { name: /Alpha terms/ })
+        .first()
+        .click();
+    }
+    await page.getByRole("button", { name: new RegExp(`^${beta.name}`) }).click();
+    await expect(page).toHaveURL(new RegExp(`/app/library\\?collection=${beta.collectionId}`));
+    await expect(page.getByRole("button", { name: "Resume" })).toBeVisible();
+  });
 });
