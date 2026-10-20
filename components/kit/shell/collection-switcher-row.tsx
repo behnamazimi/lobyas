@@ -9,7 +9,7 @@ export function CollectionSwitcherRow({
   name,
   letter,
   tone,
-  mastered,
+  mastered = 0,
   total,
   detail,
   selected = false,
@@ -18,14 +18,15 @@ export function CollectionSwitcherRow({
   name: string;
   letter: string;
   tone: Tone;
-  mastered: number;
-  total: number;
+  /** Leave out `total` to hide the progress bar and its count, for a paused collection. */
+  mastered?: number;
+  total?: number;
   /** A small third line, for example the queue sizes. */
   detail?: string;
   selected?: boolean;
   onPress: () => void;
 }) {
-  const value = total > 0 ? mastered / total : 0;
+  const value = total ? mastered / total : 0;
   return (
     <button
       type="button"
@@ -41,12 +42,14 @@ export function CollectionSwitcherRow({
       </Tile>
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className={cn("text-base font-extrabold", CLAMP_ONE_LINE)}>{name}</span>
-        <span className="flex items-center gap-2">
-          <ProgressBar value={value} label={`${name} mastered`} className="w-16" />
-          <span className="text-[13px] font-semibold text-muted">
-            {formatCount(mastered)} of {formatCount(total)} mastered
+        {total === undefined ? null : (
+          <span className="flex items-center gap-2">
+            <ProgressBar value={value} label={`${name} mastered`} className="w-16" />
+            <span className="text-[13px] font-semibold text-muted">
+              {formatCount(mastered)} of {formatCount(total)} mastered
+            </span>
           </span>
-        </span>
+        )}
         {detail ? <span className="text-[13px] font-semibold text-muted">{detail}</span> : null}
       </span>
     </button>

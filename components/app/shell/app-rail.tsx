@@ -41,7 +41,7 @@ export function AppRail({ activeKey }: { activeKey: string }) {
             </button>
             <div
               tabIndex={0}
-              className="dropdown-content z-20 mt-1 w-[340px] rounded-3xl bg-base-100 p-2 shadow-sheet"
+              className="dropdown-content z-20 mt-1 max-h-[min(70dvh,32rem)] w-[340px] overflow-y-auto rounded-3xl bg-base-100 p-2 shadow-sheet"
             >
               <CollectionList />
             </div>

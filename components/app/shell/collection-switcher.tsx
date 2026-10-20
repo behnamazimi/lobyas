@@ -38,9 +38,7 @@ export function CollectionList() {
               name={collection.name}
               letter={collectionLetter(collection.name)}
               tone={collectionTone(collection.kind)}
-              mastered={collection.termsLearnedCount}
-              total={collection.termCount}
-              detail="Paused · open in Library to resume"
+              detail="Paused"
               selected={collection.id === current?.id}
               onPress={() => setCollection(collection.id)}
             />
