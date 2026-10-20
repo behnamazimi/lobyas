@@ -41,10 +41,14 @@ export function useShell(): ShellValue {
   return value;
 }
 
+/** Only the Library may sit on a paused collection; everywhere else studies an active one. */
 function activeCurrent(
   collections: ShellCollection[],
   currentId: string | null,
+  allowPaused: boolean,
 ): ShellCollection | null {
+  const picked = collections.find((collection) => collection.id === currentId);
+  if (allowPaused && picked) return picked;
   const active = collections.filter((collection) => collection.isActiveForReview);
   return active.find((collection) => collection.id === currentId) ?? active[0] ?? null;
 }
@@ -87,7 +91,10 @@ export function ShellProvider({
       setOverrideId(id);
       setSwitcherOpen(false);
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-      if (pathname === "/app/library") {
+      const paused = collections.some(
+        (collection) => collection.id === id && !collection.isActiveForReview,
+      );
+      if (pathname === "/app/library" || paused) {
         router.push(`/app/library?collection=${id}`);
         return;
       }
@@ -99,7 +106,7 @@ export function ShellProvider({
       }
       router.refresh();
     },
-    [pathname, router],
+    [collections, pathname, router],
   );
 
   const value = useMemo<ShellValue>(
@@ -109,7 +116,7 @@ export function ShellProvider({
       initialIsDark,
       streak,
       collections,
-      current: activeCurrent(collections, currentId),
+      current: activeCurrent(collections, currentId, pathname === "/app/library"),
       degraded,
       switcherOpen,
       setSwitcherOpen,
@@ -123,6 +130,7 @@ export function ShellProvider({
       streak,
       collections,
       currentId,
+      pathname,
       degraded,
       switcherOpen,
       setCollection,

@@ -28,7 +28,7 @@ export function ToggleRow({
       <input
         type="checkbox"
         role="switch"
-        className="toggle shrink-0 border-line text-base-100 checked:border-mastered checked:bg-mastered checked:text-white"
+        className="toggle shrink-0 border-muted/50 text-muted checked:border-mastered checked:bg-mastered checked:text-white"
         checked={checked}
         disabled={disabled}
         onChange={(event) => onChange(event.target.checked)}

@@ -102,7 +102,7 @@ test.describe("Sharing a collection", () => {
 
     const response = await page.goto(`/c/${collectionId}`);
     expect(response?.status()).toBe(404);
-    await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "We can’t find that page" })).toBeVisible();
   });
 
   test("a link to a blocked collection is not found", async ({ page, user }) => {
@@ -114,6 +114,6 @@ test.describe("Sharing a collection", () => {
     );
     const response = await page.goto(`/c/${collectionId}`);
     expect(response?.status()).toBe(404);
-    await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "We can’t find that page" })).toBeVisible();
   });
 });

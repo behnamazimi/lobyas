@@ -150,14 +150,13 @@ function ShareBody({ collection, initialShared, onSaved }: ShareBodyProps) {
       {shared && !blocked ? (
         <>
           <ShareLink collection={collection} />
-          <ul className="m-0 flex list-disc flex-col gap-1.5 ps-5 text-sm leading-snug font-semibold text-muted">
+          <div className="flex flex-col gap-1.5 px-1 text-[13px] leading-snug font-semibold text-muted">
             {SHARED_HINTS.map((hint) => (
-              <li key={hint}>{hint}</li>
+              <p key={hint} className="m-0">
+                {hint}
+              </p>
             ))}
-          </ul>
-          <Pill variant="danger" size="lg" className="h-[52px] text-base" onClick={askToStop}>
-            Stop sharing
-          </Pill>
+          </div>
         </>
       ) : null}
       {error ? (

@@ -7,7 +7,7 @@ import { gotoReady } from "../support/navigation";
 test.describe("Admin area", () => {
   test("a member does not see the admin area", async ({ page, user: _user }) => {
     await page.goto("/admin");
-    await expect(page.getByRole("heading", { name: "Page not found" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "We can’t find that page" })).toBeVisible();
   });
 
   test.describe("as an admin", () => {
