@@ -92,12 +92,12 @@ export function QuizQuestionFooter({
           disabled={!canAdvance}
           className={cn(
             "gap-2 transition-transform active:scale-[0.97]",
-            justUnlocked && "quiz-advance-ready",
+            justUnlocked && "study-pop",
           )}
         >
           <span
             key={isLast ? "results" : "next"}
-            className="quiz-advance-label-enter inline-flex items-center gap-2"
+            className="study-enter inline-flex items-center gap-2"
           >
             {isLast ? "See results" : "Next"}
             {isLast ? (

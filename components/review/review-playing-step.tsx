@@ -78,6 +78,8 @@ export function ReviewPlayingStep({
         term={currentCard}
         revealed={currentRevealed}
         swipeEnabled={swipeEnabled}
+        canGoBack={canGoBack}
+        canGoForward={showForward}
         narrationAccess={narrationAccess}
         narrationHandleRef={narrationHandleRef}
         onReveal={onReveal}
@@ -96,6 +98,7 @@ export function ReviewPlayingStep({
         {currentRevealed ? (
           <div data-tour="review-grades">
             <GradeTiles
+              className="study-stagger"
               intervals={labels?.intervals}
               ariaLabels={labels?.ariaLabels}
               selected={currentRating ? KIT_GRADE_OF[currentRating.grade] : undefined}

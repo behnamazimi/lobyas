@@ -18,6 +18,8 @@ type ReviewTermCardProps = {
   term: ReviewTerm;
   revealed: boolean;
   swipeEnabled: boolean;
+  canGoBack: boolean;
+  canGoForward: boolean;
   narrationAccess: boolean;
   narrationHandleRef?: Ref<TermNarrationHandle>;
   onReveal: () => void;
@@ -44,6 +46,8 @@ export function ReviewTermCard({
   term,
   revealed,
   swipeEnabled,
+  canGoBack,
+  canGoForward,
   narrationAccess,
   narrationHandleRef,
   onReveal,
@@ -56,6 +60,8 @@ export function ReviewTermCard({
     onReveal,
     onPrevious,
     onNext,
+    canGoBack,
+    canGoForward,
     enabled: swipeEnabled,
   });
 
@@ -63,11 +69,18 @@ export function ReviewTermCard({
     <div
       ref={cardRef}
       data-tour="review-card"
-      className="flex min-h-0 flex-1 flex-col gap-2"
-      onTouchStart={swipe.onTouchStart}
-      onTouchEnd={swipe.onTouchEnd}
+      className={cn(
+        "flex min-h-0 flex-1 flex-col gap-2",
+        // Every descendant too: the revealed definition scrolls on its own and
+        // would otherwise let the browser take horizontal pans.
+        swipeEnabled && "touch-pan-y [&_*]:touch-pan-y",
+      )}
+      {...swipe}
     >
-      <div className={cn("flex min-h-0 flex-1 flex-col", revealed && "hidden")} inert={revealed}>
+      <div
+        className={cn("study-enter flex min-h-0 flex-1 flex-col", revealed && "hidden")}
+        inert={revealed}
+      >
         <StudyCard
           centered
           onPress={onReveal}
@@ -92,7 +105,10 @@ export function ReviewTermCard({
         </StudyCard>
       </div>
 
-      <div className={cn("flex min-h-0 flex-1 flex-col", !revealed && "hidden")} inert={!revealed}>
+      <div
+        className={cn("study-reveal flex min-h-0 flex-1 flex-col", !revealed && "hidden")}
+        inert={!revealed}
+      >
         <StudyCard className="lg:max-h-[760px]">
           <div lang={term.collectionLanguage}>
             <div className="flex items-start justify-between gap-2.5">
