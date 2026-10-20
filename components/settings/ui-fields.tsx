@@ -3,7 +3,7 @@
 import { Check, Copy } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { ErrorAlert } from "@/components/shared/error-alert";
-import { Button } from "@/components/ui/button";
+import { Pill } from "@/components/kit";
 import { cn } from "@/lib/utils";
 
 export function CopyIconSwap({ copied }: { copied: boolean }) {
@@ -48,28 +48,23 @@ export function CopyField({
     <div className="space-y-3">
       {label || hint ? (
         <div className="space-y-1">
-          {label ? <p className="m-0 text-sm font-medium">{label}</p> : null}
-          {hint ? <p className="m-0 text-xs text-base-content/70">{hint}</p> : null}
+          {label ? <p className="m-0 text-sm font-extrabold">{label}</p> : null}
+          {hint ? <p className="m-0 text-xs font-semibold text-muted">{hint}</p> : null}
         </div>
       ) : null}
       <div className="flex flex-col gap-2 md:flex-row md:items-start">
         <pre
           className={cn(
-            "m-0 min-w-0 flex-1 overflow-x-auto rounded-field bg-base-200/60 px-3 py-3 text-xs leading-5 break-all whitespace-pre-wrap text-base-content",
+            "m-0 min-w-0 flex-1 overflow-x-auto rounded-2xl bg-base-200 px-3 py-3 text-xs leading-5 break-all whitespace-pre-wrap text-base-content",
             monospace && "font-mono",
           )}
         >
           {value}
         </pre>
-        <Button
-          type="button"
-          variant="outline"
-          onPress={handleCopy}
-          className="min-h-11 w-full shrink-0 transition-transform duration-150 ease-out active:scale-[0.96] md:w-auto"
-        >
+        <Pill variant="soft" onClick={handleCopy} className="shrink-0">
           <CopyIconSwap copied={copied} />
           {copied ? "Copied" : "Copy"}
-        </Button>
+        </Pill>
       </div>
     </div>
   );
@@ -81,8 +76,8 @@ export function AlertBanner({ message }: { message: string }) {
 
 export function HighlightPanel({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="space-y-3 rounded-field bg-base-200/60 px-3 py-3">
-      <p className="m-0 text-sm font-medium">{label}</p>
+    <div className="space-y-3 rounded-2xl bg-base-200 px-3 py-3">
+      <p className="m-0 text-sm font-extrabold">{label}</p>
       <div className="space-y-3">{children}</div>
     </div>
   );
@@ -102,8 +97,8 @@ export function TokenRow({
   return (
     <li className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 md:flex-row md:items-center md:justify-between">
       <div className="min-w-0">
-        <p className="m-0 text-sm font-medium">{label}</p>
-        <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-base-content/70">
+        <p className="m-0 text-sm font-extrabold">{label}</p>
+        <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-muted">
           <span>{meta}</span>
           {badge}
         </p>

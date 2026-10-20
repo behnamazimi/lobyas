@@ -61,6 +61,9 @@ export function StreakBadge({
             )}
           >
             {variant === "pill" ? streak.current : `${streak.current} day streak`}
+            {variant === "row" ? (
+              <span className="font-bold text-muted"> · longest {streak.longest}</span>
+            ) : null}
           </span>
           {variant === "card" ? (
             <span className="mt-1 block text-[13px] font-semibold text-muted">

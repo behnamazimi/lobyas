@@ -14,6 +14,7 @@ export function ConfirmDialog({
   confirmLabel,
   onConfirm,
   busy = false,
+  confirmDisabled = false,
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -22,6 +23,8 @@ export function ConfirmDialog({
   confirmLabel: ReactNode;
   onConfirm: () => void;
   busy?: boolean;
+  /** Keeps the danger action off until the person has done what the body asks. */
+  confirmDisabled?: boolean;
 }) {
   return (
     <ModalOverlay
@@ -57,7 +60,7 @@ export function ConfirmDialog({
                 <Pill
                   variant="danger"
                   size="lg"
-                  disabled={busy}
+                  disabled={busy || confirmDisabled}
                   onClick={onConfirm}
                   className="h-[52px] bg-wrong text-white text-base"
                 >

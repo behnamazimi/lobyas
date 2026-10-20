@@ -1,5 +1,5 @@
 import { CopyField, HighlightPanel, SetupStep } from "@/components/settings/ui";
-import { Button } from "@/components/ui/button";
+import { Pill } from "@/components/kit";
 
 type WidgetInstallStepsProps = {
   isGenerating: boolean;
@@ -21,7 +21,7 @@ export function WidgetInstallSteps({
         title="Install Übersicht"
         description="The widget runs on Übersicht, a macOS app for desktop widgets. Install it first."
       >
-        <p className="m-0 text-sm text-base-content/70">
+        <p className="m-0 text-sm font-semibold text-muted">
           Get it from the{" "}
           <a
             href="https://tracesof.net/uebersicht/"
@@ -49,14 +49,9 @@ export function WidgetInstallSteps({
         title="Create an API token"
         description="You'll only see this token once. Copy it straight into step 3."
       >
-        <Button
-          type="button"
-          onPress={onGenerate}
-          isDisabled={isGenerating}
-          className="min-h-11 w-full md:w-auto"
-        >
+        <Pill onClick={onGenerate} disabled={isGenerating}>
           {isGenerating ? "Generating…" : "Generate widget token"}
-        </Button>
+        </Pill>
 
         {newToken ? (
           <HighlightPanel label="Copy your new token now">
@@ -78,11 +73,11 @@ export function WidgetInstallSteps({
             value={installWithTokenCommand}
           />
         ) : (
-          <p className="m-0 text-sm text-base-content/70">
+          <p className="m-0 text-sm font-semibold text-muted">
             Generate a token in step 2 to get the one-command install script.
           </p>
         )}
-        <p className="m-0 text-sm text-base-content/70">
+        <p className="m-0 text-sm font-semibold text-muted">
           Or{" "}
           <a href="/downloads/lobyas.widget.zip" download className="link link-hover">
             download the zip

@@ -1,16 +1,14 @@
 "use client";
 
-import { YELLOW } from "@/components/illustrations/palette";
-import { LobyaHead } from "@/components/illustrations/scenes/goal-team";
-import { ArrowRight, BookmarkMinus, CheckCircle2, Ellipsis, Flag, Plus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Button } from "react-aria-components";
+import { BookmarkMinus, CheckCircle2, Ellipsis, Flag, Plus } from "lucide-react";
+import { collectionLetter } from "@/components/app/shell/collection-look";
+import { Pill, Tile } from "@/components/kit";
 import { DropdownMenu, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { REPORTED_THANKS } from "@/lib/collections/moderation";
 import { LoveButton } from "./love-button";
 import type { SharedCollection } from "@/lib/terms/types";
-import { cn, pluralize } from "@/lib/utils";
-import { NAV_FORWARD } from "@/components/shared/view-transitions";
+import { pluralize } from "@/lib/utils";
 
 type SharedCollectionCardProps = {
   collection: SharedCollection;
@@ -23,13 +21,6 @@ type SharedCollectionCardProps = {
   onReport: () => void;
 };
 
-/** A stable number per collection, so each one keeps its own lobya. */
-function seedFor(id: string) {
-  let seed = 0;
-  for (const char of id) seed = (seed * 31 + char.charCodeAt(0)) % 997;
-  return seed;
-}
-
 export function SharedCollectionCard({
   collection,
   busy,
@@ -40,44 +31,25 @@ export function SharedCollectionCard({
   onReport,
 }: SharedCollectionCardProps) {
   return (
-    <article
-      className={cn(
-        "shadow-surface flex flex-col gap-4 rounded-box bg-base-100 p-5 transition-shadow duration-150",
-        "hover:shadow-surface-hover",
-        collection.inCollection &&
-          "bg-[color-mix(in_oklab,var(--color-primary)_5%,var(--color-base-100))]",
-      )}
-    >
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <div
-            className="flex size-11 shrink-0 items-center justify-center rounded-field bg-primary/10 text-xl leading-none"
-            aria-hidden
-          >
-            {collection.icon || (
-              <LobyaHead color={YELLOW} seed={seedFor(collection.id)} className="size-7" />
-            )}
-          </div>
-          <div className="min-w-0 flex-1 space-y-1">
-            <h2 className="font-heading truncate text-base font-medium">{collection.name}</h2>
-            {collection.description ? (
-              <p className="line-clamp-2 text-sm text-base-content/70">{collection.description}</p>
-            ) : null}
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm tabular-nums text-base-content/70">
-                {pluralize(collection.termCount, "term")}
-              </p>
-              {collection.inCollection ? (
-                <Badge className="badge-soft badge-primary gap-1 border-0">
-                  <CheckCircle2 className="size-3" aria-hidden strokeWidth={1.5} />
-                  In library
-                </Badge>
-              ) : null}
-            </div>
+    <article className="flex flex-col gap-3 rounded-3xl bg-base-100 p-4 shadow-card">
+      <div className="contents">
+        <div className="flex items-center gap-3">
+          <Tile tone="read" serif>
+            {collection.icon || collectionLetter(collection.name)}
+          </Tile>
+          <div className="min-w-0 flex-1">
+            <h2 className="m-0 truncate font-sans text-base font-extrabold">{collection.name}</h2>
+            <p className="m-0 text-[13px] font-bold text-muted tabular-nums">
+              {pluralize(collection.termCount, "term")}
+            </p>
           </div>
         </div>
-
-        <div className="flex shrink-0 items-center gap-2 border-t border-base-content/10 pt-3 md:border-0 md:pt-0 md:ps-2">
+        {collection.description ? (
+          <p className="m-0 line-clamp-2 text-sm leading-snug font-semibold text-ink-soft">
+            {collection.description}
+          </p>
+        ) : null}
+        <div className="-mb-1 flex items-center gap-1">
           <LoveButton
             loved={collection.lovedByMe}
             count={collection.loveCount}
@@ -85,35 +57,23 @@ export function SharedCollectionCard({
           />
           <div className="ms-auto flex items-center gap-1">
             {collection.inCollection ? (
-              <LinkButton
-                href={`/app/library?collection=${collection.id}`}
-                variant="ghost"
-                className="min-h-11 gap-2 md:min-h-8"
-              >
-                View in library
-                <ArrowRight className="size-4" aria-hidden strokeWidth={1.5} />
-              </LinkButton>
+              <Pill href={`/app/library?collection=${collection.id}`} variant="soft">
+                <CheckCircle2 className="size-4 text-success-text" strokeWidth={2.3} aria-hidden />
+                In library
+              </Pill>
             ) : (
-              <Button
-                type="button"
-                data-tour="browse-add"
-                onPress={onAdd}
-                isDisabled={busy}
-                className="min-h-11 gap-2 transition-transform active:scale-[0.96] md:min-h-8"
-              >
-                <Plus className="size-4" aria-hidden strokeWidth={1.5} />
-                Add to library
-              </Button>
+              <Pill data-tour="browse-add" onClick={onAdd} disabled={busy}>
+                <Plus className="size-4" strokeWidth={2.6} aria-hidden />
+                Add
+              </Pill>
             )}
             {collection.inCollection || !collection.isBuiltin ? (
               <DropdownMenuTrigger>
                 <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  className="min-h-11 min-w-11 text-base-content/70 hover:text-base-content md:min-h-8 md:min-w-8"
+                  className="flex size-11 items-center justify-center rounded-full text-muted"
                   aria-label="More actions"
                 >
-                  <Ellipsis className="size-5" aria-hidden strokeWidth={1.5} />
+                  <Ellipsis className="size-5" aria-hidden strokeWidth={2.3} />
                 </Button>
                 <DropdownMenu className="min-w-[200px]" placement="bottom end">
                   {collection.inCollection ? (
@@ -133,33 +93,21 @@ export function SharedCollectionCard({
             ) : null}
           </div>
         </div>
-      </div>
-      {justAdded && collection.inCollection ? (
-        <div
-          role="status"
-          className="flex flex-col gap-3 rounded-field bg-primary/10 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <p className="m-0 text-sm font-medium">Added to your library.</p>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <LinkButton
-              href={`/app/triage?collection=${collection.id}`}
-              transitionTypes={NAV_FORWARD}
-              variant="outline"
-              size="sm"
-              className="min-h-11 md:min-h-8"
-            >
-              Sort what you know
-            </LinkButton>
-            <LinkButton
-              href={`/app/read?collection=${collection.id}`}
-              size="sm"
-              className="min-h-11 md:min-h-8"
-            >
-              Start reading
-            </LinkButton>
+        {justAdded && collection.inCollection ? (
+          <div
+            role="status"
+            className="flex flex-col gap-2 rounded-2xl bg-success-tint px-4 py-3 text-success-text"
+          >
+            <p className="m-0 text-sm font-extrabold">Added to your library.</p>
+            <div className="flex flex-wrap gap-2">
+              <Pill href={`/app/triage?collection=${collection.id}`} variant="secondary">
+                Sort what you know
+              </Pill>
+              <Pill href={`/app/read?collection=${collection.id}`}>Start reading</Pill>
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
     </article>
   );
 }

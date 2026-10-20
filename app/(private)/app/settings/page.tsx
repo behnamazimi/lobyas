@@ -28,7 +28,7 @@ function parseTab(value: string | undefined): SettingsTabId | null {
 async function LlmPanelServer() {
   const setup = await getLlmSettingsData();
   if ("error" in setup) {
-    return <p className="text-sm text-base-content/70">{setup.error}</p>;
+    return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
   }
   return <LlmPanel ai={setup.ai} schedule={setup.schedule} />;
 }
@@ -36,7 +36,7 @@ async function LlmPanelServer() {
 async function WidgetPanelServer() {
   const setup = await getWidgetSettingsData();
   if ("error" in setup) {
-    return <p className="text-sm text-base-content/70">{setup.error}</p>;
+    return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
   }
   return (
     <WidgetPanel initialTokens={setup.widgetTokens} latestWidgetVersion={LATEST_WIDGET_VERSION} />
@@ -46,7 +46,7 @@ async function WidgetPanelServer() {
 async function AccountPanelServer() {
   const setup = await getAccountSettingsData();
   if ("error" in setup) {
-    return <p className="text-sm text-base-content/70">{setup.error}</p>;
+    return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
   }
   return <AccountPanel {...setup.account} />;
 }
@@ -55,13 +55,13 @@ export default async function SettingsRoute({ searchParams }: PageProps) {
   const [{ tab: tabParam }, auth] = await Promise.all([searchParams, requireAuthenticatedClient()]);
 
   if ("error" in auth) {
-    return <p className="text-sm text-base-content/70">{auth.error}</p>;
+    return <p className="text-sm font-semibold text-muted">{auth.error}</p>;
   }
 
   const tab = parseTab(tabParam);
 
   return (
-    <div className="space-y-6 max-md:space-y-4">
+    <div className="flex flex-col gap-3">
       {tab ? <ScrollToSettingsPanel tab={tab} /> : null}
       <Suspense fallback={<PanelSkeleton />}>
         <LlmPanelServer />

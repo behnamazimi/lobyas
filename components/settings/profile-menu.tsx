@@ -7,7 +7,7 @@ import { logout } from "@/app/(private)/auth/actions";
 import { markSignedOut, restoreSignedIn } from "@/lib/auth/auth-state";
 import { ACCOUNT_HOME_NAV, ADMIN_NAV_ITEMS, emailInitials } from "@/components/app/account-nav";
 import { AppRouterProvider } from "@/components/app-router-provider";
-import { ReportIssueDialog } from "@/components/issues/report-issue-dialog";
+import { ReportIssueSheet } from "@/components/issues/report-issue-sheet";
 import { INSTALL_MENU_LABEL, useInstallAction } from "@/components/pwa/install-prompt";
 import { useAiCredits } from "@/hooks/use-ai-credits";
 import { aiCreditsLine, type AiCreditsMenuMode } from "@/lib/ai-credits/menu-line";
@@ -131,7 +131,7 @@ export function ProfileMenu({ email, isAdmin = false, aiCreditsMode }: ProfileMe
           </DropdownMenuItem>
         </DropdownMenu>
       </DropdownMenuTrigger>
-      <ReportIssueDialog isOpen={reportOpen} onOpenChange={setReportOpen} />
+      <ReportIssueSheet isOpen={reportOpen} onOpenChange={setReportOpen} />
     </AppRouterProvider>
   );
 }

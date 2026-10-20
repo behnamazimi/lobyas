@@ -59,7 +59,7 @@ function NarrationCreditGate({
       summary={summary}
       action={
         gate.kind === "top-up" ? (
-          <TopUpButton size="sm" amount={gate.amount} onAdded={onAdded} />
+          <TopUpButton variant="soft" amount={gate.amount} onAdded={onAdded} />
         ) : null
       }
     />

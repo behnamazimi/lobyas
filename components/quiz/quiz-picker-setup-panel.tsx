@@ -152,10 +152,7 @@ export function QuizPickerSetupPanel(props: QuizPickerStepProps) {
           <QuizPickerFooterHint questionStyle={questionStyle} ai={ai} cost={use.cost} />
         </p>
         {gate?.kind === "top-up" ? (
-          <TopUpButton
-            amount={gate.amount}
-            className="h-[60px] w-full rounded-full text-[17px] font-extrabold"
-          />
+          <TopUpButton size="lg" amount={gate.amount} />
         ) : (
           <Pill size="lg" onClick={onStartQuiz} disabled={startDisabled}>
             Start quiz

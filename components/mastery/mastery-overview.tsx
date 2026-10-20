@@ -1,6 +1,7 @@
 "use client";
 
 import type { WebStatsSnapshot } from "@/lib/mastery/collection-stats";
+import { Card, Divider } from "@/components/kit";
 import { CollectionCard, PausedCollectionCard } from "./collection-card";
 import { formatLifetimeTotals } from "./mastery-format";
 import { MasteryPracticeActivity } from "./mastery-practice-activity";
@@ -15,29 +16,7 @@ type MasteryOverviewProps = {
   onSelectCollection: (collectionId: string) => void;
 };
 
-function OverviewHeader({
-  termsLearning,
-  termsLearned,
-  lifetimeTotalsLine,
-}: {
-  termsLearning: number;
-  termsLearned: number;
-  lifetimeTotalsLine: string | null;
-}) {
-  return (
-    <div className="space-y-1">
-      <p className="text-sm font-medium text-base-content">
-        Learning <span className="tabular-nums">{pluralize(termsLearning, "term")}</span> · Mastered{" "}
-        <span className="tabular-nums">{pluralize(termsLearned, "term")}</span>
-      </p>
-      {lifetimeTotalsLine ? (
-        <p className="m-0 text-xs text-base-content/70">{lifetimeTotalsLine}</p>
-      ) : null}
-    </div>
-  );
-}
-
-/** Per-collection breakdown leads — that's what users actually track day to
+/** Per-collection breakdown follows the totals — that's what users actually track day to
  *  day. There's no single "overall strength" number here: mastery is shown
  *  per collection instead (see CollectionCard), since blending collections
  *  at very different stages into one aggregate obscured more than it told. */
@@ -54,27 +33,37 @@ export function MasteryOverview({
     0;
 
   return (
-    <div className="space-y-4">
-      <OverviewHeader
-        termsLearning={termsLearning}
-        termsLearned={termsLearned}
-        lifetimeTotalsLine={hasLifetimeTotals ? formatLifetimeTotals(stats.lifetimeTotals) : null}
-      />
+    <div className="flex flex-col gap-3">
+      <Card radius="md" className="p-4">
+        <div className="grid grid-cols-2 gap-2.5">
+          <div>
+            <div className="text-[13px] font-bold text-muted">Learning</div>
+            <div className="text-[26px] leading-tight font-extrabold tabular-nums">
+              {pluralize(termsLearning, "term")}
+            </div>
+          </div>
+          <div>
+            <div className="text-[13px] font-bold text-muted">Mastered</div>
+            <div className="text-[26px] leading-tight font-extrabold tabular-nums">
+              {pluralize(termsLearned, "term")}
+            </div>
+          </div>
+        </div>
+        {hasLifetimeTotals ? (
+          <p className="m-0 mt-1.5 text-[13px] font-semibold text-muted">
+            {formatLifetimeTotals(stats.lifetimeTotals)}
+          </p>
+        ) : null}
+        <Divider className="mx-0 my-3" />
+        <MasteryPracticeActivity stats={stats} />
+      </Card>
 
-      <MasteryPracticeActivity stats={stats} />
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        {stats.activeCollections.map((collection) => (
-          <CollectionCard
-            key={collection.id}
-            collection={collection}
-            onSelect={onSelectCollection}
-          />
-        ))}
-        {stats.pausedCollections.map((collection) => (
-          <PausedCollectionCard key={collection.id} collection={collection} />
-        ))}
-      </div>
+      {stats.activeCollections.map((collection) => (
+        <CollectionCard key={collection.id} collection={collection} onSelect={onSelectCollection} />
+      ))}
+      {stats.pausedCollections.map((collection) => (
+        <PausedCollectionCard key={collection.id} collection={collection} />
+      ))}
     </div>
   );
 }

@@ -1,17 +1,9 @@
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useState, useTransition } from "react";
 import { deleteOwnAccountAction } from "@/app/(private)/app/settings/actions";
+import { ConfirmDialog, Pill, TextInput } from "@/components/kit";
 import { DangerZone } from "@/components/settings/ui";
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 
 function DeleteAccountDialog({ email, onClose }: { email: string; onClose: () => void }) {
   const [typed, setTyped] = useState("");
@@ -20,8 +12,7 @@ function DeleteAccountDialog({ email, onClose }: { email: string; onClose: () =>
 
   const canConfirm = typed.trim().toLowerCase() === email.toLowerCase() && !isPending;
 
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault();
+  function confirm() {
     if (!canConfirm) return;
     startTransition(async () => {
       const result = await deleteOwnAccountAction(typed.trim());
@@ -30,48 +21,47 @@ function DeleteAccountDialog({ email, onClose }: { email: string; onClose: () =>
   }
 
   return (
-    <AlertDialog
+    <ConfirmDialog
       isOpen
-      isDismissable={!isPending}
       onOpenChange={(open) => {
-        if (!open && !isPending) onClose();
+        if (!open) onClose();
       }}
+      title="Delete your account?"
+      confirmLabel={isPending ? "Deleting…" : "Delete account"}
+      confirmDisabled={!canConfirm}
+      busy={isPending}
+      onConfirm={confirm}
     >
-      <AlertDialogHeader>
-        <AlertDialogTitle>Delete your account?</AlertDialogTitle>
-        <AlertDialogDescription>
-          Your terms, collections, study history and settings are deleted for good. This can&apos;t
-          be undone.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-        <label className="flex flex-col gap-1">
-          <span className="text-sm">
-            Type <strong>{email}</strong> to confirm
-          </span>
-          <input
-            type="email"
-            className="input input-bordered w-full"
-            value={typed}
-            onChange={(event) => setTyped(event.target.value)}
-            autoComplete="off"
-            spellCheck={false}
-            autoFocus
-          />
+      <p className="m-0">
+        Your terms, collections, study history and settings are deleted for good. This can&apos;t be
+        undone.
+      </p>
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          confirm();
+        }}
+        className="mt-3 flex flex-col gap-1.5"
+      >
+        <label htmlFor="delete-account-email" className="text-sm font-bold">
+          Type <strong>{email}</strong> to confirm
         </label>
+        <TextInput
+          id="delete-account-email"
+          type="email"
+          value={typed}
+          onChange={(event) => setTyped(event.target.value)}
+          autoComplete="off"
+          spellCheck={false}
+          autoFocus
+        />
         {error ? (
-          <p role="alert" className="m-0 text-sm text-error">
+          <p role="alert" className="m-0 text-sm font-bold text-wrong-text">
             {error}
           </p>
         ) : null}
-        <AlertDialogFooter>
-          <AlertDialogCancel isDisabled={isPending}>Cancel</AlertDialogCancel>
-          <Button type="submit" variant="destructive" isDisabled={!canConfirm}>
-            {isPending ? "Deleting…" : "Delete account"}
-          </Button>
-        </AlertDialogFooter>
       </form>
-    </AlertDialog>
+    </ConfirmDialog>
   );
 }
 
@@ -83,9 +73,9 @@ export function DeleteAccountPanel({ email }: { email: string }) {
       title="Delete account"
       description="Permanently remove your account and everything in it."
     >
-      <Button variant="destructive" onPress={() => setIsAsking(true)}>
-        Delete account…
-      </Button>
+      <Pill variant="danger" onClick={() => setIsAsking(true)}>
+        Delete…
+      </Pill>
       {isAsking ? <DeleteAccountDialog email={email} onClose={() => setIsAsking(false)} /> : null}
     </DangerZone>
   );
