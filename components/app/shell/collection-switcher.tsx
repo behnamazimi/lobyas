@@ -1,8 +1,9 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { formatCount } from "@/lib/kit/text";
-import { BottomSheet, CollectionSwitcherRow } from "@/components/kit";
+import { BottomSheet, CollectionSwitcherRow, Tile } from "@/components/kit";
 import { collectionLetter, collectionTone } from "./collection-look";
 import { useShell, type ShellCollection } from "./shell-context";
 
@@ -47,8 +48,11 @@ export function CollectionList() {
       ) : null}
       <Link
         href="/app/import"
-        className="flex min-h-14 items-center rounded-2xl px-3 text-base font-extrabold"
+        className="flex min-h-14 items-center gap-3 rounded-2xl px-2 text-base font-extrabold hover:bg-base-200"
       >
+        <Tile tone="success">
+          <Plus className="size-5" strokeWidth={2.8} aria-hidden />
+        </Tile>
         Add a collection
       </Link>
     </div>

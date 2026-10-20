@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { CLAMP_ONE_LINE, formatCount } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
 import { ProgressBar } from "../progress/bar";
@@ -52,6 +53,11 @@ export function CollectionSwitcherRow({
         )}
         {detail ? <span className="text-[13px] font-semibold text-muted">{detail}</span> : null}
       </span>
+      {selected ? (
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-mastered text-white">
+          <Check className="size-4" strokeWidth={3} aria-hidden />
+        </span>
+      ) : null}
     </button>
   );
 }
