@@ -56,9 +56,15 @@ test.describe("App shell", () => {
       await gotoReady(page, "/app/library");
 
       if (isMobile) {
-        await page.getByRole("button", { name: /^Collection (?!actions)/ }).click();
+        await page.getByRole("button", { name: /^Collection / }).click();
+      } else {
+        // The rail's switcher button comes before the rows it lists.
+        await page
+          .getByRole("button", { name: /(Alpha|Beta) terms/ })
+          .first()
+          .click();
       }
-      await page.getByRole("link", { name: beta.name }).click();
+      await page.getByRole("button", { name: new RegExp(`^${beta.name}`) }).click();
       await expect(page).toHaveURL(new RegExp(`collection=${beta.collectionId}`));
 
       await gotoReady(page, "/app/read");
