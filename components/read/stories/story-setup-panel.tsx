@@ -52,7 +52,7 @@ export function StorySetupPanel({
   const fallsBack = current !== null && selected !== undefined && current.id !== selected.id;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4 pb-4 md:pb-6">
       <div>
         <h1 className="m-0 font-heading text-[30px] leading-[1.1] font-extrabold">
           Set up your story
@@ -121,7 +121,7 @@ export function StorySetupPanel({
         </div>
       </SectionCard>
 
-      <div className="min-h-3 flex-1" />
+      <div className="min-h-3 flex-1 md:flex-none" />
 
       {creditsBlock ? (
         <StoryCreditGate
