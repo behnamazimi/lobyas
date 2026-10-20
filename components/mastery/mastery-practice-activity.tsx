@@ -1,9 +1,5 @@
-"use client";
-
-import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { StatTile } from "@/components/kit";
 import type { GradeDistributionSummary, WebStatsSnapshot } from "@/lib/mastery/collection-stats";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { AGAIN, EASY, GOOD, HARD, type ReviewGrade } from "@/lib/trace";
 import { cn, pluralize } from "@/lib/utils";
 
@@ -26,9 +22,9 @@ function RollupRow({
   today: number;
 }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 py-2 text-sm">
-      <span className="font-medium text-base-content">{label}</span>
-      <span className="flex flex-col items-end text-base-content/70">
+    <div className="flex items-baseline justify-between gap-3 py-2 text-sm font-bold">
+      <span>{label}</span>
+      <span className="flex flex-col items-end text-right text-muted">
         <span className="tabular-nums">{formatUnseenLine(unseen)}</span>
         <span className="tabular-nums">
           {today} {verb} today
@@ -38,82 +34,70 @@ function RollupRow({
   );
 }
 
-const GRADE_LABEL: Record<ReviewGrade, string> = {
-  [AGAIN]: "Again",
-  [HARD]: "Hard",
-  [GOOD]: "Good",
-  [EASY]: "Easy",
-};
-const GRADE_ORDER: ReviewGrade[] = [AGAIN, HARD, GOOD, EASY];
+const GRADES: { grade: ReviewGrade; label: string; className?: string }[] = [
+  { grade: AGAIN, label: "Again" },
+  { grade: HARD, label: "Hard" },
+  { grade: GOOD, label: "Good" },
+  { grade: EASY, label: "Easy", className: "bg-success text-success-content" },
+];
+const GRADE_TONE = {
+  [AGAIN]: "wrong",
+  [HARD]: "hard",
+  [GOOD]: "success",
+  [EASY]: "success",
+} as const;
 
 /** Plain distribution, no verdict — what's "too generous" is subjective,
  *  this just shows the grading habit itself. */
-function GradeDistributionRow({ summary }: { summary: GradeDistributionSummary }) {
+function GradeDistribution({ summary }: { summary: GradeDistributionSummary }) {
   return (
-    <div className="flex flex-col gap-2 py-2 text-sm">
-      <span className="font-medium text-base-content">Grading</span>
-      <dl className="m-0 grid grid-cols-4 gap-2">
-        {GRADE_ORDER.map((grade) => (
-          <div key={grade} className="flex flex-col">
-            <dt className="text-xs text-base-content/70">{GRADE_LABEL[grade]}</dt>
-            <dd className="m-0 tabular-nums text-base-content">
-              {Math.round((summary.counts[grade] / summary.total) * 100)}%
+    <>
+      <h3 className="m-0 mt-2 font-sans text-[15px] font-extrabold">Grading</h3>
+      <dl className="m-0 mt-2 grid grid-cols-4 gap-2">
+        {GRADES.map(({ grade, label, className }) => (
+          <div key={grade} className="flex flex-col-reverse">
+            <dt className="sr-only">{label}</dt>
+            <dd className="m-0">
+              <StatTile
+                tone={GRADE_TONE[grade]}
+                value={`${Math.round((summary.counts[grade] / summary.total) * 100)}%`}
+                label={label}
+                className={cn("[&>div:first-child]:text-lg", className)}
+              />
             </dd>
           </div>
         ))}
       </dl>
-    </div>
+    </>
   );
 }
 
-/** Queue/grading diagnostics — secondary to the per-collection breakdown,
- *  so it's tucked behind a disclosure rather than sitting in the main
- *  flow, though open by default. */
+/** Queue and grading diagnostics, secondary to the per-collection cards. */
 export function MasteryPracticeActivity({ stats }: { stats: WebStatsSnapshot }) {
-  const [open, setOpen] = useState(true);
-
   if (stats.activeCollections.length === 0) return null;
 
   return (
-    <Collapsible
-      isExpanded={open}
-      onExpandedChange={setOpen}
-      className="shadow-surface rounded-box bg-base-100 p-5"
-    >
-      <CollapsibleTrigger className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-field border-none bg-transparent p-0 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary">
-        <span className="text-sm font-medium text-base-content">Practice activity</span>
-        <ChevronRight
-          className={cn("size-3.5 shrink-0 transition-transform", open && "rotate-90")}
-          aria-hidden
-          strokeWidth={2}
-        />
-      </CollapsibleTrigger>
-
-      <CollapsibleContent>
-        <div className="mt-3 divide-y divide-base-content/10">
-          <RollupRow
-            label="Read"
-            verb="read"
-            unseen={stats.rollup.read.unseen}
-            today={stats.today.read}
-          />
-          <RollupRow
-            label="Review"
-            verb="reviewed"
-            unseen={stats.rollup.review.unseen}
-            today={stats.today.review}
-          />
-          <RollupRow
-            label="Quiz"
-            verb="quizzed"
-            unseen={stats.rollup.quiz.unseen}
-            today={stats.today.quiz}
-          />
-          {stats.gradeDistribution ? (
-            <GradeDistributionRow summary={stats.gradeDistribution} />
-          ) : null}
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
+    <section role="group" aria-label="Practice activity">
+      <h3 className="m-0 font-sans text-[15px] font-extrabold">Practice activity</h3>
+      <RollupRow
+        label="Read"
+        verb="read"
+        unseen={stats.rollup.read.unseen}
+        today={stats.today.read}
+      />
+      <RollupRow
+        label="Review"
+        verb="reviewed"
+        unseen={stats.rollup.review.unseen}
+        today={stats.today.review}
+      />
+      <RollupRow
+        label="Quiz"
+        verb="quizzed"
+        unseen={stats.rollup.quiz.unseen}
+        today={stats.today.quiz}
+      />
+      {stats.gradeDistribution ? <GradeDistribution summary={stats.gradeDistribution} /> : null}
+    </section>
   );
 }

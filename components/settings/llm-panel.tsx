@@ -1,28 +1,20 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
 import { TopUpButton } from "@/components/ai-credits/top-up-button";
+import { ProgressBar } from "@/components/kit";
 import { SettingsPanel, SettingsRow, SettingsStack } from "@/components/settings/ui";
 import { refillLines } from "@/lib/ai-credits/explainer";
-import { TOPUP_COPY } from "@/lib/ai-credits/topup-copy";
+import { freeCreditsLine } from "@/lib/ai-credits/topup-copy";
 import type { CreditSchedule, TopUpState } from "@/lib/ai-credits/types";
 import type { AiAccessView } from "@/lib/llm/types";
 
-function freeCreditsCopy(topUp: TopUpState | undefined): string | null {
-  if (topUp?.available) return TOPUP_COPY.eligible(topUp.amount);
-  if (topUp?.reason === "already-today") return TOPUP_COPY.alreadyToday;
-  return null;
-}
-
 function FreeCreditsRow({ topUp }: { topUp: TopUpState | undefined }) {
-  const copy = freeCreditsCopy(topUp);
+  const copy = freeCreditsLine(topUp);
   if (!copy) return null;
 
   return (
     <SettingsRow title="Free credits" description={copy}>
-      {topUp?.available ? (
-        <TopUpButton amount={topUp.amount} className="min-h-11 w-full md:w-auto" />
-      ) : null}
+      {topUp?.available ? <TopUpButton amount={topUp.amount} variant="soft" /> : null}
     </SettingsRow>
   );
 }
@@ -61,17 +53,16 @@ function AiCreditsBlock({ ai, schedule }: AiCreditsBlockProps) {
       <>
         <SettingsStack>
           <SettingsRow title="Balance" description={`${label}.`}>
-            <progress
-              className="progress progress-primary h-1.5 w-full"
-              value={ai.remaining}
-              max={ai.total}
-              aria-label={label}
+            <ProgressBar
+              className="w-full"
+              value={ai.total > 0 ? ai.remaining / ai.total : 0}
+              label={label}
             />
           </SettingsRow>
           <RefillsRow schedule={schedule} />
           <FreeCreditsRow topUp={ai.topUp} />
         </SettingsStack>
-        <p className="m-0 text-xs text-base-content/70">
+        <p className="m-0 text-xs leading-snug font-semibold text-muted">
           When you use AI credits, the terms, definitions and any outline you write are sent to our
           AI provider.
         </p>
@@ -91,17 +82,12 @@ function AiCreditsBlock({ ai, schedule }: AiCreditsBlockProps) {
     );
   }
 
-  return <p className="m-0 text-sm text-base-content/70">AI isn&apos;t available right now.</p>;
+  return <p className="m-0 text-sm font-semibold text-muted">AI isn&apos;t available right now.</p>;
 }
 
 export function LlmPanel({ ai, schedule }: AiCreditsBlockProps) {
   return (
-    <SettingsPanel
-      id="ai"
-      icon={Sparkles}
-      title="AI credits"
-      description="Power AI quizzes and Stories."
-    >
+    <SettingsPanel id="ai" title="AI credits" description="Power AI quizzes and Stories.">
       <AiCreditsBlock ai={ai} schedule={schedule} />
     </SettingsPanel>
   );

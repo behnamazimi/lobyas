@@ -2,7 +2,7 @@ import { GOAL_TIERS, type DailyGoals, type GoalTier } from "./levels";
 
 export type GoalDayCounts = Record<GoalTier, number>;
 
-export type TierProgress = {
+type TierProgress = {
   goal: number | null;
   done: number;
   met: boolean;

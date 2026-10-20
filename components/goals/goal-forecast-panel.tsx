@@ -1,6 +1,6 @@
 "use client";
 
-import { Flag } from "lucide-react";
+import { Card } from "@/components/kit";
 import type { GoalForecast } from "@/lib/goals/forecast";
 import { FORECAST_SHORT_DAYS } from "@/lib/trace";
 import { cn, pluralize } from "@/lib/utils";
@@ -50,59 +50,52 @@ export function ForecastPanel({
   const note = forecast ? message(forecast) : null;
 
   return (
-    <section
-      aria-labelledby="goals-forecast-heading"
-      aria-busy={isLoading}
-      className="shadow-surface space-y-3 rounded-box bg-base-100 p-4 ring-1 ring-base-content/5 sm:p-5"
-    >
-      <div className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Flag className="size-4 text-primary" aria-hidden />
-          <h2 id="goals-forecast-heading" className="m-0 text-base font-medium">
-            Where these goals take you
-          </h2>
-        </div>
-        <p className="m-0 text-sm text-base-content/70">
-          If you hit them every day, this is roughly when each collection is fully mastered.
+    <Card radius="md" className="p-4">
+      <section aria-labelledby="goals-forecast-heading" aria-busy={isLoading}>
+        <h2 id="goals-forecast-heading" className="m-0 font-sans text-[17px] font-extrabold">
+          Where these goals take you
+        </h2>
+        <p className="mt-1 mb-1 text-[13px] leading-snug font-semibold text-muted">
+          If you keep this pace every day, roughly when each collection is fully mastered.
         </p>
-      </div>
 
-      {error && !isLoading ? (
-        <p className="m-0 text-sm text-error-text">{error}</p>
-      ) : forecast === null ? (
-        <ForecastSkeleton />
-      ) : note ? (
-        <p className="m-0 text-sm text-base-content/70">{note}</p>
-      ) : forecast.kind === "forecast" ? (
-        <div className={cn("space-y-3 transition-opacity", isLoading && "opacity-60")}>
-          <ul className="m-0 list-none space-y-2 p-0">
-            {forecast.collections.map((collection) => (
-              <li
-                key={collection.id}
-                className="flex items-center justify-between gap-3 rounded-field bg-base-200/60 px-3 py-2.5"
-              >
-                <div className="min-w-0">
-                  <p className="m-0 truncate text-sm font-medium">{collection.name}</p>
-                  <p className="m-0 text-xs text-base-content/70 tabular-nums">
-                    {collection.remaining === 0
-                      ? "Every term mastered"
-                      : `${pluralize(collection.remaining, "term")} to go`}
-                  </p>
-                </div>
-                <span className="shrink-0 text-sm font-medium tabular-nums">
-                  {finishLabel(collection.lowDays, collection.highDays)}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <SummaryLine forecast={forecast} />
-          <p className="m-0 text-xs text-base-content/70">
-            An estimate from your goals and how your answers usually go. It updates as you change
-            your goals.
-          </p>
-        </div>
-      ) : null}
-    </section>
+        {error && !isLoading ? (
+          <p className="m-0 mt-2 text-sm text-wrong-text">{error}</p>
+        ) : forecast === null ? (
+          <ForecastSkeleton />
+        ) : note ? (
+          <p className="m-0 mt-2 text-sm font-semibold text-muted">{note}</p>
+        ) : forecast.kind === "forecast" ? (
+          <div className={cn("transition-opacity", isLoading && "opacity-60")}>
+            <ul className="m-0 list-none p-0">
+              {forecast.collections.map((collection) => (
+                <li
+                  key={collection.id}
+                  className="flex items-center gap-2.5 border-b border-base-300 py-2.5"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="m-0 truncate text-[15px] font-extrabold">{collection.name}</p>
+                    <p className="m-0 text-[13px] font-semibold text-muted tabular-nums">
+                      {collection.remaining === 0
+                        ? "Every term mastered"
+                        : `${pluralize(collection.remaining, "term")} to go`}
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-extrabold tabular-nums">
+                    {finishLabel(collection.lowDays, collection.highDays)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <SummaryLine forecast={forecast} />
+            <p className="m-0 mt-2.5 text-xs leading-snug font-semibold text-muted">
+              An estimate from your goals and how your answers usually go. It updates as you change
+              your goals.
+            </p>
+          </div>
+        ) : null}
+      </section>
+    </Card>
   );
 }
 
@@ -112,9 +105,9 @@ function SummaryLine({ forecast }: { forecast: Extract<GoalForecast, { kind: "fo
   if (remaining === 0 || masteredSoon >= remaining) return null;
 
   return (
-    <p className="m-0 text-sm text-base-content/70">
+    <p className="m-0 mt-2.5 text-sm font-semibold text-muted">
       In the next {FORECAST_SHORT_DAYS} days, about{" "}
-      <span className="font-semibold text-base-content tabular-nums">
+      <span className="font-extrabold text-base-content tabular-nums">
         {pluralize(masteredSoon, "term")}
       </span>{" "}
       reach Mastered.
@@ -124,9 +117,9 @@ function SummaryLine({ forecast }: { forecast: Extract<GoalForecast, { kind: "fo
 
 function ForecastSkeleton() {
   return (
-    <div className="space-y-2" aria-hidden>
-      <div className="h-10 animate-pulse rounded-field bg-base-200/60" />
-      <div className="h-4 w-2/3 animate-pulse rounded bg-base-200/60" />
+    <div className="mt-2 space-y-2" aria-hidden>
+      <div className="h-10 animate-pulse rounded-2xl bg-base-200" />
+      <div className="h-4 w-2/3 animate-pulse rounded bg-base-200" />
     </div>
   );
 }

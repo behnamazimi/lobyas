@@ -1,7 +1,7 @@
 "use client";
 
 import type { MasteryTier } from "@/lib/mastery/mastery";
-import { ToggleChip } from "@/components/ui/toggle";
+import { Chip } from "@/components/kit";
 
 /** Every term sits in exactly one group, so the chip counts add up to All. */
 export type MasteryGroup = "notStarted" | MasteryTier | "markedKnown";
@@ -42,28 +42,19 @@ export function MasteryTierChips({
 }) {
   return (
     <div className="flex flex-wrap gap-2">
-      <ToggleChip
-        isSelected={activeTier === "all"}
-        onChange={() => onChange("all")}
-        aria-label="Show every tier"
-      >
-        All{" "}
-        <span className="tabular-nums opacity-55 group-data-selected:opacity-80">{totalCount}</span>
-      </ToggleChip>
+      <Chip selected={activeTier === "all"} count={totalCount} onPress={() => onChange("all")}>
+        All
+      </Chip>
       {GROUPS.filter((group) => counts[group] > 0 || group === activeTier).map((group) => {
-        const selected = activeTier === group;
         return (
-          <ToggleChip
+          <Chip
             key={group}
-            isSelected={selected}
-            onChange={() => onChange(group)}
-            aria-label={`Filter by ${GROUP_LABEL[group]}`}
+            selected={activeTier === group}
+            count={counts[group]}
+            onPress={() => onChange(group)}
           >
-            {GROUP_LABEL[group]}{" "}
-            <span className="tabular-nums opacity-55 group-data-selected:opacity-80">
-              {counts[group]}
-            </span>
-          </ToggleChip>
+            {GROUP_LABEL[group]}
+          </Chip>
         );
       })}
     </div>

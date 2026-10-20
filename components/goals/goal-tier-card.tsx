@@ -1,9 +1,8 @@
 "use client";
 
-import { Minus, Plus } from "lucide-react";
-import { GoalLobyaScene } from "@/components/illustrations/scenes/goal-team";
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { BookOpen, RotateCw, Zap, type LucideIcon } from "lucide-react";
+import { Card, Stepper, Tile } from "@/components/kit";
+import type { Tone } from "@/components/kit/tones";
 import {
   GOAL_LEVEL_LABELS,
   GOAL_LEVELS,
@@ -11,9 +10,9 @@ import {
   goalForLevel,
   nearestLevel,
   stepGoal,
-  type GoalLevel,
   type GoalTier,
 } from "@/lib/goals/levels";
+import { formatCount } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
 
 const PER_DAY: Record<GoalTier, string> = {
@@ -22,80 +21,67 @@ const PER_DAY: Record<GoalTier, string> = {
   quiz: "questions a day",
 };
 
-const JOBS: Record<GoalTier, string> = {
-  read: "Lobyar reads",
-  review: "Lobyare reviews",
-  quiz: "Lobyaq quizzes",
+const LOOK: Record<GoalTier, { icon: LucideIcon; tone: Tone; selected: string }> = {
+  read: { icon: BookOpen, tone: "read", selected: "bg-read-tint ring-2 ring-read-ring" },
+  review: { icon: RotateCw, tone: "review", selected: "bg-review-tint ring-2 ring-review-ring" },
+  quiz: { icon: Zap, tone: "quiz", selected: "bg-quiz-tint ring-2 ring-quiz-ring" },
 };
 
-const surface = "shadow-surface rounded-box bg-base-100 ring-1 ring-base-content/5";
-
-/** One lobya's card: its pace (which sets its pose) and a fine-tune stepper. */
+/** One mode's pace: presets, a stepper for fine-tuning and what is done today. */
 export function TierCard({
   tier,
   goal,
+  done,
   onChange,
 }: {
   tier: GoalTier;
   goal: number | null;
+  done: number;
   onChange: (goal: number | null) => void;
 }) {
   const level = nearestLevel(tier, goal);
   const label = GOAL_TIER_LABELS[tier];
+  const { icon: Icon, tone, selected } = LOOK[tier];
 
   return (
-    <div className={cn(surface, "flex flex-col gap-3 p-4")}>
-      <div className="flex items-center gap-3 md:flex-col md:text-center">
-        <GoalLobyaScene tier={tier} level={level} className="w-24 shrink-0 md:w-32" />
-        <div className="min-w-0 flex-1 md:w-full">
-          <h3 className="m-0 text-base font-medium">{label}</h3>
-          <p className="m-0 text-xs text-base-content/70">{JOBS[tier]}</p>
-          <div className="mt-2 flex items-center gap-2 md:justify-center">
-            <Button
-              variant="outline"
-              size="icon-sm"
-              className="coarse:size-11"
-              aria-label={`Fewer ${PER_DAY[tier]}`}
-              isDisabled={goal === null}
-              onPress={() => onChange(stepGoal(goal, -1))}
-            >
-              <Minus className="size-4" aria-hidden />
-            </Button>
-            <p className="m-0 min-w-16 text-center leading-tight" aria-live="polite">
-              <span className="block text-xl font-semibold tabular-nums">{goal ?? "Off"}</span>
-              <span className="block text-xs text-base-content/70">
-                {goal ? PER_DAY[tier] : "no goal"}
-              </span>
-            </p>
-            <Button
-              variant="outline"
-              size="icon-sm"
-              className="coarse:size-11"
-              aria-label={`More ${PER_DAY[tier]}`}
-              onPress={() => onChange(stepGoal(goal, 1))}
-            >
-              <Plus className="size-4" aria-hidden />
-            </Button>
-          </div>
+    <Card radius="md" className="p-4">
+      <div className="flex items-center gap-3">
+        <Tile tone={tone} size={44}>
+          <Icon className="size-[22px]" strokeWidth={2.3} aria-hidden />
+        </Tile>
+        <div className="min-w-0 flex-1">
+          <h3 className="m-0 font-sans text-[17px] font-extrabold">{label}</h3>
+          <p className="m-0 text-[13px] font-bold text-muted tabular-nums">
+            {goal ? `${formatCount(done)} of ${formatCount(goal)} today` : "No goal"}
+          </p>
         </div>
+        <Stepper
+          value={goal ?? 0}
+          valueText={goal ? undefined : "Off"}
+          unit={PER_DAY[tier]}
+          decreaseLabel={`Fewer ${PER_DAY[tier]}`}
+          increaseLabel={`More ${PER_DAY[tier]}`}
+          disableDecrease={goal === null}
+          onDecrease={() => onChange(stepGoal(goal, -1))}
+          onIncrease={() => onChange(stepGoal(goal, 1))}
+        />
       </div>
-      <ToggleGroup
-        aria-label={`${label} pace`}
-        selectionMode="single"
-        disallowEmptySelection
-        selectedKeys={[level]}
-        onSelectionChange={(keys) => {
-          const [key] = [...keys];
-          if (key) onChange(goalForLevel(tier, key as GoalLevel));
-        }}
-        className="grid grid-cols-4 gap-1 md:grid-cols-2"
-      >
+      <div role="group" aria-label={`${label} pace`} className="mt-3 grid grid-cols-4 gap-1.5">
         {GOAL_LEVELS.map((option) => (
-          <ToggleGroupItem key={option} id={option} className="justify-center px-1">
+          <button
+            key={option}
+            type="button"
+            aria-pressed={level === option}
+            onClick={() => onChange(goalForLevel(tier, option))}
+            className={cn(
+              "h-11 rounded-full text-sm font-extrabold",
+              level === option ? selected : "bg-base-200",
+            )}
+          >
             {GOAL_LEVEL_LABELS[option]}
-          </ToggleGroupItem>
+          </button>
         ))}
-      </ToggleGroup>
-    </div>
+      </div>
+    </Card>
   );
 }

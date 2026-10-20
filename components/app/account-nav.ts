@@ -25,7 +25,7 @@ export type AccountNavItem = {
   icon: LucideIcon;
 };
 
-export const ACCOUNT_OVERFLOW_NAV: AccountNavItem[] = [
+const ACCOUNT_OVERFLOW_NAV: AccountNavItem[] = [
   { href: "/app/browse", label: "Browse", icon: Compass },
   { href: "/app/import", label: "Add collection", icon: Upload },
   { href: "/app/mastery", label: "Mastery", icon: Signal },

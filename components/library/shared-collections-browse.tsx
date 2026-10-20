@@ -3,14 +3,12 @@
 import { useRef, useState } from "react";
 import { ReportCollectionSheet } from "@/components/library/report-collection-sheet";
 import { SharedCollectionCard } from "@/components/library/shared-collection-card";
-import { BROWSE_PANEL_ID } from "@/components/library/shared-collections-tabs";
 import { SharedCollectionsFilterBar } from "@/components/library/shared-collections-filter-bar";
 import {
   SharedCollectionsEmptyCatalog,
   SharedCollectionsEmptyGroup,
   SharedCollectionsNoMatches,
 } from "@/components/library/shared-collections-empty-states";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { setCollectionLove } from "@/app/(private)/app/actions";
 import { useToast } from "@/components/ui/toast";
 import { useCollectionActions } from "@/hooks/use-collection-actions";
@@ -123,22 +121,19 @@ export function SharedCollectionsBrowse({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {bannerError ? (
-        <Alert variant="destructive">
-          <AlertDescription>{bannerError}</AlertDescription>
-        </Alert>
+        <p
+          role="alert"
+          className="m-0 rounded-2xl bg-wrong-tint px-3.5 py-3 text-sm font-bold text-wrong-text"
+        >
+          {bannerError}
+        </p>
       ) : null}
 
       <SharedCollectionsFilterBar browse={browse} searchInputRef={searchInputRef} />
 
-      <div
-        role="tabpanel"
-        id={BROWSE_PANEL_ID}
-        tabIndex={0}
-        aria-labelledby={`browse-tab-${browse.group}`}
-        className="space-y-4"
-      >
+      <div role="region" aria-label="Collections" className="space-y-3">
         {browse.collections.length === 0 ? (
           <EmptyResults
             browse={browse}
@@ -150,7 +145,12 @@ export function SharedCollectionsBrowse({
             }}
           />
         ) : (
-          <ul className={cn("flex flex-col gap-3", browse.isRefreshing && "opacity-70")}>
+          <ul
+            className={cn(
+              "m-0 flex list-none flex-col gap-3 p-0",
+              browse.isRefreshing && "opacity-70",
+            )}
+          >
             {browse.collections.map((collection) => (
               <li key={collection.id}>
                 <SharedCollectionCard

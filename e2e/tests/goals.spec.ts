@@ -31,8 +31,8 @@ test.describe("Daily goals", () => {
       await expect(page).toHaveURL(/\/app\/goals/);
 
       await page
-        .getByRole("radiogroup", { name: "Review pace" })
-        .getByRole("radio", { name: "Light" })
+        .getByRole("group", { name: "Review pace" })
+        .getByRole("button", { name: "Light" })
         .click();
       await page.getByRole("button", { name: "Fewer cards a day" }).click();
       await page.getByRole("button", { name: "Start these goals" }).click();

@@ -136,7 +136,7 @@ export function StorySetupPanel({
         <StoryFooterHint use={use} hasEnoughTerms={hasEnoughTerms} />
       </p>
       {gate?.kind === "top-up" ? (
-        <TopUpButton amount={gate.amount} className="min-h-[60px] w-full rounded-full" />
+        <TopUpButton size="lg" amount={gate.amount} />
       ) : (
         <Pill
           size="lg"

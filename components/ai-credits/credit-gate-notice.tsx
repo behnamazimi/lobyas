@@ -1,6 +1,5 @@
-import { Gift } from "lucide-react";
 import type { ReactNode } from "react";
-import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
+import { Banner } from "@/components/kit";
 import type { CreditGate } from "@/lib/ai-credits/gate";
 import { TOPUP_COPY } from "@/lib/ai-credits/topup-copy";
 
@@ -23,21 +22,22 @@ export function CreditGateNotice({
 }) {
   const hasActions = Boolean(action) || Boolean(children);
   return (
-    <Alert variant="info" icon={<Gift strokeWidth={1.5} />}>
-      <AlertDescription className="text-base-content">
-        {summary}{" "}
-        {gate.kind === "top-up" ? (
-          <span className="font-medium">{TOPUP_COPY.eligible(gate.amount)}</span>
-        ) : gate.kind === "tomorrow" ? (
-          TOPUP_COPY.alreadyToday
-        ) : null}
-      </AlertDescription>
-      {hasActions ? (
-        <AlertAction>
-          {action}
-          {children}
-        </AlertAction>
+    <Banner
+      action={
+        hasActions ? (
+          <>
+            {action}
+            {children}
+          </>
+        ) : undefined
+      }
+    >
+      {summary}{" "}
+      {gate.kind === "top-up" ? (
+        <span className="font-extrabold">{TOPUP_COPY.eligible(gate.amount)}</span>
+      ) : gate.kind === "tomorrow" ? (
+        TOPUP_COPY.alreadyToday
       ) : null}
-    </Alert>
+    </Banner>
   );
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isStudyPath, navKey, shellLayout, subPageFallback } from "./chrome";
+import { isStudyPath, navKey, ownsHeader, shellLayout, subPageFallback } from "./chrome";
 
 describe("isStudyPath", () => {
   it("treats the app, admin and shared links as the app shell", () => {
@@ -67,5 +67,14 @@ describe("subPageFallback", () => {
     expect(subPageFallback("/admin")).toBe("/app/me");
     expect(subPageFallback("/admin/people")).toBe("/admin");
     expect(subPageFallback("/c/22222222-2222-2222-2222-222222222223")).toBe("/app");
+  });
+});
+
+describe("ownsHeader", () => {
+  it("lets Mastery, Browse, Settings and the add-terms pages draw their own header", () => {
+    for (const path of ["/app/mastery", "/app/browse", "/app/settings", "/app/import/paste"]) {
+      expect(ownsHeader(path)).toBe(true);
+    }
+    expect(ownsHeader("/app/me")).toBe(false);
   });
 });

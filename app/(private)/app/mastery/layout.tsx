@@ -1,25 +1,16 @@
 import type { Metadata } from "next";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
+import { FlowFrame } from "@/components/import/flow-frame";
+import { PageHeader } from "@/components/kit";
 import { PromoVisit } from "@/components/promos/promo-visit";
-import { PageShell } from "@/components/page-container";
-import { SectionTransition } from "@/components/shared/view-transitions";
 
 export const metadata: Metadata = { title: "Mastery" };
 
 export default function MasteryLayout({ children }: { children: React.ReactNode }) {
   return (
-    <SectionTransition>
-      <PageShell innerClassName="mx-auto max-w-3xl space-y-6">
-        <PageHeader
-          badge={<PageBadge page="mastery" />}
-          title="Mastery"
-          description="How well you remember your terms."
-          compactOnPhone
-        />
-        <PromoVisit target="mastery" />
-        {children}
-      </PageShell>
-    </SectionTransition>
+    <FlowFrame>
+      <PageHeader title="Mastery" subline="How well you remember your terms." backHref="/app/me" />
+      <PromoVisit target="mastery" />
+      {children}
+    </FlowFrame>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { Heart } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type LoveButtonProps = {
@@ -13,21 +12,20 @@ type LoveButtonProps = {
 
 export function LoveButton({ loved, count, onToggle, isDisabled }: LoveButtonProps) {
   return (
-    <Button
+    <button
       type="button"
-      variant="ghost"
-      onPress={onToggle}
-      isDisabled={isDisabled}
+      onClick={onToggle}
+      disabled={isDisabled}
       aria-pressed={loved}
       aria-label={loved ? "Loved" : "Love this collection"}
-      className="min-h-11 gap-1.5 px-3 transition-transform active:scale-[0.96] md:min-h-8"
+      className="flex h-11 items-center gap-1.5 rounded-full px-3 text-sm font-extrabold transition-transform active:scale-[0.96] disabled:opacity-50"
     >
       <Heart
-        className={cn("size-4", loved && "fill-error text-error")}
+        className={cn("size-[18px]", loved ? "fill-wrong text-wrong" : "text-muted")}
+        strokeWidth={2.3}
         aria-hidden
-        strokeWidth={1.5}
       />
       <span className="tabular-nums">{count}</span>
-    </Button>
+    </button>
   );
 }

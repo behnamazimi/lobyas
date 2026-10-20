@@ -1,9 +1,7 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
 import { useEffect, useId, useState, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, Pill } from "@/components/kit";
 import { Label } from "@/components/ui/label";
 import { PLATFORM_MEDIA } from "@/lib/platform";
 import { cn } from "@/lib/utils";
@@ -36,7 +34,6 @@ export function ScrollToSettingsPanel({ tab }: { tab: SettingsTabId }) {
 
 export function SettingsPanel({
   id,
-  icon: Icon,
   title,
   description,
   status,
@@ -44,7 +41,6 @@ export function SettingsPanel({
   children,
 }: {
   id: SettingsTabId;
-  icon: LucideIcon;
   title: string;
   description?: ReactNode;
   status?: ReactNode;
@@ -61,49 +57,36 @@ export function SettingsPanel({
       id={`settings-panel-${id}`}
       data-tour={`settings-${id}`}
       aria-labelledby={headingId}
-      className="scroll-mt-4 rounded-box max-md:scroll-mt-[calc(3.5rem+env(safe-area-inset-top,0px))]"
+      className="scroll-mt-4 rounded-3xl"
     >
-      <Card className="shadow-surface overflow-hidden rounded-box">
-        <div
-          className={cn(
-            "flex gap-3 border-b border-base-300/60 px-4 py-4 sm:gap-4 sm:px-6 sm:py-5",
-            description ? "items-start" : "items-center",
-          )}
-        >
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-field bg-primary/10 text-primary">
-            <Icon className="size-5" aria-hidden strokeWidth={1.5} />
-          </div>
-          <div className="min-w-0 flex-1 space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 id={headingId} className="m-0 text-base font-medium">
-                {title}
-              </h2>
-              {status}
-            </div>
-            {description ? <p className="m-0 text-sm text-base-content/70">{description}</p> : null}
-          </div>
+      <Card radius="md" className="p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 id={headingId} className="m-0 font-sans text-lg font-extrabold">
+            {title}
+          </h2>
+          {status}
         </div>
+        {description ? (
+          <p className="mt-1 mb-2 text-[13px] leading-snug font-semibold text-muted">
+            {description}
+          </p>
+        ) : null}
         {collapsibleOnPhone ? (
-          <div className="px-4 py-3 md:hidden">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="min-h-11 w-full"
+          <div className="border-t border-base-300 pt-2 md:hidden">
+            <Pill
+              variant="soft"
+              className="w-full"
               aria-expanded={phoneOpen}
               aria-controls={bodyId}
-              onPress={() => setPhoneOpen((open) => !open)}
+              onClick={() => setPhoneOpen((open) => !open)}
             >
               {phoneOpen ? "Hide setup" : "Show setup"}
-            </Button>
+            </Pill>
           </div>
         ) : null}
         <div
           id={bodyId}
-          className={cn(
-            "space-y-4 px-4 py-4 sm:px-6 sm:py-5",
-            collapsibleOnPhone && !phoneOpen && "max-md:hidden",
-          )}
+          className={cn("space-y-4", collapsibleOnPhone && !phoneOpen && "max-md:hidden")}
         >
           {children}
         </div>
@@ -113,7 +96,7 @@ export function SettingsPanel({
 }
 
 export function SettingsStack({ children }: { children: ReactNode }) {
-  return <div className="divide-y divide-base-300/60">{children}</div>;
+  return <div className="divide-y divide-base-300">{children}</div>;
 }
 
 export function SettingsRow({
@@ -132,25 +115,27 @@ export function SettingsRow({
   titleId?: string;
 }) {
   const heading = htmlFor ? (
-    <Label htmlFor={htmlFor} className="m-0 text-sm font-medium">
+    <Label htmlFor={htmlFor} className="m-0 text-[15px] font-extrabold">
       {title}
     </Label>
   ) : (
-    <h3 id={titleId} className="m-0 text-sm font-medium">
+    <h3 id={titleId} className="m-0 font-sans text-[15px] font-extrabold">
       {title}
     </h3>
   );
 
   const copy = (
-    <div className="min-w-0 space-y-1">
+    <div className="min-w-0 space-y-0.5">
       {heading}
-      {description ? <div className="text-sm text-base-content/70">{description}</div> : null}
+      {description ? (
+        <div className="text-[13px] leading-snug font-semibold text-muted">{description}</div>
+      ) : null}
     </div>
   );
 
   if (layout === "inline") {
     return (
-      <div className="flex items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
+      <div className="flex min-h-[52px] items-center justify-between gap-3 py-2">
         {copy}
         <div className="flex min-h-11 shrink-0 items-center">{children}</div>
       </div>
@@ -158,9 +143,9 @@ export function SettingsRow({
   }
 
   return (
-    <div className="grid gap-3 py-4 first:pt-0 last:pb-0 md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] md:gap-8 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]">
+    <div className="space-y-3 py-3">
       {copy}
-      <div className="min-w-0 space-y-3 md:max-w-md">{children}</div>
+      <div className="min-w-0 space-y-3">{children}</div>
     </div>
   );
 }
@@ -175,10 +160,12 @@ export function DangerZone({
   children: ReactNode;
 }) {
   return (
-    <div className="space-y-3 rounded-field border border-error/20 bg-error/5 px-4 py-4">
-      <div>
-        <h3 className="m-0 text-sm font-medium">{title}</h3>
-        {description ? <p className="mt-1 text-sm text-base-content/70">{description}</p> : null}
+    <div className="flex min-h-[52px] flex-wrap items-center justify-between gap-3 border-t border-base-300 py-2">
+      <div className="min-w-0 flex-1 basis-48">
+        <h3 className="m-0 font-sans text-[15px] font-extrabold">{title}</h3>
+        {description ? (
+          <p className="m-0 text-[13px] leading-snug font-semibold text-muted">{description}</p>
+        ) : null}
       </div>
       {children}
     </div>
@@ -207,15 +194,17 @@ export function SetupStep({
         />
       ) : null}
       <span
-        className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-field bg-secondary text-xs font-semibold tabular-nums text-secondary-content"
+        className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-lg bg-neutral text-xs font-extrabold tabular-nums text-neutral-content"
         aria-hidden
       >
         {step}
       </span>
       <div className="min-w-0 flex-1 space-y-3">
         <div>
-          <h3 className="m-0 text-sm font-medium">{title}</h3>
-          {description ? <p className="mt-1 text-sm text-base-content/70">{description}</p> : null}
+          <h3 className="m-0 font-sans text-[15px] font-extrabold">{title}</h3>
+          {description ? (
+            <p className="mt-1 text-[13px] font-semibold text-muted">{description}</p>
+          ) : null}
         </div>
         {children}
       </div>

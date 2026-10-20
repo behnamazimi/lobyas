@@ -1,7 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { TokenRow } from "@/components/settings/ui";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Pill } from "@/components/kit";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { WidgetTokenRow } from "@/lib/widget/types";
 
@@ -14,25 +13,25 @@ function VersionBadge({
 }) {
   if (!widgetVersion) {
     return (
-      <Badge variant="outline" className="gap-2 text-xs font-medium">
+      <span className="inline-flex items-center gap-2 rounded-full bg-base-200 px-2.5 py-0.5 text-xs font-extrabold">
         <span className="size-1.5 shrink-0 rounded-full bg-base-content/30" aria-hidden />
         Not reporting a version yet
-      </Badge>
+      </span>
     );
   }
 
   const isUpToDate = widgetVersion === latestWidgetVersion;
 
   return (
-    <Badge variant="outline" className="gap-2 text-xs font-medium">
+    <span className="inline-flex items-center gap-2 rounded-full bg-base-200 px-2.5 py-0.5 text-xs font-extrabold">
       <span
-        className={cn("size-1.5 shrink-0 rounded-full", isUpToDate ? "bg-success" : "bg-warning")}
+        className={cn("size-1.5 shrink-0 rounded-full", isUpToDate ? "bg-mastered" : "bg-warning")}
         aria-hidden
       />
       {isUpToDate
         ? `Up to date (v${widgetVersion})`
         : `Update available (v${widgetVersion} → v${latestWidgetVersion})`}
-    </Badge>
+    </span>
   );
 }
 
@@ -52,9 +51,9 @@ export function WidgetTokenList({
   onRevoke,
 }: WidgetTokenListProps) {
   return (
-    <div className="space-y-2 border-t border-base-300/60 pt-5">
-      <h3 className="m-0 text-sm font-medium">Active tokens</h3>
-      <ul className="m-0 divide-y divide-base-300/60 p-0">
+    <div className="space-y-2 border-t border-base-300 pt-4">
+      <h3 className="m-0 font-sans text-[15px] font-extrabold">Active tokens</h3>
+      <ul className="m-0 divide-y divide-base-300 p-0">
         {tokens.map((token) => (
           <TokenRow
             key={token.id}
@@ -67,16 +66,14 @@ export function WidgetTokenList({
               />
             }
             action={
-              <Button
-                type="button"
-                variant="outline"
-                onPress={() => onRevoke(token.id)}
-                isDisabled={isRevoking && busyId === token.id}
-                className="min-h-11 w-full text-error-text hover:bg-error/10 md:w-auto"
+              <Pill
+                variant="danger"
+                onClick={() => onRevoke(token.id)}
+                disabled={isRevoking && busyId === token.id}
               >
-                <Trash2 className="size-3.5" strokeWidth={1.5} />
+                <Trash2 className="size-3.5" strokeWidth={2.3} aria-hidden />
                 Revoke
-              </Button>
+              </Pill>
             }
           />
         ))}

@@ -1,13 +1,10 @@
 "use client";
 
-import { Monitor } from "lucide-react";
 import { AlertBanner, CopyField, SettingsPanel } from "@/components/settings/ui";
 import { WidgetInstallSteps } from "@/components/settings/widget-install-steps";
 import { WidgetTokenList } from "@/components/settings/widget-token-list";
 import { useWidgetPanel } from "@/components/settings/use-widget-panel";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Pill, SegmentedControl } from "@/components/kit";
 import { cn } from "@/lib/utils";
 import type { WidgetTokenRow } from "@/lib/widget/types";
 
@@ -37,44 +34,37 @@ export function WidgetPanel({ initialTokens, latestWidgetVersion }: WidgetPanelP
   return (
     <SettingsPanel
       id="widget"
-      icon={Monitor}
       title="Desktop widget"
       collapsibleOnPhone
       description="Show live terms on your Mac with the Übersicht widget."
       status={
-        <Badge variant="outline" className="gap-2 text-xs font-medium">
+        <span className="inline-flex items-center gap-2 rounded-full bg-base-200 px-2.5 py-1 text-xs font-extrabold">
           <span
             className={cn(
               "size-1.5 shrink-0 rounded-full",
-              hasTokens ? "bg-success" : "bg-base-content/30",
+              hasTokens ? "bg-mastered" : "bg-base-content/30",
             )}
             aria-hidden
           />
           {hasTokens
             ? `${tokens.length} active ${tokens.length === 1 ? "token" : "tokens"}`
             : "Not set up"}
-        </Badge>
+        </span>
       }
     >
       {error ? <AlertBanner message={error} /> : null}
 
-      <ToggleGroup
-        selectionMode="single"
-        selectedKeys={new Set([mode])}
-        onSelectionChange={(keys) => {
-          const next = keys.values().next().value;
+      <SegmentedControl
+        label="Widget setup mode"
+        value={mode}
+        onChange={(next) => {
           if (next === "install" || next === "update") setMode(next);
         }}
-        aria-label="Widget setup mode"
-        className="w-full"
-      >
-        <ToggleGroupItem id="install" className="flex-1">
-          New install
-        </ToggleGroupItem>
-        <ToggleGroupItem id="update" className="flex-1">
-          Update
-        </ToggleGroupItem>
-      </ToggleGroup>
+        options={[
+          { value: "install", label: "New install" },
+          { value: "update", label: "Update" },
+        ]}
+      />
 
       {mode === "install" ? (
         <WidgetInstallSteps
@@ -84,29 +74,24 @@ export function WidgetPanel({ initialTokens, latestWidgetVersion }: WidgetPanelP
           installWithTokenCommand={installWithTokenCommand}
         />
       ) : hasTokens ? (
-        <div className="space-y-3 rounded-field bg-base-200/60 p-4">
-          <p className="m-0 text-sm text-base-content/70">
+        <div className="space-y-3 rounded-2xl bg-base-200 p-4">
+          <p className="m-0 text-sm font-semibold text-muted">
             Already have the widget running? This refreshes it to the latest version in place. It
             keeps your existing token, so there's nothing to generate.
           </p>
           <CopyField label="Update" value={updateCommand} />
-          <p className="m-0 text-sm text-base-content/70">
+          <p className="m-0 text-sm font-semibold text-muted">
             Refresh Übersicht (or restart it) once it finishes.
           </p>
         </div>
       ) : (
-        <div className="space-y-3 rounded-field bg-base-200/60 p-4">
-          <p className="m-0 text-sm text-base-content/70">
+        <div className="space-y-3 rounded-2xl bg-base-200 p-4">
+          <p className="m-0 text-sm font-semibold text-muted">
             You don&apos;t have a token yet, so there&apos;s nothing installed to update.
           </p>
-          <Button
-            type="button"
-            variant="outline"
-            onPress={() => setMode("install")}
-            className="min-h-11 w-full md:w-auto"
-          >
+          <Pill variant="soft" onClick={() => setMode("install")}>
             Go to New install
-          </Button>
+          </Pill>
         </div>
       )}
 

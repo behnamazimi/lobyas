@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import type { MasteryTermRow as MasteryTermRowData } from "@/lib/mastery/mastery";
-import { CollectionSelect } from "@/components/library/collection-select";
-import { SearchBar } from "@/components/shared/search-bar";
+import { SearchField, SelectInput } from "@/components/kit";
 import { MasteryTermRow } from "./mastery-term-row";
 import {
   MasteryTierChips,
@@ -39,7 +38,6 @@ export function MasteryTermList({
 }: MasteryTermListProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTier, setActiveTier] = useState<MasteryTierFilter>("all");
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const collectionFiltered = useMemo(
     () =>
@@ -63,49 +61,41 @@ export function MasteryTermList({
   if (termRows.length === 0) return null;
 
   return (
-    <div className="space-y-3">
-      <div className="shadow-surface space-y-3 rounded-box bg-base-100 p-4">
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <div className="min-w-0 flex-1">
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onClear={() => setSearchQuery("")}
-              inputRef={searchInputRef}
-            />
-          </div>
-          <CollectionSelect
-            mode="local"
-            aria-label="Collection"
-            triggerClassName="text-sm sm:w-56"
-            size="sm"
-            collections={collections}
-            value={collectionId}
-            leadingOption={{ id: "all", label: "All collections" }}
-            onChange={onCollectionChange}
-          />
-        </div>
+    <div className="flex flex-col gap-3">
+      <SearchField label="Search terms" value={searchQuery} onChange={setSearchQuery} />
+      <SelectInput
+        aria-label="Collection"
+        value={collectionId}
+        onChange={(event) => onCollectionChange(event.target.value)}
+        className="bg-base-100 shadow-card"
+      >
+        <option value="all">All collections</option>
+        {collections.map((collection) => (
+          <option key={collection.id} value={collection.id}>
+            {collection.name}
+          </option>
+        ))}
+      </SelectInput>
 
-        <MasteryTierChips
-          counts={counts}
-          totalCount={collectionFiltered.length}
-          activeTier={activeTier}
-          onChange={setActiveTier}
-        />
+      <MasteryTierChips
+        counts={counts}
+        totalCount={collectionFiltered.length}
+        activeTier={activeTier}
+        onChange={setActiveTier}
+      />
 
-        <p className="m-0 text-xs text-base-content/70">
-          {visibleRows.length} of {collectionFiltered.length} shown
-        </p>
-      </div>
+      <p className="m-0 text-xs font-bold text-muted">
+        {visibleRows.length} of {collectionFiltered.length} shown
+      </p>
 
       {visibleRows.length > 0 ? (
-        <ul className="m-0 list-none space-y-2 p-0">
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {visibleRows.map((row) => (
             <MasteryTermRow key={row.termId} row={row} />
           ))}
         </ul>
       ) : (
-        <p className="text-sm text-base-content/70">No terms match your filters.</p>
+        <p className="text-sm font-semibold text-muted">No terms match your filters.</p>
       )}
     </div>
   );
