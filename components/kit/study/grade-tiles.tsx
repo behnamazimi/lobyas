@@ -1,5 +1,3 @@
-import { Check, CheckCheck, Waves, X } from "lucide-react";
-import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type KitGrade = "again" | "hard" | "good" | "easy";
@@ -7,31 +5,26 @@ export type KitGrade = "again" | "hard" | "good" | "easy";
 const TILES: {
   grade: KitGrade;
   label: string;
-  icon: ReactNode;
   className: string;
 }[] = [
   {
     grade: "again",
     label: "Again",
-    icon: <X className="size-[18px]" strokeWidth={3} aria-hidden />,
     className: "bg-wrong-tint text-wrong-text",
   },
   {
     grade: "hard",
     label: "Hard",
-    icon: <Waves className="size-[18px]" strokeWidth={3} aria-hidden />,
     className: "bg-hard-tint text-hard-text",
   },
   {
     grade: "good",
     label: "Good",
-    icon: <Check className="size-[18px]" strokeWidth={3} aria-hidden />,
     className: "bg-success-tint text-success-text",
   },
   {
     grade: "easy",
     label: "Easy",
-    icon: <CheckCheck className="size-[18px]" strokeWidth={3} aria-hidden />,
     className: "bg-success text-success-content shadow-[0_10px_20px_-12px_rgb(20_86_58/0.7)]",
   },
 ];
@@ -74,7 +67,6 @@ export function GradeTiles({
             selected === tile.grade && "ring-2 ring-neutral/60",
           )}
         >
-          {tile.icon}
           {tile.label}
           {intervals?.[tile.grade] ? (
             <span className="text-[11px] leading-none font-bold opacity-80">
