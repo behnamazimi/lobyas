@@ -40,7 +40,7 @@ export function QuestionCard({
         quoteStyle === "word" ? (
           <p
             className={cn(
-              "m-0 mt-2.5 font-heading leading-[1.1] font-extrabold [overflow-wrap:anywhere]",
+              "m-0 mt-2.5 font-heading font-extrabold [overflow-wrap:break-word]",
               termTitleClass(quote),
             )}
           >

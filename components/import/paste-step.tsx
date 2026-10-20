@@ -99,7 +99,7 @@ export function PasteStep({
               ref={textareaRef}
               value={draft}
               placeholder={PLACEHOLDER}
-              className="min-h-64 w-full rounded-2xl bg-base-100 p-3.5 pr-12 font-mono text-sm leading-relaxed font-medium shadow-card"
+              className="min-h-64 pr-12 font-mono text-sm leading-relaxed font-medium"
               onChange={(event) => onTextChange(event.target.value)}
               onPaste={handlePaste}
             />

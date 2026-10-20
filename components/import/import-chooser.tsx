@@ -2,11 +2,12 @@
 
 import { FolderPlus, LayoutGrid, NotebookText, Plus } from "lucide-react";
 import { useState } from "react";
-import { Card, Divider, ListRow, Pill, SearchField } from "@/components/kit";
+import { Card, Divider, ListRow, Pill, SearchField, SECTION_TITLE } from "@/components/kit";
 import { CreateCollectionDialog } from "@/components/library/create-collection-dialog";
 import { RequestRow } from "@/components/requests/request-row";
 import { useBrowseSearch } from "@/hooks/use-browse-search";
 import { SearchResults } from "@/components/import/chooser-search-results";
+import { cn } from "@/lib/utils";
 import { REQUEST_COPY } from "@/lib/requests/copy";
 import type { RequestEntry } from "@/lib/requests/entry";
 import type { ImportDestination } from "@/lib/import/import-collections";
@@ -52,7 +53,7 @@ export function ImportChooser({
         data-tour="import-routes"
         aria-labelledby="start-own"
       >
-        <h2 id="start-own" className="m-0 mt-1 text-base font-extrabold">
+        <h2 id="start-own" className={cn(SECTION_TITLE, "mt-1")}>
           Or start your own
         </h2>
         <Card radius="md" className="px-3 py-1">

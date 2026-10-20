@@ -16,14 +16,14 @@ The About-style pages, the Contact/Privacy/Terms pages, and the auth pages share
 
 ## What is wrong
 
-| Group | Page background | Title | Column / container | Header |
-|---|---|---|---|---|
-| About, How terms are built, Before you sign up | white | Fraunces 40 px (phone) / 64 px (desktop), weight 500, hero with an illustration | 1152 px container | Logo, "Features", theme toggle, "Log in" |
-| Features, Collections index and pages | white | 40 / 64-76 px | 1152 px | same |
-| Contact, Privacy Policy, Terms | tinted: a green-to-cream gradient with a tinted translucent header | Fraunces **20 px**, weight 500, next to an icon tile; "Back to home" button on the right | 672 px column (x=384) | same, but tinted |
-| Login, Sign up, Forgot password | white | 24 px, weight 500 | 384 px card, small left arrow | **No nav at all** (logo and theme toggle only) |
-| Request access | white | 24 px | same card | **Full nav** ("Features", "Log in") |
-| 404 and offline | white | 26 px, weight 800 | centered | full nav; the action ("Go home", "Try again") is an **ink** button while every other public CTA is green |
+| Group                                          | Page background                                                    | Title                                                                                    | Column / container            | Header                                                                                                   |
+| ---------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------------------- |
+| About, How terms are built, Before you sign up | white                                                              | Fraunces 40 px (phone) / 64 px (desktop), weight 500, hero with an illustration          | 1152 px container             | Logo, "Features", theme toggle, "Log in"                                                                 |
+| Features, Collections index and pages          | white                                                              | 40 / 64-76 px                                                                            | 1152 px                       | same                                                                                                     |
+| Contact, Privacy Policy, Terms                 | tinted: a green-to-cream gradient with a tinted translucent header | Fraunces **20 px**, weight 500, next to an icon tile; "Back to home" button on the right | 672 px column (x=384)         | same, but tinted                                                                                         |
+| Login, Sign up, Forgot password                | white                                                              | 24 px, weight 500                                                                        | 384 px card, small left arrow | **No nav at all** (logo and theme toggle only)                                                           |
+| Request access                                 | white                                                              | 24 px                                                                                    | same card                     | **Full nav** ("Features", "Log in")                                                                      |
+| 404 and offline                                | white                                                              | 26 px, weight 800                                                                        | centered                      | full nav; the action ("Go home", "Try again") is an **ink** button while every other public CTA is green |
 
 Title top offsets for pages built from the same template: About 250, How terms are built 250, Before you sign up **236** (desktop); on phone About, How, Before are at 113 but Features is at 147, Home at 172, Collections at 151.
 Content-section gaps are 112 px between sections on desktop and 24-32 px on phone, which is consistent inside the group but not with the Contact/Privacy group (40 px).

@@ -26,6 +26,7 @@ cn("block max-w-full font-heading leading-[1.08] font-extrabold [overflow-wrap:a
 but the rendered class list is `block max-w-full font-heading font-extrabold [overflow-wrap:anywhere] text-[46px]`: `leading-[1.08]` is gone. `cn()` is `twMerge(clsx(...))` (`lib/utils.ts`), and `termTitleClass()` (`lib/kit/text.ts:12`) returns a font-size class (`text-[46px]`, `text-4xl`, `text-[30px]`, `text-[26px]`). This is a likely cause: tailwind-merge treats a font-size utility as overriding an earlier `leading-*`. The fixer should confirm; the same pattern may exist anywhere a text-size class follows a `leading-*` in a `cn()` call.
 
 Effects seen:
+
 - Review and Triage fronts: "CAP Theorem" wraps to two lines roughly 76 px apart; "Backpressure" at 46 px breaks as "Backpressur / e" (the card is 310 px wide; `overflow-wrap: anywhere`) on Triage.
 - Read, revealed side: the title is 36 px with tight leading (`read-card-head.tsx:40` also passes `leading-[1.08]`, here with `text-4xl`, so the merge may not apply the same way) while the Review graded side and the term sheet use other sizes (26 or 22 px for the `back` variant, 30 px in the Library term sheet).
 - Home: collection title is a `span` at 28 px with 46.2 px leading; the Library card shows the same name at 28 px with 35 px leading (1.25).

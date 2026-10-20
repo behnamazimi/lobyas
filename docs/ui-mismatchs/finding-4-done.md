@@ -9,6 +9,7 @@ The kit has one `Card` (24 or 28 px radius, soft shadow). In practice the app al
 ## Where it shows
 
 Phone and desktop, signed in:
+
 - 24 px radius, `shadow-card` (white): `/app/library`, `/app/goals`, `/app/me`, `/app/mastery`, `/app/browse`, `/app/import`, `/app/import/apps/*`
 - 14 px radius, a thin `0 1px 2px` shadow (white): `/app/capture` (fields), `/app/settings`, `/app/import/more`
 - 28 px radius: study cards on `/app/read`, `/app/review`, `/app/triage`

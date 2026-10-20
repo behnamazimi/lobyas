@@ -15,18 +15,19 @@ Signed-in pages that are siblings (Library, Goals, Me, and the sub-pages reached
 
 Measured title position (the page's `h1`):
 
-| Page | Phone: title top (y), height | Desktop: title top (y) | Title to next block |
-|---|---|---|---|
-| Library | 24, 36 px | 40 | 16 px |
-| Goals | 18, 33 px | 42 | 61 px (subline) |
-| Me | 16, 36 px | 36 | 12 px |
-| Mastery, Browse, Import apps, Import request | 62, 33 px | 86 | 41 or 61 px (subline) |
-| Capture, Settings, Import, Import paste/more/guides | 62, 33 px | 86 | 16 px |
-| Quiz setup | 100, 35 px | 100 | 43 px |
-| Stories setup | 112, 33 px | 112 | 63 to 84 px |
-| Home | collection title at 183 (not an `h1`; no "Home" title) | 62 | - |
+| Page                                                | Phone: title top (y), height                           | Desktop: title top (y) | Title to next block   |
+| --------------------------------------------------- | ------------------------------------------------------ | ---------------------- | --------------------- |
+| Library                                             | 24, 36 px                                              | 40                     | 16 px                 |
+| Goals                                               | 18, 33 px                                              | 42                     | 61 px (subline)       |
+| Me                                                  | 16, 36 px                                              | 36                     | 12 px                 |
+| Mastery, Browse, Import apps, Import request        | 62, 33 px                                              | 86                     | 41 or 61 px (subline) |
+| Capture, Settings, Import, Import paste/more/guides | 62, 33 px                                              | 86                     | 16 px                 |
+| Quiz setup                                          | 100, 35 px                                             | 100                    | 43 px                 |
+| Stories setup                                       | 112, 33 px                                             | 112                    | 63 to 84 px           |
+| Home                                                | collection title at 183 (not an `h1`; no "Home" title) | 62                     | -                     |
 
 Four structures on phone:
+
 1. Library: title with a "+ Collection" action on the same row, no back control.
 2. Goals and Me: a bare title at the very top, no back control, different top offset from Library (18 / 16 / 24).
 3. Sub-pages: a 44×44 back chevron row (x=12, y=12) and then the title at y=62.

@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { TokenRow } from "@/components/settings/ui";
-import { Pill } from "@/components/kit";
+import { Pill, SECTION_TITLE } from "@/components/kit";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { WidgetTokenRow } from "@/lib/widget/types";
 
@@ -52,7 +52,7 @@ export function WidgetTokenList({
 }: WidgetTokenListProps) {
   return (
     <div className="space-y-2 border-t border-base-300 pt-4">
-      <h3 className="m-0 font-sans text-[15px] font-extrabold">Active tokens</h3>
+      <h3 className={SECTION_TITLE}>Active tokens</h3>
       <ul className="m-0 divide-y divide-base-300 p-0">
         {tokens.map((token) => (
           <TokenRow

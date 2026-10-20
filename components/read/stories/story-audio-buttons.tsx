@@ -107,7 +107,7 @@ export function LoopButton({
       }
       aria-pressed={active}
       onPress={onPress}
-      className={cn(ROW_BUTTON, active && "bg-quiz-tint text-quiz-text")}
+      className={cn(ROW_BUTTON, active && "bg-read-tint text-read-text")}
     >
       <Repeat className="size-6" aria-hidden strokeWidth={1.25} />
       {active ? (

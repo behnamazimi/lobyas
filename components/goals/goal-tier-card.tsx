@@ -1,7 +1,7 @@
 "use client";
 
 import { BookOpen, RotateCw, Zap, type LucideIcon } from "lucide-react";
-import { Card, Stepper, Tile } from "@/components/kit";
+import { Card, SECTION_TITLE, Stepper, Tile } from "@/components/kit";
 import type { Tone } from "@/components/kit/tones";
 import {
   GOAL_LEVEL_LABELS,
@@ -50,7 +50,7 @@ export function TierCard({
           <Icon className="size-[22px]" strokeWidth={2.3} aria-hidden />
         </Tile>
         <div className="min-w-0 flex-1">
-          <h3 className="m-0 font-sans text-[17px] font-extrabold">{label}</h3>
+          <h3 className={SECTION_TITLE}>{label}</h3>
           <p className="m-0 text-[13px] font-bold text-muted tabular-nums">
             {goal ? `${formatCount(done)} of ${formatCount(goal)} today` : "No goal"}
           </p>

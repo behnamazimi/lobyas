@@ -43,7 +43,7 @@ export function StudyStories() {
           >
             <span
               className={cn(
-                "block max-w-full font-heading leading-[1.08] font-extrabold [overflow-wrap:anywhere]",
+                "block max-w-full font-heading font-extrabold [overflow-wrap:break-word]",
                 termTitleClass("Blocker"),
               )}
             >
@@ -70,7 +70,7 @@ export function StudyStories() {
             <div className="flex items-start justify-between gap-2.5">
               <h4
                 className={cn(
-                  "m-0 min-w-0 font-heading leading-[1.1] font-extrabold text-review-text [overflow-wrap:anywhere]",
+                  "m-0 min-w-0 font-heading font-extrabold [overflow-wrap:break-word]",
                   termTitleClass(LONG_TERM.term, "back"),
                 )}
               >
@@ -197,6 +197,7 @@ export function StudyStories() {
       >
         <ChoiceCards
           label="Question style"
+          tone="quiz"
           value={style}
           onChange={setStyle}
           options={[
@@ -215,6 +216,7 @@ export function StudyStories() {
         <ChoiceCards
           className="mt-3"
           label="How many questions"
+          tone="quiz"
           columns={4}
           value={count}
           onChange={setCount}

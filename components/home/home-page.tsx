@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { Suspense, type ReactNode } from "react";
-import { EmptyPanel, Pill } from "@/components/kit";
+import { EmptyPanel, Pill, SECTION_TITLE } from "@/components/kit";
 import { EmptyBoxScene } from "@/components/illustrations/scenes/empty-box";
 import { getSessionUser } from "@/lib/auth/require-session";
 import { CURRENT_COLLECTION_COOKIE, parseCurrentCollectionId } from "@/lib/collections/current";
@@ -111,7 +111,7 @@ async function HomeContent() {
       <div className="flex flex-col gap-6 lg:flex-row lg:flex-wrap lg:items-start">
         <section aria-label="Today’s path" className="min-w-0 lg:flex-[999_1_560px]">
           <div className="mb-3 flex items-baseline justify-between lg:hidden">
-            <h2 className="m-0 font-sans text-base font-extrabold">Today</h2>
+            <h2 className={SECTION_TITLE}>Today</h2>
             <div className="text-[13px] font-bold text-muted">{path.note}</div>
           </div>
           <div className="lg:hidden">

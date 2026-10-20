@@ -5,15 +5,24 @@ import { Radio, RadioGroup } from "react-aria-components";
 import { cn } from "@/lib/utils";
 
 type Option = { value: string; label: ReactNode; note?: ReactNode };
+type ChoiceTone = "neutral" | "read" | "quiz";
 
-/** Pick one from a few options, in purple. With `note` each is a card (label and a line
- *  under it); without, a row of fully rounded pills. `columns` is the grid width. */
+const SELECTED: Record<ChoiceTone, string> = {
+  neutral: "bg-base-200 shadow-[inset_0_0_0_2.5px_var(--color-base-content)]",
+  read: "bg-read-tint shadow-[inset_0_0_0_2.5px_var(--color-read-ring)]",
+  quiz: "bg-quiz-tint shadow-[inset_0_0_0_2.5px_var(--color-quiz-ring)]",
+};
+
+/** Pick one from a few options. With `note` each is a card (label and a line
+ *  under it); without, a row of fully rounded pills. `columns` is the grid width.
+ *  `tone` is the mode that owns the screen, or neutral where there is no mode. */
 export function ChoiceCards({
   label,
   options,
   value,
   onChange,
   columns = 2,
+  tone = "neutral",
   className,
 }: {
   label: string;
@@ -21,6 +30,7 @@ export function ChoiceCards({
   value: string;
   onChange: (value: string) => void;
   columns?: 2 | 3 | 4;
+  tone?: ChoiceTone;
   className?: string;
 }) {
   return (
@@ -42,11 +52,9 @@ export function ChoiceCards({
             cn(
               "flex cursor-pointer flex-col items-start justify-center gap-1 text-start text-base-content outline-none",
               option.note
-                ? "min-h-[88px] rounded-[18px] px-3.5 py-3"
+                ? "min-h-[88px] rounded-[14px] px-3.5 py-3"
                 : "h-12 items-center rounded-full px-2 text-[17px] font-extrabold",
-              isSelected
-                ? "bg-quiz-tint shadow-[inset_0_0_0_2.5px_var(--color-quiz-ring)]"
-                : "bg-base-200",
+              isSelected ? SELECTED[tone] : "bg-base-200",
               isFocusVisible && "ring-2 ring-base-content ring-offset-2 ring-offset-base-100",
             )
           }

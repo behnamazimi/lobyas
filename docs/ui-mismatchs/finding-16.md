@@ -17,7 +17,7 @@ Review of ten app pages in the dim theme found no unstyled or old-colored areas.
 - The brand tile (`ill-mark-tile`) stays light mint `#e8f5e7` on the dark header; probably intended, but it is the only light fixed-color block there.
 - The theme ignores `prefers-color-scheme`: with an OS in dark mode and no cookie the app renders light (`data-theme="emerald"`); the theme is read from the `theme` cookie only (`lib/theme.ts`). Not a bug if intended; recorded as a behavior to confirm.
 - `<meta name="theme-color">` is one fixed color regardless of theme (finding 15).
-Not covered: dim for public pages (measured for contrast, not reviewed by eye), overlays in dim, admin.
+  Not covered: dim for public pages (measured for contrast, not reviewed by eye), overlays in dim, admin.
 
 ## What it conflicts with
 

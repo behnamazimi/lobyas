@@ -13,7 +13,7 @@ The "this one is on" treatment changes by screen. On Mastery (Overview / Terms) 
 - Library / Browse / Mastery filter chips (`Chip`): an ink pill with white text.
 - Read Cards/Stories and Me's Theme switch: white pill on a beige track (`SegmentedControl`).
 - Mastery `Overview | Terms` and Browse `Built-in · N | Community · N`: `SegmentedControl` again, but both options are white.
-Phone and desktop; light and dim themes.
+  Phone and desktop; light and dim themes.
 
 ## What is wrong
 

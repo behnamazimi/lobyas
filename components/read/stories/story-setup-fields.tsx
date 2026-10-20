@@ -9,7 +9,7 @@ export const PIECE_LENGTH_LABELS: Record<PieceLength, string> = {
   long: "Long",
 };
 
-/** Short, Medium or Long as three pills; the chosen one is outlined in purple. */
+/** Short, Medium or Long as three pills; the chosen one is outlined in Read blue. */
 export function PieceLengthField({
   value,
   onChange,
@@ -31,7 +31,7 @@ export function PieceLengthField({
               onClick={() => onChange(length)}
               className={cn(
                 "h-11 cursor-pointer rounded-full text-[15px] font-extrabold",
-                picked ? "bg-quiz-tint ring-[2.5px] ring-quiz-ring ring-inset" : "bg-base-200",
+                picked ? "bg-read-tint ring-[2.5px] ring-read-ring ring-inset" : "bg-base-200",
               )}
             >
               {PIECE_LENGTH_LABELS[length]}

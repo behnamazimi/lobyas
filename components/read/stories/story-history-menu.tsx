@@ -23,7 +23,7 @@ function storyHref(storyId: string, collection: string | null): string {
 
 function VoteIcon({ vote }: { vote: StorySummary["vote"] }) {
   if (vote === 1) {
-    return <ThumbsUp className="size-4 text-quiz-text" aria-label="Liked" strokeWidth={2.2} />;
+    return <ThumbsUp className="size-4 text-read-text" aria-label="Liked" strokeWidth={2.2} />;
   }
   if (vote === -1) {
     return <ThumbsDown className="size-4 text-muted" aria-label="Disliked" strokeWidth={2.2} />;

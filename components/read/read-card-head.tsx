@@ -37,8 +37,8 @@ export function ReadCardHead({
       </div>
       <h1
         className={cn(
-          "mt-1 mb-3.5 font-heading leading-[1.08] font-extrabold [overflow-wrap:anywhere] hyphens-auto",
-          termTitleClass(term.term),
+          "mt-1 mb-3.5 font-heading font-extrabold [overflow-wrap:break-word]",
+          termTitleClass(term.term, "back"),
         )}
       >
         {term.term}

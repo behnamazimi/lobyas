@@ -81,7 +81,7 @@ function CollectionCard({ collection }: { collection: ShellCollection }) {
               formatCount(collection.termCount),
             )}
           </div>
-          <h2 className={cn("m-0 font-heading text-[22px] font-extrabold", CLAMP_TWO_LINES)}>
+          <h2 className={cn("m-0 font-heading text-[22px]/[1.25] font-extrabold", CLAMP_TWO_LINES)}>
             {collection.name}
           </h2>
         </div>

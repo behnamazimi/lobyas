@@ -35,7 +35,7 @@ function ReadCardMasked({
         <span
           lang={term.collectionLanguage}
           className={cn(
-            "block max-w-full font-heading leading-[1.08] font-extrabold [overflow-wrap:anywhere]",
+            "block max-w-full font-heading font-extrabold [overflow-wrap:break-word]",
             termTitleClass(hideQuestion ? term.term : `What is ${term.term}?`),
           )}
         >

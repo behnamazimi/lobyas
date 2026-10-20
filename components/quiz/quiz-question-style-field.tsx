@@ -1,5 +1,6 @@
-import { ChoiceCards } from "@/components/kit";
+import { ChoiceCards, SECTION_TITLE } from "@/components/kit";
 import type { QuizQuestionStyle } from "@/lib/quiz/types";
+import { cn } from "@/lib/utils";
 
 type QuizQuestionStyleFieldProps = {
   value: QuizQuestionStyle;
@@ -9,11 +10,12 @@ type QuizQuestionStyleFieldProps = {
 export function QuizQuestionStyleField({ value, onChange }: QuizQuestionStyleFieldProps) {
   return (
     <section data-tour="quiz-style" aria-labelledby="quiz-style-heading">
-      <h2 id="quiz-style-heading" className="m-0 mb-2.5 text-[15px] font-extrabold">
+      <h2 id="quiz-style-heading" className={cn(SECTION_TITLE, "mb-2.5")}>
         Question style
       </h2>
       <ChoiceCards
         label="Question style"
+        tone="quiz"
         value={value}
         onChange={(style) => onChange(style as QuizQuestionStyle)}
         options={[

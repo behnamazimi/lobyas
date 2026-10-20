@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import Link from "next/link";
-import { ProgressRing } from "@/components/kit";
+import { ProgressRing, SECTION_TITLE } from "@/components/kit";
 import { TONES, type Tone } from "@/components/kit/tones";
 import { GOAL_TIER_HREFS, GOAL_TIER_LABELS, GOAL_TIERS, type GoalTier } from "@/lib/goals/levels";
 import type { GoalProgress } from "@/lib/goals/progress";
@@ -23,9 +23,9 @@ export function GoalTodayRows({
   return (
     <section
       aria-label="Today's goals"
-      className="flex flex-col gap-2.5 rounded-[22px] bg-base-100 px-4 py-3.5 shadow-card"
+      className="flex flex-col gap-2.5 rounded-3xl bg-base-100 px-4 py-3.5 shadow-card"
     >
-      <h3 className="m-0 font-sans text-[15px] font-extrabold">Today&rsquo;s goals</h3>
+      <h3 className={SECTION_TITLE}>Today&rsquo;s goals</h3>
       {tiers.map((tier) => {
         const { goal, done, met } = progress[tier];
         return (

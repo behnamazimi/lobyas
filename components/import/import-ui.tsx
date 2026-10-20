@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SectionCard, Tile } from "@/components/kit";
+import { SECTION_TITLE, SectionCard, Tile } from "@/components/kit";
 
 export function ImportCard({
   icon,
@@ -18,7 +18,7 @@ export function ImportCard({
       <div className="flex items-start gap-3">
         <Tile tone="read">{icon}</Tile>
         <div className="min-w-0 flex-1">
-          <h2 className="m-0 font-sans text-base font-extrabold">{title}</h2>
+          <h2 className={SECTION_TITLE}>{title}</h2>
           {description ? (
             <p className="m-0 mt-0.5 text-[13px] leading-snug font-semibold text-muted">
               {description}

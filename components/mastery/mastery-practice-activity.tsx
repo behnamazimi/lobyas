@@ -1,4 +1,4 @@
-import { StatTile } from "@/components/kit";
+import { SECTION_TITLE, StatTile } from "@/components/kit";
 import type { GradeDistributionSummary, WebStatsSnapshot } from "@/lib/mastery/collection-stats";
 import { AGAIN, EASY, GOOD, HARD, type ReviewGrade } from "@/lib/trace";
 import { cn, pluralize } from "@/lib/utils";
@@ -52,7 +52,7 @@ const GRADE_TONE = {
 function GradeDistribution({ summary }: { summary: GradeDistributionSummary }) {
   return (
     <>
-      <h3 className="m-0 mt-2 font-sans text-[15px] font-extrabold">Grading</h3>
+      <h3 className={cn(SECTION_TITLE, "mt-2")}>Grading</h3>
       <dl className="m-0 mt-2 grid grid-cols-4 gap-2">
         {GRADES.map(({ grade, label, className }) => (
           <div key={grade} className="flex flex-col-reverse">
@@ -78,7 +78,7 @@ export function MasteryPracticeActivity({ stats }: { stats: WebStatsSnapshot }) 
 
   return (
     <section role="group" aria-label="Practice activity">
-      <h3 className="m-0 font-sans text-[15px] font-extrabold">Practice activity</h3>
+      <h3 className={SECTION_TITLE}>Practice activity</h3>
       <RollupRow
         label="Read"
         verb="read"
