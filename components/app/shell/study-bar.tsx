@@ -1,7 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { refreshAfterStudyAction } from "@/app/(private)/app/actions-study";
 import { StudyTopBar } from "@/components/kit";
+import { useMountEffect } from "@/hooks/use-mount-effect";
 import { useMediaQuery } from "@/hooks/use-platform";
 import { AUTHENTICATED_HOME_PATH } from "@/lib/auth/safe-next-path";
 import { collectionChip } from "./collection-switcher";
@@ -18,7 +20,17 @@ function tierOf(pathname: string): GoalTier | null {
 
 const DESKTOP_RAIL = "(min-width: 1024px)";
 
+let pendingRefresh: ReturnType<typeof setTimeout> | undefined;
+
 export function StudyBar() {
+  // The timer lets Strict Mode's mount, unmount, mount in dev cancel itself, so
+  // nothing is sent when a study page loads.
+  useMountEffect(() => {
+    clearTimeout(pendingRefresh);
+    return () => {
+      pendingRefresh = setTimeout(() => void refreshAfterStudyAction(), 0);
+    };
+  });
   const { current, degraded, setSwitcherOpen } = useShell();
   const desktop = useMediaQuery(DESKTOP_RAIL, false);
   const chip = collectionChip(current);

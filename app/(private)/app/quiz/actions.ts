@@ -191,7 +191,7 @@ const quizAnswerSchema = z.object({
 });
 
 /** Record outcome for a single answer: updates the Bayesian recognition
- *  posterior. Library and Review read fresh data on their next visit. */
+ *  posterior. Leaving the quiz refreshes the tab pages (`refreshAfterStudyAction`). */
 export async function recordQuizAnswerAction(input: {
   termId: string;
   passed: boolean;

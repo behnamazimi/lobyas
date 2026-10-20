@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   experimental: {
     viewTransition: true,
+    // Going back to a tab page within a minute reuses it instead of re-rendering.
+    // Logging out and leaving a study screen clear it (actions-study.ts).
+    staleTimes: { dynamic: 60 },
     optimizePackageImports: ["react-aria-components", "lucide-react"],
     // Issue screenshots are shrunk to 2 MB in the browser; the rest is form overhead.
     // Import checks its commit against this in the browser (lib/import/commit-size.ts).
