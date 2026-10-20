@@ -1,4 +1,5 @@
 import { build, type RequestEmail } from "@/lib/requests/email-copy";
+import type { TopUpState } from "./types";
 import { pluralize } from "@/lib/utils";
 
 export const TOPUP_COPY = {
@@ -12,6 +13,13 @@ export const TOPUP_COPY = {
   eligible: (credits: number) => `You're eligible for ${credits} free credits.`,
   added: (credits: number) => `Added ${pluralize(credits, "free credit")}.`,
 } as const;
+
+/** The line about free credits for a settings row or sheet, or null to show nothing. */
+export function freeCreditsLine(topUp: TopUpState | undefined): string | null {
+  if (topUp?.available) return TOPUP_COPY.eligible(topUp.amount);
+  if (topUp?.reason === "already-today") return TOPUP_COPY.alreadyToday;
+  return null;
+}
 
 export function buildTopUpUserEmail(input: {
   added: number;

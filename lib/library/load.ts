@@ -14,7 +14,7 @@ import type {
   UnfinishedLibraryTerm,
 } from "@/lib/terms/types";
 import { isUuid } from "./details";
-import { pickLibraryCollectionId } from "./pick-collection";
+import { pickLibraryCollectionId } from "@/lib/collections/current";
 
 type Client = SupabaseClient<Database>;
 
@@ -54,13 +54,19 @@ export const loadLibraryCollections = cache(async function loadLibraryCollection
     client,
     list.map(({ row }) => row.id),
   );
-  const collections = list.map(({ row, isActiveForReview }) =>
-    mapCollection(row, {
+  const collections = list.map(({ row, isActiveForReview }) => {
+    const rowStats = stats.get(row.id);
+    return mapCollection(row, {
       source: row.source,
       isActiveForReview,
-      ...stats.get(row.id),
-    }),
-  );
+      ...rowStats,
+      queues: rowStats && {
+        read: rowStats.readQueue,
+        review: rowStats.reviewQueue,
+        quiz: rowStats.quizQueue,
+      },
+    });
+  });
   return { collections, loadedAt };
 });
 

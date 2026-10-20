@@ -1,5 +1,4 @@
-import { type LucideIcon } from "lucide-react";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 export function QuizPanel({ children, className, ...props }: ComponentProps<"div">) {
@@ -16,125 +15,10 @@ export function QuizPanel({ children, className, ...props }: ComponentProps<"div
   );
 }
 
-export function QuizPanelHeader({
-  icon: Icon,
-  title,
-  description,
-  aside,
-}: {
-  icon: LucideIcon;
-  title: string;
-  description?: string;
-  aside?: ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-4 border-b border-base-300/60 px-5 py-5 sm:px-6">
-      <div className="flex size-10 shrink-0 items-center justify-center rounded-field bg-primary/10 text-primary">
-        <Icon className="size-5" aria-hidden strokeWidth={1.5} />
-      </div>
-      <div className="min-w-0 flex-1 space-y-1">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="m-0 text-base font-medium">{title}</h2>
-          {aside}
-        </div>
-        {description ? <p className="m-0 text-sm text-base-content/70">{description}</p> : null}
-      </div>
-    </div>
-  );
-}
-
-export function QuizPanelBody({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return <div className={cn("space-y-6 px-5 py-5 sm:px-6", className)}>{children}</div>;
-}
-
-export function QuizSetupFooter({
-  hint,
-  notice,
-  children,
-  className,
-}: {
-  hint?: ReactNode;
-  /** A block that explains why the main button can't be used, shown above it. */
-  notice?: ReactNode;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div className={cn("flex flex-col gap-3 border-t border-base-300/60 pt-4", className)}>
-      {notice}
-      {hint ? <p className="m-0 text-xs text-base-content/70">{hint}</p> : null}
-      <div className="w-full">{children}</div>
-    </div>
-  );
-}
-
-export function QuizStat({
-  label,
-  value,
-  variant = "default",
-}: {
-  label?: string;
-  value: ReactNode;
-  variant?: "default" | "primary";
-}) {
-  return (
-    <div
-      className={cn(
-        "rounded-field px-4 py-3",
-        variant === "primary"
-          ? "bg-primary/8 ring-1 ring-primary/20"
-          : "bg-base-200/60 ring-1 ring-base-content/5",
-      )}
-    >
-      {label ? <dt className="text-xs text-base-content/70">{label}</dt> : null}
-      <dd className={cn("text-sm font-semibold tabular-nums", label && "mt-0.5")}>{value}</dd>
-    </div>
-  );
-}
-
 export function QuizKeyboardHint({ action }: { action: string }) {
   return (
     <span className="hidden md:inline coarse:hidden">
       Press <kbd className="kbd kbd-xs">Enter</kbd> to {action}
     </span>
-  );
-}
-
-export function QuizCenteredState({
-  icon: Icon,
-  illustration,
-  title,
-  description,
-  children,
-  iconClassName,
-}: {
-  icon?: LucideIcon;
-  /** Shown instead of the icon, e.g. a scene from components/illustrations. */
-  illustration?: ReactNode;
-  title: string;
-  description?: string;
-  children?: ReactNode;
-  iconClassName?: string;
-}) {
-  return (
-    <div className="mx-auto flex max-w-sm flex-col items-center gap-3 py-2 text-center">
-      {illustration ??
-        (Icon ? (
-          <div className="flex size-10 items-center justify-center rounded-field bg-primary/10 text-primary">
-            <Icon className={cn("size-5", iconClassName)} aria-hidden strokeWidth={1.5} />
-          </div>
-        ) : null)}
-      <div className="space-y-1">
-        <h2 className="m-0 text-sm font-medium text-base-content/80">{title}</h2>
-        {description ? <p className="m-0 text-sm text-base-content/70">{description}</p> : null}
-      </div>
-      {children}
-    </div>
   );
 }

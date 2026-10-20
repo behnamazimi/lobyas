@@ -1,4 +1,3 @@
-import { countTermsForSelection } from "@/lib/study/count";
 import type { StudyCollection } from "@/lib/study/types";
 
 /** Jumps to the top of the new card. Instant, because a smooth scroll gets
@@ -16,29 +15,11 @@ export function scrollToTop(cardEl: HTMLElement | null) {
   requestAnimationFrame(jump);
 }
 
-export function allTermCount(collections: StudyCollection[]) {
-  return countTermsForSelection(collections, "all");
-}
-
 /** `null` state (not `window.history.state`) is what lets Next sync
  *  `useSearchParams`, so the Cards/Stories tabs see the new collection.
  *  Next copies its own history state over by itself. */
 function replaceUrl(url: URL) {
   window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-}
-
-export function replaceReadCollectionInUrl(collectionId: string) {
-  const url = new URL(window.location.href);
-  if (collectionId === "all") {
-    url.searchParams.delete("collection");
-  } else {
-    url.searchParams.set("collection", collectionId);
-  }
-  url.searchParams.delete("termId");
-  url.searchParams.delete("alreadyRead");
-  // Keeps a reload on Cards even when an unread story would redirect to Stories.
-  url.searchParams.set("view", "cards");
-  replaceUrl(url);
 }
 
 /** Tidies the URL once Cards is showing: drops a stale collection and marks
@@ -74,14 +55,7 @@ function collectionName(collectionId: string, collections: StudyCollection[]) {
 }
 
 export function caughtUpDescription(collectionId: string, collections: StudyCollection[]) {
-  if (collectionId === "all") {
-    return "No terms in your active collections. Add some terms or resume a collection to start reading.";
-  }
-
   const name = collectionName(collectionId, collections);
-  if (!name) {
-    return "No terms in this collection. Pick another collection to keep reading.";
-  }
-
-  return `No terms in ${name}. Pick another collection to keep reading.`;
+  if (!name) return "No terms in this collection. Pick another collection to keep reading.";
+  return `You’ve read every term in ${name}. Switch collection or add more terms.`;
 }

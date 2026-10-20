@@ -1,6 +1,5 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreditGateNotice } from "@/components/ai-credits/credit-gate-notice";
-import { Button } from "@/components/ui/button";
+import { FeedbackNote, Pill } from "@/components/kit";
 import { largestQuizCount } from "@/lib/ai-credits/costs";
 import { creditGate, isExhausted } from "@/lib/ai-credits/gate";
 import { AI_CREDITS_LOW_THRESHOLD, type AiAccessView, type CreditUse } from "@/lib/llm/types";
@@ -40,11 +39,9 @@ export function QuizPickerFooterHint({
  *  case, handled by `QuizPickerCreditGate`. */
 function QuizPickerAiOffAlert() {
   return (
-    <Alert variant="destructive" className="max-w-md">
-      <AlertDescription>
-        AI quizzes aren&apos;t available right now. Choose simple mode.
-      </AlertDescription>
-    </Alert>
+    <FeedbackNote kind="wrong" title="AI quizzes aren’t available" className="mt-3">
+      Choose simple mode.
+    </FeedbackNote>
   );
 }
 
@@ -53,7 +50,7 @@ function QuizPickerAiOffAlert() {
 function QuizPickerFallbackNotice({ ai }: { ai: AiAccessView }) {
   if (isExhausted(ai)) return null;
   return (
-    <p className="max-w-md text-xs text-base-content/70">
+    <p className="m-0 mt-3 text-[13px] font-semibold text-muted">
       AI quizzes aren&apos;t available right now, so we switched to a simple quiz.
     </p>
   );
@@ -107,14 +104,14 @@ export function QuizPickerCreditGate({
   return (
     <CreditGateNotice gate={gate} summary={summary}>
       {fitCount >= 1 ? (
-        <Button type="button" size="sm" variant="outline" onPress={() => onFit(fitCount)}>
+        <Pill variant="secondary" onClick={() => onFit(fitCount)}>
           Make it {fitCount} {fitCount === 1 ? "question" : "questions"}
-        </Button>
+        </Pill>
       ) : null}
       {gate.kind !== "top-up" ? (
-        <Button type="button" size="sm" variant="ghost" onPress={onUseSimple}>
+        <Pill variant="ghost" onClick={onUseSimple}>
           Use a simple quiz instead
-        </Button>
+        </Pill>
       ) : null}
     </CreditGateNotice>
   );

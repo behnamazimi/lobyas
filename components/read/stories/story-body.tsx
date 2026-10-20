@@ -2,7 +2,7 @@
 
 import type { MouseEvent } from "react";
 
-import { StoryTermPopover } from "@/components/read/stories/story-term-popover";
+import { StoryTermButton } from "@/components/read/stories/story-term-popover";
 import type { StoryTimeline } from "@/lib/stories/highlight";
 import { toParagraphs } from "@/lib/stories/paragraphs";
 import type { Story, StorySegment, StoryTerm } from "@/lib/stories/types";
@@ -11,13 +11,20 @@ import { cn } from "@/lib/utils";
 function StorySegments({
   segments,
   termById,
+  onTermPress,
 }: {
   segments: StorySegment[];
   termById: Map<string, StoryTerm>;
+  onTermPress: (term: StoryTerm) => void;
 }) {
   return segments.map((segment, index) =>
     segment.termId ? (
-      <StoryTermPopover key={index} text={segment.text} term={termById.get(segment.termId)} />
+      <StoryTermButton
+        key={index}
+        text={segment.text}
+        term={termById.get(segment.termId)}
+        onPress={onTermPress}
+      />
     ) : (
       <span key={index}>{segment.text}</span>
     ),
@@ -40,12 +47,14 @@ function HighlightedParagraphs({
   keepInView,
   onSentencePress,
   termById,
+  onTermPress,
 }: {
   timeline: StoryTimeline;
   activeSentence: number | null;
   keepInView: (node: HTMLElement | null) => void;
   onSentencePress?: (index: number) => void;
   termById: Map<string, StoryTerm>;
+  onTermPress: (term: StoryTerm) => void;
 }) {
   return timeline.paragraphs.map((sentences, paragraphIndex) => (
     <p key={paragraphIndex} className="m-0 whitespace-pre-line">
@@ -61,11 +70,15 @@ function HighlightedParagraphs({
             }
             className={cn(
               "rounded-sm box-decoration-clone transition-colors motion-reduce:transition-none",
-              active && "bg-warning/15",
+              active && "bg-warning/30",
               onSentencePress && "cursor-pointer",
             )}
           >
-            <StorySegments segments={sentence.segments} termById={termById} />
+            <StorySegments
+              segments={sentence.segments}
+              termById={termById}
+              onTermPress={onTermPress}
+            />
           </span>
         );
       })}
@@ -80,6 +93,7 @@ export function StoryBody({
   activeSentence,
   keepInView,
   onSentencePress,
+  onTermPress,
 }: {
   story: Story;
   termById: Map<string, StoryTerm>;
@@ -87,9 +101,10 @@ export function StoryBody({
   activeSentence: number | null;
   keepInView: (node: HTMLElement | null) => void;
   onSentencePress?: (index: number) => void;
+  onTermPress: (term: StoryTerm) => void;
 }) {
   return (
-    <div className="reading-text flex max-w-prose flex-col gap-4 text-[1.0625rem] leading-7 break-words text-base-content/90">
+    <div className="reading-text flex max-w-prose flex-col gap-4 text-[1.0625rem] leading-7 font-semibold break-words text-base-content">
       {timeline ? (
         <HighlightedParagraphs
           timeline={timeline}
@@ -97,11 +112,12 @@ export function StoryBody({
           keepInView={keepInView}
           onSentencePress={onSentencePress}
           termById={termById}
+          onTermPress={onTermPress}
         />
       ) : (
         toParagraphs(story.segments).map((paragraph, paragraphIndex) => (
           <p key={paragraphIndex} className="m-0 whitespace-pre-line">
-            <StorySegments segments={paragraph} termById={termById} />
+            <StorySegments segments={paragraph} termById={termById} onTermPress={onTermPress} />
           </p>
         ))
       )}

@@ -1,4 +1,5 @@
-import { PageShell, pageContainerClass } from "@/components/page-container";
+import { Skeleton } from "@/components/kit";
+import { pageContainerClass } from "@/components/page-container";
 import { cn } from "@/lib/utils";
 
 export function SkeletonBar({ className }: { className: string }) {
@@ -36,19 +37,16 @@ export function HeaderSkeleton({ hasLikelySession }: { hasLikelySession: boolean
   );
 }
 
+/** A page title and two cards, in the column the app's pages use. */
 export function PageSkeleton() {
   return (
-    <PageShell innerClassName="space-y-6" aria-busy="true" aria-label="Loading">
-      <div className="flex flex-col gap-4">
-        <SkeletonBar className="h-20 max-w-full" />
+    <div className="flex flex-1 flex-col bg-base-200" aria-busy="true" aria-label="Loading">
+      <div className="mx-auto flex w-full max-w-[640px] flex-col gap-3 px-5 py-4 lg:py-9">
+        <Skeleton className="h-9 w-40" />
+        <Skeleton shape="block" className="h-36" />
+        <Skeleton shape="block" className="h-48" />
       </div>
-
-      <div className="flex flex-wrap gap-4">
-        <SkeletonBar className="h-10 w-full max-w-xs" />
-        <SkeletonBar className="h-10 w-28 max-w-full" />
-        <SkeletonBar className="h-10 w-28 max-w-full" />
-      </div>
-    </PageShell>
+    </div>
   );
 }
 
@@ -68,72 +66,5 @@ export function AdminPageSkeleton() {
 }
 
 export function PanelSkeleton() {
-  return (
-    <div
-      className="shadow-surface overflow-hidden rounded-box bg-base-100 ring-1 ring-base-content/5"
-      aria-busy="true"
-      aria-label="Loading"
-    >
-      <div className="space-y-3 px-5 py-5 sm:px-6">
-        <SkeletonBar className="h-4 w-40" />
-        <SkeletonBar className="h-16 w-full" />
-        <SkeletonBar className="h-16 w-full" />
-        <SkeletonBar className="mt-4 h-10 w-full max-w-md" />
-      </div>
-    </div>
-  );
-}
-
-/** Header card + filter bar + term rows, without the sidebar — reused for
- *  an in-place collection switch, where the sidebar stays mounted. */
-export function LibraryListSkeleton() {
-  return (
-    <div className="min-w-0 flex-1 space-y-4" aria-busy="true" aria-label="Loading collection">
-      <div className="shadow-surface space-y-4 rounded-box bg-base-100 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1 space-y-2">
-            <SkeletonBar className="h-6 w-48" />
-            <SkeletonBar className="h-4 w-32" />
-          </div>
-          <SkeletonBar className="h-8 w-8 shrink-0 rounded-field" />
-        </div>
-        <SkeletonBar className="h-2 w-full rounded-full" />
-      </div>
-
-      <div className="flex flex-wrap gap-3">
-        <SkeletonBar className="h-10 w-full max-w-xs rounded-field" />
-        <SkeletonBar className="h-10 w-24 rounded-field" />
-        <SkeletonBar className="h-10 w-24 rounded-field" />
-      </div>
-
-      <div className="flex flex-col gap-3">
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
-        <SkeletonBar className="h-16 w-full rounded-box" />
-      </div>
-    </div>
-  );
-}
-
-export function LibraryPageSkeleton() {
-  return (
-    <PageShell aria-busy="true" aria-label="Loading your library">
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <aside className="hidden md:flex md:w-68 md:shrink-0">
-          <div className="shadow-surface flex w-full flex-col gap-4 rounded-box bg-base-100 p-3">
-            <SkeletonBar className="h-9 w-full rounded-field" />
-            <div className="space-y-2">
-              <SkeletonBar className="h-9 w-full rounded-field" />
-              <SkeletonBar className="h-9 w-full rounded-field" />
-              <SkeletonBar className="h-9 w-full rounded-field" />
-            </div>
-          </div>
-        </aside>
-
-        <LibraryListSkeleton />
-      </div>
-    </PageShell>
-  );
+  return <Skeleton shape="block" className="h-40" />;
 }

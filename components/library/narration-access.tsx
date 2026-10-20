@@ -18,17 +18,25 @@ export function NarrationAccess({
   return <NarrationAccessContext value={access}>{children}</NarrationAccessContext>;
 }
 
-function NarrationButtonInner({ termId }: { termId: string }) {
+function NarrationButtonInner({ termId, look }: { termId: string; look: "icon" | "pill" }) {
   const allowed = use(useContext(NarrationAccessContext));
   const details = useTermDetails(termId);
   const clipVersion = details && details !== "failed" ? details.narrationVersion : undefined;
-  return allowed ? <TermNarrationPlayer termId={termId} clipVersion={clipVersion} /> : null;
+  return allowed ? (
+    <TermNarrationPlayer termId={termId} clipVersion={clipVersion} look={look} />
+  ) : null;
 }
 
-export function NarrationButton({ termId }: { termId: string }) {
+export function NarrationButton({
+  termId,
+  look = "icon",
+}: {
+  termId: string;
+  look?: "icon" | "pill";
+}) {
   return (
     <Suspense fallback={null}>
-      <NarrationButtonInner termId={termId} />
+      <NarrationButtonInner termId={termId} look={look} />
     </Suspense>
   );
 }

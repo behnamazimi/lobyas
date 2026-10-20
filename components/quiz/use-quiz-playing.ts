@@ -23,7 +23,6 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     setStep,
     questionStyle,
     setQuestionStyle,
-    setSelectedCollectionId,
     setQuestionCount,
     setQuestionCountInput,
     setErrorMessage,
@@ -110,9 +109,6 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     resetSession();
     advancedQuestionKeyRef.current = null;
     setQuestionStyle(savedSession.setup.questionStyle ?? "ai");
-    setSelectedCollectionId(
-      savedSession.setup.collectionIds === "all" ? "all" : savedSession.setup.collectionIds[0],
-    );
     setQuestionCount(savedSession.setup.questionCount);
     setQuestionCountInput(String(savedSession.setup.questionCount));
     setQuestions(savedSession.questions);
@@ -165,7 +161,11 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     setStep("generating");
     setSessionStartedAt(new Date().toISOString());
 
-    const result = await generateQuizAction({ collectionIds, questionCount, questionStyle });
+    const result = await generateQuizAction({
+      collectionIds,
+      questionCount,
+      questionStyle,
+    });
 
     // The balance may have changed either way, so refresh what shows it.
     if (questionStyle === "ai") router.refresh();
@@ -180,7 +180,7 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     track("quiz_started", {
       question_style: questionStyle,
       question_count: result.questions.length,
-      collection_scope: collectionIds === "all" ? "all" : "selected",
+      collection_scope: "selected",
     });
     setQuestions(result.questions);
     setTerms(result.terms);

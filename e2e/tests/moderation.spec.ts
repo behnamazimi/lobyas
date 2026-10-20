@@ -15,14 +15,15 @@ test.describe("Shared collections", () => {
     await signInContext(reporter, await createUser());
     const member = await reporter.newPage();
     await gotoReady(member, "/app/browse");
-    await member.getByRole("tab", { name: /Community/ }).click();
+    await member.getByRole("radio", { name: /Community/ }).click({ force: true });
     // Other tests share collections too, so this one may not be on the first page.
     await member.getByRole("searchbox", { name: /Search collections/ }).fill(name);
     const card = member.getByRole("article").filter({ hasText: name });
     await card.getByRole("button", { name: "More actions" }).click();
     await member.getByRole("menuitem", { name: "Report collection" }).click();
-    await member.getByRole("radio").first().check({ force: true });
-    await member.getByRole("button", { name: "Report", exact: true }).click();
+    const report = member.getByRole("dialog");
+    await report.getByRole("radio", { name: "Breaks the rules" }).click({ force: true });
+    await report.getByRole("button", { name: "Report", exact: true }).click();
     await expect
       .poll(async () => {
         const rows = await sql("select 1 from public.collection_reports where collection_id = $1", [

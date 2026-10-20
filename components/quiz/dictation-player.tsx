@@ -1,19 +1,19 @@
 "use client";
 
-import { Volume2 } from "lucide-react";
 import { useRef, useState } from "react";
 import {
   TermNarrationPlayer,
   type TermNarrationHandle,
 } from "@/components/terms/term-narration-player";
-import { Button } from "@/components/ui/button";
+import { ListenButton } from "@/components/kit";
 import { useMountEffect } from "@/hooks/use-mount-effect";
 
 type DictationPlayerProps = {
   termId: string;
   clipVersion: string;
-  /** Hides the skip link once the answer is in. */
+  /** Hides the "tap Play" note once the answer is in. */
   answered: boolean;
+  /** The clip won't load: the question is skipped. */
   onCantListen: () => void;
 };
 
@@ -35,7 +35,7 @@ export function DictationPlayer({
   });
 
   return (
-    <div className="mt-4 flex flex-col items-center gap-2">
+    <div className="mt-3 flex flex-col items-start gap-2">
       <TermNarrationPlayer
         termId={termId}
         clipVersion={clipVersion}
@@ -46,24 +46,14 @@ export function DictationPlayer({
         onUnavailable={onCantListen}
         onAutoplayBlocked={() => setNeedsTap(true)}
       />
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        className="gap-2"
+      <ListenButton
+        label="Play"
         onPress={() => playerRef.current?.play()}
-      >
-        <Volume2 className="size-5" aria-hidden strokeWidth={1.5} />
-        Play
-      </Button>
+        className="h-14 pr-5 pl-3.5 text-base"
+      />
       {needsTap && !answered ? (
-        <p className="m-0 text-sm text-base-content/70">Tap Play to hear the word.</p>
+        <p className="m-0 text-sm font-semibold text-muted">Tap Play to hear the word.</p>
       ) : null}
-      {answered ? null : (
-        <Button type="button" variant="link" size="sm" onPress={onCantListen}>
-          Can&apos;t listen now
-        </Button>
-      )}
     </div>
   );
 }

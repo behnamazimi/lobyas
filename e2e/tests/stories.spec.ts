@@ -1,5 +1,5 @@
 import { test, expect } from "../fixtures";
-import { creditsLeft } from "../support/credits";
+import { creditsLeft, drainCredits } from "../support/credits";
 import { sql } from "../support/db";
 import { gotoReady } from "../support/navigation";
 import { seedCollection } from "../support/seed";
@@ -28,5 +28,14 @@ test.describe("Stories", () => {
         return Number(row!.read);
       })
       .toBe(10);
+  });
+
+  test("with no credits left a story can't be written", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await drainCredits(user.id);
+    await gotoReady(page, `/app/read/stories?collection=${collectionId}`);
+
+    await expect(page.getByText("You've used your AI credits for now.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Write a story" })).toHaveCount(0);
   });
 });

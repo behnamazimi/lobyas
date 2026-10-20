@@ -1,7 +1,7 @@
 import { Sparkles } from "lucide-react";
 import { CreditGateNotice } from "@/components/ai-credits/credit-gate-notice";
 import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Pill } from "@/components/kit";
 import { PIECE_LENGTH_LABELS } from "@/components/read/stories/story-setup-fields";
 import { creditGate, isExhausted } from "@/lib/ai-credits/gate";
 import { largestFittingLength } from "@/lib/stories/credit-fit";
@@ -39,9 +39,9 @@ export function StoryNoAiNotice({ ai }: { ai: AiAccessView }) {
     <Alert variant="destructive" icon={<Sparkles strokeWidth={1.5} />}>
       <AlertDescription>Stories aren&apos;t available right now.</AlertDescription>
       <AlertAction>
-        <LinkButton href="/app/read?view=cards" size="sm" variant="ghost">
+        <Pill href="/app/read?view=cards" variant="soft">
           Read cards
-        </LinkButton>
+        </Pill>
       </AlertAction>
     </Alert>
   );
@@ -81,14 +81,14 @@ export function StoryCreditGate({
   return (
     <CreditGateNotice gate={gate} summary={summary}>
       {fitLength ? (
-        <Button type="button" size="sm" variant="outline" onPress={() => onFit(fitLength)}>
+        <Pill variant="soft" onClick={() => onFit(fitLength)}>
           Make it {PIECE_LENGTH_LABELS[fitLength]} instead
-        </Button>
+        </Pill>
       ) : null}
       {gate.kind !== "top-up" ? (
-        <LinkButton href="/app/read?view=cards" size="sm" variant="ghost">
+        <Pill href="/app/read?view=cards" variant="soft">
           Read cards instead
-        </LinkButton>
+        </Pill>
       ) : null}
     </CreditGateNotice>
   );

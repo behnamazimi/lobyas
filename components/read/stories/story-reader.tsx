@@ -3,10 +3,10 @@
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useRef, useState, type Ref } from "react";
-import { QuizPanel } from "@/components/quiz/quiz-ui";
 import type { StoryPlayerHandle } from "@/components/read/stories/story-audio-controls";
 import { StoryFooter } from "@/components/read/stories/story-footer";
 import { StoryMarkKnown } from "@/components/read/stories/story-mark-known";
+import { StoryTermSheet } from "@/components/read/stories/story-term-popover";
 import { StoryShadowingToggle } from "@/components/read/stories/story-shadowing-toggle";
 import type { AiAccessView } from "@/lib/llm/types";
 import type { TopUpState } from "@/lib/ai-credits/types";
@@ -70,30 +70,19 @@ function StoryHeader({
   const meta = storyMetaLabels(story);
 
   return (
-    <header className="relative shrink-0 space-y-1 border-b border-base-300/60 px-5 py-3 sm:px-6">
-      <div>
-        <h2 className="font-heading m-0 min-w-0 pe-10 text-xl font-medium text-balance text-base-content sm:text-2xl sm:leading-tight">
-          {story.title}
-        </h2>
-        {narrationAccess ? <StoryShadowingToggle on={shadowing !== null} /> : null}
-      </div>
-      <p className="m-0 text-xs text-base-content/70">
-        {meta.map((item, index) => (
-          <span key={item}>
-            {index > 0 ? (
-              <span className="mx-1.5 text-base-content/50" aria-hidden>
-                ·
-              </span>
-            ) : null}
-            {item}
-          </span>
-        ))}
-      </p>
+    <header className="relative shrink-0 border-b border-base-300 px-[18px] pt-[18px] pb-3.5">
+      <h1 className="m-0 min-w-0 pe-12 font-heading text-[25px] leading-[1.1] font-extrabold text-balance [overflow-wrap:anywhere]">
+        {story.title}
+      </h1>
+      {narrationAccess ? <StoryShadowingToggle on={shadowing !== null} /> : null}
+      <p className="mt-1 mb-0 text-[13px] font-bold text-muted">{meta.join(" · ")}</p>
       {story.outline ? (
-        <p className="m-0 line-clamp-2 text-xs text-base-content/70">Outline: {story.outline}</p>
+        <p className="mt-1 mb-0 line-clamp-2 text-[13px] font-semibold text-muted">
+          Outline: {story.outline}
+        </p>
       ) : null}
       {narrationAccess ? (
-        <div className="pt-1">
+        <div className="pt-3">
           <StoryNarrationPlayer
             key={story.id}
             storyId={story.id}
@@ -115,11 +104,9 @@ function StoryGlossary({ story, termById }: { story: Story; termById: Map<string
   const occurrences = [...firstOccurrences(story)];
 
   return (
-    <Collapsible className="group border-t border-base-300/60 pt-2">
+    <Collapsible className="group border-t border-base-300 pt-1">
       <CollapsibleTrigger className="-mx-2 flex min-h-11 w-[calc(100%+1rem)] cursor-pointer items-center justify-between gap-3 rounded-field border-none bg-transparent px-2 text-left outline-none focus-visible:ring-2 focus-visible:ring-primary">
-        <span className="text-xs font-semibold tracking-wider text-base-content/70 uppercase">
-          Terms in this piece ({occurrences.length})
-        </span>
+        <span className="text-sm font-extrabold">Terms in this piece ({occurrences.length})</span>
         <ChevronDown
           className="size-4 shrink-0 text-base-content/70 transition-transform duration-200 group-data-[expanded]:rotate-180"
           aria-hidden
@@ -127,7 +114,7 @@ function StoryGlossary({ story, termById }: { story: Story; termById: Map<string
         />
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <ul className="m-0 list-none divide-y divide-base-300/60 p-0">
+        <ul className="m-0 list-none divide-y divide-base-300 p-0">
           {occurrences.map(([termId, surface]) => {
             const term = termById.get(termId);
             if (!term) {
@@ -140,7 +127,7 @@ function StoryGlossary({ story, termById }: { story: Story; termById: Map<string
             return (
               <li key={termId} className="py-3">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="m-0 min-w-0 text-sm font-medium text-base-content">{term.term}</p>
+                  <p className="m-0 min-w-0 font-heading text-lg font-extrabold">{term.term}</p>
                   <div className="-me-1.5 flex shrink-0 items-center gap-1">
                     <StoryMarkKnown termId={termId} term={term.term} />
                     <Link
@@ -152,7 +139,7 @@ function StoryGlossary({ story, termById }: { story: Story; termById: Map<string
                     </Link>
                   </div>
                 </div>
-                <p className="m-0 text-sm text-base-content/70">{term.definition}</p>
+                <p className="m-0 text-sm font-semibold text-muted">{term.definition}</p>
               </li>
             );
           })}
@@ -217,6 +204,7 @@ export function StoryReader({
   );
   const playerRef = useRef<StoryPlayerHandle | null>(null);
   const [activeSentence, setActiveSentence] = useState<number | null>(null);
+  const [openTerm, setOpenTerm] = useState<StoryTerm | null>(null);
   const { pause: pauseAutoScroll, followAgain, keepInView } = useNarrationAutoScroll();
 
   // Without a timeline there are no sentences, so one picked before the
@@ -234,35 +222,43 @@ export function StoryReader({
   }
 
   return (
-    <QuizPanel className="flex min-h-0 flex-1 flex-col">
-      <StoryHeader
-        story={story}
-        narrationAccess={narrationAccess}
-        onNarrationProgress={timeline ? showNarrationProgress : undefined}
-        shadowing={shadowing}
-        sentencePlayback={sentencePlayback}
-        playerRef={playerRef}
-        onClipPauses={timeline ? setClipPauses : undefined}
-        price={narrationReady ? null : narrationPrice(ai, story)}
-        topUp={ai.topUp}
-      />
-      <div
-        onWheel={pauseAutoScroll}
-        onTouchMove={pauseAutoScroll}
-        onKeyDown={pauseAutoScroll}
-        className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-4 sm:px-6"
-      >
-        <StoryBody
+    <div className="flex min-h-0 flex-1 flex-col gap-2.5">
+      <article className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[28px] bg-base-100 shadow-card lg:max-h-[760px]">
+        <StoryHeader
           story={story}
-          termById={termById}
-          timeline={timeline}
-          activeSentence={showHighlight ? activeSentence : null}
-          keepInView={keepInView}
-          onSentencePress={tapToPlay && sentencePlayback ? pressSentence : undefined}
+          narrationAccess={narrationAccess}
+          onNarrationProgress={timeline ? showNarrationProgress : undefined}
+          shadowing={shadowing}
+          sentencePlayback={sentencePlayback}
+          playerRef={playerRef}
+          onClipPauses={timeline ? setClipPauses : undefined}
+          price={narrationReady ? null : narrationPrice(ai, story)}
+          topUp={ai.topUp}
         />
-        <StoryGlossary story={story} termById={termById} />
-      </div>
-      <StoryFooter session={session} story={story} />
-    </QuizPanel>
+        <div
+          onWheel={pauseAutoScroll}
+          onTouchMove={pauseAutoScroll}
+          onKeyDown={pauseAutoScroll}
+          className="min-h-0 flex-1 space-y-5 overflow-y-auto px-[18px] pt-3.5 pb-2"
+        >
+          <StoryBody
+            story={story}
+            termById={termById}
+            timeline={timeline}
+            activeSentence={showHighlight ? activeSentence : null}
+            keepInView={keepInView}
+            onSentencePress={tapToPlay && sentencePlayback ? pressSentence : undefined}
+            onTermPress={setOpenTerm}
+          />
+          <StoryGlossary story={story} termById={termById} />
+        </div>
+      </article>
+      <StoryFooter session={session} story={story} termCount={firstOccurrences(story).size} />
+      <StoryTermSheet
+        term={openTerm}
+        href={openTerm ? termHref(openTerm.id, story) : ""}
+        onClose={() => setOpenTerm(null)}
+      />
+    </div>
   );
 }

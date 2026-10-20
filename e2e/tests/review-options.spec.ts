@@ -23,7 +23,7 @@ test.describe("Review options", () => {
     await gotoReady(page, `/app/review?collection=${collectionId}`);
 
     await page.getByRole("button", { name: "Review options" }).click();
-    const option = page.getByRole("checkbox", { name: "Play narration when card revealed" });
+    const option = page.getByRole("switch", { name: "Play narration when card revealed" });
     await expect(option).not.toBeChecked();
     await option.click();
     await expect(option).toBeChecked();
@@ -41,7 +41,7 @@ test.describe("Review options", () => {
     await gotoReady(page, `/app/review?collection=${collectionId}`);
     await page.getByRole("button", { name: "Review options" }).click();
     await expect(
-      page.getByRole("checkbox", { name: "Play narration when card revealed" }),
+      page.getByRole("switch", { name: "Play narration when card revealed" }),
     ).toBeChecked();
   });
 
@@ -51,7 +51,7 @@ test.describe("Review options", () => {
     await gotoReady(page, `/app/review?collection=${collectionId}`);
 
     await page.getByRole("button", { name: "Review options" }).click();
-    const option = page.getByRole("checkbox", { name: "Keep screen awake" });
+    const option = page.getByRole("switch", { name: "Keep screen awake" });
     await expect(option).not.toBeChecked();
     await option.click();
     await expect(option).toBeChecked();
@@ -68,7 +68,7 @@ test.describe("Review options", () => {
 
     await gotoReady(page, `/app/review?collection=${collectionId}`);
     await page.getByRole("button", { name: "Review options" }).click();
-    await expect(page.getByRole("checkbox", { name: "Keep screen awake" })).toBeChecked();
+    await expect(page.getByRole("switch", { name: "Keep screen awake" })).toBeChecked();
   });
 
   test("grade buttons say when the term comes back, and the option hides it", async ({
@@ -87,7 +87,7 @@ test.describe("Review options", () => {
     ).toBeVisible();
 
     await page.getByRole("button", { name: "Review options" }).click();
-    const option = page.getByRole("checkbox", { name: "Show when terms come back" });
+    const option = page.getByRole("switch", { name: "Show when terms come back" });
     await expect(option).toBeChecked();
     await option.click();
     await expect(option).not.toBeChecked();

@@ -1,6 +1,5 @@
 "use client";
 
-import { Headphones, Loader2 } from "lucide-react";
 import { useRef, useState, type Ref } from "react";
 import {
   StoryAudioControls,
@@ -8,7 +7,7 @@ import {
 } from "@/components/read/stories/story-audio-controls";
 import type { ShadowingSetup } from "@/components/read/stories/use-shadowing-playback";
 import type { ClipPauses } from "@/lib/stories/silence";
-import { Button } from "@/components/ui/button";
+import { ListenButton } from "@/components/kit";
 import { TopUpButton } from "@/components/ai-credits/top-up-button";
 import { CreditGateNotice } from "@/components/ai-credits/credit-gate-notice";
 import { creditGate } from "@/lib/ai-credits/gate";
@@ -60,7 +59,7 @@ function NarrationCreditGate({
       summary={summary}
       action={
         gate.kind === "top-up" ? (
-          <TopUpButton size="sm" amount={gate.amount} onAdded={onAdded} />
+          <TopUpButton variant="soft" amount={gate.amount} onAdded={onAdded} />
         ) : null
       }
     />
@@ -152,7 +151,7 @@ export function StoryNarrationPlayer({
           handleRef={handleRef}
           onClipPauses={onClipPauses}
         />
-        <p className="m-0 text-xs text-base-content/60">AI voice</p>
+        <p className="mt-1 mb-0 text-xs font-bold text-muted">AI voice</p>
       </>
     );
   }
@@ -162,29 +161,17 @@ export function StoryNarrationPlayer({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <Button
-          type="button"
-          size="xs"
-          variant="ghost"
+        <ListenButton
+          status={status === "preparing" ? "loading" : "idle"}
           onPress={() => void prepare()}
-          isDisabled={status === "preparing" || status === "capped" || status === "insufficient"}
-          className="-ms-2 h-8 px-2 text-xs font-medium text-base-content/70"
-        >
-          {status === "preparing" ? (
-            <Loader2 className="size-4 animate-spin" aria-hidden strokeWidth={1.5} />
-          ) : (
-            <Headphones className="size-4" aria-hidden strokeWidth={1.5} />
-          )}
-          {shadowing ? "Listen and shadow" : "Listen"}
-          <span className="font-normal text-base-content/60">AI voice</span>
-          {price ? (
-            <span className="font-normal text-base-content/60">
-              · {price.cost} {price.cost === 1 ? "credit" : "credits"}
-            </span>
-          ) : null}
-        </Button>
+          disabled={status === "preparing" || status === "capped" || status === "insufficient"}
+          label={`${shadowing ? "Listen and shadow" : "Listen"}${
+            price ? ` · ${price.cost} ${price.cost === 1 ? "credit" : "credits"}` : ""
+          }`}
+          className="h-12"
+        />
         {message ? (
-          <p className="m-0 text-xs text-base-content/70" role="status">
+          <p className="m-0 text-sm font-bold text-muted" role="status">
             {message}
           </p>
         ) : null}

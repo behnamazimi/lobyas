@@ -1,13 +1,7 @@
-import {
-  StudyCollectionField,
-  StudyCountField,
-  StudyResumeBanner,
-  StudySetupHeading,
-  StudySetupPanel,
-} from "@/components/read/study/study-setup-panel";
+import { Zap } from "lucide-react";
+import { Card, FeedbackNote, Pill } from "@/components/kit";
+import { QuizCountField } from "@/components/quiz/quiz-count-field";
 import { QuizQuestionStyleField } from "@/components/quiz/quiz-question-style-field";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
 import {
   QuizPickerAiNotices,
   QuizPickerCreditGate,
@@ -15,6 +9,7 @@ import {
 } from "@/components/quiz/quiz-picker-notices";
 import { TopUpButton } from "@/components/ai-credits/top-up-button";
 import { creditGate, isExhausted } from "@/lib/ai-credits/gate";
+import { formatCount } from "@/lib/kit/text";
 import { quizCreditUse } from "@/lib/quiz/credit-use";
 import type { AiAccessView } from "@/lib/llm/types";
 import { type PausedStudyCollection, type StudyCollection } from "@/lib/study/types";
@@ -24,6 +19,7 @@ import type { QuizSessionState } from "@/lib/quiz/session-storage";
 export type QuizPickerStepProps = {
   collections: StudyCollection[];
   paused: PausedStudyCollection[];
+  collectionName: string;
   ai: AiAccessView;
   aiFellBack: boolean;
   savedSession: QuizSessionState | null;
@@ -32,8 +28,6 @@ export type QuizPickerStepProps = {
   onQuestionStyleChange: (style: QuizQuestionStyle) => void;
   aiRequiresSetup: boolean;
   errorMessage: string | null;
-  selectedCollectionId: string;
-  onSelectedCollectionIdChange: (value: string) => void;
   availableTermCount: number;
   questionCount: number;
   questionCountInput: string;
@@ -52,33 +46,31 @@ function QuizPickerResumeBanner({
   onResumeSession: () => void;
 }) {
   return (
-    <StudyResumeBanner
-      message={
-        <>
-          Quiz in progress: question{" "}
-          <span className="tabular-nums">{savedSession.currentIndex + 1}</span> of{" "}
-          <span className="tabular-nums">{savedSession.setup.questionCount}</span>. Starting a new
-          quiz replaces it.
-        </>
-      }
-      onResume={onResumeSession}
-    />
+    <Card radius="md" className="flex items-center gap-3 p-4">
+      <p className="m-0 min-w-0 flex-1 text-sm leading-snug font-bold">
+        Quiz in progress: question{" "}
+        <span className="tabular-nums">{savedSession.currentIndex + 1}</span> of{" "}
+        <span className="tabular-nums">{savedSession.setup.questionCount}</span>. Starting a new
+        quiz replaces it.
+      </p>
+      <Pill variant="soft" onClick={onResumeSession}>
+        Resume
+      </Pill>
+    </Card>
   );
 }
 
 export function QuizPickerSetupPanel(props: QuizPickerStepProps) {
   const {
-    collections,
     ai,
     aiFellBack,
+    collectionName,
     savedSession,
     onResumeSession,
     questionStyle,
     onQuestionStyleChange,
     aiRequiresSetup,
     errorMessage,
-    selectedCollectionId,
-    onSelectedCollectionIdChange,
     availableTermCount,
     questionCount,
     questionCountInput,
@@ -96,24 +88,55 @@ export function QuizPickerSetupPanel(props: QuizPickerStepProps) {
   const gate = creditsBlock ? creditGate(ai.topUp) : null;
 
   return (
-    <StudySetupPanel
-      footer={
-        gate?.kind === "top-up" ? (
-          <TopUpButton amount={gate.amount} className="min-h-11 w-full" />
-        ) : (
-          <Button
-            type="button"
-            onPress={onStartQuiz}
-            isDisabled={startDisabled}
-            className="min-h-11 w-full"
-          >
-            Start quiz
-          </Button>
-        )
-      }
-      footerHint={<QuizPickerFooterHint questionStyle={questionStyle} ai={ai} cost={use.cost} />}
-      footerNotice={
-        creditsBlock ? (
+    <div className="flex min-h-0 flex-1 flex-col gap-3">
+      <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-1">
+        <div>
+          <div className="flex h-[30px] w-fit items-center gap-1.5 rounded-full bg-quiz-tint pr-3 pl-2.5 text-[13px] font-extrabold text-quiz-text">
+            <Zap className="size-4" strokeWidth={2.6} aria-hidden />
+            Quiz
+          </div>
+          <h1 className="m-0 mt-2.5 font-heading text-[32px] leading-[1.1] font-extrabold">
+            Set up your quiz
+          </h1>
+          <p className="m-0 mt-1.5 text-[15px] font-semibold [overflow-wrap:anywhere] text-muted">
+            {formatCount(availableTermCount)} {availableTermCount === 1 ? "term" : "terms"} in{" "}
+            {collectionName} can be quizzed.
+          </p>
+        </div>
+
+        {savedSession ? (
+          <QuizPickerResumeBanner savedSession={savedSession} onResumeSession={onResumeSession} />
+        ) : null}
+
+        <Card radius="md" className="p-4">
+          <QuizQuestionStyleField value={questionStyle} onChange={onQuestionStyleChange} />
+          <QuizPickerAiNotices
+            ai={ai}
+            aiFellBack={aiFellBack}
+            aiRequiresSetup={aiRequiresSetup}
+            questionStyle={questionStyle}
+          />
+        </Card>
+
+        {errorMessage ? (
+          <FeedbackNote kind="wrong" title="Couldn't start the quiz">
+            {errorMessage}
+          </FeedbackNote>
+        ) : null}
+
+        <Card radius="md" className="p-4">
+          <QuizCountField
+            presets={questionCountPresets}
+            value={questionCount}
+            input={questionCountInput}
+            error={questionCountError}
+            disabled={availableTermCount === 0}
+            onPreset={onApplyQuestionCount}
+            onInput={onQuestionCountInputChange}
+          />
+        </Card>
+
+        {creditsBlock ? (
           <QuizPickerCreditGate
             ai={ai}
             use={use}
@@ -121,58 +144,21 @@ export function QuizPickerSetupPanel(props: QuizPickerStepProps) {
             onFit={onApplyQuestionCount}
             onUseSimple={() => onQuestionStyleChange("simple")}
           />
-        ) : null
-      }
-    >
-      <StudySetupHeading
-        tier="quiz"
-        title="Set up your quiz"
-        description="Lobyaq will ask the questions."
-      />
-      {savedSession ? (
-        <QuizPickerResumeBanner savedSession={savedSession} onResumeSession={onResumeSession} />
-      ) : null}
+        ) : null}
+      </div>
 
-      <QuizQuestionStyleField value={questionStyle} onChange={onQuestionStyleChange} />
-
-      <QuizPickerAiNotices
-        ai={ai}
-        aiFellBack={aiFellBack}
-        aiRequiresSetup={aiRequiresSetup}
-        questionStyle={questionStyle}
-      />
-
-      {errorMessage ? (
-        <Alert variant="destructive" className="max-w-md">
-          <AlertDescription>{errorMessage}</AlertDescription>
-        </Alert>
-      ) : null}
-
-      <StudyCollectionField
-        id="quiz-collection"
-        collections={collections}
-        value={selectedCollectionId}
-        onChange={onSelectedCollectionIdChange}
-      />
-
-      <StudyCountField
-        id="quiz-question-count"
-        label="How many questions"
-        presets={questionCountPresets}
-        selectedValue={questionCount}
-        inputValue={questionCountInput}
-        error={questionCountError}
-        availableCount={availableTermCount}
-        perUnitLabel="quiz"
-        onPresetSelect={onApplyQuestionCount}
-        onInputChange={onQuestionCountInputChange}
-      />
-
-      {availableTermCount === 0 ? (
-        <Alert variant="destructive">
-          <AlertDescription>No terms in this collection yet.</AlertDescription>
-        </Alert>
-      ) : null}
-    </StudySetupPanel>
+      <div className="flex shrink-0 flex-col gap-2">
+        <p className="m-0 text-center text-[13px] font-bold text-quiz-text">
+          <QuizPickerFooterHint questionStyle={questionStyle} ai={ai} cost={use.cost} />
+        </p>
+        {gate?.kind === "top-up" ? (
+          <TopUpButton size="lg" amount={gate.amount} />
+        ) : (
+          <Pill size="lg" onClick={onStartQuiz} disabled={startDisabled}>
+            Start quiz
+          </Pill>
+        )}
+      </div>
+    </div>
   );
 }

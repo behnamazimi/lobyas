@@ -1,58 +1,23 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { Suspense } from "react";
-import { LibrarySidebar } from "@/components/library/library-sidebar";
 import { PromoSlot } from "@/components/promos/promo-slot";
-import { PageShell } from "@/components/page-container";
-import { LibraryPageSkeleton } from "@/components/page-skeleton";
-import { getSessionUser } from "@/lib/auth/require-session";
-import { loadLibraryCollections } from "@/lib/library/load";
-import { LIBRARY_LAST_COLLECTION_COOKIE } from "@/lib/library/pick-collection";
 import { SectionTransition } from "@/components/shared/view-transitions";
 
-/**
- * The Library's frame and collection sidebar. Layouts don't re-render when
- * only the query changes, so switching collections (?collection=) reloads just
- * the page below while the sidebar stays mounted.
- */
 export const metadata: Metadata = { title: "Library" };
 
+/** The Library's frame. The collection switcher lives in the app shell, so
+ *  this only holds the page and its promo. */
 export default function LibraryLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<LibraryPageSkeleton />}>
-      <LibraryFrame>{children}</LibraryFrame>
-    </Suspense>
-  );
-}
-
-async function LibraryFrame({ children }: { children: React.ReactNode }) {
-  const { supabase, user } = await getSessionUser();
-  if (!user) return children;
-
-  // Shared with the page through React's per-request cache, and rendered in
-  // parallel with it, so this adds no wait of its own.
-  const [collections, cookieStore] = await Promise.all([
-    loadLibraryCollections(supabase, user.id).catch(() => null),
-    cookies(),
-  ]);
-  // Empty and failed states are the page's to show, full width.
-  if (!collections || collections.collections.length === 0) return children;
-
-  return (
-    <SectionTransition>
-      <PageShell>
-        <div className="mb-6 empty:hidden">
-          <PromoSlot route="library" />
-        </div>
-        <div className="flex flex-col gap-6 md:flex-row md:items-start">
-          <LibrarySidebar
-            collections={collections.collections}
-            loadedAt={collections.loadedAt}
-            lastCollectionId={cookieStore.get(LIBRARY_LAST_COLLECTION_COOKIE)?.value ?? null}
-          />
-          {children}
-        </div>
-      </PageShell>
-    </SectionTransition>
+    <div className="flex flex-1 flex-col bg-base-200">
+      <div className="mx-auto flex w-full max-w-[640px] flex-1 flex-col px-5 py-5 lg:max-w-[1120px] lg:px-10 lg:py-9">
+        <Suspense fallback={null}>
+          <div className="mb-4 empty:hidden">
+            <PromoSlot route="library" />
+          </div>
+        </Suspense>
+        <SectionTransition>{children}</SectionTransition>
+      </div>
+    </div>
   );
 }

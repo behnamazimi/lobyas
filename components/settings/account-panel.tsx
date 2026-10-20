@@ -1,14 +1,10 @@
 "use client";
 
-import { UserRound } from "lucide-react";
 import { useActionState, useState } from "react";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
 import { DeleteAccountPanel } from "@/components/settings/delete-account-panel";
 import { SettingsPanel, SettingsRow, SettingsStack } from "@/components/settings/ui";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { FormField, Pill, TextInput } from "@/components/kit";
 import {
   changePasswordAction,
   type AccountSettings,
@@ -32,70 +28,68 @@ function PasswordForm({ hasPassword, action, pending, state }: PasswordFormProps
   return (
     <form action={action} className="flex flex-col gap-4">
       {state && "error" in state ? (
-        <Alert variant="destructive">
-          <AlertDescription>{state.error}</AlertDescription>
-        </Alert>
+        <p
+          role="alert"
+          className="m-0 rounded-2xl bg-wrong-tint px-3.5 py-3 text-sm font-bold text-wrong-text"
+        >
+          {state.error}
+        </p>
       ) : null}
 
-      <FieldGroup>
-        {hasPassword ? (
-          <Field>
-            <FieldLabel htmlFor="account-current-password">Current password</FieldLabel>
-            <Input
-              id="account-current-password"
-              type="password"
-              name="currentPassword"
-              required
-              autoComplete="current-password"
-            />
-          </Field>
+      {hasPassword ? (
+        <FormField label="Current password" htmlFor="account-current-password">
+          <TextInput
+            id="account-current-password"
+            type="password"
+            name="currentPassword"
+            required
+            autoComplete="current-password"
+          />
+        </FormField>
+      ) : null}
+
+      <FormField label="New password" htmlFor="account-new-password">
+        <TextInput
+          id="account-new-password"
+          type="password"
+          name="password"
+          required
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          onBlur={() => setPasswordTouched(true)}
+        />
+        <PasswordRequirements
+          password={password}
+          visible={passwordTouched || password.length > 0}
+        />
+      </FormField>
+
+      <FormField label="Confirm new password" htmlFor="account-confirm-password">
+        <TextInput
+          id="account-confirm-password"
+          type="password"
+          name="confirmPassword"
+          required
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+        />
+        {confirmPassword.length > 0 ? (
+          <p
+            className={cn(
+              "m-0 text-xs font-bold",
+              passwordsMatch ? "text-success-text" : "text-muted",
+            )}
+          >
+            {passwordsMatch ? "Passwords match" : "Passwords don't match"}
+          </p>
         ) : null}
+      </FormField>
 
-        <Field>
-          <FieldLabel htmlFor="account-new-password">New password</FieldLabel>
-          <Input
-            id="account-new-password"
-            type="password"
-            name="password"
-            required
-            autoComplete="new-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            onBlur={() => setPasswordTouched(true)}
-          />
-          <PasswordRequirements
-            password={password}
-            visible={passwordTouched || password.length > 0}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="account-confirm-password">Confirm new password</FieldLabel>
-          <Input
-            id="account-confirm-password"
-            type="password"
-            name="confirmPassword"
-            required
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-          />
-          {confirmPassword.length > 0 ? (
-            <p
-              className={cn(
-                "text-xs",
-                passwordsMatch ? "text-success-text" : "text-base-content/70",
-              )}
-            >
-              {passwordsMatch ? "Passwords match" : "Passwords don't match"}
-            </p>
-          ) : null}
-        </Field>
-      </FieldGroup>
-
-      <Button type="submit" isDisabled={pending} className="self-start">
+      <Pill type="submit" disabled={pending} className="self-start">
         {pending ? "Saving…" : hasPassword ? "Change password" : "Set password"}
-      </Button>
+      </Pill>
     </form>
   );
 }
@@ -107,13 +101,14 @@ export function AccountPanel({ email, hasPassword }: AccountSettings) {
   return (
     <SettingsPanel
       id="account"
-      icon={UserRound}
       title="Account"
       description="Manage how you log in, or delete your account."
     >
       <SettingsStack>
         <SettingsRow title="Email">
-          <p className="m-0 text-sm break-all">{email ?? "No email on this account"}</p>
+          <p className="m-0 text-[13px] font-semibold break-all text-muted">
+            {email ?? "No email on this account"}
+          </p>
         </SettingsRow>
         <SettingsRow
           title="Password"
@@ -124,12 +119,13 @@ export function AccountPanel({ email, hasPassword }: AccountSettings) {
           }
         >
           {saved ? (
-            <Alert variant="success">
-              <AlertDescription>
-                {hasPassword ? "Password changed." : "Password set."} You're signed out on your
-                other devices.
-              </AlertDescription>
-            </Alert>
+            <p
+              role="status"
+              className="m-0 rounded-2xl bg-success-tint px-3.5 py-3 text-sm font-bold text-success-text"
+            >
+              {hasPassword ? "Password changed." : "Password set."} You&apos;re signed out on your
+              other devices.
+            </p>
           ) : null}
           <PasswordForm
             key={saved?.id ?? "form"}

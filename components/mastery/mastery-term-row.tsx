@@ -28,7 +28,7 @@ function JourneyLine({ journey }: { journey: MasteryTermJourney }) {
         Mastered in {days}.
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <p className="m-0 mt-0.5 text-xs text-base-content/70">
+        <p className="m-0 mt-0.5 text-xs font-semibold text-muted">
           First seen {formatShortDate(journey.firstSeenAt)} → mastered{" "}
           {formatShortDate(journey.masteredAt)} ({days})
         </p>
@@ -39,10 +39,10 @@ function JourneyLine({ journey }: { journey: MasteryTermJourney }) {
 
 export const MasteryTermRow = memo(function MasteryTermRow({ row }: { row: MasteryTermRowData }) {
   return (
-    <li className="shadow-surface flex items-center justify-between gap-4 rounded-box bg-base-100 px-4 py-3 ring-1 ring-base-content/5">
+    <li className="flex items-center justify-between gap-4 rounded-3xl bg-base-100 px-4 py-3 shadow-card">
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="truncate font-heading text-sm font-medium text-base-content">
+          <span className="truncate font-heading text-base font-extrabold text-base-content">
             {row.term}
           </span>
           {row.known ? (
@@ -53,22 +53,25 @@ export const MasteryTermRow = memo(function MasteryTermRow({ row }: { row: Maste
             />
           ) : null}
         </div>
-        <p className="m-0 mt-0.5 truncate text-xs text-base-content/70">
+        <p className="m-0 mt-0.5 truncate text-[13px] font-semibold text-muted">
           {row.category ? `${row.collectionName} · ${row.category}` : row.collectionName}
         </p>
         {row.known && row.journey ? <JourneyLine journey={row.journey} /> : null}
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1">
         {row.markedKnown ? (
-          <span className="badge badge-outline badge-sm" title="You marked this known">
+          <span
+            className="rounded-full bg-base-200 px-2.5 py-0.5 text-xs font-extrabold"
+            title="You marked this known"
+          >
             Marked known
           </span>
         ) : !row.started ? (
-          <span className="text-xs text-base-content/70">Not started</span>
+          <span className="text-xs font-bold text-muted">Not started</span>
         ) : (
           <>
             <MasteryBars score={row.score} tier={row.tier} />
-            <span className="text-xs text-base-content/70 tabular-nums">
+            <span className="text-xs font-bold text-muted tabular-nums">
               {TIER_LABEL[row.tier]} ({row.score}/100)
             </span>
           </>

@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  collectionCountsOverride,
-  overrideCollectionCounts,
   overrideMarkedKnown,
   overrideRemoved,
   resetLibraryOverrides,
@@ -45,17 +43,5 @@ describe("library overrides", () => {
     const state = await readState();
     expect(termOverride(state, "t1", 2_500)?.marked).toBe(false);
     expect(termOverride(state, "t2", 2_500)?.removed).toBe(true);
-  });
-
-  it("treats collection counts the same way", async () => {
-    overrideCollectionCounts("d1", {
-      termCount: 3,
-      knownCount: 2,
-      termsLearnedCount: 1,
-      savedAt: 2_000,
-    });
-    const state = await readState();
-    expect(collectionCountsOverride(state, "d1", 1_000)).toMatchObject({ knownCount: 2 });
-    expect(collectionCountsOverride(state, "d1", 3_000)).toBeUndefined();
   });
 });

@@ -2,117 +2,105 @@
 
 import { Check, RefreshCw, SlidersHorizontal, ThumbsDown, ThumbsUp } from "lucide-react";
 import type { ReactNode } from "react";
+import { IconButton, Pill } from "@/components/kit";
 import type { StorySession } from "@/components/read/stories/use-story-session";
-import { Button } from "@/components/ui/button";
-import { Toggle } from "@/components/ui/toggle";
 import type { Story } from "@/lib/stories/types";
+import { cn } from "@/lib/utils";
 
 const PRESS_CLASS = "transition-transform duration-150 ease-out active:scale-[0.96]";
+const ROUND = `bg-base-100 shadow-[0_1px_2px_rgb(var(--shadow-rgb)/0.08)] ${PRESS_CLASS}`;
 
-function IconToggle({
-  isSelected,
+function VoteButton({
+  selected,
   label,
-  onChange,
+  onPress,
   children,
 }: {
-  isSelected: boolean;
+  selected: boolean;
   label: string;
-  onChange: () => void;
+  onPress: () => void;
   children: ReactNode;
 }) {
   return (
-    <Toggle
-      size="sm"
-      isSelected={isSelected}
-      onChange={onChange}
-      aria-label={label}
-      className={`btn-square size-11 md:size-9 data-selected:bg-primary/15 data-selected:text-primary ${PRESS_CLASS}`}
+    <IconButton
+      label={label}
+      aria-pressed={selected}
+      onClick={onPress}
+      className={cn(ROUND, selected && "bg-quiz-tint text-quiz-text")}
     >
       {children}
-    </Toggle>
+    </IconButton>
   );
 }
 
-export function StoryFooter({ session, story }: { session: StorySession; story: Story }) {
+export function StoryFooter({
+  session,
+  story,
+  termCount,
+}: {
+  session: StorySession;
+  story: Story;
+  /** Terms that made it into the text, which Mark as read counts. */
+  termCount: number;
+}) {
   const isRead = Boolean(story.readAt);
 
   return (
-    <footer className="flex shrink-0 items-center justify-between gap-2 border-t border-base-300/60 px-3 py-3 sm:px-6">
-      <div className="flex items-center">
-        <IconToggle
-          isSelected={story.vote === 1}
-          label="I liked this style"
-          onChange={() => void session.vote(1)}
-        >
-          <ThumbsUp
-            className={story.vote === 1 ? "size-4 fill-current" : "size-4"}
-            aria-hidden
-            strokeWidth={1.5}
-          />
-        </IconToggle>
-        <IconToggle
-          isSelected={story.vote === -1}
-          label="I didn't like this style"
-          onChange={() => void session.vote(-1)}
-        >
-          <ThumbsDown
-            className={story.vote === -1 ? "size-4 fill-current" : "size-4"}
-            aria-hidden
-            strokeWidth={1.5}
-          />
-        </IconToggle>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          aria-label="Change setup"
-          onPress={session.backToSetup}
-          className={`size-11 md:size-9 ${PRESS_CLASS}`}
-        >
-          <SlidersHorizontal className="size-4" aria-hidden strokeWidth={1.5} />
-        </Button>
-      </div>
-      <div className="flex min-w-0 items-center justify-end gap-2">
-        {isRead ? (
-          <>
-            <span
-              role="status"
-              className="inline-flex items-center gap-1 px-1 text-sm font-semibold text-success-text"
-            >
-              <Check className="size-4" aria-hidden strokeWidth={2.5} />
-              Read
+    <footer className="flex shrink-0 items-center gap-1.5">
+      <VoteButton
+        selected={story.vote === 1}
+        label="I liked this style"
+        onPress={() => void session.vote(1)}
+      >
+        <ThumbsUp
+          className={cn("size-[18px]", story.vote === 1 && "fill-current")}
+          strokeWidth={2.2}
+          aria-hidden
+        />
+      </VoteButton>
+      <VoteButton
+        selected={story.vote === -1}
+        label="I didn't like this style"
+        onPress={() => void session.vote(-1)}
+      >
+        <ThumbsDown
+          className={cn("size-[18px]", story.vote === -1 && "fill-current")}
+          strokeWidth={2.2}
+          aria-hidden
+        />
+      </VoteButton>
+      <IconButton label="Change setup" onClick={session.backToSetup} className={ROUND}>
+        <SlidersHorizontal className="size-[18px]" strokeWidth={2.2} aria-hidden />
+      </IconButton>
+      {isRead ? (
+        <>
+          <span
+            role="status"
+            className="flex h-[52px] min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full bg-success-tint px-3 text-[15px] font-extrabold text-success-text"
+          >
+            <Check className="size-4 shrink-0" aria-hidden strokeWidth={3} />
+            <span className="truncate">
+              Read · {termCount} {termCount === 1 ? "term" : "terms"} counted
             </span>
-            <Button
-              type="button"
-              onPress={() => void session.generate()}
-              className={`min-h-11 px-4 ${PRESS_CLASS}`}
-            >
-              New story
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label="New story"
-              onPress={() => void session.generate()}
-              className={`size-11 ${PRESS_CLASS}`}
-            >
-              <RefreshCw className="size-4" aria-hidden strokeWidth={1.5} />
-            </Button>
-            <Button
-              type="button"
-              onPress={() => void session.markRead()}
-              isDisabled={session.isMarkingRead}
-              className={`min-h-11 px-4 ${PRESS_CLASS}`}
-            >
-              Mark as read
-            </Button>
-          </>
-        )}
-      </div>
+          </span>
+          <Pill onClick={() => void session.generate()} className={cn("h-[52px]", PRESS_CLASS)}>
+            New story
+          </Pill>
+        </>
+      ) : (
+        <>
+          <IconButton label="New story" onClick={() => void session.generate()} className={ROUND}>
+            <RefreshCw className="size-[18px]" strokeWidth={2.2} aria-hidden />
+          </IconButton>
+          <Pill
+            onClick={() => void session.markRead()}
+            disabled={session.isMarkingRead}
+            className={cn("h-[52px] min-w-0 flex-1 text-base", PRESS_CLASS)}
+          >
+            Mark as read
+          </Pill>
+        </>
+      )}
     </footer>
   );
 }

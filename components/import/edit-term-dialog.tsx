@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { BottomSheet, FormField, Pill, TextArea, TextInput } from "@/components/kit";
 import type { DraftTerm } from "@/lib/import/parse/types";
 
 type EditTermDialogProps = {
@@ -32,7 +28,7 @@ function EditForm({
 
   return (
     <form
-      className="flex min-h-0 flex-col gap-4"
+      className="flex min-h-0 flex-col gap-3"
       onSubmit={(event) => {
         event.preventDefault();
         if (!term.trim()) return;
@@ -44,56 +40,50 @@ function EditForm({
         onClose();
       }}
     >
-      <DialogHeader>
-        <DialogTitle>Edit term</DialogTitle>
-      </DialogHeader>
-      <div className="min-h-0 space-y-3 overflow-y-auto pr-1">
-        <Field>
-          <FieldLabel htmlFor="edit-term">Term</FieldLabel>
-          <Input
-            id="edit-term"
-            value={term}
-            className="text-base"
-            autoFocus
-            onChange={(event) => setTerm(event.target.value)}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="edit-definition">Definition</FieldLabel>
-          <Textarea
-            id="edit-definition"
-            value={definition}
-            className="min-h-24 text-base"
-            placeholder="What does it mean?"
-            onChange={(event) => setDefinition(event.target.value)}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="edit-category">Category (optional)</FieldLabel>
-          <Input
-            id="edit-category"
-            value={category}
-            className="text-base"
-            onChange={(event) => setCategory(event.target.value)}
-          />
-        </Field>
-      </div>
-      <DialogFooter>
-        <Button type="button" variant="outline" onPress={onClose}>
+      <FormField label="Term" htmlFor="edit-term">
+        <TextInput
+          id="edit-term"
+          value={term}
+          autoFocus
+          onChange={(event) => setTerm(event.target.value)}
+        />
+      </FormField>
+      <FormField label="Definition" htmlFor="edit-definition">
+        <TextArea
+          id="edit-definition"
+          value={definition}
+          rows={3}
+          placeholder="What does it mean?"
+          onChange={(event) => setDefinition(event.target.value)}
+        />
+      </FormField>
+      <FormField label="Category (optional)" htmlFor="edit-category">
+        <TextInput
+          id="edit-category"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+        />
+      </FormField>
+      <div className="mt-1 grid grid-cols-2 gap-2.5">
+        <Pill variant="secondary" size="lg" onClick={onClose}>
           Cancel
-        </Button>
-        <Button type="submit" isDisabled={!term.trim()}>
+        </Pill>
+        <Pill size="lg" type="submit" disabled={!term.trim()}>
           Save
-        </Button>
-      </DialogFooter>
+        </Pill>
+      </div>
     </form>
   );
 }
 
 export function EditTermDialog({ draft, onClose, onSave }: EditTermDialogProps) {
   return (
-    <Dialog isOpen={draft !== null} onOpenChange={(open) => !open && onClose()}>
+    <BottomSheet
+      isOpen={draft !== null}
+      onOpenChange={(open) => !open && onClose()}
+      title="Edit term"
+    >
       {draft ? <EditForm key={draft.id} draft={draft} onClose={onClose} onSave={onSave} /> : null}
-    </Dialog>
+    </BottomSheet>
   );
 }

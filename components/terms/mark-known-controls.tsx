@@ -1,36 +1,18 @@
 "use client";
 
-import { CheckCircle2, CircleCheck, Undo2 } from "lucide-react";
+import { CircleCheck, Undo2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
 import type { LibraryTerm } from "@/lib/terms/types";
 import { SwipeActionLabel } from "./swipe-action";
 
-type MarkKnownButtonProps = {
+type QuickMarkKnownButtonProps = {
   markedKnown: boolean;
   onPress: () => void;
 };
 
-export function MarkKnownButton({ markedKnown, onPress }: MarkKnownButtonProps) {
-  return (
-    <Button size="sm" variant={markedKnown ? "outline" : "secondary"} onPress={onPress}>
-      {markedKnown ? (
-        <>
-          <Undo2 className="size-4" aria-hidden strokeWidth={1.5} />
-          Mark unknown
-        </>
-      ) : (
-        <>
-          <CheckCircle2 className="size-4" aria-hidden strokeWidth={1.5} />
-          Mark known
-        </>
-      )}
-    </Button>
-  );
-}
-
 /** Desktop-only one-click mark on a Library row; phones swipe instead. */
-export function QuickMarkKnownButton({ markedKnown, onPress }: MarkKnownButtonProps) {
+export function QuickMarkKnownButton({ markedKnown, onPress }: QuickMarkKnownButtonProps) {
   return (
     <Button
       type="button"

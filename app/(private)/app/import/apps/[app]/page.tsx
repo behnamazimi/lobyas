@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { LinkButton } from "@/components/ui/button";
+import { Banner, Card, PageHeader, PinnedAction, Pill } from "@/components/kit";
 import { APP_GUIDES, findGuide } from "@/lib/import/guides";
-import { NAV_FORWARD, withDirection } from "@/components/shared/view-transitions";
+import { withDirection } from "@/components/shared/view-transitions";
 
 type PageProps = {
   params: Promise<{ app: string }>;
@@ -23,53 +20,40 @@ async function AppGuidePage({ params }: PageProps) {
 
   return (
     <>
-      <PageHeader
-        badge={<PageBadge page="apps" />}
-        title={`From ${guide.name}`}
-        backHref="/app/import/apps"
-        backLabel="Other apps"
-        compactOnPhone
-      />
+      <PageHeader title={`From ${guide.name}`} backHref="/app/import/apps" />
       {steps.length > 0 ? (
-        <ol className="shadow-surface flex list-none flex-col gap-3 rounded-box bg-base-100 p-4">
-          {steps.map((step, index) => (
-            <li key={step} className="grid grid-cols-[1.75rem_1fr] gap-3 text-sm">
-              <span className="flex size-7 items-center justify-center rounded-full bg-primary/15 text-xs font-semibold text-primary-text">
-                {index + 1}
-              </span>
-              <span className="pt-0.5">{step}</span>
-            </li>
-          ))}
-        </ol>
+        <Card radius="md" className="px-4 py-2">
+          <ol className="m-0 flex list-none flex-col p-0">
+            {steps.map((step, index) => (
+              <li
+                key={step}
+                className="grid grid-cols-[1.75rem_1fr] gap-3 border-b border-line py-3 text-[15px] font-semibold last:border-b-0"
+              >
+                <span className="flex size-7 items-center justify-center rounded-full bg-read-tint text-xs font-extrabold text-read-text">
+                  {index + 1}
+                </span>
+                <span className="pt-0.5">{step}</span>
+              </li>
+            ))}
+          </ol>
+        </Card>
       ) : null}
-      {guide.note ? (
-        <Alert variant="info">
-          <AlertDescription>{guide.note}</AlertDescription>
-        </Alert>
-      ) : null}
-      <div className="flex flex-col gap-2 md:flex-row md:flex-wrap md:items-center">
-        <LinkButton
-          href="/app/import/paste"
-          transitionTypes={NAV_FORWARD}
-          className="min-h-12 w-full md:min-h-11 md:w-auto"
-        >
+      {guide.note ? <Banner>{guide.note}</Banner> : null}
+      <PinnedAction className="flex flex-col gap-2">
+        <Pill size="lg" href="/app/import/paste">
           {guide.canExport ? `Paste from ${guide.name}` : "Paste a list"}
-        </LinkButton>
+        </Pill>
         {!guide.canExport ? (
-          <LinkButton
-            href="/app/browse"
-            variant="outline"
-            className="min-h-12 w-full md:min-h-11 md:w-auto"
-          >
+          <Pill variant="secondary" size="lg" href="/app/browse">
             Browse collections
-          </LinkButton>
+          </Pill>
         ) : null}
         {guide.link ? (
-          <LinkButton href={guide.link.href} variant="ghost" className="min-h-11 w-full md:w-auto">
+          <Pill variant="ghost" href={guide.link.href}>
             {guide.link.label}
-          </LinkButton>
+          </Pill>
         ) : null}
-      </div>
+      </PinnedAction>
     </>
   );
 }

@@ -9,9 +9,30 @@ import { useToast } from "@/components/ui/toast";
 
 /** A compact "I already know this" for a glossary row, so the option stays
  *  available for new terms without outweighing the definition itself. */
-export function StoryMarkKnown({ termId, term }: { termId: string; term: string }) {
+export function StoryMarkKnown({
+  termId,
+  term,
+  variant = "row",
+}: {
+  termId: string;
+  term: string;
+  /** `pill` is the full-width action in the term sheet. */
+  variant?: "row" | "pill";
+}) {
   const [marked, setMarked] = useState(false);
   const { toast } = useToast();
+
+  if (marked && variant === "pill") {
+    return (
+      <span
+        role="status"
+        className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-success-tint text-[15px] font-extrabold text-success-text"
+      >
+        <Check className="size-4" aria-hidden strokeWidth={3} />
+        Known
+      </span>
+    );
+  }
 
   if (marked) {
     return (
@@ -28,7 +49,11 @@ export function StoryMarkKnown({ termId, term }: { termId: string; term: string 
       size="xs"
       variant="ghost"
       aria-label={`Mark ${term} as known`}
-      className="h-7 px-2 text-xs font-medium text-base-content/70 hover:text-base-content"
+      className={
+        variant === "pill"
+          ? "h-11 flex-1 rounded-full bg-success-tint text-[15px] font-extrabold text-success-text hover:bg-success-tint"
+          : "h-7 px-2 text-xs font-medium text-base-content/70 hover:text-base-content"
+      }
       onPress={async () => {
         setMarked(true);
         const { error, savedAt } = await setTermMarkedKnownAction(termId, true);
@@ -39,7 +64,7 @@ export function StoryMarkKnown({ termId, term }: { termId: string; term: string 
         }
       }}
     >
-      I know this
+      {variant === "pill" ? "Mark as known" : "I know this"}
     </Button>
   );
 }

@@ -11,7 +11,7 @@ describe("parseAuthDeepLink", () => {
 
   it("replaces a next that leaves the site", () => {
     const path = parseAuthDeepLink(`${NATIVE_AUTH_REDIRECT}?code=abc&next=https%3A%2F%2Fevil.test`);
-    expect(path).toBe("/auth/callback?code=abc&next=%2Fapp%2Freview");
+    expect(path).toBe("/auth/callback?code=abc&next=%2Fapp");
   });
 
   it("drops parameters it doesn't know", () => {

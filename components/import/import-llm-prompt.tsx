@@ -54,11 +54,11 @@ export function ImportLlmPrompt({ collections }: { collections: ImportDestinatio
 
   return (
     <ImportCard
-      icon={<Sparkles aria-hidden strokeWidth={1.5} />}
+      icon={<Sparkles className="size-5" aria-hidden strokeWidth={2.4} />}
       title="Generate JSON with an AI skill (for developers)"
       description="Install the glossary skill once, generate JSON for your collection, then paste it on the Paste screen."
     >
-      <div className="space-y-5">
+      <div className="flex flex-col gap-5">
         <CopyCommand
           label="1. Install the skill"
           hint="Run once in your terminal to add it to your skills collection."

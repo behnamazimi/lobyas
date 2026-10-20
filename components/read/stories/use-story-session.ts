@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { setCurrentCollection } from "@/lib/collections/current";
 import { useEffect, useRef, useState } from "react";
 import { markStoryReadAction, voteStoryAction } from "@/app/(private)/app/read/stories/actions";
 import { tickGoal } from "@/components/goals/goal-store";
@@ -55,6 +56,7 @@ export function useStorySession(setup: StoriesSetupData) {
 
   function selectCollection(nextCollectionId: string) {
     setCollectionId(nextCollectionId);
+    setCurrentCollection(nextCollectionId);
     const levels = levelsByCollection[nextCollectionId] ?? DEFAULT_LEVELS;
     setCefrLevel(levels.cefrLevel);
     setPieceLength(levels.pieceLength);

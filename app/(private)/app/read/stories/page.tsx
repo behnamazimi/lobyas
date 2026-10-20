@@ -1,5 +1,8 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { RememberCollectionFromLink } from "@/components/collections/remember-collection";
+import { CURRENT_COLLECTION_COOKIE, parseCurrentCollectionId } from "@/lib/collections/current";
 import { getSessionUser } from "@/lib/auth/require-session";
 import { getReadOptions } from "@/lib/read/options";
 import { getStoriesSetupData } from "@/lib/stories/setup";
@@ -22,10 +25,14 @@ async function loadStoriesDefault(): Promise<boolean | null> {
 }
 
 async function ReadStoriesRoute({ searchParams }: PageProps) {
-  const { collection: collectionId, story } = await searchParams;
+  const [{ collection: collectionId, story }, cookieStore] = await Promise.all([
+    searchParams,
+    cookies(),
+  ]);
   const storyId = z.uuid().safeParse(story).success ? story : undefined;
+  const currentId = parseCurrentCollectionId(cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value);
   const [setup, storiesDefault] = await Promise.all([
-    getStoriesSetupData(collectionId, storyId),
+    getStoriesSetupData(collectionId === "all" ? undefined : collectionId, storyId, currentId),
     loadStoriesDefault(),
   ]);
   if ("error" in setup) {
@@ -46,9 +53,12 @@ async function ReadStoriesRoute({ searchParams }: PageProps) {
       <PromoVisit target="stories" />
       {storiesDefault === null ? null : <ReadLandingSync storiesDefault={storiesDefault} />}
       <StoriesPage
-        key={`${setup.collections.map((collection) => collection.id).join(",")}:${storyId ?? ""}`}
+        key={`${setup.collections.map((collection) => collection.id).join(",")}:${setup.initialCollectionId ?? ""}:${storyId ?? ""}`}
         setup={setup}
       />
+      {collectionId && collectionId === setup.initialCollectionId ? (
+        <RememberCollectionFromLink collectionId={collectionId} />
+      ) : null}
     </>
   );
 }

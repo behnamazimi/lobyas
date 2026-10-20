@@ -2,10 +2,8 @@
 
 import { MoonIcon, SunIcon } from "lucide-react";
 import { useSyncExternalStore } from "react";
-import { DARK_THEME, LIGHT_THEME, THEME_COOKIE_NAME } from "@/lib/theme";
+import { applyTheme, DARK_THEME, LIGHT_THEME } from "@/lib/theme";
 import { cn } from "@/lib/utils";
-
-const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 /** `<html data-theme>` is the one source of truth, so the header toggle and
  *  the phone menu toggle always agree. */
@@ -37,10 +35,7 @@ export function ThemeToggle({
         type="checkbox"
         checked={isDark}
         onChange={(event) => {
-          const next = event.target.checked;
-          const theme = next ? DARK_THEME : LIGHT_THEME;
-          document.documentElement.setAttribute("data-theme", theme);
-          document.cookie = `${THEME_COOKIE_NAME}=${theme}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; SameSite=Lax`;
+          applyTheme(event.target.checked ? DARK_THEME : LIGHT_THEME);
         }}
       />
       <SunIcon className="swap-off size-4" />

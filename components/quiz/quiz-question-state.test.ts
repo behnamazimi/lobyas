@@ -9,12 +9,27 @@ import {
 const response = { interaction: "choice" as const, optionIds: ["a"] };
 
 describe("quizAnswerReducer", () => {
+  it("skipping locks the question as unscored, then unlocks", () => {
+    let state = quizAnswerReducer(initialAnswerState, { type: "SKIP" });
+    expect(state).toMatchObject({
+      phase: "locked",
+      passed: false,
+      skipped: true,
+    });
+    state = quizAnswerReducer(state, { type: "UNLOCK" });
+    expect(state.phase).toBe("ready");
+    expect(quizAnswerReducer(state, { type: "SKIP" })).toBe(state);
+  });
+
   it("cannot submit before a response", () => {
     expect(canSubmitAnswer(initialAnswerState)).toBe(false);
   });
 
   it("walks answering, locked, ready", () => {
-    let state = quizAnswerReducer(initialAnswerState, { type: "RESPOND", response });
+    let state = quizAnswerReducer(initialAnswerState, {
+      type: "RESPOND",
+      response,
+    });
     expect(canSubmitAnswer(state)).toBe(true);
     state = quizAnswerReducer(state, { type: "SUBMIT", passed: true });
     expect(state).toMatchObject({ phase: "locked", passed: true });
@@ -61,7 +76,7 @@ describe("answerResult", () => {
 
   it("marks the correct option and a wrong selection", () => {
     expect(answerResult(true, false, true)).toBe("correct");
-    expect(answerResult(false, true, true)).toBe("incorrect");
+    expect(answerResult(false, true, true)).toBe("wrong");
     expect(answerResult(false, false, true)).toBe("default");
   });
 });

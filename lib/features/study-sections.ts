@@ -38,6 +38,10 @@ export const STUDY_SECTIONS: FeatureSection[] = [
     scene: "study",
     items: [
       {
+        title: "Home",
+        body: "Open the app on today's path: Read, Review and Quiz for the collection you are studying, and one button to continue.",
+      },
+      {
         title: "Read",
         body: "See a term with real usage and get familiar before anyone tests you.",
       },
@@ -119,6 +123,10 @@ export const STUDY_SECTIONS: FeatureSection[] = [
       {
         title: "Skip what you know",
         body: "Swipe right on terms you already know, or mark one known from anywhere.",
+      },
+      {
+        title: "Sort what you know",
+        body: "Go through a collection and set aside the terms you already know. They leave your practice.",
       },
       {
         title: "Pause a collection",

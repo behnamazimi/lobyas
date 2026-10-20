@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Chip, ChoiceCards, FormField, TextInput } from "@/components/kit";
 import type { ParseOptions, ParsedList, SeparatorChoice } from "@/lib/import/parse/types";
 
 const CHOICES: { id: SeparatorChoice; label: string }[] = [
@@ -27,75 +25,63 @@ export function SeparatorChips({ parsed, options, onOptionsChange }: SeparatorCh
   const showSeparators = parsed.format === "lines" || parsed.format === "tsv";
 
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        {showSeparators ? (
-          <>
-            <span className="text-sm font-medium">Split at</span>
-            <ToggleGroup
-              aria-label="Split at"
-              selectionMode="single"
-              disallowEmptySelection
-              selectedKeys={selected ? [selected] : []}
-              onSelectionChange={(keys) => {
-                const [key] = [...keys];
-                if (!key) return;
-                const choice = String(key) as SeparatorChoice;
-                setOtherOpen(choice === "custom");
-                if (choice !== "custom") onOptionsChange({ separator: choice });
-              }}
-            >
-              {CHOICES.map((choice) => (
-                <ToggleGroupItem key={choice.id} id={choice.id}>
-                  {choice.label}
-                </ToggleGroupItem>
-              ))}
-            </ToggleGroup>
-          </>
-        ) : null}
-      </div>
+    <div className="flex flex-col gap-3">
+      {showSeparators ? (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-sm font-extrabold">Split at</span>
+          <div role="group" aria-label="Split at" className="flex flex-wrap gap-2">
+            {CHOICES.map((choice) => (
+              <Chip
+                key={choice.id}
+                selected={selected === choice.id}
+                onPress={() => {
+                  setOtherOpen(choice.id === "custom");
+                  if (choice.id !== "custom") onOptionsChange({ separator: choice.id });
+                }}
+              >
+                {choice.label}
+              </Chip>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {otherOpen && showSeparators ? (
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Field>
-            <FieldLabel htmlFor="custom-separator">Split at this text</FieldLabel>
-            <Input
+        <div className="grid gap-3 sm:grid-cols-2">
+          <FormField label="Split at this text" htmlFor="custom-separator">
+            <TextInput
               id="custom-separator"
-              className="text-base"
               placeholder="e.g. ::"
               defaultValue={options.customSeparator ?? ""}
               onChange={(event) =>
-                onOptionsChange({ separator: "custom", customSeparator: event.target.value })
+                onOptionsChange({
+                  separator: "custom",
+                  customSeparator: event.target.value,
+                })
               }
             />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="card-separator">Between cards (optional)</FieldLabel>
-            <Input
+          </FormField>
+          <FormField label="Between cards (optional)" htmlFor="card-separator">
+            <TextInput
               id="card-separator"
-              className="text-base"
               placeholder="e.g. ##"
               defaultValue={options.cardSeparator ?? ""}
               onChange={(event) => onOptionsChange({ cardSeparator: event.target.value })}
             />
-          </Field>
+          </FormField>
         </div>
       ) : null}
 
       {parsed.headingDetected || options.heading ? (
-        <ToggleGroup
-          aria-label="First line"
-          selectionMode="single"
-          disallowEmptySelection
-          selectedKeys={[(options.heading ?? parsed.headingDetected) ? "heading" : "term"]}
-          onSelectionChange={(keys) => {
-            const [key] = [...keys];
-            if (key) onOptionsChange({ heading: key === "heading" });
-          }}
-        >
-          <ToggleGroupItem id="heading">First line is a heading</ToggleGroupItem>
-          <ToggleGroupItem id="term">First line is a term</ToggleGroupItem>
-        </ToggleGroup>
+        <ChoiceCards
+          label="First line"
+          options={[
+            { value: "heading", label: "First line is a heading" },
+            { value: "term", label: "First line is a term" },
+          ]}
+          value={(options.heading ?? parsed.headingDetected) ? "heading" : "term"}
+          onChange={(key) => onOptionsChange({ heading: key === "heading" })}
+        />
       ) : null}
     </div>
   );

@@ -11,7 +11,7 @@ setup("sign in an admin through the login page", async ({ page, context }) => {
   await page.getByLabel("Email").fill(admin.email);
   await page.getByLabel("Password").fill(admin.password);
   await page.getByRole("button", { name: "Log in with email" }).click();
-  await expect(page).toHaveURL(/\/app\//);
+  await expect(page).toHaveURL(/\/app\/?$/);
 
   await context.storageState({ path: ADMIN_STATE });
 });

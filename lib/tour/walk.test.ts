@@ -6,13 +6,8 @@ import { TOUR_WALK, nextWalkStop } from "./walk";
 const libraryDone: TourState = { status: "pending", seen: ["library"] };
 
 describe("nextWalkStop", () => {
-  it("leads from Library to Read", () => {
-    expect(nextWalkStop("/app/library", libraryDone)?.label).toBe("Read");
-  });
-
-  it("skips pages whose tips are all seen", () => {
-    const state: TourState = { status: "pending", seen: ["library", "read", "read-more"] };
-    expect(nextWalkStop("/app/library", state)?.label).toBe("Review");
+  it("ends after Library", () => {
+    expect(nextWalkStop("/app/library", libraryDone)).toBeNull();
   });
 
   it("ends after the last page", () => {

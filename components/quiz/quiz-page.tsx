@@ -22,6 +22,9 @@ type QuizPageProps = {
 export function QuizPage({ ai, collections, paused, initialSetup }: QuizPageProps) {
   const quiz = useQuizSession(collections, initialSetup);
   const canUseAi = aiAvailable(ai);
+  const collectionName =
+    collections.find((collection) => collection.id === initialSetup.collectionId)?.name ??
+    "this collection";
   const aiRequiresSetup = quiz.questionStyle === "ai" && !canUseAi;
 
   switch (quiz.step) {
@@ -32,6 +35,7 @@ export function QuizPage({ ai, collections, paused, initialSetup }: QuizPageProp
           ai={ai}
           aiFellBack={initialSetup.aiFellBack}
           canUseAi={canUseAi}
+          collectionName={collectionName}
           collections={collections}
           paused={paused}
           aiRequiresSetup={aiRequiresSetup}

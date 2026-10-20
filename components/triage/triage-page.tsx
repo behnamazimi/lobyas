@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { CollectionSelect } from "@/components/library/collection-select";
+import { Layers } from "lucide-react";
 import { ReadCaughtUp } from "@/components/read/read-caught-up";
 import { usePrefersReducedMotion } from "@/hooks/use-prefers-reduced-motion";
 import type { Collection, Term } from "@/lib/terms/types";
@@ -14,7 +14,6 @@ import { useTriageKeyboard } from "./use-triage-keyboard";
 
 type TriagePageProps = {
   collection: Collection;
-  collections: Collection[];
   terms: Term[];
   knownTermIds: string[];
   markedKnownTermIds: string[];
@@ -24,7 +23,6 @@ type TriagePageProps = {
 
 export function TriagePage({
   collection,
-  collections,
   terms,
   knownTermIds,
   markedKnownTermIds,
@@ -71,39 +69,23 @@ export function TriagePage({
     enabled: current !== null,
   });
 
-  const collectionPicker = (
-    <CollectionSelect
-      mode="url"
-      id="triage-collection"
-      aria-label="Collection"
-      className="min-w-0 w-full flex-1 sm:max-w-xs"
-      triggerClassName="text-sm"
-      size="sm"
-      collections={collections.map((d) => ({ id: d.id, name: d.name, termCount: d.termCount }))}
-      value={collection.id}
-      hrefBuilder={(id) => `/app/triage?collection=${id}`}
-    />
-  );
-
   const knownCount = terms.filter((t) => knownIds.has(t.id) || markedKnown.has(t.id)).length;
-  const setAsideCount = terms.filter(
-    (t) => notYetIds.has(t.id) && !knownIds.has(t.id) && !markedKnown.has(t.id),
-  ).length;
-  const sortedNote = [
-    knownCount > 0 ? `${knownCount} known` : null,
-    setAsideCount > 0 ? `${setAsideCount} set aside` : null,
-  ]
-    .filter(Boolean)
-    .join(" · ");
 
   const topRow = (
-    <div className="flex shrink-0 items-center justify-between gap-3">
-      {collectionPicker}
+    <div className="flex shrink-0 items-center gap-2">
+      <div className="flex h-[30px] shrink-0 items-center gap-1.5 rounded-full bg-success-tint pr-3 pl-2.5 text-[13px] font-extrabold text-success-text">
+        <Layers className="size-4" strokeWidth={2.4} aria-hidden />
+        Triage
+      </div>
+      <p className="m-0 min-w-0 truncate text-[13px] font-bold text-muted">
+        Sort what you already know
+      </p>
       {current ? (
-        <div className="shrink-0 text-end text-sm tabular-nums text-base-content/70">
-          <p className="m-0">{deck.length} left to sort</p>
-          {sortedNote ? <p className="m-0 text-xs">{sortedNote}</p> : null}
-        </div>
+        <p className="m-0 ml-auto shrink-0 text-end text-[13px] leading-tight font-bold text-muted tabular-nums">
+          <span className="font-extrabold text-base-content">{deck.length}</span> left to sort
+          <br />
+          {knownCount} known
+        </p>
       ) : null}
     </div>
   );

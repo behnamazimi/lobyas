@@ -3,19 +3,19 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { topUpAiCreditsAction } from "@/app/(private)/app/actions-ai-credits";
-import { Button, type ButtonSize, type ButtonVariant } from "@/components/ui/button";
+import { Pill } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { TOPUP_COPY } from "@/lib/ai-credits/topup-copy";
 
 export function TopUpButton({
   size,
-  variant = "default",
+  variant,
   className,
   amount,
   onAdded,
 }: {
-  size?: ButtonSize;
-  variant?: ButtonVariant;
+  size?: "md" | "lg";
+  variant?: "primary" | "soft";
   className?: string;
   /** The free credits on offer, so the label can say how many. */
   amount?: number;
@@ -46,15 +46,8 @@ export function TopUpButton({
   }
 
   return (
-    <Button
-      type="button"
-      size={size}
-      variant={variant}
-      className={className}
-      onPress={topUp}
-      isDisabled={isPending}
-    >
+    <Pill size={size} variant={variant} className={className} onClick={topUp} disabled={isPending}>
       {isPending ? TOPUP_COPY.working : amount ? TOPUP_COPY.buttonFor(amount) : TOPUP_COPY.button}
-    </Button>
+    </Pill>
   );
 }

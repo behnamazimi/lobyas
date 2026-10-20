@@ -4,7 +4,6 @@ import {
   questionCountFor,
   quizSetupToSave,
   resolveInitialQuizSetup,
-  type InitialQuizSetup,
 } from "./setup-preference";
 
 const A = "11111111-1111-4111-8111-111111111111";
@@ -44,20 +43,19 @@ describe("parseQuizSetupCookie", () => {
 });
 
 describe("resolveInitialQuizSetup", () => {
-  it("defaults to simple, all, and no explicit count", () => {
+  it("defaults to simple, the first active collection, and no explicit count", () => {
     expect(
       resolveInitialQuizSetup({
         saved: null,
         collectionParam: undefined,
+        currentId: null,
         activeIds: [A],
         aiAvailable: true,
       }),
     ).toEqual({
       style: "simple",
-      collectionId: "all",
+      collectionId: A,
       count: null,
-      savedCollectionId: null,
-      collectionFromLink: false,
       aiFellBack: false,
     });
   });
@@ -66,6 +64,7 @@ describe("resolveInitialQuizSetup", () => {
     const setup = resolveInitialQuizSetup({
       saved: { style: "ai" },
       collectionParam: undefined,
+      currentId: null,
       activeIds: [A],
       aiAvailable: false,
     });
@@ -77,6 +76,7 @@ describe("resolveInitialQuizSetup", () => {
     const setup = resolveInitialQuizSetup({
       saved: { style: "ai" },
       collectionParam: undefined,
+      currentId: null,
       activeIds: [A],
       aiAvailable: true,
     });
@@ -87,37 +87,66 @@ describe("resolveInitialQuizSetup", () => {
     const base = {
       saved: { style: "simple" as const, collectionId: A },
       collectionParam: undefined,
+      currentId: null,
     };
     expect(
-      resolveInitialQuizSetup({ ...base, activeIds: [A, B], aiAvailable: false }).collectionId,
+      resolveInitialQuizSetup({
+        ...base,
+        activeIds: [A, B],
+        aiAvailable: false,
+      }).collectionId,
     ).toBe(A);
     expect(
       resolveInitialQuizSetup({ ...base, activeIds: [B], aiAvailable: false }).collectionId,
-    ).toBe("all");
+    ).toBe(B);
   });
 
-  it("lets a valid link win and marks it as coming from the link", () => {
-    const setup = resolveInitialQuizSetup({
-      saved: { style: "simple", collectionId: A },
-      collectionParam: B,
-      activeIds: [A, B],
-      aiAvailable: false,
-    });
-    expect(setup).toMatchObject({
-      collectionId: B,
-      collectionFromLink: true,
-      savedCollectionId: A,
-    });
+  it("lets the app cookie win over the remembered collection", () => {
+    expect(
+      resolveInitialQuizSetup({
+        saved: { style: "simple", collectionId: A },
+        collectionParam: undefined,
+        currentId: B,
+        activeIds: [A, B],
+        aiAvailable: false,
+      }).collectionId,
+    ).toBe(B);
+  });
+
+  it("lets a valid link win over the app cookie", () => {
+    expect(
+      resolveInitialQuizSetup({
+        saved: null,
+        collectionParam: B,
+        currentId: A,
+        activeIds: [A, B],
+        aiAvailable: false,
+      }).collectionId,
+    ).toBe(B);
   });
 
   it("ignores a link to a paused collection", () => {
-    const setup = resolveInitialQuizSetup({
-      saved: null,
-      collectionParam: B,
-      activeIds: [A],
-      aiAvailable: false,
-    });
-    expect(setup).toMatchObject({ collectionId: "all", collectionFromLink: false });
+    expect(
+      resolveInitialQuizSetup({
+        saved: null,
+        collectionParam: B,
+        currentId: null,
+        activeIds: [A],
+        aiAvailable: false,
+      }).collectionId,
+    ).toBe(A);
+  });
+
+  it("skips an old remembered 'all'", () => {
+    expect(
+      resolveInitialQuizSetup({
+        saved: { style: "simple", collectionId: "all" },
+        collectionParam: undefined,
+        currentId: null,
+        activeIds: [A],
+        aiAvailable: false,
+      }).collectionId,
+    ).toBe(A);
   });
 });
 
@@ -138,48 +167,16 @@ describe("questionCountFor", () => {
 });
 
 describe("quizSetupToSave", () => {
-  const fromLink: InitialQuizSetup = {
-    style: "simple",
-    collectionId: B,
-    count: null,
-    savedCollectionId: A,
-    collectionFromLink: true,
-    aiFellBack: false,
-  };
-
-  it("keeps the remembered collection after an unchanged link visit", () => {
-    expect(
-      quizSetupToSave({
-        style: "simple",
-        preferredCount: null,
-        selectedCollectionId: B,
-        collectionChanged: false,
-        initial: fromLink,
-      }),
-    ).toEqual({ style: "simple", collectionId: A });
+  it("remembers the style and an explicit count, not a collection", () => {
+    expect(quizSetupToSave({ style: "ai", preferredCount: 5 })).toEqual({
+      style: "ai",
+      count: 5,
+    });
   });
 
-  it("remembers a collection the user picked", () => {
-    expect(
-      quizSetupToSave({
-        style: "ai",
-        preferredCount: 5,
-        selectedCollectionId: "all",
-        collectionChanged: true,
-        initial: fromLink,
-      }),
-    ).toEqual({ style: "ai", count: 5, collectionId: "all" });
-  });
-
-  it("omits the collection when a link visit had nothing remembered", () => {
-    expect(
-      quizSetupToSave({
-        style: "simple",
-        preferredCount: null,
-        selectedCollectionId: B,
-        collectionChanged: false,
-        initial: { ...fromLink, savedCollectionId: null },
-      }),
-    ).toEqual({ style: "simple" });
+  it("omits the count until one is picked", () => {
+    expect(quizSetupToSave({ style: "simple", preferredCount: null })).toEqual({
+      style: "simple",
+    });
   });
 });

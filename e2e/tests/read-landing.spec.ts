@@ -26,7 +26,7 @@ test.describe("Read landing", () => {
     await gotoReady(page, `/app/read?collection=${collectionId}`);
 
     await page.getByRole("button", { name: "Read options" }).click();
-    const option = page.getByRole("checkbox", { name: "Open Stories by default" });
+    const option = page.getByRole("switch", { name: "Open Stories by default" });
     await option.click();
     await expect(option).toBeChecked();
     await expect.poll(() => landingCookie(page)).toBe("stories");
@@ -38,7 +38,7 @@ test.describe("Read landing", () => {
     await expect(page).toHaveURL(/\/app\/read\?view=cards/);
 
     await page.getByRole("button", { name: "Read options" }).click();
-    await page.getByRole("checkbox", { name: "Open Stories by default" }).click();
+    await page.getByRole("switch", { name: "Open Stories by default" }).click();
     await expect.poll(() => landingCookie(page)).toBe("cards");
     expect(await openRead(page, `/app/read?collection=${collectionId}`)).toBeNull();
   });
@@ -67,7 +67,7 @@ test.describe("Read landing", () => {
     const { collectionId } = await seedCollection(user);
     await gotoReady(page, `/app/read?collection=${collectionId}`);
     await page.getByRole("button", { name: "Read options" }).click();
-    await page.getByRole("checkbox", { name: "Open Stories by default" }).click();
+    await page.getByRole("switch", { name: "Open Stories by default" }).click();
     await expect.poll(() => landingCookie(page)).toBe("stories");
 
     await page.context().clearCookies({ name: LANDING_COOKIE });

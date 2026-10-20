@@ -1,10 +1,7 @@
 import { Suspense } from "react";
 import { getImportSetupData } from "@/app/(private)/app/import/actions";
 import { CaptureFlow } from "@/components/capture/capture-flow";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
-import { PageHeader } from "@/components/shared/page-header";
 import { parseSharedInput } from "@/lib/capture/shared-input";
-import { CAPTURE_COPY } from "@/lib/capture/copy";
 
 type PageProps = {
   searchParams: Promise<{ to?: string | string[]; text?: string | string[] }>;
@@ -21,22 +18,21 @@ export default async function CapturePage({ searchParams }: PageProps) {
   const setup = await getImportSetupData();
 
   if ("error" in setup) {
-    return <p className="text-sm text-base-content/70">{setup.error}</p>;
+    return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
   }
+
+  const back =
+    to && setup.collections.some((collection) => collection.id === to)
+      ? `/app/library?collection=${to}`
+      : "/app/import";
 
   return (
     <>
-      <PageHeader
-        badge={<PageBadge page="capture" />}
-        title={CAPTURE_COPY.title}
-        backHref="/app/import"
-        backLabel="Add a collection"
-        compactOnPhone
-      />
       <Suspense>
         <CaptureFlow
           collections={setup.collections}
           presetId={to ?? null}
+          backHref={back}
           shared={parseSharedInput({ text })}
         />
       </Suspense>

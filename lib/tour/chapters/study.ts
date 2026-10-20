@@ -7,11 +7,6 @@ export const STUDY_CHAPTERS = [
     route: "/app/review",
     steps: [
       {
-        target: "review-collection",
-        title: "Pick what to review",
-        body: "Review one collection or all of them.",
-      },
-      {
         target: "review-card",
         title: "Recall, then reveal",
         body: "Recall the meaning, then click the card or press Enter.",
@@ -43,17 +38,6 @@ export const STUDY_CHAPTERS = [
         target: "read-options",
         title: "Read your way",
         body: "Show definitions right away, or open Stories by default.",
-      },
-    ],
-  },
-  {
-    id: "read-more",
-    route: "/app/read",
-    steps: [
-      {
-        target: "read-collection",
-        title: "Choose what to read",
-        body: "Read one collection or all of them.",
       },
     ],
   },

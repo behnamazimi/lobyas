@@ -143,7 +143,7 @@ changes above roughly doubled how many terms were started in two weeks, at a
 cost of about 7% extra cards. No replay of old grades was needed: stored
 stabilities change at the next grade.
 
-Review's grade buttons can show these gaps ("Show when terms come back" in the
+Review's grade tiles can show these gaps ("Show when terms come back" in the
 Review options, on by default). `daysUntilNextReview` in `lib/trace/snapshot.ts`
 applies each grade to the term's current state and returns the days until it
 falls back to the line. The card carries that state (`TermCard.recall`), and

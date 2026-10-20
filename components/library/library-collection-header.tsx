@@ -1,21 +1,18 @@
 "use client";
 
-import { BookOpen, Layers, Sparkles, Zap } from "lucide-react";
 import { useOptimistic, useState, useTransition } from "react";
 import { setCollectionLove, toggleActiveForReview } from "@/app/(private)/app/actions";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Card } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
-import { ownerNoticeFor } from "@/lib/collections/moderation";
-import { cn } from "@/lib/utils";
-import { rememberLibraryCollection } from "@/lib/library/pick-collection";
+import { setCurrentCollection } from "@/lib/collections/current";
 import type { Collection } from "@/lib/terms/types";
-import { CollectionActionsMenu, CollectionMeta } from "./collection-actions-menu";
-import { CollectionShareButton } from "./collection-share-sheet";
-import { CopyCollectionLinkButton } from "./copy-collection-link-button";
-import { LoveButton } from "./love-button";
-import { AddTermsMenu } from "@/components/import/add-terms-menu";
-import { NAV_FORWARD } from "@/components/shared/view-transitions";
+import { CollectionActionTiles } from "./collection-action-tiles";
+import { CollectionStudyRow } from "./collection-study-row";
+import { CollectionSummary } from "./collection-summary";
+import { AddTermsSheet } from "./add-terms-sheet";
+import { CollectionActions } from "./collection-actions";
+import { copyCollectionLink } from "./collection-share-link";
+import { ShareCollectionSheet } from "./collection-share-sheet";
 
 type LibraryCollectionHeaderProps = {
   collection: Collection;
@@ -25,101 +22,7 @@ type LibraryCollectionHeaderProps = {
   untriagedCount: number;
 };
 
-const STUDY_LINKS = [
-  { path: "/app/read", label: "Read", icon: Zap },
-  { path: "/app/review", label: "Review", icon: BookOpen },
-  { path: "/app/quiz", label: "Quiz", icon: Sparkles },
-] as const;
-
-/** Only while the collection still has terms that aren't known or marked known. */
-const TRIAGE_LINK = {
-  path: "/app/triage",
-  label: "Triage",
-  icon: Layers,
-} as const;
-
-function StudyLinkButton({
-  link,
-  collectionId,
-  className,
-}: {
-  link: { path: string; label: string; icon: typeof Zap };
-  collectionId: string;
-  className?: string;
-}) {
-  const Icon = link.icon;
-  return (
-    <LinkButton
-      href={`${link.path}?collection=${collectionId}`}
-      transitionTypes={link.path === TRIAGE_LINK.path ? NAV_FORWARD : undefined}
-      variant={link.path === "/app/read" ? "default" : "outline"}
-      size="sm"
-      className={cn("min-h-11 gap-2 md:min-h-8", className)}
-    >
-      <Icon className="size-4" aria-hidden strokeWidth={1.5} />
-      {link.label}
-    </LinkButton>
-  );
-}
-
-/** Read, Review and Quiz ignore a paused collection and fall back to "All", so
- *  a paused one offers Resume instead of links that wouldn't be scoped. Triage
- *  works on any collection, paused or not, so it stays. */
-function CollectionStudyActions({
-  collection,
-  showTriage,
-  resumePending,
-  onResume,
-}: {
-  collection: Collection;
-  showTriage: boolean;
-  resumePending: boolean;
-  onResume: () => void;
-}) {
-  if (!collection.isActiveForReview) {
-    return (
-      <div className="flex flex-col gap-2 rounded-field bg-base-200/60 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="m-0 text-sm text-base-content/70">
-          Paused: left out of Read, Review and Quiz.
-        </p>
-        <div className="flex shrink-0 gap-2">
-          {showTriage ? (
-            <StudyLinkButton
-              link={TRIAGE_LINK}
-              collectionId={collection.id}
-              className="flex-1 sm:flex-none"
-            />
-          ) : null}
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            className="min-h-11 flex-1 sm:flex-none md:min-h-8"
-            isDisabled={resumePending}
-            onPress={onResume}
-          >
-            {resumePending ? "Resuming…" : "Resume"}
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (collection.termCount === 0) return null;
-
-  const links = showTriage ? [...STUDY_LINKS, TRIAGE_LINK] : STUDY_LINKS;
-
-  return (
-    <nav
-      aria-label={`Study ${collection.name}`}
-      className={cn("grid gap-2 sm:flex", showTriage ? "grid-cols-2" : "grid-cols-3")}
-    >
-      {links.map((link) => (
-        <StudyLinkButton key={link.path} link={link} collectionId={collection.id} />
-      ))}
-    </nav>
-  );
-}
+type Sheet = "add" | "share" | "more" | null;
 
 export function LibraryCollectionHeader({
   collection: serverCollection,
@@ -128,6 +31,9 @@ export function LibraryCollectionHeader({
   untriagedCount,
 }: LibraryCollectionHeaderProps) {
   const { toast } = useToast();
+  const [sheet, setSheet] = useState<Sheet>(null);
+  // What the share sheet last saved, so reopening it before the page refresh lands doesn't show the old state.
+  const [savedShare, setSavedShare] = useState<{ id: string; shared: boolean } | null>(null);
   // Shows the new state at once; the action re-renders the page with the
   // saved value, and a failed save falls back to it on its own.
   const [isActiveForReview, setOptimisticActive] = useOptimistic(
@@ -146,6 +52,8 @@ export function LibraryCollectionHeader({
     lovedByMe: love?.loved ?? serverCollection.lovedByMe,
     loveCount: love?.count ?? serverCollection.loveCount,
   };
+  const shared =
+    savedShare?.id === collection.id ? savedShare.shared : collection.visibility === "shared";
 
   async function toggleLove() {
     const previous = {
@@ -171,7 +79,7 @@ export function LibraryCollectionHeader({
   function setActiveForReview(active: boolean) {
     // A plain /app/library visit shows the first active collection without
     // remembering it, so pausing that one would move on to the next. Pin it.
-    rememberLibraryCollection(collection.id);
+    setCurrentCollection(collection.id);
     startToggle(async () => {
       setOptimisticActive(active);
       const { error } = await toggleActiveForReview(collection.id, active);
@@ -179,56 +87,49 @@ export function LibraryCollectionHeader({
     });
   }
 
+  async function copyLink() {
+    if (await copyCollectionLink(collection, toast, false)) toast("Link copied");
+  }
+
   return (
-    <header className="shadow-surface space-y-4 rounded-box bg-base-100 p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-1">
-          <h1 className="font-heading line-clamp-2 text-xl font-medium">
-            {collection.icon ? `${collection.icon} ` : ""}
-            {collection.name}
-          </h1>
-          {collection.termCount > 0 ? (
-            <p className="text-sm tabular-nums text-base-content/70">
-              {collection.termsLearnedCount} of {collection.termCount} mastered or known
-            </p>
-          ) : null}
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
-          {collection.source === "added" ? (
-            <LoveButton
-              loved={collection.lovedByMe}
-              count={collection.loveCount}
-              onToggle={toggleLove}
-            />
-          ) : null}
-          {isOwner ? <AddTermsMenu collectionId={collection.id} /> : null}
-          {collection.source === "owned" ? (
-            <CollectionShareButton collection={collection} />
-          ) : (
-            <CopyCollectionLinkButton collection={collection} />
-          )}
-          <CollectionActionsMenu
-            collection={collection}
-            togglePending={togglePending}
-            onToggleActiveForReview={() => setActiveForReview(!collection.isActiveForReview)}
-          />
-        </div>
-      </div>
+    <Card radius="md" className="p-4" data-tour="library-collections">
+      <CollectionSummary collection={collection} categoryCount={categoryCount} />
 
-      {collection.source === "owned" && collection.shareBlockedReason ? (
-        <Alert variant="info">
-          <AlertDescription>{ownerNoticeFor(collection.shareBlockedReason)}</AlertDescription>
-        </Alert>
-      ) : null}
-
-      <CollectionMeta collection={collection} categoryCount={categoryCount} />
-
-      <CollectionStudyActions
+      <CollectionStudyRow
         collection={collection}
-        showTriage={untriagedCount > 0}
         resumePending={togglePending}
         onResume={() => setActiveForReview(true)}
       />
-    </header>
+
+      <CollectionActionTiles
+        isOwner={isOwner}
+        owned={collection.source === "owned"}
+        triageHref={untriagedCount > 0 ? `/app/triage?collection=${collection.id}` : null}
+        onAdd={() => setSheet("add")}
+        onShare={() => setSheet("share")}
+        onCopyLink={() => void copyLink()}
+        onMore={() => setSheet("more")}
+      />
+
+      {sheet === "add" ? (
+        <AddTermsSheet collection={collection} onClose={() => setSheet(null)} />
+      ) : null}
+      {sheet === "share" ? (
+        <ShareCollectionSheet
+          collection={collection}
+          initialShared={shared}
+          onSaved={(next) => setSavedShare({ id: collection.id, shared: next })}
+          onClose={() => setSheet(null)}
+        />
+      ) : null}
+      <CollectionActions
+        collection={collection}
+        open={sheet === "more"}
+        onOpenChange={(open) => setSheet(open ? "more" : null)}
+        onToggleActiveForReview={() => setActiveForReview(!collection.isActiveForReview)}
+        onToggleLove={() => void toggleLove()}
+        togglePending={togglePending}
+      />
+    </Card>
   );
 }

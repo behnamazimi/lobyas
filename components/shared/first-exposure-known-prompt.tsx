@@ -21,10 +21,13 @@ export function FirstExposureKnownPrompt({
   termId,
   term,
   onMarkedKnown,
+  placement = "sticky",
 }: {
   termId: string;
   term: string;
   onMarkedKnown: () => void;
+  /** `foot` is a quiet line under the card instead of a button inside its scroll area. */
+  placement?: "sticky" | "foot";
 }) {
   const { toast } = useToast();
   const isMarked = useFirstExposureMarked(termId);
@@ -40,6 +43,32 @@ export function FirstExposureKnownPrompt({
       toast("Couldn't mark that term known. It may show up again.", "destructive"),
     );
     onMarkedKnown();
+  }
+
+  if (placement === "foot") {
+    return isMarked ? (
+      <div className="flex min-h-11 items-center justify-center gap-1 text-sm font-bold text-muted">
+        <span className="inline-flex items-center gap-1.5 font-extrabold text-success-text">
+          <CircleCheck className="size-4" aria-hidden strokeWidth={2} />
+          Marked known
+        </span>
+        <button
+          type="button"
+          onClick={handlePress}
+          className="min-h-11 px-2 text-sm font-bold underline underline-offset-2"
+        >
+          Mark as unknown
+        </button>
+      </div>
+    ) : (
+      <button
+        type="button"
+        onClick={handlePress}
+        className="mx-auto min-h-11 px-3.5 text-sm font-bold text-muted"
+      >
+        Already know it? <span className="font-extrabold text-read-text">Mark as known</span>
+      </button>
+    );
   }
 
   return (

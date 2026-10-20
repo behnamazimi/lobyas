@@ -1,65 +1,44 @@
 "use client";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { PIECE_LENGTHS, type PieceLength } from "@/lib/stories/types";
-
-type Choice = { label: string; hint: string };
-
-const PIECE_LENGTH_BASE: Record<PieceLength, Choice> = {
-  short: { label: "Short", hint: "A quick read of a paragraph or two." },
-  medium: { label: "Medium", hint: "A few short paragraphs." },
-  long: { label: "Long", hint: "A fuller piece of several paragraphs." },
-};
+import { cn } from "@/lib/utils";
 
 export const PIECE_LENGTH_LABELS: Record<PieceLength, string> = {
-  short: PIECE_LENGTH_BASE.short.label,
-  medium: PIECE_LENGTH_BASE.medium.label,
-  long: PIECE_LENGTH_BASE.long.label,
+  short: "Short",
+  medium: "Medium",
+  long: "Long",
 };
 
-function ChoiceField<T extends string>({
-  legend,
-  options,
-  choices,
+/** Short, Medium or Long as three pills; the chosen one is outlined in purple. */
+export function PieceLengthField({
   value,
   onChange,
 }: {
-  legend: string;
-  options: readonly T[];
-  choices: Record<T, Choice>;
-  value: T;
-  onChange: (value: T) => void;
-}) {
-  return (
-    <fieldset className="flex flex-col gap-2 border-0 p-0">
-      <legend className="mb-2 text-sm font-medium leading-none">{legend}</legend>
-      <ToggleGroup
-        aria-label={legend}
-        selectionMode="single"
-        disallowEmptySelection
-        selectedKeys={[value]}
-        onSelectionChange={(keys) => {
-          const [key] = [...keys];
-          if (key) onChange(key as T);
-        }}
-        className="flex-nowrap"
-      >
-        {options.map((option) => (
-          <ToggleGroupItem key={option} id={option} className="flex-1 px-2">
-            {choices[option].label}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-      <p className="m-0 text-xs text-base-content/70">{choices[value].hint}</p>
-    </fieldset>
-  );
-}
-
-export function PieceLengthField(props: {
   value: PieceLength;
   onChange: (length: PieceLength) => void;
 }) {
   return (
-    <ChoiceField legend="Length" options={PIECE_LENGTHS} choices={PIECE_LENGTH_BASE} {...props} />
+    <fieldset className="m-0 border-0 p-0">
+      <legend className="p-0 text-sm font-extrabold">Length</legend>
+      <div className="mt-1.5 grid grid-cols-3 gap-2">
+        {PIECE_LENGTHS.map((length) => {
+          const picked = length === value;
+          return (
+            <button
+              key={length}
+              type="button"
+              aria-pressed={picked}
+              onClick={() => onChange(length)}
+              className={cn(
+                "h-11 cursor-pointer rounded-full text-[15px] font-extrabold",
+                picked ? "bg-quiz-tint ring-[2.5px] ring-quiz-ring ring-inset" : "bg-base-200",
+              )}
+            >
+              {PIECE_LENGTH_LABELS[length]}
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }

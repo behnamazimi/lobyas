@@ -1,10 +1,10 @@
 "use client";
 
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Banner, ChoiceCards, Pill } from "@/components/kit";
 import type { ImportFlowState } from "@/components/import/use-import-flow";
 import { pluralize } from "@/lib/utils";
+
+const NOTE = "m-0 text-[13px] leading-snug font-semibold text-muted";
 
 export function ConflictChooser({ flow }: { flow: ImportFlowState }) {
   const conflicts = (flow.built?.conflicts ?? []).filter(
@@ -13,31 +13,27 @@ export function ConflictChooser({ flow }: { flow: ImportFlowState }) {
   if (conflicts.length === 0) return null;
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {conflicts.map((conflict) => (
-        <Alert key={conflict.termId}>
-          <AlertDescription className="space-y-2">
-            <p className="m-0 font-medium">
-              &ldquo;{conflict.term}&rdquo; appears twice with different definitions. Keep which?
-            </p>
-            <ul className="m-0 flex list-none flex-col gap-1 p-0">
-              {conflict.definitions.map((definition, index) => (
-                <li key={`${conflict.termId}-${index}`}>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="h-auto min-h-11 w-full justify-between gap-2 py-2 text-left whitespace-normal"
-                    onPress={() => flow.chooseDefinition(conflict.termId, definition)}
-                  >
-                    <span className="line-clamp-2">{definition ?? "No definition"}</span>
-                    <span className="shrink-0 text-xs">Keep this one</span>
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          </AlertDescription>
-        </Alert>
+        <Banner key={conflict.termId}>
+          <p className="m-0 mb-2">
+            &ldquo;{conflict.term}&rdquo; appears twice with different definitions. Keep which?
+          </p>
+          <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+            {conflict.definitions.map((definition, index) => (
+              <li key={`${conflict.termId}-${index}`}>
+                <Pill
+                  variant="secondary"
+                  className="h-auto min-h-11 w-full justify-between gap-2 py-2 text-left whitespace-normal"
+                  onClick={() => flow.chooseDefinition(conflict.termId, definition)}
+                >
+                  <span className="line-clamp-2">{definition ?? "No definition"}</span>
+                  <span className="shrink-0 text-xs">Keep this one</span>
+                </Pill>
+              </li>
+            ))}
+          </ul>
+        </Banner>
       ))}
     </div>
   );
@@ -49,26 +45,24 @@ export function DuplicatePolicy({ flow }: { flow: ImportFlowState }) {
   const name = flow.existing?.name ?? "this collection";
 
   return (
-    <div className="space-y-2 rounded-field bg-warning/10 p-3">
-      <p className="m-0 text-sm font-medium" role="status">
+    <div className="flex flex-col gap-1.5">
+      <p className="m-0 text-sm font-extrabold" role="status">
         {pluralize(count, "term")} {count === 1 ? "is" : "are"} already in {name}
       </p>
-      <ToggleGroup
-        aria-label="What to do with terms already there"
-        selectionMode="single"
-        disallowEmptySelection
-        selectedKeys={[flow.check.policy]}
-        onSelectionChange={(keys) => {
-          const [key] = [...keys];
+      <ChoiceCards
+        label="What to do with terms already there"
+        options={[
+          { value: "skip", label: "Skip them" },
+          { value: "update", label: "Update them" },
+        ]}
+        value={flow.check.policy}
+        onChange={(key) => {
           if (key === "skip" || key === "update") flow.setPolicy(key);
         }}
-      >
-        <ToggleGroupItem id="skip">Skip them</ToggleGroupItem>
-        <ToggleGroupItem id="update">Update their definitions</ToggleGroupItem>
-      </ToggleGroup>
-      <p className="m-0 text-xs text-base-content/70">
-        Updating keeps your progress and never replaces a definition with an empty one. Different
-        meaning? Add a qualifier, like &ldquo;SLA (legal)&rdquo;.
+      />
+      <p className={NOTE}>
+        Updating keeps your progress and never clears a value with an empty one. Different meaning?
+        Add a qualifier, like &ldquo;SLA (legal)&rdquo;.
       </p>
     </div>
   );
@@ -81,12 +75,14 @@ export function Notices({ flow }: { flow: ImportFlowState }) {
   if (collapsed) notes.push(`Combined ${collapsed} repeated rows.`);
   if (withoutTerm) {
     notes.push(
-      `${pluralize(withoutTerm, "line")} had no term and ${withoutTerm === 1 ? "was" : "were"} left out.`,
+      `${pluralize(withoutTerm, "line")} had no term and ${
+        withoutTerm === 1 ? "was" : "were"
+      } left out.`,
     );
   }
   if (notes.length === 0) return null;
   return (
-    <p className="m-0 text-sm text-base-content/70" role="status">
+    <p className={NOTE} role="status">
       {notes.join(" ")}
     </p>
   );

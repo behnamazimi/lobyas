@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SelectInput } from "@/components/kit";
 import {
   COLLECTION_LANGUAGE_OPTIONS,
   parseLanguage,
@@ -21,25 +15,17 @@ type LanguageToggleProps = {
 
 export function LanguageToggle({ value, onChange, isDisabled }: LanguageToggleProps) {
   return (
-    <Select
+    <SelectInput
       aria-label="Language"
       value={value}
-      isDisabled={isDisabled}
-      className="w-full"
-      onChange={(key) => {
-        if (key != null) onChange(parseLanguage(String(key)));
-      }}
+      disabled={isDisabled}
+      onChange={(event) => onChange(parseLanguage(event.target.value))}
     >
-      <SelectTrigger className="w-full">
-        <SelectValue />
-      </SelectTrigger>
-      <SelectContent>
-        {COLLECTION_LANGUAGE_OPTIONS.map((option) => (
-          <SelectItem key={option.value} id={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+      {COLLECTION_LANGUAGE_OPTIONS.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </SelectInput>
   );
 }

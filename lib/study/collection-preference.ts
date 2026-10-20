@@ -41,19 +41,3 @@ export function createCollectionPreference(cookieName: string) {
     },
   };
 }
-
-/** Picks the collection a study page opens on: a valid `?collection=` first,
- *  then the remembered one if it's still active, else "all". A remembered
- *  collection that's paused or gone is skipped, not forgotten — it comes
- *  back if the collection is resumed. */
-export function resolveStudyCollectionId(
-  collectionParam: string | undefined,
-  rememberedId: string | null,
-  activeIds: string[],
-): string {
-  if (collectionParam && activeIds.includes(collectionParam)) return collectionParam;
-  if (rememberedId && (rememberedId === "all" || activeIds.includes(rememberedId))) {
-    return rememberedId;
-  }
-  return "all";
-}

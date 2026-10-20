@@ -7,17 +7,18 @@ type QuizAnswerChoicesProps = {
   question: QuizQuestion;
   response: QuizResponse | null;
   submitted: boolean;
+  skipped: boolean;
   onRespond: (response: QuizResponse) => void;
 };
 
 /** The one place that picks an answer UI for a question's interaction. */
-export function QuizAnswerChoices({ question, ...props }: QuizAnswerChoicesProps) {
+export function QuizAnswerChoices({ question, skipped, ...props }: QuizAnswerChoicesProps) {
   switch (question.interaction) {
     case "choice":
       return <ChoiceAnswer question={question} {...props} />;
     case "boolean":
       return <BooleanAnswer question={question} {...props} />;
     case "text":
-      return <TextAnswer question={question} {...props} />;
+      return <TextAnswer question={question} skipped={skipped} {...props} />;
   }
 }

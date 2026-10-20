@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { maxQuizQuestions } from "./question-limit";
+import { maxQuizQuestions, quizCountPresets } from "./question-limit";
 
 describe("maxQuizQuestions", () => {
   it("caps AI quizzes at 10 even when more terms are available", () => {
@@ -15,5 +15,13 @@ describe("maxQuizQuestions", () => {
   it("leaves simple quizzes at the study limit", () => {
     expect(maxQuizQuestions("simple", 26)).toBe(26);
     expect(maxQuizQuestions("simple", 100)).toBe(30);
+  });
+});
+
+describe("quizCountPresets", () => {
+  it("offers only the counts the collection can fill", () => {
+    expect(quizCountPresets(30)).toEqual([5, 10, 20]);
+    expect(quizCountPresets(12)).toEqual([5, 10]);
+    expect(quizCountPresets(3)).toEqual([]);
   });
 });

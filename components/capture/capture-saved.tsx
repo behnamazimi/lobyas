@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { Button, LinkButton } from "@/components/ui/button";
+import { Pill, Tile } from "@/components/kit";
 import { CAPTURE_COPY } from "@/lib/capture/copy";
 
 export function CaptureSaved({
@@ -16,26 +16,22 @@ export function CaptureSaved({
   onAddAnother: () => void;
 }) {
   return (
-    <div className="space-y-5 pt-2">
-      <div className="flex size-12 items-center justify-center rounded-box bg-success/15 text-success-text">
-        <Check className="size-6" aria-hidden strokeWidth={1.5} />
-      </div>
-      <p className="m-0 text-base-content/80" role="status">
+    <div className="flex flex-col gap-5 pt-2">
+      <Tile tone="success" size={48}>
+        <Check className="size-6" aria-hidden strokeWidth={2.6} />
+      </Tile>
+      <p className="m-0 text-[15px] font-semibold text-ink-soft" role="status">
         {unfinished
           ? CAPTURE_COPY.savedUnfinished(term, collectionName)
           : CAPTURE_COPY.saved(term, collectionName)}
       </p>
       <div className="flex flex-col gap-2">
-        <Button className="min-h-12 w-full" onPress={onAddAnother}>
+        <Pill size="lg" onClick={onAddAnother}>
           {CAPTURE_COPY.addAnother}
-        </Button>
-        <LinkButton
-          href={`/app/library?collection=${collectionId}`}
-          variant="outline"
-          className="min-h-11 w-full"
-        >
+        </Pill>
+        <Pill size="lg" variant="secondary" href={`/app/library?collection=${collectionId}`}>
           {CAPTURE_COPY.openCollection}
-        </LinkButton>
+        </Pill>
       </div>
     </div>
   );

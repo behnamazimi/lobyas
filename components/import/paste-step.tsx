@@ -1,10 +1,8 @@
 "use client";
 
-import { FileText, Clipboard } from "lucide-react";
+import { Clipboard, FileText } from "lucide-react";
 import { useRef, useState } from "react";
-import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
-import { Button, LinkButton } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Banner, FormField, PinnedAction, Pill, TextArea } from "@/components/kit";
 import { FormatHelpButton } from "@/components/import/format-help-dialog";
 import { ImportFailurePanel } from "@/components/import/import-errors";
 import { decodeFileBytes } from "@/lib/import/parse/decode";
@@ -92,91 +90,82 @@ export function PasteStep({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="relative">
-        <Textarea
-          ref={textareaRef}
-          value={draft}
-          aria-label="Your list"
-          placeholder={PLACEHOLDER}
-          className="min-h-64 pr-12 text-base"
-          onChange={(event) => onTextChange(event.target.value)}
-          onPaste={handlePaste}
-        />
-        <FormatHelpButton className="absolute top-1 right-1" />
-      </div>
+    <>
+      <div className="flex flex-col gap-3">
+        <FormField label="Your list" htmlFor="import-list">
+          <div className="relative">
+            <TextArea
+              id="import-list"
+              ref={textareaRef}
+              value={draft}
+              placeholder={PLACEHOLDER}
+              className="min-h-64 w-full rounded-2xl bg-base-100 p-3.5 pr-12 font-mono text-sm leading-relaxed font-medium shadow-card"
+              onChange={(event) => onTextChange(event.target.value)}
+              onPaste={handlePaste}
+            />
+            <FormatHelpButton className="absolute top-1 right-1" />
+          </div>
+        </FormField>
 
-      {draft.trim() ? (
-        <Button type="button" className="min-h-11 w-full" onPress={() => onCheck(draft)}>
-          Check your list
-        </Button>
-      ) : null}
+        <div className="flex flex-wrap gap-2">
+          <Pill variant="secondary" onClick={() => void handlePasteButton()}>
+            <Clipboard className="size-4" aria-hidden strokeWidth={2.4} />
+            Paste
+          </Pill>
+          <Pill variant="secondary" onClick={() => fileRef.current?.click()}>
+            <FileText className="size-4" aria-hidden strokeWidth={2.4} />
+            Choose a file
+          </Pill>
+          {/* No accept filter: iOS greys out files it doesn't recognise. */}
+          <input
+            ref={fileRef}
+            type="file"
+            className="sr-only"
+            tabIndex={-1}
+            aria-label="Choose a file"
+            onChange={(event) => void handleFile(event)}
+          />
+        </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          className="min-h-11 gap-2"
-          onPress={() => void handlePasteButton()}
-        >
-          <Clipboard className="size-4" aria-hidden strokeWidth={1.5} />
-          Paste
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          className="min-h-11 gap-2"
-          onPress={() => fileRef.current?.click()}
-        >
-          <FileText className="size-4" aria-hidden strokeWidth={1.5} />
-          Choose a file
-        </Button>
-        {/* No accept filter: iOS greys out files it doesn't recognise. */}
-        <input
-          ref={fileRef}
-          type="file"
-          className="sr-only"
-          tabIndex={-1}
-          aria-label="Choose a file"
-          onChange={(event) => void handleFile(event)}
-        />
-      </div>
+        {pasteBlocked ? (
+          <p className="m-0 text-sm font-semibold text-muted" role="status">
+            Paste isn&apos;t available here. Tap the box and choose Paste.
+          </p>
+        ) : null}
 
-      {pasteBlocked ? (
-        <p className="m-0 text-sm text-base-content/70" role="status">
-          Paste isn&apos;t available here. Tap the box and choose Paste.
+        {problem?.failure ? <ImportFailurePanel failure={problem.failure} /> : null}
+        {problem && !problem.failure ? (
+          <Banner
+            action={
+              problem.canTreatAsText ? (
+                <Pill variant="secondary" onClick={onTreatAsText}>
+                  Treat it as a list
+                </Pill>
+              ) : undefined
+            }
+          >
+            {problem.message}
+          </Banner>
+        ) : null}
+
+        <p className="m-0 text-[13px] leading-snug font-semibold text-muted">
+          One term per line. Put a definition after a dash, tab or comma. A term without one is
+          saved to finish later. Works with lists from Notes, Google Sheets, Excel, Docs and
+          WhatsApp, and with exports from Quizlet and Anki.
         </p>
-      ) : null}
 
-      {problem?.failure ? <ImportFailurePanel failure={problem.failure} /> : null}
-      {problem && !problem.failure ? (
-        <Alert variant="destructive">
-          <AlertDescription>{problem.message}</AlertDescription>
-          {problem.canTreatAsText ? (
-            <AlertAction>
-              <Button type="button" size="sm" variant="outline" onPress={onTreatAsText}>
-                Treat it as a list
-              </Button>
-            </AlertAction>
-          ) : null}
-        </Alert>
-      ) : null}
-
-      <p className="m-0 text-sm text-base-content/70">
-        Works with lists from Notes, Google Sheets, Excel, Docs and WhatsApp, and with exports from
-        Quizlet and Anki.
-      </p>
-
-      <div className="flex justify-center">
-        <LinkButton
-          href="/app/import/more"
-          variant="ghost"
-          size="sm"
-          className="min-h-11 text-base-content/70"
-        >
-          More ways to add
-        </LinkButton>
+        <div className="flex justify-center">
+          <Pill variant="ghost" href="/app/import/more">
+            More ways to add
+          </Pill>
+        </div>
       </div>
-    </div>
+
+      <PinnedAction>
+        <Pill size="lg" disabled={!draft.trim()} onClick={() => onCheck(draft)}>
+          Check your list
+        </Pill>
+      </PinnedAction>
+    </>
   );
 }

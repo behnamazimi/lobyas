@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { fetchCollectionStats } from "./collection-tally";
 
-type Row = { collection_id: string; term_id: string; marked_known_at: string | null };
+type Row = {
+  collection_id: string;
+  term_id: string;
+  marked_known_at: string | null;
+};
 
 function progressRow(collectionId: string, n: number): Row & Record<string, unknown> {
   return {
@@ -29,12 +33,52 @@ function fakeClient(rows: Row[]) {
       return {
         order: () => ({
           range: (from: number, to: number) =>
-            Promise.resolve({ data: rows.slice(from, Math.min(to + 1, from + 1000)), error: null }),
+            Promise.resolve({
+              data: rows.slice(from, Math.min(to + 1, from + 1000)),
+              error: null,
+            }),
         }),
       };
     },
   };
 }
+
+describe("queue counts", () => {
+  const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString();
+
+  it("counts unread terms for Read and skips marked-known ones", async () => {
+    const rows = [
+      { ...progressRow("c", 1), marked_known_at: null },
+      { ...progressRow("c", 3), marked_known_at: null, read_count: 2 },
+      { ...progressRow("c", 4), marked_known_at: "2026-09-01T00:00:00Z" },
+    ];
+    const stats = await fetchCollectionStats(fakeClient(rows) as never, ["c"]);
+    expect(stats.get("c")).toMatchObject({
+      readQueue: 1,
+      reviewQueue: 2,
+      quizQueue: 2,
+    });
+  });
+
+  it("holds out a term just reviewed and a term just quizzed", async () => {
+    const rows = [
+      {
+        ...progressRow("c", 1),
+        marked_known_at: null,
+        recall_stability: 10,
+        recall_difficulty: 5,
+        review_recall_count: 1,
+        last_review_recall_at: hoursAgo(0.01),
+        quiz_knowledge_posterior: 0.9,
+        quiz_test_count: 1,
+        last_quiz_tested_at: hoursAgo(0.01),
+      },
+      { ...progressRow("c", 3), marked_known_at: null },
+    ];
+    const stats = await fetchCollectionStats(fakeClient(rows) as never, ["c"]);
+    expect(stats.get("c")).toMatchObject({ reviewQueue: 1, quizQueue: 1 });
+  });
+});
 
 describe("fetchCollectionStats", () => {
   it("counts every term past the 1000-row page limit", async () => {
@@ -43,7 +87,13 @@ describe("fetchCollectionStats", () => {
       ...Array.from({ length: 700 }, (_, i) => progressRow("small", 1500 + i)),
     ];
     const stats = await fetchCollectionStats(fakeClient(rows) as never, ["big", "small"]);
-    expect(stats.get("big")).toMatchObject({ termCount: 1500, markedKnownCount: 750 });
-    expect(stats.get("small")).toMatchObject({ termCount: 700, markedKnownCount: 350 });
+    expect(stats.get("big")).toMatchObject({
+      termCount: 1500,
+      markedKnownCount: 750,
+    });
+    expect(stats.get("small")).toMatchObject({
+      termCount: 700,
+      markedKnownCount: 350,
+    });
   });
 });

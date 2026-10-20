@@ -77,8 +77,6 @@ every real environment: `LLM_BASE_URL`, `RESEND_BASE_URL`, `MURF_BASE_URL`,
   ignore exactly that message; `pwa.spec.ts` turns service workers back on.
 - A new browser context made with `browser.newContext()` inherits the test's
   `storageState`. Pass `{ cookies: [], origins: [] }` to start signed out.
-- Creating a first collection on `/app/capture` leaves the old form on screen
-  until a reload; that test is `fixme`.
 
 ## CI
 

@@ -2,56 +2,46 @@
 
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { isDockPath, isStudyPath } from "@/lib/chrome";
 import { useKeyboardOpen } from "@/hooks/use-keyboard-open";
+import { shellLayout } from "@/lib/chrome";
 import { cn } from "@/lib/utils";
 
 export function AppShell({
   header,
   footer,
-  appFooter,
-  studyPhoneChrome,
-  hasLikelySession,
+  signedIn,
   children,
 }: {
   header: ReactNode;
   footer: ReactNode;
-  appFooter: ReactNode;
-  studyPhoneChrome: ReactNode;
-  hasLikelySession: boolean;
+  signedIn: boolean;
   children: ReactNode;
 }) {
   const pathname = usePathname();
   useKeyboardOpen();
-  const showStudyChrome = hasLikelySession && isStudyPath(pathname);
-  const showDock = isDockPath(pathname);
+  const app = signedIn && shellLayout(pathname) !== "site";
 
-  if (showStudyChrome) {
+  if (!app) {
     return (
-      <div
-        className={cn(
-          "flex min-h-full flex-1 flex-col chrome-study max-md:fixed max-md:inset-0 max-md:min-h-0 max-md:overflow-hidden",
-          showDock && "chrome-dock",
-        )}
-        data-chrome="study"
-      >
-        <div className="hidden md:contents">{header}</div>
-        {studyPhoneChrome}
-        {/* On phones the shell is pinned to the screen edges (not sized with
-            dvh, which iOS standalone gets wrong) and only this area scrolls. */}
-        <div className="flex min-h-0 flex-1 flex-col max-md:overflow-y-auto max-md:overscroll-contain md:contents">
-          {children}
-        </div>
-        <div className="hidden md:contents">{appFooter}</div>
+      <div className="flex min-h-full flex-1 flex-col" data-chrome="site">
+        {header}
+        {signedIn ? children : <main className="flex min-h-0 flex-1 flex-col">{children}</main>}
+        {footer}
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-full flex-1 flex-col" data-chrome="site">
-      {header}
+    <div
+      className={cn(
+        "flex min-h-full flex-1 flex-col",
+        "max-lg:fixed max-lg:inset-0 max-lg:min-h-0 max-lg:overflow-hidden",
+        "lg:h-dvh lg:min-h-0 lg:flex-none lg:overflow-hidden",
+        shellLayout(pathname) === "tabs" && "chrome-tabs",
+      )}
+      data-chrome="study"
+    >
       {children}
-      {footer}
     </div>
   );
 }

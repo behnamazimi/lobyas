@@ -104,7 +104,7 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
     <InstallContext.Provider value={value}>
       {children}
       {showToast ? (
-        <div className="toast toast-bottom toast-end z-50 standalone:hidden max-md:bottom-[calc(var(--dock-bottom)+1rem)]!">
+        <div className="toast toast-bottom toast-end z-50 standalone:hidden max-lg:bottom-[calc(var(--dock-bottom)+1rem)]!">
           <Alert
             variant="info"
             icon={<Download strokeWidth={1.5} />}

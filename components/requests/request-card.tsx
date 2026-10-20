@@ -6,19 +6,7 @@ import {
   dismissRequest,
   replyToRequest,
 } from "@/app/(private)/app/actions-requests";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Badge } from "@/components/ui/badge";
-import { Button, LinkButton } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, ConfirmDialog, Pill, TextArea } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { REQUEST_COPY } from "@/lib/requests/copy";
 import { dueLine, pillFor } from "@/lib/requests/status";
@@ -27,11 +15,11 @@ import { cn } from "@/lib/utils";
 
 const CARD = REQUEST_COPY.card;
 
-const PILL_CLASS = {
-  queue: "badge-ghost",
-  prep: "badge-warning badge-soft",
-  question: "badge-info badge-soft",
-  ready: "badge-success badge-soft",
+const BADGE_CLASS = {
+  queue: "bg-base-200 text-ink-soft",
+  prep: "bg-hard-tint text-hard-text",
+  question: "bg-read-tint text-read-text",
+  ready: "bg-success-tint text-success-text",
 } as const;
 
 function ReplyBox({ request }: { request: MyRequest }) {
@@ -56,36 +44,30 @@ function ReplyBox({ request }: { request: MyRequest }) {
     <div className="space-y-2">
       <p className="m-0 text-sm">{CARD.question}</p>
       {request.question ? (
-        <p className="m-0 rounded-field bg-base-200 px-3 py-2 text-sm break-words whitespace-pre-line">
+        <p className="m-0 rounded-2xl bg-base-200 px-3 py-2 text-sm font-semibold break-words whitespace-pre-line">
           {request.question}
         </p>
       ) : null}
-      <label className="block text-sm font-medium" htmlFor={`reply-${request.id}`}>
+      <label className="block text-sm font-extrabold" htmlFor={`reply-${request.id}`}>
         {CARD.replyLabel}
       </label>
-      <Textarea
+      <TextArea
         id={`reply-${request.id}`}
         value={reply}
         rows={3}
         maxLength={1000}
         disabled={isSending}
-        className="min-h-20 text-base"
+        className="w-full"
         onChange={(event) => setReply(event.target.value)}
       />
       {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <p className="m-0 text-sm font-bold text-wrong-text" role="alert">
+          {error}
+        </p>
       ) : null}
-      <Button
-        type="button"
-        size="sm"
-        className="min-h-11 md:min-h-8"
-        isDisabled={isSending || reply.trim().length === 0}
-        onPress={send}
-      >
+      <Pill disabled={isSending || reply.trim().length === 0} onClick={send}>
         {isSending ? CARD.sendingReply : CARD.sendReply}
-      </Button>
+      </Pill>
     </div>
   );
 }
@@ -107,21 +89,10 @@ function Delivered({ request }: { request: MyRequest }) {
       </p>
       {collectionId ? (
         <div className="flex flex-wrap gap-2">
-          <LinkButton
-            href={`/app/read?collection=${collectionId}`}
-            size="sm"
-            className="min-h-11 md:min-h-8"
-          >
-            {CARD.startReading}
-          </LinkButton>
-          <LinkButton
-            href={`/app/library?collection=${collectionId}`}
-            size="sm"
-            variant="outline"
-            className="min-h-11 md:min-h-8"
-          >
+          <Pill href={`/app/read?collection=${collectionId}`}>{CARD.startReading}</Pill>
+          <Pill variant="soft" href={`/app/library?collection=${collectionId}`}>
             {CARD.openCollection}
-          </LinkButton>
+          </Pill>
         </div>
       ) : null}
     </div>
@@ -131,25 +102,18 @@ function Delivered({ request }: { request: MyRequest }) {
 function Declined({ request }: { request: MyRequest }) {
   return (
     <div className="space-y-3">
-      <p className="m-0 font-medium">{CARD.declinedTitle}</p>
+      <p className="m-0 font-extrabold">{CARD.declinedTitle}</p>
       {request.declineReason ? (
         <p className="m-0 text-sm">{REQUEST_COPY.declineReasons[request.declineReason]}</p>
       ) : null}
-      {request.declineNote ? (
-        <p className="m-0 text-sm text-base-content/70">{request.declineNote}</p>
-      ) : null}
+      {request.declineNote ? <p className="m-0 text-sm text-muted">{request.declineNote}</p> : null}
       <div className="flex flex-wrap gap-2">
-        <LinkButton
-          href="/app/import/paste"
-          size="sm"
-          variant="outline"
-          className="min-h-11 md:min-h-8"
-        >
+        <Pill variant="soft" href="/app/import/paste">
           {CARD.pasteList}
-        </LinkButton>
-        <LinkButton href="/app/browse" size="sm" variant="outline" className="min-h-11 md:min-h-8">
+        </Pill>
+        <Pill variant="soft" href="/app/browse">
           {CARD.browse}
-        </LinkButton>
+        </Pill>
       </div>
     </div>
   );
@@ -179,26 +143,28 @@ export function RequestCard({ request }: { request: MyRequest }) {
   }
 
   return (
-    <section
-      className="shadow-surface space-y-3 rounded-box bg-base-100 p-4"
-      aria-label={request.topic}
-    >
+    <Card radius="md" className="space-y-3 p-4" role="region" aria-label={request.topic}>
       <div className="flex items-start gap-3">
-        <h2 className="m-0 min-w-0 flex-1 text-base font-medium break-words">{request.topic}</h2>
+        <h2 className="m-0 min-w-0 flex-1 font-sans text-base font-extrabold break-words">
+          {request.topic}
+        </h2>
         {pill ? (
-          <Badge variant="outline" className={cn("shrink-0", PILL_CLASS[pill.tone])}>
+          <span
+            className={cn(
+              "flex h-6 shrink-0 items-center rounded-full px-2.5 text-xs font-extrabold",
+              BADGE_CLASS[pill.tone],
+            )}
+          >
             {pill.label}
-          </Badge>
+          </span>
         ) : null}
       </div>
 
-      {status === "requested" ? (
-        <p className="m-0 text-sm text-base-content/70">{dueLine(request)}</p>
-      ) : null}
+      {status === "requested" ? <p className="m-0 text-sm text-muted">{dueLine(request)}</p> : null}
       {status === "in_progress" ? (
         <div className="space-y-1">
           <p className="m-0 text-sm">{CARD.preparing}</p>
-          <p className="m-0 text-sm text-base-content/70">{dueLine(request)}</p>
+          <p className="m-0 text-sm text-muted">{dueLine(request)}</p>
         </div>
       ) : null}
       {status === "needs_input" ? <ReplyBox request={request} /> : null}
@@ -207,43 +173,29 @@ export function RequestCard({ request }: { request: MyRequest }) {
 
       <div className="flex justify-end">
         {canCancel ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="min-h-11 md:min-h-8"
-            isDisabled={isWorking}
-            onPress={() => setCancelOpen(true)}
-          >
+          <Pill variant="ghost" disabled={isWorking} onClick={() => setCancelOpen(true)}>
             {CARD.cancel}
-          </Button>
+          </Pill>
         ) : null}
         {closed ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="min-h-11 md:min-h-8"
-            isDisabled={isWorking}
-            onPress={dismiss}
-          >
+          <Pill variant="ghost" disabled={isWorking} onClick={dismiss}>
             {CARD.dismiss}
-          </Button>
+          </Pill>
         ) : null}
       </div>
 
-      <AlertDialog isOpen={cancelOpen} onOpenChange={setCancelOpen}>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{CARD.cancelTitle(request.topic)}</AlertDialogTitle>
-          <AlertDialogDescription>
-            {request.accepted ? CARD.cancelBodyStarted : CARD.cancelBody}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>{CARD.keep}</AlertDialogCancel>
-          <AlertDialogAction onPress={cancel}>{CARD.cancel}</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialog>
-    </section>
+      <ConfirmDialog
+        isOpen={cancelOpen}
+        onOpenChange={setCancelOpen}
+        title={CARD.cancelTitle(request.topic)}
+        confirmLabel={CARD.cancel}
+        onConfirm={() => {
+          setCancelOpen(false);
+          cancel();
+        }}
+      >
+        {request.accepted ? CARD.cancelBodyStarted : CARD.cancelBody}
+      </ConfirmDialog>
+    </Card>
   );
 }

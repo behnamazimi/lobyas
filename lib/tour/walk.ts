@@ -2,10 +2,9 @@ import { TOUR_CHAPTERS } from "./chapters";
 import type { TourState } from "./state";
 import type { TourTargetId } from "./targets";
 
-/** The guided walk: once Library's tips are done, the tour points at the next
- *  page's link and the user clicks it themselves. It only runs from Library
- *  onward, so tips that show up while someone is studying never pull them to
- *  another page. */
+/** The guided walk used to lead from Library to Read, Review and Quiz. Those
+ *  are no longer nav links, and Goals and Me have no chapters yet, so the walk
+ *  ends after Library. Their own chapters still run when those pages open. */
 export type TourWalkStop = {
   route: string;
   label: string;
@@ -19,27 +18,6 @@ export const TOUR_WALK: readonly TourWalkStop[] = [
     label: "Library",
     target: "nav-library",
     blurb: "Every collection you've added and all its terms.",
-  },
-  {
-    route: "/app/read",
-    label: "Read",
-    target: "nav-read",
-    blurb:
-      "Read terms and their definitions. It's input, not a test: every term you read builds familiarity and gives it a head start in Review.",
-  },
-  {
-    route: "/app/review",
-    label: "Review",
-    target: "nav-review",
-    blurb:
-      "See a term, recall its meaning from memory, then rate how well you did. New terms come first, then the ones you're closest to forgetting.",
-  },
-  {
-    route: "/app/quiz",
-    label: "Quiz",
-    target: "nav-quiz",
-    blurb:
-      "Check what you know with a quick quiz. There are two ways to take one: Simple, or smarter questions written by AI.",
   },
 ];
 

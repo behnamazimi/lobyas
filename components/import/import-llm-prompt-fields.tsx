@@ -1,7 +1,4 @@
-import { CollectionSelect } from "@/components/library/collection-select";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { FormField, SelectInput, TextArea, TextInput } from "@/components/kit";
 import type { ImportDestination } from "@/lib/import/import-collections";
 import { DEFAULT_COUNT, NEW_COLLECTION_KEY } from "@/components/import/import-llm-prompt-helpers";
 
@@ -33,66 +30,56 @@ export function ImportLlmPromptFields({
   onExcludeChange,
 }: ImportLlmPromptFieldsProps) {
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {collections.length > 0 ? (
-        <Field>
-          <FieldLabel htmlFor="import-skill-collection">Add to collection</FieldLabel>
-          <CollectionSelect
-            mode="local"
+        <FormField label="Add to collection" htmlFor="import-skill-collection">
+          <SelectInput
             id="import-skill-collection"
-            className="w-full"
-            triggerClassName="w-full text-sm"
-            collections={collections.map((collection) => ({
-              id: collection.id,
-              name: collection.name,
-              termCount: collection.termCount > 0 ? collection.termCount : undefined,
-            }))}
             value={selectedCollectionId}
-            leadingOption={{ id: NEW_COLLECTION_KEY, label: "New collection" }}
-            onChange={onCollectionChange}
-          />
-          {loadError ? <p className="m-0 mt-1 text-xs text-error-text">{loadError}</p> : null}
-        </Field>
+            onChange={(event) => onCollectionChange(event.target.value)}
+          >
+            <option value={NEW_COLLECTION_KEY}>New collection</option>
+            {collections.map((collection) => (
+              <option key={collection.id} value={collection.id}>
+                {collection.name}
+              </option>
+            ))}
+          </SelectInput>
+          {loadError ? <p className="m-0 text-xs font-bold text-wrong-text">{loadError}</p> : null}
+        </FormField>
       ) : null}
 
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_8rem]">
-        <Field>
-          <FieldLabel htmlFor="import-skill-collection-name">Collection name</FieldLabel>
-          <Input
+        <FormField label="Collection name" htmlFor="import-skill-collection-name">
+          <TextInput
             id="import-skill-collection-name"
-            type="text"
             value={collectionName}
             onChange={(event) => onCollectionNameChange(event.target.value)}
             placeholder="e.g. Product Management"
-            className="text-sm"
           />
-        </Field>
+        </FormField>
 
-        <Field>
-          <FieldLabel htmlFor="import-skill-count">Count</FieldLabel>
-          <Input
+        <FormField label="Count" htmlFor="import-skill-count">
+          <TextInput
             id="import-skill-count"
-            type="text"
             inputMode="numeric"
             value={count}
             onChange={(event) => onCountChange(event.target.value)}
             placeholder={String(DEFAULT_COUNT)}
-            className="text-sm tabular-nums"
+            className="tabular-nums"
           />
-        </Field>
+        </FormField>
       </div>
 
-      <Field>
-        <FieldLabel htmlFor="import-skill-exclude">Exclude terms</FieldLabel>
-        <Textarea
+      <FormField label="Exclude terms" htmlFor="import-skill-exclude">
+        <TextArea
           id="import-skill-exclude"
           value={exclude}
           onChange={(event) => onExcludeChange(event.target.value)}
           placeholder={isLoadingTerms ? "Loading terms…" : "e.g. Agile, Scrum, OKR"}
           rows={2}
-          className="min-h-11 text-sm"
         />
-      </Field>
+      </FormField>
     </div>
   );
 }

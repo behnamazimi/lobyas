@@ -76,7 +76,7 @@ export function PauseCountdown({ ms }: { ms: number }) {
         strokeLinecap="round"
         pathLength="100"
         strokeDasharray="100"
-        className="shadowing-countdown text-primary-content"
+        className="shadowing-countdown text-neutral-content"
         style={{ animationDuration: `${ms}ms` }}
       />
     </svg>
@@ -107,7 +107,7 @@ export function LoopButton({
       }
       aria-pressed={active}
       onPress={onPress}
-      className={cn(ROW_BUTTON, active && "bg-primary/15 text-primary")}
+      className={cn(ROW_BUTTON, active && "bg-quiz-tint text-quiz-text")}
     >
       <Repeat className="size-6" aria-hidden strokeWidth={1.25} />
       {active ? (

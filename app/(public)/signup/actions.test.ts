@@ -44,7 +44,9 @@ describe("resendConfirmation", () => {
 
   it("falls back to the default home for an unsafe next path", async () => {
     await resendConfirmation("me@example.com", "https://evil.test");
-    expect(JSON.stringify(state.calls)).toContain("next=%2Fapp%2Freview");
+    const calls = JSON.stringify(state.calls);
+    expect(calls).toContain("next=%2Fapp");
+    expect(calls).not.toContain("next=%2Fapp%2F");
   });
 
   it("reports a rate limit with the shared wording", async () => {

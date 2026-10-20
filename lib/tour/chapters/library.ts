@@ -24,8 +24,8 @@ export const LIBRARY_CHAPTERS = [
     steps: [
       {
         target: "library-collections",
-        title: "Your collections",
-        body: "Pick one to see its terms and progress.",
+        title: "Your collection",
+        body: "Its progress, study links and settings are here. Switch collections from the picker.",
       },
     ],
   },
@@ -59,14 +59,14 @@ export const LIBRARY_CHAPTERS = [
     after: ["library"],
     steps: [
       {
+        target: "nav-me",
+        title: "Everything else",
+        body: "Browse collections, add your own, check Mastery, and open Settings.",
+      },
+      {
         target: "app-streak",
         title: "Your streak",
         body: "An optional streak counts the days you practice. Open it to see your week.",
-      },
-      {
-        target: "app-account",
-        title: "Everything else",
-        body: "Browse collections, add your own, check Mastery, and open Settings.",
       },
     ],
   },

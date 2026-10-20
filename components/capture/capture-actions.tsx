@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { PinnedAction, Pill } from "@/components/kit";
 import { CAPTURE_COPY } from "@/lib/capture/copy";
 
 export function CaptureActions({
@@ -11,19 +11,13 @@ export function CaptureActions({
   onSaveAnother: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-2">
-      <Button type="submit" className="min-h-12 w-full" isDisabled={!canSave}>
+    <PinnedAction className="flex flex-col gap-2">
+      <Pill size="lg" type="submit" disabled={!canSave}>
         {isBusy ? CAPTURE_COPY.saving : CAPTURE_COPY.save}
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        className="min-h-11 w-full"
-        isDisabled={!canSave}
-        onPress={onSaveAnother}
-      >
+      </Pill>
+      <Pill variant="ghost" disabled={!canSave} onClick={onSaveAnother}>
         {CAPTURE_COPY.saveAnother}
-      </Button>
-    </div>
+      </Pill>
+    </PinnedAction>
   );
 }

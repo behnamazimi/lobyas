@@ -134,8 +134,8 @@ hold ids and counts, never the topic, the terms or emails. SQL checks:
 
 ## Issue reports
 
-Members send a problem or an idea from "Report an issue" in the account menu (desktop) or the
-More sheet (phone). The modal is `components/issues/report-issue-dialog.tsx`; the copy, limits and
+Members send a problem or an idea from "Report an issue" on Me and in the public
+account menu. The sheet is `components/issues/report-issue-sheet.tsx`; the copy, limits and
 image shrinking live in `lib/issues/`. It saves through `submitIssueReport`
 (`app/(private)/app/issues/actions.ts`), which calls `submit_issue_report`. That function checks
 the input and allows 10 reports per person per 24 hours. The page path, browser and window size
@@ -176,15 +176,15 @@ Nothing is automatic: reports only show up for an admin, who decides.
   policy can't protect single columns. `collections_guard_protected` refuses a non-admin change to the lock columns
   or `love_count` (only the love counter trigger may write it, recognised by `pg_trigger_depth() > 1`) and
   refuses sharing while the lock is set (`share_blocked`, shown to the owner as the moderation sentence).
-- **Where it shows.** Browse cards (love, report, Most loved sort), the Library header and actions menu, and
+- **Where it shows.** Browse cards (love, report, Most loved sort), the Library's More sheet, and
   `/admin/collections` (Loves column, status badges, Stop sharing, Lift lock and Reports dialogs; code in
   `components/admin/collections/moderation-*.tsx` and `moderation-actions.ts`). The overview counts collections
   with open reports. No user-facing string may name the admin; `lib/collections/moderation.test.ts` checks it.
 - **Browse tabs.** Browse splits shared collections into Built-in and Community (`?tab=`, `group` in
   `lib/library/browse.ts`). Search, sort and the status filter carry across tabs, and each tab shows its own
   match count. Built-ins have no Report action; the import chooser search omits `group` and sees both.
-- **Share links.** The Library header's Share button (owners) turns sharing on and off and gives a link,
-  `/c/<collection id>`; everyone else gets a button that copies it. A built-in public collection's link is its
+- **Share links.** The Library header's Share tile (owners) turns sharing on and off and gives a link,
+  `/c/<collection id>`; everyone else gets a Copy link tile. A built-in public collection's link is its
   `/collections/<slug>` page (`lib/collections/share.ts`). The link works only while the collection is shared and
   not blocked, so an unshare or a takedown ends it along with the copies in other libraries. The proxy checks it
   first through `shared_collection_link` (a real 404, or a 308 to a built-in's page) and the page reads

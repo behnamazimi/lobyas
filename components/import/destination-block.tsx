@@ -1,11 +1,6 @@
 "use client";
 
-import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { CollectionSelect } from "@/components/library/collection-select";
+import { Banner, ChoiceCards, FormField, Pill, SelectInput, TextInput } from "@/components/kit";
 import { KindToggle } from "@/components/shared/kind-toggle";
 import { LanguageToggle } from "@/components/shared/language-toggle";
 import type { DestinationMode } from "@/components/import/use-import-flow";
@@ -13,6 +8,9 @@ import type { ImportDestination } from "@/lib/import/import-collections";
 import { findSimilarName } from "@/lib/import/similar-name";
 import type { CollectionKind } from "@/lib/terms/kinds";
 import { COLLECTION_LANGUAGE_OPTIONS, type CollectionLanguage } from "@/lib/terms/languages";
+import { pluralize } from "@/lib/utils";
+
+const NOTE = "m-0 text-[13px] font-semibold text-muted";
 
 type DestinationBlockProps = {
   collections: ImportDestination[];
@@ -45,7 +43,9 @@ function languageHint(
   if (!guessed || guessed === language) return null;
   const guessedLabel = languageLabel(guessed);
   if (mode === "existing") {
-    return `These terms look ${guessedLabel}, but ${existingName ? `"${existingName}"` : "this collection"} is set to ${languageLabel(language)}.`;
+    return `These terms look ${guessedLabel}, but ${
+      existingName ? `"${existingName}"` : "this collection"
+    } is set to ${languageLabel(language)}.`;
   }
   return `This list looks ${guessedLabel}. Choose ${guessedLabel} above if that's right.`;
 }
@@ -89,53 +89,46 @@ function NewCollectionFields({
 
   return (
     <>
-      <Field>
-        <FieldLabel htmlFor="import-name">Name</FieldLabel>
-        <Input
+      <FormField label="Name" htmlFor="import-name">
+        <TextInput
           id="import-name"
           value={newName}
           disabled={disabled}
-          className="text-base"
           placeholder="e.g. Startup finance"
           onChange={(event) => onNameChange(event.target.value)}
         />
-      </Field>
+      </FormField>
       {similar && similarCollection ? (
-        <Alert>
-          <AlertDescription>
-            You already have &ldquo;{similar.name}&rdquo;. Add to it instead?
-          </AlertDescription>
-          <AlertAction>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              onPress={() => onModeChange("existing", similarCollection.id)}
+        <Banner
+          action={
+            <Pill
+              variant="secondary"
+              onClick={() => onModeChange("existing", similarCollection.id)}
             >
               Add to it
-            </Button>
-          </AlertAction>
-        </Alert>
+            </Pill>
+          }
+        >
+          You already have &ldquo;{similar.name}&rdquo;. Add to it instead?
+        </Banner>
       ) : null}
       {addedMatch ? (
-        <p className="m-0 text-sm text-base-content/70" role="status">
+        <p className={NOTE} role="status">
           You added a collection called &ldquo;{addedMatch}&rdquo;. This creates your own.
         </p>
       ) : null}
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-medium">Language</span>
+      <FormField label="Language">
         <LanguageToggle value={language} onChange={onLanguageChange} isDisabled={disabled} />
-      </div>
+      </FormField>
       {fileLanguage && fileLanguage !== language ? (
-        <p className="m-0 text-sm text-base-content/70" role="status">
+        <p className={NOTE} role="status">
           The file says {languageLabel(fileLanguage)}, you chose {languageLabel(language)}. Your
           choice is used.
         </p>
       ) : null}
-      <Field>
-        <FieldLabel>What it teaches</FieldLabel>
+      <FormField label="What it teaches">
         <KindToggle value={kind} onChange={onKindChange} isDisabled={disabled} />
-      </Field>
+      </FormField>
     </>
   );
 }
@@ -161,63 +154,55 @@ export function DestinationBlock({
   const hint = languageHint(mode, effectiveLanguage, guessedLanguage, existing?.name);
 
   return (
-    <div className="space-y-3">
-      <ToggleGroup
-        aria-label="Where to add"
-        selectionMode="single"
-        disallowEmptySelection
-        isDisabled={disabled}
-        selectedKeys={[mode]}
-        onSelectionChange={(keys) => {
-          const [key] = [...keys];
-          if (key === "new" || key === "existing") onModeChange(key);
-        }}
-        className="w-full"
-      >
-        <ToggleGroupItem id="new" className="flex-1">
-          New collection
-        </ToggleGroupItem>
-        <ToggleGroupItem id="existing" className="flex-1" isDisabled={collections.length === 0}>
-          Add to existing
-        </ToggleGroupItem>
-      </ToggleGroup>
+    <div className="flex flex-col gap-3">
+      <FormField label="Add to">
+        <div className={disabled ? "pointer-events-none opacity-60" : undefined}>
+          <ChoiceCards
+            label="Where to add"
+            options={[
+              { value: "new", label: "New collection" },
+              ...(collections.length > 0 ? [{ value: "existing", label: "Existing one" }] : []),
+            ]}
+            value={mode}
+            onChange={(key) => {
+              if (key === "new" || key === "existing") onModeChange(key);
+            }}
+          />
+        </div>
+      </FormField>
 
       {mode === "new" ? (
-        <>
-          <NewCollectionFields
-            collections={collections}
-            addedNames={addedNames}
-            newName={newName}
-            language={language}
-            kind={kind}
-            disabled={disabled}
-            fileLanguage={fileLanguage}
-            onModeChange={onModeChange}
-            onNameChange={onNameChange}
-            onLanguageChange={onLanguageChange}
-            onKindChange={onKindChange}
-          />
-        </>
+        <NewCollectionFields
+          collections={collections}
+          addedNames={addedNames}
+          newName={newName}
+          language={language}
+          kind={kind}
+          disabled={disabled}
+          fileLanguage={fileLanguage}
+          onModeChange={onModeChange}
+          onNameChange={onNameChange}
+          onLanguageChange={onLanguageChange}
+          onKindChange={onKindChange}
+        />
       ) : (
         <>
-          <Field>
-            <FieldLabel htmlFor="import-existing">Collection</FieldLabel>
-            <CollectionSelect
+          <FormField label="Collection" htmlFor="import-existing">
+            <SelectInput
               id="import-existing"
-              mode="local"
-              collections={collections.map((c) => ({
-                id: c.id,
-                name: c.name,
-                termCount: c.termCount,
-              }))}
               value={existingId}
-              isDisabled={disabled}
-              className="w-full"
-              onChange={(id) => onModeChange("existing", id)}
-            />
-          </Field>
+              disabled={disabled}
+              onChange={(event) => onModeChange("existing", event.target.value)}
+            >
+              {collections.map((collection) => (
+                <option key={collection.id} value={collection.id}>
+                  {collection.name} · {pluralize(collection.termCount, "term")}
+                </option>
+              ))}
+            </SelectInput>
+          </FormField>
           {existing ? (
-            <p className="m-0 text-sm text-base-content/70">
+            <p className={NOTE}>
               Language: {languageLabel(existing.language)} (set by this collection)
             </p>
           ) : null}
@@ -225,7 +210,7 @@ export function DestinationBlock({
       )}
 
       {hint ? (
-        <p className="m-0 text-sm text-base-content/70" role="status">
+        <p className={NOTE} role="status">
           {hint}
         </p>
       ) : null}

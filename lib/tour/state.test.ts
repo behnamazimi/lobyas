@@ -46,7 +46,7 @@ describe("pickChapter", () => {
   });
 
   it("holds the header tips back on an empty Library, so welcome comes first", () => {
-    const onEmptyLibrary = visible("library-browse", "library-import", "app-streak", "app-account");
+    const onEmptyLibrary = visible("library-browse", "library-import", "nav-me", "app-streak");
     expect(pickChapter("/app/library", NEW_USER_TOUR_STATE, onEmptyLibrary)?.id).toBe("welcome");
 
     const welcomeSeen: TourState = { status: "pending", seen: ["welcome"] };
@@ -55,9 +55,7 @@ describe("pickChapter", () => {
 
   it("shows the header tips once the Library chapters have run", () => {
     const state: TourState = { status: "pending", seen: ["library", "library-terms"] };
-    expect(pickChapter("/app/library", state, visible("app-streak", "app-account"))?.id).toBe(
-      "app",
-    );
+    expect(pickChapter("/app/library", state, visible("nav-me", "app-streak"))?.id).toBe("app");
   });
 
   it("runs the Library chapter once a collection exists", () => {
@@ -67,7 +65,7 @@ describe("pickChapter", () => {
   });
 
   it("waits until the first target is on screen", () => {
-    expect(pickChapter("/app/review", NEW_USER_TOUR_STATE, visible("review-card"))).toBeNull();
+    expect(pickChapter("/app/review", NEW_USER_TOUR_STATE, visible("review-grades"))).toBeNull();
   });
 
   it("runs the next chapter on the same page once one is seen", () => {
@@ -83,16 +81,12 @@ describe("pickChapter", () => {
 
   it("skips chapters already seen", () => {
     const state: TourState = { status: "pending", seen: ["review"] };
-    expect(pickChapter("/app/review", state, visible("review-collection"))).toBeNull();
+    expect(pickChapter("/app/review", state, visible("review-card"))).toBeNull();
   });
 
   it("never runs once the tour is done", () => {
     expect(
-      pickChapter(
-        "/app/review",
-        withTourSkipped(NEW_USER_TOUR_STATE),
-        visible("review-collection"),
-      ),
+      pickChapter("/app/review", withTourSkipped(NEW_USER_TOUR_STATE), visible("review-card")),
     ).toBeNull();
   });
 });
@@ -127,12 +121,7 @@ describe("resolveTourStep", () => {
 
   it("starts a chapter at its first step", () => {
     expect(
-      resolveTourStep(
-        "/app/review",
-        NEW_USER_TOUR_STATE,
-        null,
-        visible("review-collection", "review-card"),
-      ),
+      resolveTourStep("/app/review", NEW_USER_TOUR_STATE, null, visible("review-card")),
     ).toMatchObject({ chapterId: "review", stepIndex: 0 });
   });
 
@@ -141,20 +130,15 @@ describe("resolveTourStep", () => {
       resolveTourStep(
         "/app/review",
         NEW_USER_TOUR_STATE,
-        atReviewStep(1),
-        visible("review-collection", "review-card", "review-grades"),
+        atReviewStep(0),
+        visible("review-card", "review-grades"),
       ),
-    ).toMatchObject({ chapterId: "review", stepIndex: 2 });
+    ).toMatchObject({ chapterId: "review", stepIndex: 1 });
   });
 
   it("waits on a step whose target may come back, without restarting the chapter", () => {
     expect(
-      resolveTourStep(
-        "/app/review",
-        NEW_USER_TOUR_STATE,
-        atReviewStep(2),
-        visible("review-collection", "review-card"),
-      ),
+      resolveTourStep("/app/review", NEW_USER_TOUR_STATE, atReviewStep(1), visible("review-card")),
     ).toBeNull();
   });
 
@@ -189,7 +173,7 @@ describe("resolveTourStep", () => {
         "/app/review",
         withTourSkipped(NEW_USER_TOUR_STATE),
         atReviewStep(0),
-        visible("review-collection"),
+        visible("review-card"),
       ),
     ).toBeNull();
   });
@@ -198,11 +182,7 @@ describe("resolveTourStep", () => {
 describe("tourTargetsOn", () => {
   it("watches this page's remaining targets", () => {
     const state: TourState = NEW_USER_TOUR_STATE;
-    expect(tourTargetsOn("/app/review", state)).toEqual([
-      "review-collection",
-      "review-card",
-      "review-grades",
-    ]);
+    expect(tourTargetsOn("/app/review", state)).toEqual(["review-card", "review-grades"]);
   });
 
   it("watches nothing once the page's chapters are seen or the tour is done", () => {

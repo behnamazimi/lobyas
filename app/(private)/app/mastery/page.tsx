@@ -1,9 +1,7 @@
-import { Signal } from "lucide-react";
 import { getMasterySetupData } from "@/app/(private)/app/mastery/actions";
 import { MasteryPage } from "@/components/mastery/mastery-page";
-import { EmptyState } from "@/components/shared/empty-state";
-import { PageCenter } from "@/components/page-container";
-import { LinkButton } from "@/components/ui/button";
+import { EmptyPanel, Pill } from "@/components/kit";
+import { EmptyBoxScene } from "@/components/illustrations/scenes/empty-box";
 import { withReveal } from "@/components/shared/view-transitions";
 
 type PageProps = {
@@ -14,29 +12,26 @@ async function MasteryRoute({ searchParams }: PageProps) {
   const [params, setup] = await Promise.all([searchParams, getMasterySetupData()]);
 
   if ("error" in setup) {
-    return (
-      <PageCenter>
-        <p className="text-sm text-base-content/70">{setup.error}</p>
-      </PageCenter>
-    );
+    return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
   }
 
   const { collections, termsLearning, termsLearned, stats } = setup;
 
   if (stats.activeCount === 0 && stats.pausedCount === 0) {
     return (
-      <EmptyState
-        icon={Signal}
+      <EmptyPanel
+        illustration={<EmptyBoxScene />}
         title="No collections yet"
         description="Add your own terms or a collection to see your mastery overview here."
-      >
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <LinkButton href="/app/browse">Browse collections</LinkButton>
-          <LinkButton href="/app/import" variant="outline">
-            Add your own terms
-          </LinkButton>
-        </div>
-      </EmptyState>
+        actions={
+          <>
+            <Pill href="/app/browse">Browse collections</Pill>
+            <Pill href="/app/import" variant="secondary">
+              Add your own terms
+            </Pill>
+          </>
+        }
+      />
     );
   }
 

@@ -10,13 +10,9 @@ import { CaptureSaved } from "@/components/capture/capture-saved";
 import { useCaptureDetails } from "@/components/capture/use-capture-details";
 import { SharedSentenceChips } from "@/components/capture/shared-sentence-chips";
 import { FirstCollectionForm } from "@/components/capture/first-collection-form";
-import { CollectionSelect } from "@/components/library/collection-select";
+import { CaptureHeader, DefinitionField, TermField } from "@/components/capture/capture-fields";
 import { PastedListPrompt } from "@/components/import/pasted-list-prompt";
-import { PanelSkeleton } from "@/components/page-skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { useMountEffect } from "@/hooks/use-mount-effect";
@@ -33,28 +29,47 @@ import { writeDraft } from "@/lib/import/draft-store";
 import type { ImportDestination } from "@/lib/import/import-collections";
 import { classifyTermPaste } from "@/lib/import/term-paste";
 
-type Saved = { term: string; unfinished: boolean; collectionId: string; collectionName: string };
+type Saved = {
+  term: string;
+  unfinished: boolean;
+  collectionId: string;
+  collectionName: string;
+};
 
 /** Waits for hydration so the remembered collection (read from this device)
  *  never differs from what the server rendered. */
 export function CaptureFlow(props: CaptureFlowProps) {
-  return useHydrated() ? <CaptureForm key={props.presetId ?? ""} {...props} /> : <PanelSkeleton />;
+  return useHydrated() ? (
+    <CaptureForm key={props.presetId ?? ""} {...props} />
+  ) : (
+    <Skeleton shape="block" />
+  );
 }
 
 type CaptureFlowProps = {
   collections: ImportDestination[];
   presetId: string | null;
+  backHref: string;
   shared?: SharedIntake;
 };
 
-function CaptureForm({ collections, presetId, shared = { kind: "none" } }: CaptureFlowProps) {
+function CaptureForm({
+  collections,
+  presetId,
+  backHref,
+  shared = { kind: "none" },
+}: CaptureFlowProps) {
   const router = useRouter();
   const { toast } = useToast();
   const { createTerm, isBusy, error } = useTermActions();
   const { match, check } = useCaptureDuplicate();
   const termRef = useRef<HTMLInputElement>(null);
   const [destinationId, setDestinationId] = useState(() =>
-    pickDestination({ preset: presetId, stored: loadDestinationPref(), collections }),
+    pickDestination({
+      preset: presetId,
+      stored: loadDestinationPref(),
+      collections,
+    }),
   );
   const initial = useMemo(() => initialFromShared(shared), [shared]);
   const [term, setTerm] = useState(initial.term);
@@ -74,7 +89,23 @@ function CaptureForm({ collections, presetId, shared = { kind: "none" } }: Captu
     if (destinationId) void loadTerms(destinationId);
   });
 
-  if (!destination) return <FirstCollectionForm />;
+  const header = (
+    <CaptureHeader
+      backHref={backHref}
+      collections={collections}
+      selectedId={destination?.id}
+      onSelect={changeDestination}
+    />
+  );
+
+  if (!destination) {
+    return (
+      <>
+        {header}
+        <FirstCollectionForm />
+      </>
+    );
+  }
 
   const canSave = term.trim().length > 0 && !match && !isBusy;
 
@@ -164,111 +195,82 @@ function CaptureForm({ collections, presetId, shared = { kind: "none" } }: Captu
 
   if (saved) {
     return (
-      <CaptureSaved
-        term={saved.term}
-        unfinished={saved.unfinished}
-        collectionName={saved.collectionName}
-        collectionId={saved.collectionId}
-        onAddAnother={reset}
-      />
+      <>
+        {header}
+        <CaptureSaved
+          term={saved.term}
+          unfinished={saved.unfinished}
+          collectionName={saved.collectionName}
+          collectionId={saved.collectionId}
+          onAddAnother={reset}
+        />
+      </>
     );
   }
 
   return (
-    <form
-      noValidate
-      onSubmit={(event) => {
-        event.preventDefault();
-        void save(false);
-      }}
-      className="shadow-surface space-y-4 rounded-box bg-base-100 p-5"
-    >
-      <Field>
-        <FieldLabel htmlFor="capture-collection">{CAPTURE_COPY.collection}</FieldLabel>
-        <CollectionSelect
-          mode="local"
-          id="capture-collection"
-          aria-label={CAPTURE_COPY.collection}
-          collections={collections.map(({ id, name }) => ({ id, name }))}
-          value={destination.id}
-          className="w-full"
-          onChange={changeDestination}
+    <>
+      {header}
+      <form
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          void save(false);
+        }}
+        className="flex flex-1 flex-col gap-3.5"
+      >
+        <TermField inputRef={termRef} value={term} onChange={changeTerm} onPaste={handlePaste} />
+
+        {sentence ? (
+          <SharedSentenceChips
+            tokens={tokens}
+            selection={selection}
+            term={term.trim()}
+            onToggle={toggleWord}
+          />
+        ) : null}
+
+        {pastedLines ? (
+          <PastedListPrompt
+            source={pasteSource}
+            lines={pastedLines}
+            onAddAsList={() => addPastedAsList(pastedLines)}
+            onKeepAsOne={() => {
+              changeTerm(pastedLines.join(" "));
+              setPastedLines(null);
+            }}
+          />
+        ) : null}
+
+        {match ? (
+          <CaptureDuplicateNote
+            term={match.term}
+            finished={match.finished}
+            collectionName={destination.name}
+            collectionId={destination.id}
+          />
+        ) : null}
+
+        <DefinitionField value={definition} onChange={setDefinition} />
+
+        <CaptureDetails
+          form={{ term, definition, ...extra.form }}
+          onFieldChange={extra.updateField}
+          open={extra.open}
+          onOpenChange={extra.setOpen}
+          terms={destinationTerms}
+          drafts={extra.drafts}
+          onDraftsChange={extra.setDrafts}
         />
-      </Field>
 
-      <Field>
-        <FieldLabel htmlFor="capture-term">{CAPTURE_COPY.term}</FieldLabel>
-        <Input
-          id="capture-term"
-          ref={termRef}
-          value={term}
-          autoFocus
-          className="text-base"
-          placeholder={CAPTURE_COPY.termPlaceholder}
-          onChange={(event) => changeTerm(event.target.value)}
-          onPaste={handlePaste}
-        />
-      </Field>
+        {(extra.error ?? error) ? (
+          <p className="m-0 text-sm font-bold text-wrong-text" role="alert">
+            {extra.error ?? error}
+          </p>
+        ) : null}
 
-      {sentence ? (
-        <SharedSentenceChips
-          tokens={tokens}
-          selection={selection}
-          term={term.trim()}
-          onToggle={toggleWord}
-        />
-      ) : null}
-
-      {pastedLines ? (
-        <PastedListPrompt
-          source={pasteSource}
-          lines={pastedLines}
-          onAddAsList={() => addPastedAsList(pastedLines)}
-          onKeepAsOne={() => {
-            changeTerm(pastedLines.join(" "));
-            setPastedLines(null);
-          }}
-        />
-      ) : null}
-
-      {match ? (
-        <CaptureDuplicateNote
-          term={match.term}
-          finished={match.finished}
-          collectionName={destination.name}
-          collectionId={destination.id}
-        />
-      ) : null}
-
-      <Field>
-        <FieldLabel htmlFor="capture-definition">{CAPTURE_COPY.definition}</FieldLabel>
-        <Textarea
-          id="capture-definition"
-          value={definition}
-          className="min-h-20 text-base"
-          placeholder={CAPTURE_COPY.definitionPlaceholder}
-          onChange={(event) => setDefinition(event.target.value)}
-        />
-        <p className="m-0 mt-1 text-xs text-base-content/70">{CAPTURE_COPY.definitionHint}</p>
-      </Field>
-
-      <CaptureDetails
-        form={{ term, definition, ...extra.form }}
-        onFieldChange={extra.updateField}
-        open={extra.open}
-        onOpenChange={extra.setOpen}
-        terms={destinationTerms}
-        drafts={extra.drafts}
-        onDraftsChange={extra.setDrafts}
-      />
-
-      {(extra.error ?? error) ? (
-        <Alert variant="destructive">
-          <AlertDescription>{extra.error ?? error}</AlertDescription>
-        </Alert>
-      ) : null}
-
-      <CaptureActions canSave={canSave} isBusy={isBusy} onSaveAnother={() => void save(true)} />
-    </form>
+        <CaptureActions canSave={canSave} isBusy={isBusy} onSaveAnother={() => void save(true)} />
+      </form>
+    </>
   );
 }

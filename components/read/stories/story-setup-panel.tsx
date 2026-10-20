@@ -1,38 +1,25 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  CollectionSelect,
-  type CollectionSelectOption,
-} from "@/components/library/collection-select";
-import { StudySetupHeading, StudySetupPanel } from "@/components/read/study/study-setup-panel";
-import type { StoryCollection } from "@/lib/stories/setup";
-import type { StorySession } from "@/components/read/stories/use-story-session";
-import {
-  CEFR_LEVELS,
-  STORY_MIN_TERMS,
-  STORY_OUTLINE_MAX,
-  type CefrLevel,
-} from "@/lib/stories/types";
-import { aiAvailable, type AiAccessView } from "@/lib/llm/types";
-import { storyCreditUse } from "@/lib/stories/credit-fit";
+import { useShell } from "@/components/app/shell/shell-context";
+import { TopUpButton } from "@/components/ai-credits/top-up-button";
+import { Pill, SectionCard } from "@/components/kit";
 import { PieceLengthField } from "@/components/read/stories/story-setup-fields";
 import {
   StoryCreditGate,
   StoryFooterHint,
   StoryNoAiNotice,
 } from "@/components/read/stories/story-setup-notices";
-import { TopUpButton } from "@/components/ai-credits/top-up-button";
+import type { StorySession } from "@/components/read/stories/use-story-session";
 import { creditGate, isExhausted } from "@/lib/ai-credits/gate";
+import { aiAvailable, type AiAccessView } from "@/lib/llm/types";
+import { storyCreditUse } from "@/lib/stories/credit-fit";
+import type { StoryCollection } from "@/lib/stories/setup";
+import {
+  CEFR_LEVELS,
+  STORY_MIN_TERMS,
+  STORY_OUTLINE_MAX,
+  type CefrLevel,
+} from "@/lib/stories/types";
 
 const CEFR_HINTS: Record<CefrLevel, string> = {
   A1: "A1 · very short, basic sentences",
@@ -43,66 +30,7 @@ const CEFR_HINTS: Record<CefrLevel, string> = {
   C2: "C2 · native-level nuance",
 };
 
-function collectionLabel(collection: CollectionSelectOption) {
-  const count = collection.termCount ?? 0;
-  return count < STORY_MIN_TERMS
-    ? `${collection.name} (needs ${STORY_MIN_TERMS}+ terms)`
-    : `${collection.name} · ${count} to read`;
-}
-
-function CefrLevelField({
-  value,
-  onChange,
-}: {
-  value: CefrLevel;
-  onChange: (level: CefrLevel) => void;
-}) {
-  return (
-    <Field data-tour="stories-level">
-      <FieldLabel htmlFor="story-cefr">Sentence difficulty</FieldLabel>
-      <Select
-        value={value}
-        onChange={(key) => {
-          if (key != null) onChange(key as CefrLevel);
-        }}
-        className="w-full"
-      >
-        <SelectTrigger id="story-cefr" size="sm" className="w-full text-sm">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {CEFR_LEVELS.map((level) => (
-            <SelectItem key={level} id={level}>
-              {CEFR_HINTS[level]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </Field>
-  );
-}
-
-function OutlineField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return (
-    <Field>
-      <FieldLabel htmlFor="story-outline">Outline (optional)</FieldLabel>
-      <Textarea
-        id="story-outline"
-        value={value}
-        maxLength={STORY_OUTLINE_MAX}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="e.g. A late-night outage at a small startup"
-        className="min-h-8 text-sm"
-      />
-      <FieldDescription className="flex justify-between gap-2">
-        <span>Sets the topic. Terms still come from your queue.</span>
-        <span className="tabular-nums">
-          {value.length}/{STORY_OUTLINE_MAX}
-        </span>
-      </FieldDescription>
-    </Field>
-  );
-}
+const FIELD = "w-full rounded-[14px] border-0 bg-base-200 text-[15px] font-bold";
 
 export function StorySetupPanel({
   session,
@@ -113,6 +41,7 @@ export function StorySetupPanel({
   collections: StoryCollection[];
   ai: AiAccessView;
 }) {
+  const { current } = useShell();
   const selected = collections.find((collection) => collection.id === session.collectionId);
   const eligibleCount = selected?.eligibleCount ?? 0;
   const use = storyCreditUse(ai, session.pieceLength, eligibleCount);
@@ -120,69 +49,104 @@ export function StorySetupPanel({
   const canGenerate = aiAvailable(ai) && hasEnoughTerms && !use.overBalance;
   const creditsBlock = isExhausted(ai) || (hasEnoughTerms && use.overBalance);
   const gate = creditsBlock ? creditGate(ai.topUp) : null;
+  const fallsBack = current !== null && selected !== undefined && current.id !== selected.id;
 
   return (
-    <StudySetupPanel
-      footer={
-        gate?.kind === "top-up" ? (
-          <TopUpButton amount={gate.amount} className="min-h-11 w-full" />
-        ) : (
-          <Button
-            type="button"
-            data-tour="stories-write"
-            onPress={() => void session.generate()}
-            isDisabled={!canGenerate}
-            className="min-h-11 w-full"
-          >
-            Write a story
-          </Button>
-        )
-      }
-      footerHint={<StoryFooterHint use={use} hasEnoughTerms={hasEnoughTerms} />}
-      footerNotice={
-        creditsBlock ? (
-          <StoryCreditGate
-            ai={ai}
-            use={use}
-            pieceLength={session.pieceLength}
-            eligibleCount={eligibleCount}
-            onFit={session.setPieceLength}
-          />
-        ) : null
-      }
-    >
-      <StudySetupHeading
-        tier="read"
-        title="Set up your story"
-        description="Mark it read to count a read for every term in it. A short piece built around the next terms in your Read queue."
-      />
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div>
+        <h1 className="m-0 font-heading text-[30px] leading-[1.1] font-extrabold">
+          Set up your story
+        </h1>
+        <p className="mt-1.5 mb-0 text-[15px] leading-snug font-semibold text-muted">
+          A short piece built around the next terms in your Read queue. Mark it read to count a read
+          for every term in it.
+        </p>
+      </div>
 
       <StoryNoAiNotice ai={ai} />
 
-      <Field>
-        <FieldLabel htmlFor="story-collection">Collection</FieldLabel>
-        <CollectionSelect
-          mode="local"
-          id="story-collection"
-          size="sm"
-          triggerClassName="text-sm"
-          collections={collections.map((collection) => ({
-            id: collection.id,
-            name: collection.name,
-            termCount: collection.eligibleCount,
-          }))}
-          value={session.collectionId ?? ""}
-          disabledKeys={collections
-            .filter((collection) => collection.eligibleCount < STORY_MIN_TERMS)
-            .map((collection) => collection.id)}
-          labelFor={collectionLabel}
-          onChange={session.selectCollection}
-        />
-      </Field>
+      <SectionCard className="flex flex-col gap-3.5">
+        <div>
+          <div className="text-sm font-extrabold">Collection</div>
+          <div className="mt-1.5 flex min-h-12 items-center rounded-[14px] bg-base-200 px-3.5 text-[15px] font-bold [overflow-wrap:anywhere]">
+            {selected ? `${selected.name} · ${eligibleCount} to read` : "No collection"}
+          </div>
+          {fallsBack ? (
+            <p className="mt-1.5 mb-0 text-[13px] font-semibold text-muted">
+              {current.name} doesn&apos;t have enough terms to read yet, so this story uses{" "}
+              {selected.name}.
+            </p>
+          ) : null}
+        </div>
 
-      <CefrLevelField value={session.cefrLevel} onChange={session.setCefrLevel} />
-      <PieceLengthField value={session.pieceLength} onChange={session.setPieceLength} />
-      <OutlineField value={session.outline} onChange={session.setOutline} />
-    </StudySetupPanel>
+        <div data-tour="stories-level">
+          <label htmlFor="story-cefr" className="text-sm font-extrabold">
+            Sentence difficulty
+          </label>
+          <select
+            id="story-cefr"
+            value={session.cefrLevel}
+            onChange={(event) => session.setCefrLevel(event.target.value as CefrLevel)}
+            className={`select mt-1.5 h-12 ${FIELD}`}
+          >
+            {CEFR_LEVELS.map((level) => (
+              <option key={level} value={level}>
+                {CEFR_HINTS[level]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <PieceLengthField value={session.pieceLength} onChange={session.setPieceLength} />
+
+        <div>
+          <label htmlFor="story-outline" className="text-sm font-extrabold">
+            Outline (optional)
+          </label>
+          <textarea
+            id="story-outline"
+            rows={2}
+            value={session.outline}
+            maxLength={STORY_OUTLINE_MAX}
+            onChange={(event) => session.setOutline(event.target.value)}
+            placeholder="e.g. A late-night outage at a small startup"
+            className={`textarea mt-1.5 min-h-16 resize-none px-3.5 py-3 ${FIELD}`}
+          />
+          <div className="mt-1.5 flex justify-between gap-2 text-[13px] font-semibold text-muted">
+            <span>Sets the topic. Terms still come from your queue.</span>
+            <span className="tabular-nums">
+              {session.outline.length}/{STORY_OUTLINE_MAX}
+            </span>
+          </div>
+        </div>
+      </SectionCard>
+
+      <div className="min-h-3 flex-1" />
+
+      {creditsBlock ? (
+        <StoryCreditGate
+          ai={ai}
+          use={use}
+          pieceLength={session.pieceLength}
+          eligibleCount={eligibleCount}
+          onFit={session.setPieceLength}
+        />
+      ) : null}
+      <p className="m-0 text-center text-sm font-bold text-muted empty:hidden">
+        <StoryFooterHint use={use} hasEnoughTerms={hasEnoughTerms} />
+      </p>
+      {gate?.kind === "top-up" ? (
+        <TopUpButton size="lg" amount={gate.amount} />
+      ) : (
+        <Pill
+          size="lg"
+          data-tour="stories-write"
+          onClick={() => void session.generate()}
+          disabled={!canGenerate}
+        >
+          Write a story
+        </Pill>
+      )}
+    </div>
   );
 }

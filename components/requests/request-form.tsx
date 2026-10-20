@@ -5,14 +5,18 @@ import { ChevronDown } from "lucide-react";
 import { useState, useTransition } from "react";
 import { createRequest } from "@/app/(private)/app/import/request/actions";
 import { SearchResults } from "@/components/import/chooser-search-results";
+import {
+  Banner,
+  Chip,
+  ChoiceCards,
+  FormField,
+  PinnedAction,
+  Pill,
+  TextArea,
+  TextInput,
+} from "@/components/kit";
 import { RequestSent } from "@/components/requests/request-sent";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button, LinkButton } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LanguageToggle } from "@/components/shared/language-toggle";
 import { useBrowseSearch } from "@/hooks/use-browse-search";
 import type { CollectionLanguage } from "@/lib/terms/languages";
@@ -25,6 +29,7 @@ import {
   type RequestKind,
   type RequestLevel,
 } from "@/lib/requests/types";
+import { cn } from "@/lib/utils";
 
 const FORM = REQUEST_COPY.form;
 
@@ -47,6 +52,7 @@ type RequestFormProps = {
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
+/** Optional picks: tapping the chosen one again clears it. */
 function Choice<T extends string | number>({
   label,
   options,
@@ -63,25 +69,19 @@ function Choice<T extends string | number>({
   isDisabled: boolean;
 }) {
   return (
-    <Field>
-      <FieldLabel>{label}</FieldLabel>
-      <ToggleGroup
-        aria-label={label}
-        selectionMode="single"
-        isDisabled={isDisabled}
-        selectedKeys={value === null ? [] : [String(value)]}
-        onSelectionChange={(keys) => {
-          const [key] = [...keys];
-          onChange(options.find((option) => String(option) === key) ?? null);
-        }}
-      >
+    <FormField label={label}>
+      <div role="group" aria-label={label} className="flex flex-wrap gap-2">
         {options.map((option) => (
-          <ToggleGroupItem key={String(option)} id={String(option)}>
+          <Chip
+            key={String(option)}
+            selected={value === option}
+            onPress={() => !isDisabled && onChange(value === option ? null : option)}
+          >
             {render(option)}
-          </ToggleGroupItem>
+          </Chip>
         ))}
-      </ToggleGroup>
-    </Field>
+      </div>
+    </FormField>
   );
 }
 
@@ -102,9 +102,11 @@ export function RequestForm({
   const [known, setKnown] = useState("");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [sent, setSent] = useState<{ id: string; topic: string; estimateDays: number } | null>(
-    null,
-  );
+  const [sent, setSent] = useState<{
+    id: string;
+    topic: string;
+    estimateDays: number;
+  } | null>(null);
   const [isSending, startSending] = useTransition();
 
   if (sent) return <RequestSent {...sent} />;
@@ -127,7 +129,11 @@ export function RequestForm({
         notifyEmail: true,
       });
       if (result.ok) {
-        track("collection_request_submitted", { kind, language, requested_size: size });
+        track("collection_request_submitted", {
+          kind,
+          language,
+          requested_size: size,
+        });
         setSent(result);
       } else setError(result.message);
     });
@@ -135,59 +141,47 @@ export function RequestForm({
 
   return (
     <form
-      className="space-y-5"
+      className="flex flex-1 flex-col gap-4"
       onSubmit={(event) => {
         event.preventDefault();
         if (canSend) send();
       }}
     >
-      <p className="text-sm text-base-content/70">{FORM.quota(used)}</p>
-      {paused ? (
-        <Alert>
-          <AlertDescription>{FORM.paused(estimateDays)}</AlertDescription>
-        </Alert>
-      ) : null}
+      <p className="m-0 text-sm font-semibold text-muted">{FORM.quota(used)}</p>
+      {paused ? <Banner>{FORM.paused(estimateDays)}</Banner> : null}
 
-      <Field>
-        <FieldLabel htmlFor="request-topic">{FORM.topicLabel}</FieldLabel>
-        <Input
+      <FormField label={FORM.topicLabel} htmlFor="request-topic">
+        <TextInput
           id="request-topic"
           value={topic}
           maxLength={MAX_TOPIC_LENGTH + 20}
           disabled={isSending}
-          className="min-h-12 text-base"
           placeholder={FORM.topicPlaceholder}
           onChange={(event) => browse.handleQuery(event.target.value)}
         />
-      </Field>
+      </FormField>
 
       {repeat ? (
-        <Alert>
-          <AlertDescription>
-            {FORM.repeatTopic(repeat.topic, repeat.createdDate, repeat.sentence)}{" "}
-            {repeat.collectionId ? (
-              <LinkButton
-                href={`/app/library?collection=${repeat.collectionId}`}
-                variant="outline"
-                size="sm"
-                className="min-h-11 md:min-h-8"
-              >
+        <Banner
+          action={
+            repeat.collectionId ? (
+              <Pill variant="secondary" href={`/app/library?collection=${repeat.collectionId}`}>
                 {FORM.openIt}
-              </LinkButton>
-            ) : null}
-          </AlertDescription>
-        </Alert>
+              </Pill>
+            ) : undefined
+          }
+        >
+          {FORM.repeatTopic(repeat.topic, repeat.createdDate, repeat.sentence)}
+        </Banner>
       ) : null}
       {owned ? (
-        <p className="m-0 text-sm text-base-content/70" role="status">
+        <p className="m-0 text-sm font-semibold text-muted" role="status">
           {FORM.existingName(owned)}
         </p>
       ) : null}
 
       {browse.search.status === "done" && browse.search.collections.length > 0 ? (
-        <p className="m-0 text-xs font-semibold tracking-wider text-base-content/70 uppercase">
-          {FORM.closeMatches}
-        </p>
+        <p className="m-0 text-sm font-extrabold">{FORM.closeMatches}</p>
       ) : null}
       <SearchResults
         state={browse.search}
@@ -197,35 +191,37 @@ export function RequestForm({
         hideWhenEmpty
       />
 
-      <Choice
-        label={FORM.kindLabel}
-        options={REQUEST_KINDS}
-        value={kind}
-        isDisabled={isSending}
-        render={(option) => FORM.kinds[option]}
-        onChange={(next) => {
-          if (!next) return;
-          setKind(next);
-          setLevel(null);
-        }}
-      />
+      <FormField label={FORM.kindLabel}>
+        <ChoiceCards
+          label={FORM.kindLabel}
+          options={REQUEST_KINDS.map((option) => ({
+            value: option,
+            label: FORM.kinds[option],
+          }))}
+          value={kind}
+          onChange={(next) => {
+            if (isSending) return;
+            setKind(next as RequestKind);
+            setLevel(null);
+          }}
+        />
+      </FormField>
 
-      <Field>
-        <FieldLabel>{FORM.languageLabel}</FieldLabel>
+      <FormField label={FORM.languageLabel}>
         <LanguageToggle value={language} onChange={setLanguage} isDisabled={isSending} />
-      </Field>
+      </FormField>
 
       <Collapsible isExpanded={detailsOpen} onExpandedChange={setDetailsOpen}>
-        <CollapsibleTrigger className="flex min-h-11 w-full items-center justify-between text-left text-sm font-medium outline-none focus-visible:ring-2 focus-visible:ring-primary">
+        <CollapsibleTrigger className="flex min-h-12 w-full items-center justify-between text-left text-[15px] font-extrabold outline-none focus-visible:ring-2 focus-visible:ring-base-content">
           {FORM.detailsToggle}
           <ChevronDown
-            className={`size-4 transition-transform ${detailsOpen ? "rotate-180" : ""}`}
+            className={cn("size-4 transition-transform", detailsOpen && "rotate-180")}
             aria-hidden
-            strokeWidth={1.5}
+            strokeWidth={2.6}
           />
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="space-y-5 pt-2">
+          <div className="flex flex-col gap-4 pt-2">
             <Choice
               label={FORM.levelLabel}
               options={REQUEST_LEVELS[kind] as readonly string[]}
@@ -242,36 +238,36 @@ export function RequestForm({
               render={FORM.size}
               onChange={setSize}
             />
-            <Field>
-              <FieldLabel htmlFor="request-known">{FORM.knownLabel}</FieldLabel>
-              <Textarea
+            <FormField label={FORM.knownLabel} htmlFor="request-known">
+              <TextArea
                 id="request-known"
                 value={known}
                 rows={4}
                 disabled={isSending}
-                className="min-h-24 text-base"
                 onChange={(event) => setKnown(event.target.value)}
               />
-              <p className="m-0 text-sm text-base-content/70">{FORM.knownHelp}</p>
-            </Field>
+              <p className="m-0 text-[13px] font-semibold text-muted">{FORM.knownHelp}</p>
+            </FormField>
           </div>
         </CollapsibleContent>
       </Collapsible>
 
-      <p className="text-sm text-base-content/70">{FORM.privacy}</p>
+      <p className="m-0 text-[13px] font-semibold text-muted">{FORM.privacy}</p>
 
       {error ? (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
+        <p className="m-0 text-sm font-bold text-wrong-text" role="alert">
+          {error}
+        </p>
       ) : null}
 
-      <div className="space-y-2 pb-4">
-        <Button type="submit" className="min-h-12 w-full" isDisabled={!canSend}>
+      <PinnedAction>
+        <Pill size="lg" type="submit" disabled={!canSend}>
           {isSending ? FORM.sending : FORM.submit}
-        </Button>
-        <p className="m-0 text-center text-sm text-base-content/70">{FORM.eta(estimateDays)}</p>
-      </div>
+        </Pill>
+        <p className="m-0 mt-2 text-center text-[13px] font-semibold text-muted">
+          {FORM.eta(estimateDays)}
+        </p>
+      </PinnedAction>
     </form>
   );
 }

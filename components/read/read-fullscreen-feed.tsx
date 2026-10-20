@@ -6,6 +6,7 @@ import { ReadCaughtUp } from "@/components/read/read-caught-up";
 import { ReadFullscreenCard, ReadFullscreenSlide } from "@/components/read/read-fullscreen-card";
 import { useReadFullscreenScroll } from "@/components/read/use-read-fullscreen-scroll";
 import type { ReadQueue } from "@/components/read/use-read-queue";
+import { Pill } from "@/components/kit";
 import { Button } from "@/components/ui/button";
 import { useFullscreenExit } from "@/hooks/use-fullscreen-exit";
 
@@ -32,7 +33,7 @@ export function ReadFullscreenFeed({
       ref={bindContainer}
       tabIndex={-1}
       data-tour-blocking=""
-      className="fixed inset-0 z-[100] flex flex-col overflow-y-auto overscroll-contain bg-base-100 outline-none"
+      className="fixed inset-0 z-[100] flex flex-col overflow-y-auto overscroll-contain bg-base-200 outline-none"
       style={{ scrollSnapType: "y mandatory" }}
     >
       <span className="sr-only" role="status">
@@ -58,9 +59,9 @@ export function ReadFullscreenFeed({
           <ReadCaughtUp
             description="No terms in this collection. Pick another to keep reading."
             actions={
-              <Button type="button" variant="outline" onPress={requestExit}>
+              <Pill variant="secondary" onClick={requestExit}>
                 Exit focus mode
-              </Button>
+              </Pill>
             }
           />
         </ReadFullscreenSlide>

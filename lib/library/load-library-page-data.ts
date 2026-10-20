@@ -57,6 +57,7 @@ export async function loadLibraryPageData(
         unfinishedCount: row.unfinishedCount,
         knownCount: row.knownCount,
         termsLearnedCount: row.termsLearnedCount,
+        queues: { read: row.readQueue, review: row.reviewQueue, quiz: row.quizQueue },
         markedKnownCount: row.markedKnownCount,
       }),
     );
@@ -75,6 +76,11 @@ export async function loadLibraryPageData(
       unfinishedCount: selectedRow.unfinishedCount,
       knownCount: selectedRow.knownCount,
       termsLearnedCount: selectedRow.termsLearnedCount,
+      queues: {
+        read: selectedRow.readQueue,
+        review: selectedRow.reviewQueue,
+        quiz: selectedRow.quizQueue,
+      },
       markedKnownCount: selectedRow.markedKnownCount,
     });
 

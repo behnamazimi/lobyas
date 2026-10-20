@@ -48,6 +48,19 @@ test.describe("Studying a collection", () => {
       .toBe(1);
   });
 
+  test("triage undo brings the card back and clears the mark", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await gotoReady(page, `/app/triage?collection=${collectionId}`);
+
+    await page.getByRole("button", { name: "I know this" }).click();
+    await expect(page.getByText("9 left to sort")).toBeVisible();
+    await expect.poll(() => reviewState(user.id)).toMatchObject({ markedKnown: 1 });
+
+    await page.getByRole("button", { name: "Undo last choice" }).click();
+    await expect(page.getByText("10 left to sort")).toBeVisible();
+    await expect.poll(() => reviewState(user.id)).toMatchObject({ markedKnown: 0 });
+  });
+
   test("reading a card counts as exposure", { tag: "@smoke" }, async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
     await gotoReady(page, `/app/read?collection=${collectionId}`);
@@ -84,7 +97,7 @@ test.describe("Studying a collection", () => {
     const { collectionId } = await seedCollection(user);
     await gotoReady(page, `/app/review?collection=${collectionId}`);
 
-    await page.getByRole("button", { name: /^Recall the meaning/ }).click();
+    await page.getByRole("button", { name: "Show answer" }).click();
     await page.getByRole("button", { name: "Good" }).click();
 
     await expect.poll(() => reviewState(user.id)).toMatchObject({ reviewed: 1 });
@@ -93,6 +106,26 @@ test.describe("Studying a collection", () => {
       [user.id],
     );
     expect(event?.grade).toBe(3);
+  });
+
+  test("a mixed link opens the current collection", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await gotoReady(page, `/app/review?collection=all`);
+
+    await page.getByRole("button", { name: /^Recall the meaning/ }).click();
+    await page.getByRole("button", { name: "Good" }).click();
+
+    await expect
+      .poll(async () => {
+        const rows = await sql<{ collection_id: string }>(
+          `select t.collection_id from public.review_events e
+           join public.terms t on t.id = e.term_id
+           where e.user_id = $1 and e.grade is not null`,
+          [user.id],
+        );
+        return rows.map((row) => row.collection_id);
+      })
+      .toEqual([collectionId]);
   });
 
   test(
@@ -123,7 +156,10 @@ test.describe("Studying a collection", () => {
              having count(*) filter (where e.is_retry) > 0`,
             [user.id],
           );
-          return rows.map((row) => ({ retries: Number(row.retries), tests: Number(row.tests) }));
+          return rows.map((row) => ({
+            retries: Number(row.retries),
+            tests: Number(row.tests),
+          }));
         })
         .toEqual([{ retries: 1, tests: 1 }]);
     },
@@ -135,17 +171,17 @@ test.describe("Studying a collection", () => {
     async ({ page, user }) => {
       const { collectionId } = await seedCollection(user);
       await gotoReady(page, `/app/quiz?collection=${collectionId}`);
-      await page.getByRole("button", { name: "5", exact: true }).click();
+      await page.getByRole("radio", { name: "5", exact: true }).click({ force: true });
       await page.getByRole("button", { name: "Start quiz" }).click();
 
       // A wrong answer queues a retry, so the quiz can run past five questions.
       const choices = page.getByRole("radiogroup", { name: "Answer choices" });
-      const results = page.getByRole("heading", { name: /Quiz complete|Practice complete/ });
+      const results = page.getByRole("heading", { name: /\d+ of \d+ right/ });
       await expect(page.getByText("Question 1 of 5")).toBeVisible();
       for (let answered = 0; answered < 10; answered++) {
         await choices.locator("label").first().click();
-        await page.getByRole("button", { name: "Check answer" }).click();
-        await page.getByRole("button", { name: /Next question|See results/ }).click();
+        await page.getByRole("button", { name: "Check", exact: true }).click();
+        await page.getByRole("button", { name: /^(Next|See results)$/ }).click();
         await expect(results.or(choices)).toBeVisible();
         if (await results.isVisible()) break;
       }

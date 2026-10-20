@@ -19,6 +19,7 @@ type MapCollectionOptions = {
   unfinishedCount?: number;
   knownCount?: number;
   termsLearnedCount?: number;
+  queues?: Collection["queues"];
   markedKnownCount?: number;
   lovedByMe?: boolean;
   reportedByMe?: boolean;
@@ -45,6 +46,7 @@ export function mapCollection(
     unfinishedCount: options.unfinishedCount ?? 0,
     knownCount: options.knownCount ?? 0,
     termsLearnedCount: options.termsLearnedCount ?? 0,
+    queues: options.queues ?? { read: 0, review: 0, quiz: 0 },
     markedKnownCount: options.markedKnownCount ?? 0,
     isBuiltin: row.is_builtin ?? false,
     loveCount: row.love_count ?? 0,

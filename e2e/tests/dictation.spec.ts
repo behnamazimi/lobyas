@@ -82,21 +82,28 @@ async function seedListening(page: Page, user: TestUser) {
 async function reachDictation(page: Page) {
   const prompt = page.getByRole("heading", { name: "Type what you hear." });
   for (let question = 1; question <= QUESTIONS; question++) {
-    await expect(page.getByText(`Question ${question} of ${QUESTIONS}`)).toBeVisible();
+    await expect(page.getByText(new RegExp(`(Question|Retry) ${question} of \\d+`))).toBeVisible();
     if (await prompt.isVisible()) return question;
 
     const choices = page.getByRole("radiogroup", { name: "Answer choices" });
     if (await choices.isVisible()) await choices.locator("label").first().click();
     else await page.getByLabel("Your answer").fill("x");
-    await page.getByRole("button", { name: "Check answer" }).click();
-    await page.getByRole("button", { name: "Next question" }).click();
+    await page.getByRole("button", { name: "Check", exact: true }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
   }
   throw new Error("No dictation question in this quiz");
 }
 
+/** Skips the dictation question on screen: the note names the answer, then Next moves on. */
+async function skipAndContinue(page: Page) {
+  await page.getByRole("button", { name: "Can't listen now" }).click();
+  await expect(page.getByRole("status")).toContainText("Skipped, no problem");
+  await page.getByRole("button", { name: /^(Next|See results)$/ }).click();
+}
+
 async function startQuiz(page: Page, collectionId: string) {
   await gotoReady(page, `/app/quiz?collection=${collectionId}`);
-  await page.getByRole("button", { name: String(QUESTIONS), exact: true }).click();
+  await page.getByRole("radio", { name: String(QUESTIONS), exact: true }).click({ force: true });
   await page.getByRole("button", { name: "Start quiz" }).click();
 }
 
@@ -112,9 +119,9 @@ test.describe("Dictation", () => {
 
     await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
     await page.getByLabel("Your answer").fill("verkeerd");
-    await page.getByRole("button", { name: "Check answer" }).click();
+    await page.getByRole("button", { name: "Check", exact: true }).click();
     await expect(page.getByRole("status")).toContainText(
-      /Not quite\s*The answer is .+\.\s*Meaning: .+/,
+      /Not quite\s*The answer is .+\.\s*It means: .+/,
     );
     await expect(page.getByRole("button", { name: "Can't listen now" })).toHaveCount(0);
   });
@@ -124,30 +131,27 @@ test.describe("Dictation", () => {
     const collectionId = await seedListening(page, user);
     const before = await quizTestCount(user.id);
     await startQuiz(page, collectionId);
-    const skipped = await reachDictation(page);
+    await reachDictation(page);
 
-    await page.getByRole("button", { name: "Can't listen now" }).click();
-    if (skipped < QUESTIONS) {
-      await expect(page.getByText(`Question ${skipped + 1} of ${QUESTIONS}`)).toBeVisible();
-    }
-    for (let question = skipped + 1; question <= QUESTIONS; question++) {
-      const choices = page.getByRole("radiogroup", { name: "Answer choices" });
-      await expect(page.getByText(`Question ${question} of ${QUESTIONS}`)).toBeVisible();
+    await skipAndContinue(page);
+    const results = page.getByRole("heading", { name: /\d+ of \d+ right/ });
+    const choices = page.getByRole("radiogroup", { name: "Answer choices" });
+    const typed = page.getByLabel("Your answer");
+    for (let answered = 0; answered < QUESTIONS * 2; answered++) {
+      await results.or(choices).or(typed).waitFor();
+      if (await results.isVisible()) break;
       const skip = page.getByRole("button", { name: "Can't listen now" });
       if (await skip.isVisible()) {
-        await skip.click();
+        await skipAndContinue(page);
         continue;
       }
       if (await choices.isVisible()) await choices.locator("label").first().click();
-      else await page.getByLabel("Your answer").fill("x");
-      await page.getByRole("button", { name: "Check answer" }).click();
-      const last = question === QUESTIONS;
-      await page.getByRole("button", { name: last ? "See results" : "Next question" }).click();
+      else await typed.fill("x");
+      await page.getByRole("button", { name: "Check", exact: true }).click();
+      await page.getByRole("button", { name: /^(Next|See results)$/ }).click();
     }
 
-    await expect(
-      page.getByRole("heading", { name: /Quiz complete|Practice complete/ }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /\d+ of \d+ right/ })).toBeVisible();
     await expect.poll(() => quizTestCount(user.id)).toBeLessThanOrEqual(before + QUESTIONS - 1);
   });
 });

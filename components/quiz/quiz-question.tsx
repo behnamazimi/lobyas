@@ -2,14 +2,13 @@
 
 import { useEffect, useReducer, useRef, useState } from "react";
 import { feedback } from "@/lib/feedback";
-import { QuizPanel } from "@/components/quiz/quiz-ui";
+import { QuestionCard } from "@/components/kit";
 import { QuizAnswerChoices } from "@/components/quiz/quiz-answer-choices";
 import { DictationPlayer } from "@/components/quiz/dictation-player";
-import { TextFeedback } from "@/components/quiz/text-feedback";
+import { questionLabel, quizNote } from "@/components/quiz/quiz-note";
 import { QuizQuestionFooter } from "@/components/quiz/quiz-question-footer";
 import type { QuizQuestion } from "@/lib/quiz/types";
 import { gradeAnswer } from "@/lib/quiz/grade";
-import { quizFeedbackLine } from "@/lib/quiz/templates/registry";
 import { quizResponseForKey } from "@/lib/quiz/keyboard";
 import {
   canSubmitAnswer,
@@ -28,24 +27,14 @@ function isTextEntryTarget(target: EventTarget | null): boolean {
 
 type QuizQuestionViewProps = {
   question: QuizQuestion;
-  termLabel: string;
-  correct: number;
-  progressLabel: string;
   /** Whether this answer, right or wrong, ends the quiz. */
-  isLast: (passed: boolean) => boolean;
+  isLast: (passed: boolean, skipped?: boolean) => boolean;
   onAnswer: (passed: boolean) => void;
   /** Moves on without scoring, when a dictation clip can't be heard. */
   onSkip: () => void;
 };
 
-export function QuizQuestionView({
-  question,
-  correct,
-  progressLabel,
-  isLast,
-  onAnswer,
-  onSkip,
-}: QuizQuestionViewProps) {
+export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQuestionViewProps) {
   const [state, dispatch] = useReducer(quizAnswerReducer, initialAnswerState);
   // Brief pop when the advance button unlocks, so the lockout reads as
   // "getting ready" instead of an unresponsive click. Pure animation timing,
@@ -54,8 +43,8 @@ export function QuizQuestionView({
 
   const canSubmit = canSubmitAnswer(state);
 
-  const stateRef = useRef({ state, canSubmit, question, onAnswer });
-  stateRef.current = { state, canSubmit, question, onAnswer };
+  const stateRef = useRef({ state, canSubmit, question, onAnswer, onSkip });
+  stateRef.current = { state, canSubmit, question, onAnswer, onSkip };
 
   const lockoutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unlockPopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -83,6 +72,10 @@ export function QuizQuestionView({
     feedback(passed ? "answer-correct" : "answer-wrong");
     // Closes the keyboard now that the answer is in.
     if (isTextEntryTarget(document.activeElement)) (document.activeElement as HTMLElement).blur();
+    startLockout();
+  }
+
+  function startLockout() {
     lockoutTimeoutRef.current = setTimeout(() => {
       dispatch({ type: "UNLOCK" });
       setJustUnlocked(true);
@@ -90,10 +83,18 @@ export function QuizQuestionView({
     }, ADVANCE_LOCKOUT_MS);
   }
 
+  function skipQuestion() {
+    if (stateRef.current.state.phase !== "answering") return;
+    dispatch({ type: "SKIP" });
+    if (isTextEntryTarget(document.activeElement)) (document.activeElement as HTMLElement).blur();
+    startLockout();
+  }
+
   function advanceAnswer() {
     const current = stateRef.current;
     if (current.state.phase !== "ready") return;
-    current.onAnswer(current.state.passed);
+    if (current.state.skipped) current.onSkip();
+    else current.onAnswer(current.state.passed);
   }
 
   useEffect(() => {
@@ -145,63 +146,69 @@ export function QuizQuestionView({
 
   const submitted = state.phase !== "answering";
   const canAdvance = state.phase === "ready";
-  const feedbackLine = submitted ? quizFeedbackLine(question, state.passed, state.response) : null;
+  const note = submitted
+    ? quizNote(question, {
+        passed: state.passed,
+        skipped: state.skipped,
+        response: state.response,
+      })
+    : null;
+  const isDictation = question.interaction === "text" && question.dictation;
+  const quoteIsWord =
+    question.template === "typed_meaning_to_word" && (question.quote?.length ?? 0) <= 40;
 
   return (
-    <QuizPanel className="quiz-feedback-enter flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
-        <h2 className="m-0 text-lg font-medium leading-snug text-base-content sm:text-xl">
-          {question.prompt}
-        </h2>
-
-        {question.quote ? (
-          <blockquote className="mt-3 rounded-field border-l-4 border-primary/40 bg-base-200/60 px-4 py-3 text-base-content/80">
-            <span className="text-base leading-snug">{question.quote}</span>
-          </blockquote>
-        ) : null}
-
-        {question.interaction === "text" && question.dictation ? (
-          <DictationPlayer
-            termId={question.termId}
-            clipVersion={question.dictation.clipVersion}
-            answered={submitted}
-            onCantListen={() => {
-              if (stateRef.current.state.phase === "answering") onSkip();
-            }}
-          />
-        ) : null}
-
-        {question.interaction === "text" && question.hint ? (
-          <p className="m-0 mt-2 text-sm text-base-content/70">{question.hint}</p>
-        ) : null}
+    <div className="quiz-feedback-enter flex min-h-0 flex-1 flex-col gap-2">
+      <div className="-mx-5 min-h-0 flex-1 overflow-y-auto px-5 pt-1 pb-3">
+        <QuestionCard
+          label={questionLabel(question)}
+          prompt={question.prompt}
+          quote={question.quote}
+          quoteStyle={quoteIsWord ? "word" : "box"}
+        >
+          {question.interaction === "text" && question.dictation ? (
+            <DictationPlayer
+              termId={question.termId}
+              clipVersion={question.dictation.clipVersion}
+              answered={submitted}
+              onCantListen={skipQuestion}
+            />
+          ) : null}
+          {question.interaction === "text" && question.hint ? (
+            <p className="m-0 mt-2.5 text-sm font-semibold text-muted">{question.hint}</p>
+          ) : null}
+        </QuestionCard>
 
         <QuizAnswerChoices
           question={question}
           response={state.response}
           submitted={submitted}
+          skipped={state.skipped}
           onRespond={(response) => dispatch({ type: "RESPOND", response })}
         />
-
-        {submitted && question.interaction === "text" ? (
-          <TextFeedback question={question} passed={state.passed} response={state.response} />
-        ) : feedbackLine ? (
-          <p role="status" className="m-0 mt-4 text-sm text-base-content/70">
-            {feedbackLine}
-          </p>
-        ) : null}
       </div>
 
       <QuizQuestionFooter
-        correct={correct}
-        progressLabel={progressLabel}
+        note={note}
+        skipSlot={
+          isDictation ? (
+            <button
+              type="button"
+              onClick={skipQuestion}
+              className="mx-auto min-h-11 px-3.5 text-[15px] font-extrabold text-read-text"
+            >
+              Can&apos;t listen now
+            </button>
+          ) : null
+        }
         submitted={submitted}
-        isLast={isLast(state.passed)}
+        isLast={isLast(state.passed, state.skipped)}
         canSubmit={canSubmit}
         canAdvance={canAdvance}
         justUnlocked={justUnlocked}
         onSubmit={submitAnswer}
         onAdvance={advanceAnswer}
       />
-    </QuizPanel>
+    </div>
   );
 }

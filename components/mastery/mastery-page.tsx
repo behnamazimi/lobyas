@@ -75,7 +75,7 @@ export function MasteryPage({
   }, [activeTab, termRows, loadError, loadTermRows]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-3">
       <MasteryTabs active={activeTab} onChange={setActiveTab} />
 
       {activeTab === "overview" ? (

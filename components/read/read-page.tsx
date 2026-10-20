@@ -1,22 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 import type { ReadQueueSeed } from "@/app/(private)/app/read/actions";
 import { ReadQueueContent } from "@/components/read/read-page-content";
 import { ReadFullscreenFeed } from "@/components/read/read-fullscreen-feed";
 import { useReadFocus } from "@/components/read/read-focus";
-import { ReadToolbar } from "@/components/read/read-toolbar";
+import { GoalMetNote } from "@/components/goals/goal-met-note";
 import { useReadEnterKey } from "@/components/read/use-read-enter-key";
 import { useReadQueue } from "@/components/read/use-read-queue";
 import { useMountEffect } from "@/hooks/use-mount-effect";
-import { saveReadCollectionPreference } from "@/lib/read/collection-preference";
+import { readLandingRedirect } from "@/lib/read/landing";
 import type { ReadOptions } from "@/lib/read/options";
 import type { StudyCollection } from "@/lib/study/types";
-import {
-  replaceReadCollectionInUrl,
-  scrollToTop,
-  normalizeCardsUrl,
-} from "@/components/read/read-page-helpers";
+import { scrollToTop, normalizeCardsUrl } from "@/components/read/read-page-helpers";
 
 type ReadPageProps = {
   seed: ReadQueueSeed;
@@ -33,15 +29,18 @@ export function ReadPage({
   narrationAccess,
   options,
 }: ReadPageProps) {
-  const [selectedCollectionId, setSelectedCollectionId] = useState(collectionId);
   const { active: fullscreenActive, exit: handleExitFullscreen } = useReadFocus();
-  const queue = useReadQueue({ collectionId: selectedCollectionId, seed });
-  const selectedCollectionIdRef = useRef(selectedCollectionId);
-
-  selectedCollectionIdRef.current = selectedCollectionId;
+  const queue = useReadQueue({ collectionId, seed });
 
   useMountEffect(() => {
-    normalizeCardsUrl(collectionId);
+    // A visit that is about to move to Stories mustn't be marked as Cards first.
+    const params = new URLSearchParams(window.location.search);
+    const leaving = readLandingRedirect(
+      window.location.pathname,
+      params,
+      options.storiesDefault ? "stories" : undefined,
+    );
+    if (!leaving) normalizeCardsUrl(collectionId);
   });
 
   useReadEnterKey(fullscreenActive, queue);
@@ -56,17 +55,6 @@ export function ReadPage({
   useEffect(() => {
     if (shownTermId) reveal(shownTermId);
   }, [shownTermId, reveal]);
-
-  const handleCollectionChange = useCallback(
-    (nextCollectionId: string) => {
-      if (nextCollectionId === selectedCollectionIdRef.current) return;
-      setSelectedCollectionId(nextCollectionId);
-      replaceReadCollectionInUrl(nextCollectionId);
-      queue.switchCollection(nextCollectionId);
-      saveReadCollectionPreference(nextCollectionId);
-    },
-    [queue.switchCollection],
-  );
 
   const bindCard = useCallback((node: HTMLDivElement | null) => {
     if (node) scrollToTop(node);
@@ -84,12 +72,7 @@ export function ReadPage({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <ReadToolbar
-        collections={collections}
-        selectedCollectionId={selectedCollectionId}
-        isFetchingMore={queue.isFetchingMore}
-        onCollectionChange={handleCollectionChange}
-      />
+      <GoalMetNote tier="read" />
 
       <div
         key={term?.id ?? "empty"}
@@ -101,7 +84,7 @@ export function ReadPage({
           term={term}
           revealed={revealed}
           collections={collections}
-          selectedCollectionId={selectedCollectionId}
+          selectedCollectionId={collectionId}
           narrationAccess={narrationAccess}
           hideQuestion={options.hideQuestion}
         />
