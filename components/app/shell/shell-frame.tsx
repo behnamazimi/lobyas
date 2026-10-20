@@ -23,7 +23,11 @@ export function ShellFrame({ children }: { children: ReactNode }) {
     <div className="flex min-h-0 w-full flex-1 flex-col lg:flex-row">
       <AppRail activeKey={activeKey} />
       <div
-        className={cn("flex min-h-0 min-w-0 flex-1 flex-col", layout === "study" && "bg-base-200")}
+        className={cn(
+          "flex min-h-0 min-w-0 flex-1 flex-col",
+          layout === "study" && "bg-base-200",
+          layout === "tabs" && "pt-safe lg:pt-0",
+        )}
       >
         {layout === "study" ? <StudyBar /> : null}
         {layout === "sub" && !ownsHeader(pathname) ? <SubPageBar /> : null}

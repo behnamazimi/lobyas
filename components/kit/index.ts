@@ -31,7 +31,7 @@ export { AnswerOption } from "./study/answer-option";
 export { AnswerRadio, AnswerTile } from "./study/answer-radio";
 export { QuestionCard } from "./study/question-card";
 export { FeedbackNote } from "./study/feedback-note";
-export { GradeTiles } from "./study/grade-tiles";
+export { GRADE_TILE_COLORS, GradeTiles, type KitGrade } from "./study/grade-tiles";
 export { ListenButton, type ListenStatus } from "./study/listen-button";
 export { StudyCard } from "./study/study-card";
 export { EmptyPanel, Skeleton, StatusScreen } from "./states/states";

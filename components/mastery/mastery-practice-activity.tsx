@@ -1,4 +1,4 @@
-import { SECTION_TITLE, StatTile } from "@/components/kit";
+import { GRADE_TILE_COLORS, SECTION_TITLE, StatTile, type KitGrade } from "@/components/kit";
 import type { GradeDistributionSummary, WebStatsSnapshot } from "@/lib/mastery/collection-stats";
 import type { GoalDayCounts } from "@/lib/goals/progress";
 import { AGAIN, EASY, GOOD, HARD, type ReviewGrade } from "@/lib/trace";
@@ -35,12 +35,13 @@ function RollupRow({
   );
 }
 
-const GRADES: { grade: ReviewGrade; label: string; className?: string }[] = [
-  { grade: AGAIN, label: "Again" },
-  { grade: HARD, label: "Hard" },
-  { grade: GOOD, label: "Good" },
-  { grade: EASY, label: "Easy", className: "bg-success text-success-content" },
+const GRADES: { grade: ReviewGrade; label: string; kit: KitGrade }[] = [
+  { grade: AGAIN, label: "Again", kit: "again" },
+  { grade: HARD, label: "Hard", kit: "hard" },
+  { grade: GOOD, label: "Good", kit: "good" },
+  { grade: EASY, label: "Easy", kit: "easy" },
 ];
+
 const GRADE_TONE = {
   [AGAIN]: "wrong",
   [HARD]: "hard",
@@ -55,7 +56,7 @@ function GradeDistribution({ summary }: { summary: GradeDistributionSummary }) {
     <>
       <h3 className={cn(SECTION_TITLE, "mt-2")}>Grading</h3>
       <dl className="m-0 mt-2 grid grid-cols-4 gap-2">
-        {GRADES.map(({ grade, label, className }) => (
+        {GRADES.map(({ grade, label, kit }) => (
           <div key={grade} className="flex flex-col-reverse">
             <dt className="sr-only">{label}</dt>
             <dd className="m-0">
@@ -63,7 +64,7 @@ function GradeDistribution({ summary }: { summary: GradeDistributionSummary }) {
                 tone={GRADE_TONE[grade]}
                 value={`${Math.round((summary.counts[grade] / summary.total) * 100)}%`}
                 label={label}
-                className={cn("[&>div:first-child]:text-lg", className)}
+                className={cn("[&>div:first-child]:text-lg", GRADE_TILE_COLORS[kit])}
               />
             </dd>
           </div>

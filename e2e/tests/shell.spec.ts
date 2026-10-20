@@ -25,6 +25,23 @@ test.describe("App shell", () => {
   );
 
   test(
+    "going back to Home from another tab shows it without a loading skeleton",
+    { tag: "@smoke" },
+    async ({ page, user }) => {
+      await seedCollection(user);
+      await gotoReady(page, "/app");
+      const nav = page.getByRole("navigation", { name: "Main" });
+      await expect(page.getByLabel("Loading your day")).toHaveCount(0);
+
+      await nav.getByRole("link", { name: "Library", exact: true }).click();
+      await expect(page).toHaveURL(/\/app\/library/);
+      await nav.getByRole("link", { name: "Home", exact: true }).click();
+      await expect(page).toHaveURL(/\/app\/?$/);
+      await expect(page.getByLabel("Loading your day")).toHaveCount(0);
+    },
+  );
+
+  test(
     "Me lists the account actions and the theme survives a reload",
     { tag: "@smoke" },
     async ({ page, user }) => {

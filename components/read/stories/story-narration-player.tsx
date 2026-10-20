@@ -138,21 +138,18 @@ export function StoryNarrationPlayer({
 
   if (status === "ready") {
     return (
-      <>
-        <StoryAudioControls
-          src={src}
-          onError={() => {
-            setStatus("unavailable");
-            onProgress?.(null);
-          }}
-          onProgress={onProgress}
-          shadowing={shadowing}
-          sentencePlayback={sentencePlayback}
-          handleRef={handleRef}
-          onClipPauses={onClipPauses}
-        />
-        <p className="mt-1 mb-0 text-xs font-bold text-muted">AI voice</p>
-      </>
+      <StoryAudioControls
+        src={src}
+        onError={() => {
+          setStatus("unavailable");
+          onProgress?.(null);
+        }}
+        onProgress={onProgress}
+        shadowing={shadowing}
+        sentencePlayback={sentencePlayback}
+        handleRef={handleRef}
+        onClipPauses={onClipPauses}
+      />
     );
   }
 

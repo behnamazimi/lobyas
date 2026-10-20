@@ -2,7 +2,13 @@ import type { FeedbackKind } from "@/components/kit/study/feedback-note";
 import { booleanLabelsFor, quizFeedbackLine } from "@/lib/quiz/templates/registry";
 import type { QuizQuestion, QuizResponse } from "@/lib/quiz/types";
 
-export type QuizNote = { kind: FeedbackKind; title: string; detail: string };
+/** `answer` is the text of the right answer, set when the detail names it. */
+export type QuizNote = {
+  kind: FeedbackKind;
+  title: string;
+  detail: string;
+  answer: string | null;
+};
 
 function answerText(question: QuizQuestion): string | null {
   switch (question.interaction) {
@@ -34,10 +40,12 @@ export function quizNote(
     .filter(Boolean)
     .join(" ");
 
-  if (skipped) return { kind: "skipped", title: "Skipped, no problem", detail };
+  const named = answer !== null && detail.includes(answer) ? answer : null;
+
+  if (skipped) return { kind: "skipped", title: "Skipped, no problem", detail, answer: named };
   return passed
-    ? { kind: "correct", title: "Correct", detail }
-    : { kind: "wrong", title: "Not quite", detail };
+    ? { kind: "correct", title: "Correct", detail, answer: null }
+    : { kind: "wrong", title: "Not quite", detail, answer: named };
 }
 
 const LABELS: Record<QuizQuestion["template"], string> = {

@@ -137,7 +137,10 @@
 /* The app's Android shell also sets --safe-area-inset-* (Capacitor SystemBars),
    in case env() isn't filled in the WebView. */
 @utility pt-safe {
-  padding-top: max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px));
+  padding-top: calc(
+    max(env(safe-area-inset-top, 0px), var(--safe-area-inset-top, 0px)) +
+      var(--shell-top-extra, 0px)
+  );
 }
 
 @utility pb-safe {
@@ -222,6 +225,15 @@
     );
     --dock-inset: max(0.25rem, calc(var(--safe-bottom) - 0.75rem));
     --dock-bottom: calc(var(--dock-height) + var(--dock-inset));
+  }
+
+  /* Android's status bar and gesture bar sit on top of the page; the reported
+     insets leave the content a little too close to them. */
+  :root[data-shell="android"] {
+    --shell-top-extra: 0.5rem;
+    --safe-bottom: calc(
+      min(34px, max(env(safe-area-inset-bottom, 0px), var(--safe-area-inset-bottom, 0px))) + 0.75rem
+    );
   }
 
   /* Text steps are dark enough to read on white and on their tint (4.5:1). */
