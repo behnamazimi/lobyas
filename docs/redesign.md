@@ -842,3 +842,23 @@ Branch `redesign-p8-adding-terms`.
 **Care.** `app/globals.css` has a `.flow-fields` rule: inputs and unselected choice cards are white inside the add-terms pages (the kit fields are cream, which vanishes on the cream page). Sheets render outside it and keep cream. A new field on these pages needs no class. `e2e/tests/import.spec.ts` clicks choice cards by text (the radios are hidden) and uses **Save term**.
 
 **Open.** Checked at 390 and 1280, light and dim: chooser with search, paste, check (existing collection, duplicate, long definition), edit sheet, capture with details and picker, apps, guide, JSON page, request (requests off). Not checked: requests switched on, the admin delivery screen, a 1100-line list, Japanese terms, a shared sentence (`?text=`), the Android share target, the dim primary pill (it looks grey; that's the kit token).
+
+### Phase 9 · Goals, Me and account pages
+
+Branch `redesign-p9-goals-me`.
+
+**Built.** Goals, Me, Mastery, Settings and Browse sit in `FlowFrame`'s 640 px column on the cream page. Mastery, Browse and Settings draw their own `PageHeader` with a back button to Me (`ownsHeader` in `lib/chrome.ts`). Goals: a card per mode (tile icon, "N of M today", `Stepper`, Off/Light/Steady/Intense pills named "<Mode> pace"), the forecast card, a `ToggleRow` for celebrate and a pinned **Save goals** (**Start these goals** before the first save). Me: profile card (initials, email, "N day streak · longest M" that still opens the streak sheet), a credits strip with **Details**, then the rows from the frame. Mastery: one top card (Learning, Mastered, lifetime line, Practice activity, Grading with four tiles), a card per collection, and restyled Terms tab. Settings: `SectionCard` sections (AI credits, Desktop widget, Account). Browse: search, Built-in/Community switch with counts, status chips, Most loved, cards. Report an issue is a `BottomSheet`.
+
+**Kit.** None added. `ConfirmDialog` takes `confirmDisabled`. `SegmentedControl` carries `data-segmented` so `.flow-fields` does not paint its pills white.
+
+**Data.** Me's page also loads `getMyCreditSchedule` and the story estimate (`storyCost(termsForLength(DEFAULT_PIECE_LENGTH))`) into a `CreditsSummary` for `TopUpSheet` (`components/ai-credits/top-up-sheet.tsx`). `freeCreditsLine` moved to `lib/ai-credits/topup-copy.ts`. Nothing else new.
+
+**Left as is.** Forecast and goal actions, claim flow, top-up rules (`TopUpButton` claims directly), widget hook, password and delete actions, Mastery URL sync, Browse loaders, promo visits, tour targets, public `ProfileMenu` (only the sheet import changed).
+
+**Decisions taken.** Questions went unanswered, so I took the defaults: no Resume on paused Mastery cards, no Auto theme, medium story estimate, 640 px on desktop. Goals lost the lobya scene on tier cards and the Today rings (Home has them). The password form stays visible (no Change button). Mastery's Overview/Terms switch is a radio group. Report issue has no Cancel and is mounted only while open.
+
+**Frames that didn't match.** Three grades in Mastery's Grading (four built). Telegram is gone from Settings. Browse cards show "N terms" only: `SharedCollection` has no kind or language. The report sheet's Send is disabled until 10 characters.
+
+**Care.** `CreditGateNotice` is a yellow `Banner` and `TopUpButton` a `Pill` (`size="lg"` for pinned use). Removed: `collection-select`, `read-option-row`, `search-bar`, `GoalLobyaScene`, `GoalRing`. E2E: pace pills are buttons in a group, Browse source is a radio, the report radios are scoped to the dialog.
+
+**Open.** Not checked against frames: long names, big numbers, paused collections, exhausted credits, Google-only accounts, goals all off, the Terms tab with journeys. `e2e/tests/zz-visual.spec.ts` (Phase 3) is still there.

@@ -22,6 +22,7 @@ export function SegmentedControl({
   return (
     <RadioGroup
       aria-label={label}
+      data-segmented=""
       orientation="horizontal"
       value={value}
       onChange={onChange}
