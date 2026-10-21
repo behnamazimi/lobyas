@@ -174,7 +174,8 @@ only when something native changes: `capacitor.config.ts`, `native/`, `ios/`, `a
 manual, one command each, and run in CI so every build uses the same Xcode, Ruby and signing.
 
 ```bash
-pnpm mobile:release minor      # or patch, major, or a version like 1.2.3
+pnpm mobile:release            # shows what changed, then asks patch, minor or major
+pnpm mobile:release minor      # or give the bump (or a version like 1.2.3) up front
 pnpm mobile:promote both       # later, when the beta build has been tried
 ```
 
@@ -190,7 +191,8 @@ number keeps rising.
 `pnpm mobile:promote` (`scripts/mobile-promote.sh`) starts the Mobile promote workflow for the
 latest tag (or `--version`): Android moves the Play internal release to production at
 `--rollout` percent (default 10; run it again with a higher number to widen), and iOS submits
-the TestFlight build for App Store review as a phased release. Both are manual because they
+the TestFlight build of `--version` for App Store review as a phased release. Android promotes
+whatever is on the internal track, so promote before you release again. Both are manual because they
 can't be taken back. The first release of each store is done by hand (see CI below), and the
 iOS lane needs the version's metadata and screenshots already filled in App Store Connect; it
 has not been run against the real stores yet.
@@ -202,7 +204,7 @@ secrets and would wait for one.
 Reliability:
 
 - **Mobile health** (`.github/workflows/mobile-health.yml`, Mondays) runs the secret check,
-  confirms the App Store Connect key works and the app exists, reads the signing profile's
+  confirms the App Store Connect key works and the app exists (it runs on macOS, because `match` needs a keychain), reads the signing profile's
   expiry (fails under 30 days; fix with Mobile signing and "force"), and tells the ops chat when
   native changes have waited a week without a release.
 - **Alerts**: `notify.yml` posts failures of Mobile, Mobile signing and Mobile promote, and a

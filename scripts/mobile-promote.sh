@@ -3,9 +3,10 @@
 #
 #   pnpm mobile:promote android|ios|both [--rollout 10] [--version X.Y.Z] [--yes]
 #
-# Android moves the Play internal release to production at the given percentage (default 10).
-# iOS submits the TestFlight build of that version for App Store review, with a phased release.
-# The Mobile promote workflow does the work; the version defaults to the latest mobile-v tag.
+# Android moves whatever release is on the Play internal track to production at the given
+# percentage (default 10); the version doesn't apply to it. iOS submits the TestFlight build of
+# --version (default: the latest mobile-v tag) for App Store review, with a phased release.
+# The Mobile promote workflow does the work.
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
@@ -18,7 +19,7 @@ die() {
 }
 
 platform="${1:-}"
-case "$platform" in android | ios | both) shift ;; *) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;; esac
+case "$platform" in android | ios | both) shift ;; *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;; esac
 
 rollout=10
 version=""
@@ -45,7 +46,8 @@ if [ -z "$version" ]; then
 fi
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "'$version' is not a version like 1.2.3."
 
-echo "Promote ${version} to the public stores: ${platform}$([ "$platform" != ios ] && echo ", Play rollout ${rollout}%")"
+[ "$platform" = ios ] || echo "Android: the release now on the Play internal track goes to production at ${rollout}%."
+[ "$platform" = android ] || echo "iOS: the TestFlight build of ${version} is submitted for App Store review."
 if [ "$assume_yes" -eq 0 ]; then
   read -r -p "Continue? [y/N] " answer
   case "$answer" in y | Y | yes) ;; *) echo "Cancelled."; exit 1 ;; esac

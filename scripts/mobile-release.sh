@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 # Releases the mobile apps to TestFlight and the Play internal track.
 #
-#   pnpm mobile:release patch|minor|major|X.Y.Z [--yes] [--dry-run] [--force]
+#   pnpm mobile:release [patch|minor|major|X.Y.Z] [--yes] [--dry-run] [--force]
 #
-# It checks that main is up to date with green CI and that native files changed since
-# the last release, then pushes the tag `mobile-vX.Y.Z`. The Mobile workflow builds,
-# signs and uploads from that tag. Nothing is built on this machine.
+# With no version it shows what changed and asks which kind of release this is. It checks
+# that main is up to date with green CI and that native files changed since the last release,
+# then pushes the tag `mobile-vX.Y.Z`. The Mobile workflow builds, signs and uploads from that
+# tag. Nothing is built on this machine.
 set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel)"
@@ -18,7 +19,7 @@ die() {
 }
 
 usage() {
-  sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
   exit 1
 }
 
@@ -36,7 +37,9 @@ for arg in "$@"; do
     *) [ -z "$target" ] || die "Give one version or bump, not two."; target="$arg" ;;
   esac
 done
-[ -n "$target" ] || usage
+if [ -z "$target" ] && [ ! -t 0 ]; then
+  usage
+fi
 
 for tool in gh git; do
   command -v "$tool" > /dev/null || die "$tool is not installed."
@@ -50,7 +53,7 @@ git fetch --quiet origin main --tags
 sha="$(git rev-parse HEAD)"
 [ "$sha" = "$(git rev-parse origin/main)" ] || die "main isn't up to date with origin. Run: git pull"
 
-ci="$(gh run list --workflow ci.yml --commit "$sha" --limit 1 --json status,conclusion --jq '.[0] | "\(.status) \(.conclusion)"')"
+ci="$(gh run list --workflow ci.yml --commit "$sha" --limit 1 --json status,conclusion --jq '.[0] // empty | "\(.status) \(.conclusion)"')"
 case "$ci" in
   "") die "No CI run found for ${sha:0:7} yet. Wait for it to start." ;;
   "completed success") ;;
@@ -60,6 +63,46 @@ esac
 
 previous="$(last_release_tag)"
 previous_version="${previous#mobile-v}"
+if [ -n "$previous" ] && ! [[ "$previous_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  die "The latest tag '$previous' isn't a version like mobile-v1.2.3."
+fi
+
+changed="$(native_changed_files "$previous")"
+dependencies="$(native_dependency_changes "$previous")"
+if [ -z "$changed" ] && [ -z "$dependencies" ] && [ "$force" -eq 0 ]; then
+  echo "No native files changed since ${previous:-the start}. The apps load the live site, so a web deploy already reached them."
+  echo "Run with --force to release anyway."
+  exit 0
+fi
+
+echo "Main is at ${sha:0:7} with green CI. Last release: ${previous:-none}"
+if [ -n "$changed" ]; then
+  echo "Native files changed:"
+  printf '%s\n' "$changed" | sed 's/^/  /'
+fi
+if [ -n "$dependencies" ]; then
+  echo "Capacitor plugin changes in package.json:"
+  printf '%s\n' "$dependencies" | sed 's/^/  /'
+fi
+echo
+
+if [ -z "$target" ]; then
+  if [ -z "$previous" ]; then
+    read -r -p "There is no earlier release. First version (e.g. 0.2.0): " target
+  else
+    echo "Which kind of release is this?"
+    echo "  1) patch  -> $(next_version "$previous_version" patch)   fixes and small native changes"
+    echo "  2) minor  -> $(next_version "$previous_version" minor)   a new plugin or native feature"
+    echo "  3) major  -> $(next_version "$previous_version" major)   a big or breaking change"
+    read -r -p "Choose 1, 2 or 3 (or type a version): " answer
+    case "$answer" in
+      1 | patch) target=patch ;;
+      2 | minor) target=minor ;;
+      3 | major) target=major ;;
+      *) target="$answer" ;;
+    esac
+  fi
+fi
 
 case "$target" in
   patch | minor | major)
@@ -77,24 +120,7 @@ if git rev-parse --verify --quiet "refs/tags/${tag}" > /dev/null || git ls-remot
   die "The tag ${tag} already exists."
 fi
 
-changed="$(native_changed_files "$previous")"
-dependencies="$(native_dependency_changes "$previous")"
-if [ -z "$changed" ] && [ -z "$dependencies" ] && [ "$force" -eq 0 ]; then
-  echo "No native files changed since ${previous:-the start}. The apps load the live site, so a web deploy already reached them."
-  echo "Run with --force to release anyway."
-  exit 0
-fi
-
-echo "Release  ${tag}  (${sha:0:7}, previous: ${previous:-none})"
-if [ -n "$changed" ]; then
-  echo "Native files changed:"
-  printf '%s\n' "$changed" | sed 's/^/  /'
-fi
-if [ -n "$dependencies" ]; then
-  echo "Capacitor plugin changes in package.json:"
-  printf '%s\n' "$dependencies" | sed 's/^/  /'
-fi
-
+echo "Release ${tag} from ${sha:0:7}"
 if [ "$dry_run" -eq 1 ]; then
   echo "Dry run: nothing was tagged."
   exit 0
@@ -106,7 +132,10 @@ if [ "$assume_yes" -eq 0 ]; then
 fi
 
 git tag -a "$tag" -m "Mobile release ${version}"
-git push origin "$tag"
+if ! git push origin "$tag"; then
+  git tag -d "$tag" > /dev/null
+  die "Couldn't push ${tag}. Nothing was released; try again."
+fi
 
 echo "Waiting for the Mobile workflow to start..."
 run_id=""
@@ -117,7 +146,7 @@ for _ in $(seq 1 30); do
 done
 [ -n "$run_id" ] || die "The workflow didn't start. Check the Actions tab; the tag ${tag} was pushed."
 
-echo "Following run ${run_id}"
+echo "Building and uploading (run ${run_id}); this takes about 15 minutes."
 if gh run watch "$run_id" --exit-status > /dev/null; then
   echo "Done. ${tag} is uploaded: it appears in TestFlight after Apple finishes processing (about 10-30 minutes) and on the Play internal track."
   echo "Promote it to the public stores with: pnpm mobile:promote"

@@ -12,7 +12,8 @@ permissions:
 
 jobs:
   signing:
-    runs-on: ubuntu-latest
+    # match imports the certificate into a keychain, which only exists on macOS.
+    runs-on: macos-latest
     environment: Mobile release
     env:
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
