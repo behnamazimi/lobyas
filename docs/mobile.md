@@ -183,7 +183,7 @@ Signed jobs run in the `Mobile release` environment. The version comes from
 | `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | Upload key                                                                                    |
 | `PLAY_SERVICE_ACCOUNT_JSON`                                                                         | Play Console API access                                                                       |
 | `APPLE_TEAM_ID`                                                                                     | Signing team                                                                                  |
-| `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY`                  | App Store Connect API key (the `.p8` text)                                                    |
+| `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY`                  | App Store Connect API key (the `.p8` file, base64-encoded: `base64 -i AuthKey_XXXX.p8`)       |
 | `MATCH_GIT_URL`, `MATCH_GIT_BASIC_AUTHORIZATION`, `MATCH_PASSWORD`                                  | fastlane `match` certificate repo (`MATCH_GIT_BASIC_AUTHORIZATION` is base64 of `user:token`) |
 
 Set them all at once: copy `.env.mobile.example` to `.env.mobile`, fill it in, and run
