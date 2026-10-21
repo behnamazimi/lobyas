@@ -7,7 +7,7 @@ import { NativeAuthBridge } from "@/components/native/native-auth-bridge";
 import { NativeSplash } from "@/components/native/native-splash";
 import { NativeSystemBars } from "@/components/native/native-system-bars";
 import "./globals.css";
-import { PWA_DESCRIPTION, PWA_NAME, PWA_THEME_COLOR } from "@/lib/pwa";
+import { PWA_DESCRIPTION, PWA_NAME } from "@/lib/pwa";
 import { AUTH_RESTORE_SCRIPT } from "@/lib/auth/auth-state";
 import { SHELL_RESTORE_SCRIPT } from "@/lib/native/shell";
 import { getPublicBaseUrl } from "@/lib/seo/base-url";
@@ -63,8 +63,8 @@ export const metadata: Metadata = {
   other: { "apple-mobile-web-app-capable": "yes" },
 };
 
+// No themeColor here: the theme script adds the tag (see lib/theme.ts).
 export const viewport: Viewport = {
-  themeColor: PWA_THEME_COLOR,
   viewportFit: "cover",
   interactiveWidget: "resizes-content",
 };
