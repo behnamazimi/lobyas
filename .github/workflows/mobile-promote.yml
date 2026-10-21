@@ -1,6 +1,8 @@
 # Sends the latest beta build to the public stores: Android moves the Play internal release
 # to production at a staged percentage, iOS submits the TestFlight build for App Store
-# review as a phased release. Start it with `pnpm mobile:promote`. See docs/mobile.md.
+# review as a phased release. Both upload the store listing text from fastlane/metadata first.
+# With "submit" off they only upload and check the text. Start it with `pnpm mobile:promote`.
+# See docs/mobile.md.
 name: Mobile promote
 
 on:
@@ -19,6 +21,10 @@ on:
         description: Percent of Android users to start with (1-100)
         type: string
         default: "10"
+      submit:
+        description: "Submit for review and promote (off: only upload and check the store text)"
+        type: boolean
+        default: true
 
 concurrency:
   group: mobile-promote
@@ -43,7 +49,8 @@ jobs:
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
           ROLLOUT: ${{ inputs.rollout }}
-        run: bundle exec fastlane android promote rollout:"$ROLLOUT"
+          SUBMIT: ${{ inputs.submit }}
+        run: bundle exec fastlane android promote rollout:"$ROLLOUT" submit:"$SUBMIT"
 
   ios-promote:
     if: inputs.platform != 'android'
@@ -63,4 +70,5 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
           VERSION: ${{ inputs.version }}
-        run: bundle exec fastlane ios promote version:"$VERSION"
+          SUBMIT: ${{ inputs.submit }}
+        run: bundle exec fastlane ios promote version:"$VERSION" submit:"$SUBMIT"
