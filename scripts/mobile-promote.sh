@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Sends the latest beta build to the public stores.
 #
-#   pnpm mobile:promote android|ios|both [--rollout 10] [--version X.Y.Z] [--yes]
+#   pnpm mobile:promote android|ios|both [--rollout 10] [--version X.Y.Z] [--no-submit] [--yes]
 #
 # Android moves whatever release is on the Play internal track to production at the given
 # percentage (default 10); the version doesn't apply to it. iOS submits the TestFlight build of
 # --version (default: the latest mobile-v tag) for App Store review, with a phased release.
+# Both upload the store text from fastlane/metadata first; --no-submit stops there (iOS also
+# runs Apple's metadata check), so you can look at the listing in the store consoles first.
 # The Mobile promote workflow does the work.
 set -euo pipefail
 
@@ -19,16 +21,18 @@ die() {
 }
 
 platform="${1:-}"
-case "$platform" in android | ios | both) shift ;; *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;; esac
+case "$platform" in android | ios | both) shift ;; *) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;; esac
 
 rollout=10
 version=""
 assume_yes=0
+submit=true
 while [ $# -gt 0 ]; do
   case "$1" in
     --rollout) rollout="${2:-}"; shift 2 ;;
     --version) version="${2:-}"; shift 2 ;;
     --yes) assume_yes=1; shift ;;
+    --no-submit) submit=false; shift ;;
     *) die "Unknown option $1" ;;
   esac
 done
@@ -46,15 +50,19 @@ if [ -z "$version" ]; then
 fi
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "'$version' is not a version like 1.2.3."
 
-[ "$platform" = ios ] || echo "Android: the release now on the Play internal track goes to production at ${rollout}%."
-[ "$platform" = android ] || echo "iOS: the TestFlight build of ${version} is submitted for App Store review."
+if [ "$submit" = true ]; then
+  [ "$platform" = ios ] || echo "Android: the store text is uploaded, then the release now on the Play internal track goes to production at ${rollout}%."
+  [ "$platform" = android ] || echo "iOS: the store text is uploaded, then the TestFlight build of ${version} is submitted for App Store review."
+else
+  echo "Only the store text (fastlane/metadata) is uploaded$([ "$platform" = android ] || echo " and checked"). Nothing is submitted or promoted."
+fi
 if [ "$assume_yes" -eq 0 ]; then
   read -r -p "Continue? [y/N] " answer
   case "$answer" in y | Y | yes) ;; *) echo "Cancelled."; exit 1 ;; esac
 fi
 
 before="$(gh run list --workflow mobile-promote.yml --event workflow_dispatch --limit 1 --json databaseId --jq '.[0].databaseId // 0')"
-gh workflow run mobile-promote.yml -f platform="$platform" -f version="$version" -f rollout="$rollout"
+gh workflow run mobile-promote.yml -f platform="$platform" -f version="$version" -f rollout="$rollout" -f submit="$submit"
 
 run_id=""
 for _ in $(seq 1 30); do
@@ -67,8 +75,12 @@ done
 
 echo "Following run ${run_id}"
 if gh run watch "$run_id" --exit-status > /dev/null; then
-  [ "$platform" = ios ] || echo "Done. Android is rolling out at ${rollout}% in Play Console."
-  [ "$platform" = android ] || echo "Done. iOS shows 'Waiting for Review' in App Store Connect."
+  if [ "$submit" = true ]; then
+    [ "$platform" = ios ] || echo "Done. Android is rolling out at ${rollout}% in Play Console."
+    [ "$platform" = android ] || echo "Done. iOS shows 'Waiting for Review' in App Store Connect."
+  else
+    echo "Done. Look at the listing in App Store Connect and Play Console, then run again without --no-submit."
+  fi
 else
   die "The promote run failed: $(gh run view "$run_id" --json url --jq .url)"
 fi

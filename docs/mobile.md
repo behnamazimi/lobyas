@@ -201,6 +201,33 @@ There is no approval gate on the `Mobile release` environment: running the scrip
 decision. Don't add required reviewers, because the weekly Mobile health run uses the same
 secrets and would wait for one.
 
+### Store listing and release notes
+
+The text of both store listings lives in the repo, so changing it is a pull request:
+
+- `fastlane/metadata/ios/en-US/`: name, subtitle, keywords, promotional text, description,
+  release notes ("What's new") and the support, marketing and privacy URLs;
+  `fastlane/metadata/ios/primary_category.txt`.
+- `fastlane/metadata/android/en-US/`: title, short and full description, and
+  `changelogs/default.txt` (the Play release notes, 500 characters at most).
+
+Apple's limits: name and subtitle 30 characters, keywords 100, promotional text 170,
+description 4000. Play: title 30, short description 80. Editing these files doesn't count as a
+native change, doesn't start a pull request build, and doesn't make a release due.
+
+`pnpm mobile:promote` uploads this text first. `--no-submit` stops after that (iOS also runs
+Apple's metadata check), so you can read the listing in App Store Connect and Play Console
+before anything is submitted. The store release notes are the fixed lines above, because the
+app's content changes ship through the web; edit them when a release deserves a real note.
+Testers get "What to test" in TestFlight from the git log instead: the Mobile workflow's
+`ios-notes` job waits for Apple to finish processing, fails if the build is invalid, and sets
+the commit subjects that touched native files since the previous release.
+
+Kept out of the repo on purpose, so set them once in App Store Connect (they carry over to
+later versions): the review contact details and the demo account for App Review, the age
+rating, the app privacy answers and the pricing. Screenshots aren't automated yet; add them
+by hand for the first submission.
+
 Reliability:
 
 - **Mobile health** (`.github/workflows/mobile-health.yml`, Mondays) runs the secret check,

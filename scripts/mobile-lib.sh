@@ -3,8 +3,9 @@
 # Source it from the repo root; it only defines functions.
 
 # Paths whose changes need a new store build. Keep in line with the pull_request paths in
-# .github/workflows/mobile.yml.
-NATIVE_PATHS=(capacitor.config.ts native ios android fastlane resources Gemfile Gemfile.lock)
+# .github/workflows/mobile.yml. The store listing text is uploaded by Mobile promote and
+# needs no build.
+NATIVE_PATHS=(capacitor.config.ts native ios android fastlane resources Gemfile Gemfile.lock ':(exclude)fastlane/metadata')
 
 last_release_tag() {
   git for-each-ref --sort=-v:refname --count=1 --format='%(refname:short)' 'refs/tags/mobile-v*'
