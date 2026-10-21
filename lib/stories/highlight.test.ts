@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
+import type { CollectionLanguage } from "@/lib/terms/languages";
 import { buildTimeline, sentenceAtFraction, sentenceBounds } from "./highlight";
 import type { StorySegment } from "./types";
 
-function sentenceTexts(segments: StorySegment[], language: "en" | "nl" = "en"): string[][] {
+function sentenceTexts(segments: StorySegment[], language: CollectionLanguage = "en"): string[][] {
   return buildTimeline("Title", segments, language).paragraphs.map((paragraph) =>
     paragraph.map((sentence) => sentence.segments.map((segment) => segment.text).join("")),
   );
@@ -19,6 +20,51 @@ describe("buildTimeline", () => {
     expect(
       sentenceTexts([{ text: "Bring snacks, e.g. fruit, to the trip. Then we left." }]),
     ).toEqual([["Bring snacks, e.g. fruit, to the trip. ", "Then we left."]]);
+  });
+
+  it("starts a sentence at a term even when it is lowercase", () => {
+    expect(
+      sentenceTexts([{ text: "It ended. " }, { text: "iPhone", termId: "t1" }, { text: " rang." }]),
+    ).toEqual([["It ended. ", "iPhone rang."]]);
+  });
+
+  it("keeps a term after a dotted abbreviation in its sentence", () => {
+    expect(
+      sentenceTexts([{ text: "Use tools, e.g. " }, { text: "npm", termId: "t1" }, { text: "." }]),
+    ).toEqual([["Use tools, e.g. npm."]]);
+  });
+
+  it("keeps a title or initials with the name", () => {
+    expect(sentenceTexts([{ text: "Mr. Smith met J. K. Rowling. They talked." }])).toEqual([
+      ["Mr. Smith met J. K. Rowling. ", "They talked."],
+    ]);
+  });
+
+  it("keeps a German ordinal date in its sentence, but not an English number", () => {
+    expect(sentenceTexts([{ text: "Er kam am 3. Mai an. Dann ging er." }], "de")).toEqual([
+      ["Er kam am 3. Mai an. ", "Dann ging er."],
+    ]);
+    expect(sentenceTexts([{ text: "He is 5. Then he left." }])).toEqual([
+      ["He is 5. ", "Then he left."],
+    ]);
+  });
+
+  it("keeps a list number with its item", () => {
+    expect(sentenceTexts([{ text: "1. First step.\n2. Second step." }])).toEqual([
+      ["1. First step.\n", "2. Second step."],
+    ]);
+  });
+
+  it("starts a sentence at each dash of a dialogue", () => {
+    expect(sentenceTexts([{ text: "— ¿Vienes? — Sí, voy." }], "es")).toEqual([
+      ["— ¿Vienes? ", "— Sí, voy."],
+    ]);
+  });
+
+  it("keeps a speech tag with its quote in dash dialogue", () => {
+    expect(sentenceTexts([{ text: "— Vieni? disse. — Sì." }], "it")).toEqual([
+      ["— Vieni? disse. ", "— Sì."],
+    ]);
   });
 
   it("splits Dutch text", () => {

@@ -1,5 +1,7 @@
 import type { CollectionLanguage } from "@/lib/terms/languages";
+import { startsSentence } from "./markup";
 import { toParagraphs } from "./paragraphs";
+import { dialogueCuts, isDialogueTag, isFalseStop } from "./sentence-rules";
 import type { StorySegment } from "./types";
 
 // The narration has no timings, so each sentence gets a share of the clip in
@@ -53,14 +55,24 @@ function sentenceCuts(paragraph: StorySegment[], language: CollectionLanguage): 
   }
 
   const cuts = new Set<number>();
+  // The segmenter keeps a lowercase word after a full stop in the same
+  // sentence, so a term that opens one starts it whatever its case.
+  for (const [start] of termRanges) {
+    const before = text.slice(0, start);
+    if (/\s$/.test(before) && startsSentence(before) && adjustCut(text, start) === start) {
+      cuts.add(start);
+    }
+  }
   for (const { index } of new Intl.Segmenter(language, { granularity: "sentence" }).segment(text)) {
     if (index === 0) continue;
     const adjusted = adjustCut(text, index);
     if (adjusted === null) continue;
+    if (isFalseStop(text.slice(0, index), language) || isDialogueTag(text, adjusted)) continue;
     const term = termRanges.find(([start, end]) => adjusted > start && adjusted < end);
     const cut = term ? term[1] : adjusted;
     if (cut < text.length) cuts.add(cut);
   }
+  for (const cut of dialogueCuts(text)) cuts.add(cut);
   return [...cuts].sort((a, b) => a - b);
 }
 

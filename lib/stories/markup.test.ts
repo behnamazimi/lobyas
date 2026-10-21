@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { CollectionLanguage } from "@/lib/terms/languages";
 import { parseStoryText } from "./markup";
 import { StoryGenerationError } from "./errors";
 
@@ -151,5 +152,39 @@ describe("parseStoryText edge cases", () => {
     ["only closing brackets", "T\n\nWe shards|2]] it."],
   ])("rejects a marker it can't repair: %s", (_name, reply) => {
     expect(() => parseStoryText(reply, TERMS)).toThrow(StoryGenerationError);
+  });
+});
+
+describe("parseStoryText capitals", () => {
+  const texts = (reply: string, language?: CollectionLanguage) =>
+    parseStoryText(reply, TERMS, language).paragraphs[0].segments.map((segment) => segment.text);
+
+  it("capitalizes a term the model left lowercase after a full stop", () => {
+    expect(texts("T\n\nIt was late. [[sharding|2]] began.")).toEqual([
+      "It was late. ",
+      "Sharding",
+      " began.",
+    ]);
+  });
+
+  it("capitalizes a term that opens the paragraph or follows an opening mark", () => {
+    expect(texts("T\n\n[[sharding|2]] began.")[0]).toBe("Sharding");
+    expect(texts("T\n\nShe said: ¡Hola! ¿[[sharding|2]] now?")[1]).toBe("Sharding");
+  });
+
+  it("leaves a term in the middle of a sentence alone", () => {
+    expect(texts("T\n\nWe began [[sharding|2]] today.")[1]).toBe("sharding");
+  });
+
+  it("does not treat a dotted abbreviation as the end of a sentence", () => {
+    expect(texts("T\n\nUse tools, e.g. [[sharding|2]] today.")[1]).toBe("sharding");
+  });
+
+  it("keeps deliberate casing at the start of a sentence", () => {
+    expect(texts("T\n\nIt ended. [[iPhone|2]] rang.")[1]).toBe("iPhone");
+  });
+
+  it("uses the story's language for casing", () => {
+    expect(texts("T\n\nGeç oldu. [[istasyon|2]] kapandı.", "tr")[1]).toBe("İstasyon");
   });
 });
