@@ -262,7 +262,38 @@ The profile name must stay `match AppStore com.lobyas.app` (`PROFILE_NAME` in th
 `Fastfile`). Keep `MATCH_PASSWORD` in a password manager: without it the stored
 certificate can't be read.
 
-One-time setup outside the repo: create both apps (`com.lobyas.app`) in App Store
-Connect and Play Console, add `com.lobyas.app://auth/**` to the hosted Supabase
-project's redirect URLs, and upload a first bundle to Play by hand (the API can't
-create the first release of a new app).
+### Android signing and the first upload
+
+Play signs the app that users install (Play App Signing, on by default for new apps). You sign
+each bundle with an **upload key** that you create once and keep; if it is lost, Play can reset
+it from the console.
+
+1. Create the upload keystore (needs a JDK; Android Studio includes one). Pick a password and
+   store the file and the password in your password manager. They are never committed.
+
+   ```bash
+   keytool -genkeypair -v -storetype PKCS12 -keystore lobyas-upload.keystore \
+     -alias lobyas-upload -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+   With PKCS12 the key password is the store password.
+
+2. Create the Play service account the workflow uploads with: in Google Cloud, enable the
+   "Google Play Android Developer API", create a service account and a JSON key. In Play
+   Console, Users and permissions, invite the service account's email with access to the app:
+   "Release apps to testing tracks" (add "Release to production" for later). It can take a
+   few hours to start working.
+3. Fill the Android lines in `.env.mobile` (`ANDROID_KEYSTORE_FILE`, `ANDROID_KEYSTORE_PASSWORD`,
+   `ANDROID_KEY_ALIAS` = `lobyas-upload`, `ANDROID_KEY_PASSWORD`, `PLAY_SERVICE_ACCOUNT_FILE`)
+   and run `scripts/set-mobile-secrets.sh`.
+4. In Play Console create the app (`com.lobyas.app`). The API can't create the first release,
+   so run the first release (`pnpm mobile:release`); the Android upload step fails, which is
+   expected once. Download the `lobyas-release-aab` artifact from that run, and in Play Console
+   (Testing, Internal testing, Create new release) upload it by hand and add yourself as a
+   tester. From then on `pnpm mobile:release` uploads to the internal track by itself.
+
+A personal Play developer account made after November 2023 must run a closed test with
+enough testers for 14 days before Play allows a production release. Start that early.
+
+One-time setup outside the repo: create the iOS app (`com.lobyas.app`) in App Store Connect, and
+add `com.lobyas.app://auth/**` to the hosted Supabase project's redirect URLs.
