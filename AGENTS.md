@@ -380,7 +380,8 @@ single source of truth for the widget's release counter.
 The Android and iOS apps are a Capacitor shell that loads the live site
 (`capacitor.config.ts`, `native/`, `ios/`, `android/`, `fastlane/`,
 `.github/workflows/mobile.yml`, `lib/native/`). Read [docs/mobile.md](docs/mobile.md)
-before touching any of them. Web code detects the app with `isNativeShell()`
+before touching any of them. Native releases are one command, `pnpm mobile:release`
+(CI builds from the tag; see "Releasing" in that doc). Web code detects the app with `isNativeShell()`
 and loads plugins with a dynamic `import()`, because an installed app can be
 older than the web code.
 

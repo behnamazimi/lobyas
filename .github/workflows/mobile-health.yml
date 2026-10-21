@@ -1,0 +1,81 @@
+# Weekly check that the next mobile release will work, and a reminder when native changes
+# have sat unreleased for a week. Both report to the DevOps Telegram chat. See docs/mobile.md.
+name: Mobile health
+
+on:
+  schedule:
+    - cron: "43 7 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  signing:
+    runs-on: ubuntu-latest
+    environment: Mobile release
+    env:
+      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+      MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+      MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+      MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Check the secrets and the signing repo
+        run: scripts/check-signing-secrets.sh
+      - name: Check the App Store Connect key and the signing profile
+        run: bundle exec fastlane ios health
+      - name: Tell the DevOps chat
+        if: failure()
+        env:
+          TELEGRAM_OPS_BOT_TOKEN: ${{ secrets.TELEGRAM_OPS_BOT_TOKEN }}
+          TELEGRAM_OPS_CHAT_ID: ${{ secrets.TELEGRAM_OPS_CHAT_ID }}
+          MESSAGE: "⚠️ The mobile release setup needs attention (signing, the App Store Connect key or the profile): ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: scripts/notify-telegram.sh
+
+  release-due:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Look for native changes nobody released
+        id: due
+        run: |
+          . scripts/mobile-lib.sh
+          tag="$(last_release_tag)"
+          files="$(native_changed_files "$tag")"
+          dependencies="$(native_dependency_changes "$tag")"
+          oldest="$(oldest_native_commit_time "$tag")"
+          if [ -z "$files$dependencies" ] || [ -z "$oldest" ]; then
+            echo "Nothing native changed since ${tag:-the start}."
+            exit 0
+          fi
+          age_days=$(( ( $(date +%s) - oldest ) / 86400 ))
+          count="$(printf '%s\n' "$files" | grep -c . || true)"
+          echo "$count native files changed since ${tag:-the start}; the oldest change is $age_days days old."
+          if [ "$age_days" -ge 7 ]; then
+            {
+              echo "text<<EOF_MESSAGE"
+              echo "📱 Native changes have waited ${age_days} days for a mobile release"
+              echo "${count} files changed since ${tag:-the start}. Run: pnpm mobile:release"
+              echo "EOF_MESSAGE"
+            } >> "$GITHUB_OUTPUT"
+          fi
+      - name: Tell the DevOps chat
+        if: steps.due.outputs.text != ''
+        env:
+          TELEGRAM_OPS_BOT_TOKEN: ${{ secrets.TELEGRAM_OPS_BOT_TOKEN }}
+          TELEGRAM_OPS_CHAT_ID: ${{ secrets.TELEGRAM_OPS_CHAT_ID }}
+          MESSAGE: ${{ steps.due.outputs.text }}
+        run: scripts/notify-telegram.sh

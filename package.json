@@ -25,6 +25,8 @@
     "supabase:reset": "supabase db reset",
     "supabase:types": "supabase gen types typescript --local > lib/supabase/database.types.ts",
     "mobile:sync": "cap sync",
+    "mobile:release": "scripts/mobile-release.sh",
+    "mobile:promote": "scripts/mobile-promote.sh",
     "mobile:assets": "capacitor-assets generate --ios --android --assetPath resources --iconBackgroundColor '#fdfcf9' --splashBackgroundColor '#fdfcf9'",
     "mobile:android": "cap open android",
     "mobile:ios": "cap open ios",

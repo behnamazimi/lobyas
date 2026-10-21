@@ -43,8 +43,9 @@ in `server_url`; download the APK from the run's artifacts.
 ## Telling the app from a browser
 
 The shell adds `LobyasApp/ios/<version>` or `LobyasApp/android/<version>` to the
-WebView's user agent (`ios.appendUserAgent` / `android.appendUserAgent`). The version is
-`package.json`'s, baked in by `cap sync`, and matches the store version CI uploads. Apps built
+WebView's user agent (`ios.appendUserAgent` / `android.appendUserAgent`). The version is the
+release tag's (`mobile-vX.Y.Z`), passed to `cap sync` as `CAP_APP_VERSION`, so it is the store
+version. A local build reports `999.0.0`, which no update prompt replaces. Apps built
 before that send `LobyasApp/<os>` or plain `LobyasApp`, so the os or the version can be unknown
 (`useShell()` gives `version: null`). Everything reads it through
 `lib/native/shell.ts`, and there is no cookie: the user agent is on every
@@ -165,18 +166,65 @@ Not done yet: Apple requires revoking the person's Apple token when they delete 
 (`delete_own_account`). That needs the authorization code from a fresh Apple sign-in and a `.p8`
 key on the server.
 
+## Releasing
+
+The apps load the live site, so a web deploy reaches them at once. A store release is needed
+only when something native changes: `capacitor.config.ts`, `native/`, `ios/`, `android/`,
+`fastlane/`, `resources/`, the Gemfile, or a Capacitor plugin in `package.json`. Releases are
+manual, one command each, and run in CI so every build uses the same Xcode, Ruby and signing.
+
+```bash
+pnpm mobile:release minor      # or patch, major, or a version like 1.2.3
+pnpm mobile:promote both       # later, when the beta build has been tried
+```
+
+`pnpm mobile:release` (`scripts/mobile-release.sh`) needs `gh auth login`. It refuses to
+continue unless you are on an up-to-date `main` with a green CI run on that commit and native
+files changed since the last `mobile-v*` tag (`--force` overrides the last one, `--dry-run` only
+prints the plan). Then it pushes the tag `mobile-vX.Y.Z` and follows the Mobile workflow, which
+builds, signs and uploads to TestFlight and the Play internal track. The tag is the single
+source of the version; the workflow rejects a tag that isn't on `main`. The build number is
+the workflow run number. If the run fails, fix the cause and use "Re-run failed jobs": the build
+number keeps rising.
+
+`pnpm mobile:promote` (`scripts/mobile-promote.sh`) starts the Mobile promote workflow for the
+latest tag (or `--version`): Android moves the Play internal release to production at
+`--rollout` percent (default 10; run it again with a higher number to widen), and iOS submits
+the TestFlight build for App Store review as a phased release. Both are manual because they
+can't be taken back. The first release of each store is done by hand (see CI below), and the
+iOS lane needs the version's metadata and screenshots already filled in App Store Connect; it
+has not been run against the real stores yet.
+
+There is no approval gate on the `Mobile release` environment: running the script is the
+decision. Don't add required reviewers, because the weekly Mobile health run uses the same
+secrets and would wait for one.
+
+Reliability:
+
+- **Mobile health** (`.github/workflows/mobile-health.yml`, Mondays) runs the secret check,
+  confirms the App Store Connect key works and the app exists, reads the signing profile's
+  expiry (fails under 30 days; fix with Mobile signing and "force"), and tells the ops chat when
+  native changes have waited a week without a release.
+- **Alerts**: `notify.yml` posts failures of Mobile, Mobile signing and Mobile promote, and a
+  message when a release is uploaded or promoted (see [monitoring.md](monitoring.md)).
+- **Xcode**: iOS jobs use the newest stable Xcode and print its version. To pin one (before
+  Apple's yearly SDK deadline, or when a new Xcode breaks a build), set the repository
+  variable `XCODE_VERSION` (Settings, Secrets and variables, Variables); remove it to follow
+  the latest again.
+- **Yearly**: the signing profile expires after a year, and the GitHub token for the match repo
+  has the expiry you gave it. Mobile health warns about the profile; renew the token yourself.
+
 ## CI
 
 `.github/workflows/mobile.yml`:
 
-| Trigger                            | What runs                                                 |
-| ---------------------------------- | --------------------------------------------------------- |
-| Pull request touching native files | Unsigned Android debug build, iOS simulator build         |
-| Tag `mobile-v*`                    | Signed builds, uploaded to Play internal and TestFlight   |
-| Manual run                         | Same as above when "upload" is ticked, unsigned otherwise |
+| Trigger                              | What runs                                                        |
+| ------------------------------------ | ---------------------------------------------------------------- |
+| Pull request touching native files   | Unsigned Android debug build, iOS simulator build                |
+| Tag `mobile-vX.Y.Z`                  | Signed builds, uploaded to Play internal and TestFlight          |
+| Manual run on such a tag with upload | Same as above (a manual run without upload is an unsigned build) |
 
-Signed jobs run in the `Mobile release` environment. The version comes from
-`package.json`; the build number is the workflow run number. Secrets:
+Signed jobs run in the `Mobile release` environment. Secrets:
 
 | Secret                                                                                              | For                                                                                           |
 | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
