@@ -24,7 +24,7 @@ test.describe("Home", () => {
         page.getByText("0 of 3 goals met").locator("visible=true").first(),
       ).toBeVisible();
       await expect(
-        page.getByRole("link", { name: "Read, 0 of 10 today, 10 in queue" }),
+        page.getByRole("link", { name: "Read, 0 of 10 today, 10 unread" }),
       ).toBeVisible();
       await expect(
         isMobile

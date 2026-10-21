@@ -254,7 +254,7 @@ const BADGES = {
   },
   review: {
     tint: PURPLE,
-    viewBox: frame(24, 8, 56, 76),
+    viewBox: frame(24, 14, 56, 70),
     art: <GoalProp tier="review" x={50} y={56} />,
   },
   quiz: { tint: BLUE, viewBox: frame(24, 28, 56, 46), art: <GoalProp tier="quiz" x={50} y={50} /> },
