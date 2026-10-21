@@ -1,3 +1,4 @@
+import type { CollectionLanguage } from "@/lib/terms/languages";
 import { StoryGenerationError } from "./errors";
 import type { StorySegment, StoryTerm } from "./types";
 
@@ -14,14 +15,41 @@ const TERM_MARKER = /\[\[([^[\]|\n]+?)\|\s*(?:#|term\s*)?(\d+)\s*\]\]/gi;
 const BROKEN_MARKER = /\|\s*(?:#|term\s*)?\d+\s*\]|\[\[?\s*\d+\s*\||\[\uFFFC|\uFFFC\]/i;
 const TITLE_PREFIX = /^(?:#+\s*|\*+\s*|title:\s*)+/i;
 const CODE_FENCE = /^```[\w-]*$/;
+// The text so far ends where a sentence begins: at the paragraph's start, or
+// after a full stop and any closing quotes, plus any opening marks.
+const AT_SENTENCE_START = /(?:^|[.!?…]["'»”’)]*\s+)[¡¿"'«“‘(]*$/u;
+// "e.g. " and "z.B. " end in a full stop without ending a sentence.
+const DOTTED_ABBREVIATION = /\p{L}\.\p{L}\.\s+$/u;
+// A capital after the first letter ("iPhone", "mRNA") means the casing is deliberate.
+const DELIBERATE_CASING = /^[\s\S]\p{Lu}/u;
 
-function readParagraph(text: string, termIdByNumber: Map<string, string>): StorySegment[] {
+export function startsSentence(before: string): boolean {
+  return AT_SENTENCE_START.test(before) && !DOTTED_ABBREVIATION.test(before);
+}
+
+// The sentence splitter doesn't start a sentence before a lowercase word, which
+// throws off the highlight, so a term the model left lowercase gets its capital.
+function capitalizeAtSentenceStart(words: string, before: string, language: CollectionLanguage) {
+  if (!startsSentence(before) || DELIBERATE_CASING.test(words)) return words;
+  const [first = ""] = words;
+  return first.toLocaleUpperCase(language) + words.slice(first.length);
+}
+
+function readParagraph(
+  text: string,
+  termIdByNumber: Map<string, string>,
+  language: CollectionLanguage,
+): StorySegment[] {
   const segments: StorySegment[] = [];
   let last = 0;
+  let before = "";
   for (const match of text.matchAll(TERM_MARKER)) {
     if (match.index > last) segments.push({ text: text.slice(last, match.index) });
+    before += text.slice(last, match.index);
     const termId = termIdByNumber.get(match[2]!);
-    segments.push(termId ? { text: match[1], termId } : { text: match[1] });
+    const words = capitalizeAtSentenceStart(match[1]!, before, language);
+    segments.push(termId ? { text: words, termId } : { text: words });
+    before += words;
     last = match.index + match[0].length;
   }
   if (last < text.length) segments.push({ text: text.slice(last) });
@@ -78,7 +106,11 @@ function cleanTitle(line: string): string {
  *  exactly as written; only the markers are read out of it. A marker the
  *  parser can't read, even after repair, fails the reply, so no brackets
  *  reach the reader. */
-export function parseStoryText(reply: string, terms: StoryTerm[]): StoryGenerationPayload {
+export function parseStoryText(
+  reply: string,
+  terms: StoryTerm[],
+  language: CollectionLanguage = "en",
+): StoryGenerationPayload {
   const termIdByNumber = new Map(terms.map((term, index) => [String(index + 1), term.id]));
   const lines = replyLines(reply);
 
@@ -98,6 +130,8 @@ export function parseStoryText(reply: string, terms: StoryTerm[]): StoryGenerati
   if (texts.some(hasBrokenMarker) || hasBrokenMarker(titleLine)) {
     throw new StoryGenerationError("The story came back with a broken term marker.", "markup");
   }
-  const paragraphs = texts.map((text) => ({ segments: readParagraph(text, termIdByNumber) }));
+  const paragraphs = texts.map((text) => ({
+    segments: readParagraph(text, termIdByNumber, language),
+  }));
   return { title, paragraphs };
 }

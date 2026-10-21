@@ -113,7 +113,7 @@ async function requestStory(
   });
   input.onUsage?.(usage);
   try {
-    const payload = parseStoryText(text, input.terms);
+    const payload = parseStoryText(text, input.terms, input.language);
     return normalizeStory(payload, input.terms, length, minTermsForLength(input.pieceLength));
   } catch (error) {
     if (error instanceof StoryGenerationError) {
