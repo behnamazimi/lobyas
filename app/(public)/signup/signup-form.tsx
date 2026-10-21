@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { AuthFormError } from "@/components/auth/auth-form-error";
 import { LegalConsentLine } from "@/components/auth/legal-consent-line";
+import { AppleSignInButton } from "@/components/auth/apple-signin-button";
 import { GoogleSignInButton } from "@/components/auth/google-signin-button";
 import { PasswordRequirements } from "@/components/auth/password-requirements";
 import { AuthCard } from "@/components/public/auth-card";
@@ -142,7 +143,10 @@ export default function SignupForm({
     <AuthCard title="Sign up">
       <LegalConsentLine action="signing up" className="-mt-2" />
 
-      <GoogleSignInButton next={next} referenceCode={referenceCode} email={email} />
+      <div className="flex flex-col gap-3">
+        <GoogleSignInButton next={next} referenceCode={referenceCode} email={email} />
+        <AppleSignInButton next={next} referenceCode={referenceCode} />
+      </div>
 
       <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-base-content/10" />

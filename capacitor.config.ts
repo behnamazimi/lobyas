@@ -1,4 +1,5 @@
 import type { CapacitorConfig } from "@capacitor/cli";
+import { version } from "./package.json";
 import { AUTHENTICATED_HOME_PATH } from "./lib/auth/safe-next-path";
 
 const PRODUCTION_URL = "https://lobyas.com";
@@ -24,17 +25,20 @@ const config: CapacitorConfig = {
     errorPath: "offline.html",
   },
   ios: {
-    appendUserAgent: "LobyasApp/ios",
+    appendUserAgent: `LobyasApp/ios/${version}`,
     // Lets the service worker run in WKWebView. Info.plist lists the allowed
     // domain, so it can't apply to a preview host.
     limitsNavigationsToAppBoundDomains: isProduction,
   },
   android: {
-    appendUserAgent: "LobyasApp/android",
+    appendUserAgent: `LobyasApp/android/${version}`,
   },
   plugins: {
     // The page hides the splash once it has painted (NativeSplash); the duration is the
     // fallback for a slow or failed load.
+    // Only the Apple sheet is used; Google sign-in runs in the system browser, so the
+    // Facebook and Google SDKs stay out of the app.
+    SocialLogin: { providers: { apple: true, google: false, facebook: false, twitter: false } },
     SplashScreen: { launchAutoHide: true, launchShowDuration: 4000, backgroundColor: "#fdfcf9" },
   },
 };

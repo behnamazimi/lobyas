@@ -115,7 +115,7 @@ export function AccountPanel({ email, hasPassword }: AccountSettings) {
           description={
             hasPassword
               ? "Changing it signs you out on your other devices."
-              : "You log in with Google. Set a password to also log in with your email."
+              : "You log in with Google or Apple. Set a password to also log in with your email."
           }
         >
           {saved ? (

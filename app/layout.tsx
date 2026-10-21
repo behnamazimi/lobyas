@@ -5,6 +5,7 @@ import { AuthStateSync } from "@/components/auth-state-sync";
 import { ConsentBanner } from "@/components/consent/consent-banner";
 import { NativeAuthBridge } from "@/components/native/native-auth-bridge";
 import { NativeSplash } from "@/components/native/native-splash";
+import { NativeUpdateGate } from "@/components/native/native-update-gate";
 import { NativeSystemBars } from "@/components/native/native-system-bars";
 import "./globals.css";
 import { PWA_DESCRIPTION, PWA_NAME } from "@/lib/pwa";
@@ -103,6 +104,7 @@ export default function RootLayout({
             <NativeAuthBridge />
             <NativeSystemBars />
             <NativeSplash />
+            <NativeUpdateGate />
           </ToastProvider>
         </PwaProviders>
       </body>

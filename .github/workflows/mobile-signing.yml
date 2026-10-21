@@ -1,0 +1,40 @@
+# Creates (or refreshes) the iOS certificate and provisioning profile in the match
+# repo. Run it once before the first release, and again with "force" after adding a
+# capability to the app id (Sign in with Apple, for example) or when the profile
+# expires. Releases in mobile.yml only read what this stores.
+name: Mobile signing
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Re-create the provisioning profile even if the current one is valid
+        type: boolean
+        default: false
+
+concurrency:
+  group: mobile-signing
+
+permissions:
+  contents: read
+
+jobs:
+  ios-signing:
+    runs-on: macos-latest
+    environment: Mobile release
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Create or refresh the certificate and profile
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: bundle exec fastlane ios signing force:${{ inputs.force }}

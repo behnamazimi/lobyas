@@ -15,7 +15,7 @@ import { deleteUserScreenshots } from "@/lib/issues/storage";
 
 export type AccountSettings = { email: string | null; hasPassword: boolean };
 
-/** Accounts made with Google have no password until they set one. */
+/** Accounts made with Google or Apple have no password until they set one. */
 async function readAccountSettings(
   supabase: Awaited<ReturnType<typeof createClient>>,
 ): Promise<AccountSettings> {

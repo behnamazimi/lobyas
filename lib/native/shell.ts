@@ -1,20 +1,27 @@
 type ShellOs = "ios" | "android";
 
-export type Shell = { native: false } | { native: true; os: ShellOs | null };
+export type Shell =
+  | { native: false }
+  | { native: true; os: ShellOs | null; version: string | null };
 
 /**
- * The native shell adds `LobyasApp/<os>` to the WebView's user agent
+ * The native shell adds `LobyasApp/<os>/<version>` to the WebView's user agent
  * (`appendUserAgent` in capacitor.config.ts). An installed app older than that
- * change sends plain `LobyasApp`, so the os can be unknown.
+ * change sends `LobyasApp/<os>` or plain `LobyasApp`, so the os or the version
+ * can be unknown.
  */
-const SHELL_USER_AGENT = /LobyasApp(?:\/(ios|android))?/;
+const SHELL_USER_AGENT = /LobyasApp(?:\/(ios|android)(?:\/(\d+\.\d+\.\d+))?)?/;
 
 const NOT_NATIVE: Shell = { native: false };
 
 export function parseShell(userAgent: string): Shell {
   const match = SHELL_USER_AGENT.exec(userAgent);
   if (!match) return NOT_NATIVE;
-  return { native: true, os: (match[1] as ShellOs | undefined) ?? null };
+  return {
+    native: true,
+    os: (match[1] as ShellOs | undefined) ?? null,
+    version: match[2] ?? null,
+  };
 }
 
 const SHELL_ATTRIBUTE = "data-shell";

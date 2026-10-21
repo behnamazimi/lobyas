@@ -1,14 +1,29 @@
 IOS_PROJECT = "ios/App/App.xcodeproj".freeze
 PROFILE_NAME = "match AppStore com.lobyas.app".freeze
 
+def asc_api_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID"),
+    issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID"),
+    key_content: ENV.fetch("APP_STORE_CONNECT_KEY")
+  )
+end
+
 platform :ios do
+  desc "Create or refresh the App Store certificate and profile that releases sign with"
+  lane :signing do |options|
+    match(
+      type: "appstore",
+      readonly: false,
+      force: options[:force] == "true",
+      api_key: asc_api_key,
+      team_id: ENV.fetch("APPLE_TEAM_ID")
+    )
+  end
+
   desc "Sign, build and upload the app to TestFlight"
   lane :beta do |options|
-    api_key = app_store_connect_api_key(
-      key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID"),
-      issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID"),
-      key_content: ENV.fetch("APP_STORE_CONNECT_KEY")
-    )
+    api_key = asc_api_key
 
     match(type: "appstore", readonly: true, api_key: api_key)
 
