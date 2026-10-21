@@ -6,13 +6,17 @@ app it watches. The bot only sends; it has no webhook.
 
 ## What reaches the chat
 
-| Alert                        | Source                            | When                                                                           |
-| ---------------------------- | --------------------------------- | ------------------------------------------------------------------------------ |
-| CI failed on `main`          | `.github/workflows/notify.yml`    | A push to `main` fails. Names the failed jobs.                                 |
-| CI green again               | same                              | The first green run after a failed one.                                        |
-| Production deployed / failed | same                              | `Deploy production` finishes. Covers the migration push and the Vercel deploy. |
-| Many AI requests refunded    | `.github/workflows/ai-health.yml` | Every 3 hours, when `refundsLookHigh` is true. Repeats until it clears.        |
-| AI health check couldn't run | same                              | The app was unreachable or the secret is wrong.                                |
+| Alert                              | Source                                | When                                                                               |
+| ---------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------- |
+| CI failed on `main`                | `.github/workflows/notify.yml`        | A push to `main` fails. Names the failed jobs.                                     |
+| CI green again                     | same                                  | The first green run after a failed one.                                            |
+| Production deployed / failed       | same                                  | `Deploy production` finishes. Covers the migration push and the Vercel deploy.     |
+| Mobile release uploaded / promoted | `.github/workflows/notify.yml`        | A `mobile-v*` tag finishes building, or Mobile promote finishes.                   |
+| Mobile workflow failed             | same                                  | A release, signing or promote run fails (pull request builds are left out).        |
+| Mobile setup needs attention       | `.github/workflows/mobile-health.yml` | Weekly: the App Store Connect key, signing repo or profile is failing or expiring. |
+| Native changes unreleased          | same                                  | Weekly, when native changes are over 7 days old without a mobile release.          |
+| Many AI requests refunded          | `.github/workflows/ai-health.yml`     | Every 3 hours, when `refundsLookHigh` is true. Repeats until it clears.            |
+| AI health check couldn't run       | same                                  | The app was unreachable or the secret is wrong.                                    |
 
 Pull request runs are left out on purpose: the author already sees them.
 

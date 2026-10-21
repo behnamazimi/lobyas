@@ -1,10 +1,10 @@
-# Tells the DevOps Telegram chat how main and production are doing. Pull request
-# runs are left out: the author already sees them. See docs/monitoring.md.
+# Tells the DevOps Telegram chat how main, production and the mobile releases are doing.
+# Pull request runs are left out: the author already sees them. See docs/monitoring.md.
 name: Notify
 
 on:
   workflow_run:
-    workflows: [CI, Deploy production]
+    workflows: [CI, Deploy production, Mobile, Mobile signing, Mobile promote]
     types: [completed]
 
 permissions:
@@ -17,7 +17,8 @@ jobs:
     if: >-
       (github.event.workflow_run.conclusion == 'success' || github.event.workflow_run.conclusion == 'failure')
       && (github.event.workflow_run.name == 'Deploy production'
-          || (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main'))
+          || (github.event.workflow_run.event == 'push' && github.event.workflow_run.head_branch == 'main')
+          || (startsWith(github.event.workflow_run.name, 'Mobile') && github.event.workflow_run.event != 'pull_request'))
     steps:
       - uses: actions/checkout@v7
       - name: Build the message
@@ -28,6 +29,8 @@ jobs:
           RUN_URL: ${{ github.event.workflow_run.html_url }}
           WORKFLOW: ${{ github.event.workflow_run.name }}
           WORKFLOW_ID: ${{ github.event.workflow_run.workflow_id }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          EVENT: ${{ github.event.workflow_run.event }}
           CONCLUSION: ${{ github.event.workflow_run.conclusion }}
           RUN_CREATED_AT: ${{ github.event.workflow_run.created_at }}
           SHA: ${{ github.event.workflow_run.head_sha }}
@@ -42,6 +45,12 @@ jobs:
             text="❌ ${WORKFLOW} failed${failed:+ (${failed})}"$'\n'"${detail}"$'\n'"${RUN_URL}"
           elif [ "$WORKFLOW" = "Deploy production" ]; then
             text="🚀 Production deployed"$'\n'"${detail}"$'\n'"${RUN_URL}"
+          elif [ "$WORKFLOW" = "Mobile" ] && [ "$EVENT" = "push" ]; then
+            text="📱 Mobile ${HEAD_BRANCH} is uploaded to TestFlight and Play internal"$'\n'"${RUN_URL}"
+          elif [ "$WORKFLOW" = "Mobile promote" ]; then
+            text="📱 Mobile promoted to the public stores"$'\n'"${RUN_URL}"
+          elif [[ "$WORKFLOW" == Mobile* ]]; then
+            text=""
           else
             # CI passed: only worth a message if the run before it on main failed.
             previous="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow "$WORKFLOW_ID" \
