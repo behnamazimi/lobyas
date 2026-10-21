@@ -149,7 +149,7 @@ done
 echo "Building and uploading (run ${run_id}); this takes about 15 minutes."
 if gh run watch "$run_id" --exit-status > /dev/null; then
   echo "Done. ${tag} is uploaded: it appears in TestFlight after Apple finishes processing (about 10-30 minutes) and on the Play internal track."
-  echo "Promote it to the public stores with: pnpm mobile:promote"
+  echo "Try the beta build, then release it to the public in App Store Connect and Play Console (see Going public in docs/mobile.md)."
 else
   die "The release run failed: $(gh run view "$run_id" --json url --jq .url). Fix the cause and use 'Re-run failed jobs' there; the build number keeps rising."
 fi

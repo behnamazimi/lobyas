@@ -47,36 +47,6 @@ platform :ios do
     upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true)
   end
 
-  desc "Submit the TestFlight build of a version for App Store review, as a phased release"
-  lane :promote do |options|
-    api_key = asc_api_key
-    version = options.fetch(:version).to_s
-    UI.user_error!("'#{version}' is not a version like 1.2.3") unless version.match?(/\A\d+\.\d+\.\d+\z/)
-
-    build = latest_testflight_build_number(
-      api_key: api_key,
-      app_identifier: "com.lobyas.app",
-      version: version,
-      initial_build_number: 0
-    )
-    UI.user_error!("There is no TestFlight build of #{version}.") if build.to_i.zero?
-
-    deliver(
-      api_key: api_key,
-      app_identifier: "com.lobyas.app",
-      app_version: version,
-      build_number: build.to_s,
-      skip_binary_upload: true,
-      skip_metadata: true,
-      skip_screenshots: true,
-      submit_for_review: true,
-      automatic_release: false,
-      phased_release: true,
-      force: true,
-      submission_information: { add_id_info_uses_idfa: false }
-    )
-  end
-
   desc "Fail when the App Store Connect key, the signing repo or the profile is about to stop working"
   lane :health do
     api_key = asc_api_key
@@ -113,23 +83,6 @@ platform :android do
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true
-    )
-  end
-
-  desc "Move the Play internal release to production at a staged percentage"
-  lane :promote do |options|
-    percentage = options.fetch(:rollout, "100").to_i
-    UI.user_error!("rollout must be from 1 to 100") unless (1..100).cover?(percentage)
-
-    upload_to_play_store(
-      track: "internal",
-      track_promote_to: "production",
-      json_key_data: ENV.fetch("PLAY_SERVICE_ACCOUNT_JSON"),
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true,
-      **(percentage < 100 ? { rollout: (percentage / 100.0).to_s } : {})
     )
   end
 end

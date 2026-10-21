@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-# Helpers shared by mobile-release.sh and the release-due check in mobile-health.yml.
-# Source it from the repo root; it only defines functions.
+# Helpers for mobile-release.sh. Source it from the repo root; it only defines functions.
 
 # Paths whose changes need a new store build. Keep in line with the pull_request paths in
 # .github/workflows/mobile.yml.
@@ -25,18 +24,6 @@ native_dependency_changes() {
   local since="${1:-}"
   [ -n "$since" ] || return 0
   git diff "$since" HEAD -- package.json | grep -E '^[+-][[:space:]]+"@(capacitor|capgo)/' || true
-}
-
-# Unix time of the oldest commit since the last release that changed a native path or a
-# Capacitor plugin in package.json, or nothing.
-oldest_native_commit_time() {
-  local since="${1:-}" range="HEAD" times
-  [ -z "$since" ] || range="$since..HEAD"
-  times="$(
-    git log --format=%ct "$range" -- "${NATIVE_PATHS[@]}"
-    git log --format=%ct -E -G'"@(capacitor|capgo)/' "$range" -- package.json
-  )"
-  printf '%s\n' "$times" | grep -E '^[0-9]+$' | sort -n | sed -n 1p
 }
 
 # next_version 1.2.3 minor -> 1.3.0

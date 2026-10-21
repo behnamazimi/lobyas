@@ -170,13 +170,12 @@ key on the server.
 
 The apps load the live site, so a web deploy reaches them at once. A store release is needed
 only when something native changes: `capacitor.config.ts`, `native/`, `ios/`, `android/`,
-`fastlane/`, `resources/`, the Gemfile, or a Capacitor plugin in `package.json`. Releases are
-manual, one command each, and run in CI so every build uses the same Xcode, Ruby and signing.
+`fastlane/`, `resources/`, the Gemfile, or a Capacitor plugin in `package.json`. A beta release
+is one command and runs in CI, so every build uses the same Xcode, Ruby and signing:
 
 ```bash
 pnpm mobile:release            # shows what changed, then asks patch, minor or major
 pnpm mobile:release minor      # or give the bump (or a version like 1.2.3) up front
-pnpm mobile:promote both       # later, when the beta build has been tried
 ```
 
 `pnpm mobile:release` (`scripts/mobile-release.sh`) needs `gh auth login`. It refuses to
@@ -188,27 +187,33 @@ source of the version; the workflow rejects a tag that isn't on `main`. The buil
 the workflow run number. If the run fails, fix the cause and use "Re-run failed jobs": the build
 number keeps rising.
 
-`pnpm mobile:promote` (`scripts/mobile-promote.sh`) starts the Mobile promote workflow for the
-latest tag (or `--version`): Android moves the Play internal release to production at
-`--rollout` percent (default 10; run it again with a higher number to widen), and iOS submits
-the TestFlight build of `--version` for App Store review as a phased release. Android promotes
-whatever is on the internal track, so promote before you release again. Both are manual because they
-can't be taken back. The first release of each store is done by hand (see CI below), and the
-iOS lane needs the version's metadata and screenshots already filled in App Store Connect; it
-has not been run against the real stores yet.
+### Going public
+
+Moving a beta build to the public stores is done in the consoles. It is a few clicks, it
+can't be taken back, and the listing, screenshots, age rating, privacy answers and App Review
+details are filled in there anyway, so it isn't scripted.
+
+- **App Store**: App Store Connect, the app, "+ Version" with the tag's version (for example
+  1.2.0), choose the TestFlight build, fill in "What's New", Add for Review. Choose a phased
+  release and "Manually release" so you control the day it goes live.
+- **Play**: Play Console, Testing, Internal testing, "Promote release" to Production. Start at a
+  staged percentage (for example 10) and raise it as crash-free numbers hold.
+
+If doing this by hand becomes a chore, script the step that hurts (fastlane `deliver` and
+`supply` do it); it was left out until the manual flow has run a few times.
 
 There is no approval gate on the `Mobile release` environment: running the script is the
-decision. Don't add required reviewers, because the weekly Mobile health run uses the same
+decision. Don't add required reviewers, because the monthly Mobile health run uses the same
 secrets and would wait for one.
 
 Reliability:
 
-- **Mobile health** (`.github/workflows/mobile-health.yml`, Mondays) runs the secret check,
-  confirms the App Store Connect key works and the app exists (it runs on macOS, because `match` needs a keychain), reads the signing profile's
-  expiry (fails under 30 days; fix with Mobile signing and "force"), and tells the ops chat when
-  native changes have waited a week without a release.
-- **Alerts**: `notify.yml` posts failures of Mobile, Mobile signing and Mobile promote, and a
-  message when a release is uploaded or promoted (see [monitoring.md](monitoring.md)).
+- **Mobile health** (`.github/workflows/mobile-health.yml`, the 1st of each month, on macOS
+  because `match` needs a keychain) runs the secret check, confirms the App Store Connect key
+  works and the app exists, and reads the signing profile's expiry. It fails under 30 days; fix
+  that with Mobile signing and "force". A failure reaches the ops chat.
+- **Alerts**: `notify.yml` posts failures of Mobile and Mobile signing, and a message when a
+  release is uploaded (see [monitoring.md](monitoring.md)).
 - **Xcode**: iOS jobs use the newest stable Xcode and print its version. To pin one (before
   Apple's yearly SDK deadline, or when a new Xcode breaks a build), set the repository
   variable `XCODE_VERSION` (Settings, Secrets and variables, Variables); remove it to follow

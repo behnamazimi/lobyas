@@ -4,7 +4,7 @@ name: Notify
 
 on:
   workflow_run:
-    workflows: [CI, Deploy production, Mobile, Mobile signing, Mobile promote]
+    workflows: [CI, Deploy production, Mobile, Mobile signing]
     types: [completed]
 
 permissions:
@@ -47,8 +47,6 @@ jobs:
             text="🚀 Production deployed"$'\n'"${detail}"$'\n'"${RUN_URL}"
           elif [ "$WORKFLOW" = "Mobile" ] && [ "$EVENT" = "push" ]; then
             text="📱 Mobile ${HEAD_BRANCH} is uploaded to TestFlight and Play internal"$'\n'"${RUN_URL}"
-          elif [ "$WORKFLOW" = "Mobile promote" ]; then
-            text="📱 Mobile promoted to the public stores"$'\n'"${RUN_URL}"
           elif [[ "$WORKFLOW" == Mobile* ]]; then
             text=""
           else
