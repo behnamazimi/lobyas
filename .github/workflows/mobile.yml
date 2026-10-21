@@ -151,6 +151,13 @@ jobs:
           ./gradlew bundleRelease
           -PappVersionCode=${{ github.run_number }}
           -PappVersionName=${{ needs.version.outputs.version }}
+      - name: Keep the signed bundle (Play needs the first one uploaded by hand)
+        uses: actions/upload-artifact@v7
+        with:
+          name: lobyas-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload to the Play internal track
         env:
           PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
