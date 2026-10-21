@@ -118,7 +118,8 @@ set_secret() {
     echo "skip   $name (empty)"
     return
   fi
-  printf '%s' "$value" | gh secret set "$name" --env "$ENVIRONMENT" --body -
+  # gh reads the value from the pipe. "--body -" would store a literal "-".
+  printf '%s' "$value" | gh secret set "$name" --env "$ENVIRONMENT"
   echo "set    $name"
 }
 
