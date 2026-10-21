@@ -29,7 +29,7 @@ describe("buildHomePath", () => {
   it("skips an unmet goal whose queue is empty", () => {
     const data = path({ queues: { ...QUEUES, read: 0 } });
     expect(pillTier(data)).toBe("review");
-    expect(data.stops[0].queueLine).toBe("Nothing new right now");
+    expect(data.stops[0].queueLine).toBe("All read");
   });
 
   it("counts a tier celebrated for running out of terms as met", () => {

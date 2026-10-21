@@ -10,6 +10,18 @@ import { formatCount } from "@/lib/kit/text";
 
 export type TierQueues = Record<GoalTier, number>;
 
+export const QUEUE_NOUNS: Record<GoalTier, string> = {
+  read: "unread",
+  review: "to recall",
+  quiz: "to test",
+};
+
+const EMPTY_QUEUE_LINES: Record<GoalTier, string> = {
+  read: "All read",
+  review: "Nothing to recall",
+  quiz: "Nothing to test",
+};
+
 export type PathStopData = {
   tier: GoalTier;
   label: string;
@@ -85,7 +97,9 @@ export function buildHomePath(input: {
   const stops = GOAL_TIERS.map((tier): PathStopData => {
     const { goal, done, met } = progress[tier];
     const empty = queues[tier] <= 0;
-    const queueLine = empty ? "Nothing new right now" : `${formatCount(queues[tier])} in queue`;
+    const queueLine = empty
+      ? EMPTY_QUEUE_LINES[tier]
+      : `${formatCount(queues[tier])} ${QUEUE_NOUNS[tier]}`;
     const label = GOAL_TIER_LABELS[tier];
     return {
       tier,

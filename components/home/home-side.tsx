@@ -3,7 +3,7 @@ import { ProgressRing, SectionCard, Tile } from "@/components/kit";
 import { collectionLetter, collectionTone } from "@/components/app/shell/collection-look";
 import type { ShellCollection } from "@/components/app/shell/shell-context";
 import { GoalPrompt } from "./goal-prompt";
-import type { HomePathData } from "@/lib/home/path";
+import { QUEUE_NOUNS, type HomePathData } from "@/lib/home/path";
 import { CLAMP_TWO_LINES, formatCount } from "@/lib/kit/text";
 import { countLabel, kindLine, type CollectionKind } from "@/lib/terms/kinds";
 import type { CollectionLanguage } from "@/lib/terms/languages";
@@ -52,17 +52,17 @@ function CollectionCard({ collection }: { collection: ShellCollection }) {
   const kind = collection.kind as CollectionKind;
   const queues = [
     {
-      label: "to read",
+      label: QUEUE_NOUNS.read,
       value: collection.queues.read,
       tone: "bg-read-tint text-read-text",
     },
     {
-      label: "to review",
+      label: QUEUE_NOUNS.review,
       value: collection.queues.review,
       tone: "bg-review-tint text-review-text",
     },
     {
-      label: "to quiz",
+      label: QUEUE_NOUNS.quiz,
       value: collection.queues.quiz,
       tone: "bg-quiz-tint text-quiz-text",
     },
