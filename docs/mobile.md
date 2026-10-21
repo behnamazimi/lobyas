@@ -157,7 +157,7 @@ separate account; Supabase links by email only when the real address is shared.
 "Sign in with Apple for Email Communication", or mail to relay addresses is dropped.
 
 Setup outside the repo: enable the capability on the App ID (the build's `App.entitlements`
-needs it in the provisioning profile, so run `fastlane match appstore --force` after), create a
+needs it in the provisioning profile, so run the Mobile signing workflow with force ticked after), create a
 Services ID with `lobyas.com`, and enable the Apple provider in the hosted Supabase project with
 both the bundle id and the Services ID as client ids. Local Supabase keeps Apple off.
 
@@ -186,8 +186,28 @@ Signed jobs run in the `Mobile release` environment. The version comes from
 | `APP_STORE_CONNECT_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID`, `APP_STORE_CONNECT_KEY`                  | App Store Connect API key (the `.p8` text)                                                    |
 | `MATCH_GIT_URL`, `MATCH_GIT_BASIC_AUTHORIZATION`, `MATCH_PASSWORD`                                  | fastlane `match` certificate repo (`MATCH_GIT_BASIC_AUTHORIZATION` is base64 of `user:token`) |
 
-One-time setup outside the repo: create both apps (`com.lobyas.app`), run
-`fastlane match appstore` once locally to create the certificate and profile,
-add `com.lobyas.app://auth/**` to the hosted Supabase project's redirect URLs,
-and upload a first bundle to Play by hand (the API can't create the first
-release of a new app).
+Set them all at once: copy `.env.mobile.example` to `.env.mobile`, fill it in, and run
+`scripts/set-mobile-secrets.sh` (needs `gh auth login`). It builds
+`MATCH_GIT_BASIC_AUTHORIZATION` from the GitHub user and token for you.
+
+### iOS signing
+
+iOS releases sign with fastlane `match`: an encrypted certificate and provisioning
+profile live in a private Git repo (`MATCH_GIT_URL`), and the release lane only reads
+them (`readonly`). Nothing creates them during a release, so run the **Mobile signing**
+workflow (`.github/workflows/mobile-signing.yml`, lane `ios signing`) first:
+
+- once, before the first release;
+- with **force** ticked after a capability changes on the app id (Sign in with Apple
+  needed this), so the profile is rebuilt with it;
+- when the profile expires (a year after it was made). If the certificate itself has
+  expired, run `fastlane match nuke distribution` from a Mac, then the workflow.
+
+The profile name must stay `match AppStore com.lobyas.app` (`PROFILE_NAME` in the
+`Fastfile`). Keep `MATCH_PASSWORD` in a password manager: without it the stored
+certificate can't be read.
+
+One-time setup outside the repo: create both apps (`com.lobyas.app`) in App Store
+Connect and Play Console, add `com.lobyas.app://auth/**` to the hosted Supabase
+project's redirect URLs, and upload a first bundle to Play by hand (the API can't
+create the first release of a new app).
