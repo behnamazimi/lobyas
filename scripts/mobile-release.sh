@@ -49,7 +49,7 @@ gh auth status > /dev/null 2>&1 || die "Not logged in to GitHub. Run: gh auth lo
 [ -z "$(git status --porcelain --untracked-files=no)" ] || die "You have uncommitted changes."
 [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] || die "Release from main (you are on $(git rev-parse --abbrev-ref HEAD))."
 
-git fetch --quiet origin main --tags
+git fetch --quiet origin main --tags || die "Couldn't fetch from origin. If git mentions a tag, a local mobile-v tag differs from the remote one: delete it locally with git tag -d."
 sha="$(git rev-parse HEAD)"
 [ "$sha" = "$(git rev-parse origin/main)" ] || die "main isn't up to date with origin. Run: git pull"
 
