@@ -71,3 +71,5 @@ certificates
 fastlane/report.xml
 fastlane/test_output
 fastlane/*.p8
+
+secrets/
