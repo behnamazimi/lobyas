@@ -21,6 +21,7 @@ permissions:
 jobs:
   ios-signing:
     runs-on: macos-latest
+    timeout-minutes: 20
     environment: Mobile release
     steps:
       - uses: actions/checkout@v7
