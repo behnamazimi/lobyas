@@ -41,6 +41,10 @@ const seen = emptySets();
 /** Credited terms the server hadn't counted at its last answer. */
 const credited = emptySets();
 const claiming = new Set<GoalTier>();
+/** Tiers whose celebration waits, e.g. quiz while a quiz is still running. */
+const held = new Set<GoalTier>();
+/** Held tiers the server already confirmed, shown once released. */
+const deferred = new Set<GoalTier>();
 const retryTimers = new Map<GoalTier, ReturnType<typeof setTimeout>>();
 
 function emit() {
@@ -84,6 +88,8 @@ export function resetGoals() {
   state = null;
   clearCredits();
   claiming.clear();
+  held.clear();
+  deferred.clear();
   emit();
 }
 
@@ -110,6 +116,31 @@ export function setLiveCelebrate(celebrate: boolean) {
 
 export function closeGoalCelebration() {
   update({ celebration: null });
+}
+
+/** Today's goal for the tier is met and no celebration for it is open or on its way. */
+export function goalMetSettled(tier: GoalTier): boolean {
+  const today = goalCountFor(tier);
+  if (!state || !today || today.goal === null || today.count < today.goal) return false;
+  const coming = state.celebrate && !state.day.celebrated.includes(tier);
+  return !coming && !claiming.has(tier) && !deferred.has(tier) && state.celebration?.tier !== tier;
+}
+
+/** Holds a tier's celebration until released, so it doesn't interrupt the
+ *  session that earned it. */
+export function holdGoalCelebration(tier: GoalTier) {
+  held.add(tier);
+  return () => {
+    held.delete(tier);
+    if (deferred.delete(tier)) openCelebration(tier);
+  };
+}
+
+function openCelebration(tier: GoalTier) {
+  if (!state?.goals) return;
+  const progress = goalProgress(state.goals, state.day.counts, state.day.celebrated);
+  feedback("goal-met");
+  update({ celebration: { tier, progress } });
 }
 
 export function tickGoal(tier: GoalTier, termIds: string | readonly string[]) {
@@ -179,10 +210,13 @@ async function claim(tier: GoalTier, caughtUp: boolean, retriesLeft: number) {
     state = { ...state, day: result.day };
   }
 
-  if (result.claimed && state.goals) {
-    const progress = goalProgress(state.goals, state.day.counts, state.day.celebrated);
-    feedback("goal-met");
-    update({ celebration: { tier, progress } });
+  if (result.claimed) {
+    if (held.has(tier)) {
+      deferred.add(tier);
+      emit();
+    } else {
+      openCelebration(tier);
+    }
     return;
   }
   emit();

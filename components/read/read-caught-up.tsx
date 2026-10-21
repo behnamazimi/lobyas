@@ -21,7 +21,7 @@ export function ReadCaughtUp({
   actions?: ReactNode;
 }) {
   return (
-    <div className="flex min-h-0 flex-1 items-center justify-center py-6">
+    <div className="study-enter flex min-h-0 flex-1 items-center justify-center py-6">
       {goal ? <GoalCaughtUp tier={goal.tier} collectionId={goal.collectionId} /> : null}
       <EmptyPanel
         illustration={<CaughtUpScene className="w-full" />}

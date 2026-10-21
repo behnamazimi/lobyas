@@ -746,7 +746,7 @@ Branch `redesign-p4-review`.
 
 **Kit.** `GradeTiles` takes `selected` and `ariaLabels`; `Pill` has a `ghost` variant. Stories on `/admin/kit`: Pill (Ghost) and Grade tiles (selected row).
 
-**Data.** None added. `gradeTileLabels`, `KIT_GRADE_OF`, `REVIEW_GRADE_OF` in `lib/review/next-review.ts` map TRACE grades to tiles and build the interval line and screen-reader names (unit tested). `GoalMetNote` (`components/goals/goal-met-note.tsx`, `tier` prop) replaces `ReadGoalMet`; Read now imports it.
+**Data.** None added. `gradeTileLabels`, `KIT_GRADE_OF`, `REVIEW_GRADE_OF` in `lib/review/next-review.ts` map TRACE grades to tiles and build the interval line and screen-reader names (unit tested). `GoalMetToast` (`components/goals/goal-met-toast.tsx`, `tier` prop) replaces `ReadGoalMet`; Read now imports it.
 
 **Left as is.** TRACE, actions, `recordReviewRevealAction`, write queue, `tickGoal`, keyboard hook and `lib/review/keyboard.ts`, `/api/review/feed` (still accepts `all`), the cookie fallback `lb-review-collection` (read only now), promo slot, tour targets `review-card` and `review-grades`.
 

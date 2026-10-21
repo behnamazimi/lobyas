@@ -508,52 +508,23 @@
     animation-fill-mode: forwards;
   }
 
-  @keyframes quiz-feedback-fade-in {
+  /* Study screens share one motion language: enter (a new card or screen
+     arrives), reveal (an answer appears in place) and pop (a control is ready). */
+  @keyframes study-enter {
     from {
       opacity: 0;
-      transform: translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+      transform: translateY(8px);
     }
   }
 
-  .quiz-feedback-enter {
-    animation: quiz-feedback-fade-in 180ms ease-out;
-  }
-
-  @keyframes quiz-choice-reveal {
+  @keyframes study-reveal {
     from {
       opacity: 0;
-      transform: scale(0.96);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
+      transform: scale(0.97);
     }
   }
 
-  .quiz-choice-reveal {
-    animation: quiz-choice-reveal 200ms ease-out;
-  }
-
-  @keyframes quiz-advance-label-enter {
-    from {
-      opacity: 0;
-      transform: translateY(3px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .quiz-advance-label-enter {
-    animation: quiz-advance-label-enter 150ms ease-out;
-  }
-
-  @keyframes quiz-advance-ready {
+  @keyframes study-pop {
     0% {
       transform: scale(0.97);
     }
@@ -565,15 +536,39 @@
     }
   }
 
-  .quiz-advance-ready {
-    animation: quiz-advance-ready 260ms ease-out;
+  .study-enter {
+    animation: study-enter 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .study-reveal {
+    animation: study-reveal 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .study-pop {
+    animation: study-pop 260ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .study-stagger > * {
+    animation: study-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .study-stagger > :nth-child(2) {
+    animation-delay: 40ms;
+  }
+
+  .study-stagger > :nth-child(3) {
+    animation-delay: 80ms;
+  }
+
+  .study-stagger > :nth-child(n + 4) {
+    animation-delay: 120ms;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .quiz-feedback-enter,
-    .quiz-choice-reveal,
-    .quiz-advance-label-enter,
-    .quiz-advance-ready {
+    .study-enter,
+    .study-reveal,
+    .study-pop,
+    .study-stagger > * {
       animation: none;
     }
   }

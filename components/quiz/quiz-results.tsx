@@ -107,7 +107,7 @@ export function QuizResults({
   }, [strongRound]);
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-3">
+    <div className="study-enter flex min-h-0 flex-1 flex-col gap-3">
       <div className="-mx-5 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-5 py-1">
         <div className="flex items-center gap-3.5">
           {strongRound ? (

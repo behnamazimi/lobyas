@@ -61,7 +61,10 @@ write after their response, so the browser only asks when a goal looks met.
    fails (a read may still be in flight), the store asks again up to three times,
    1.5 seconds apart, then waits for the next credit.
 5. A true claim opens `GoalCelebrationDialog` over the current screen: a
-   full-height sheet on a phone and a dialog from `md`.
+   full-height sheet on a phone and a dialog from `md`. A screen can hold a
+   tier's celebration by mounting `HoldGoalCelebration`: the quiz holds "quiz"
+   while questions are on screen, so it opens on the results, and Read cards
+   hold "read" while a card shows its back, so it opens on the next card's front.
 
 Running out of terms counts as meeting the goal. `ReadCaughtUp` takes a `goal`
 prop and calls `goalCaughtUp(tier)` when every active collection is caught up

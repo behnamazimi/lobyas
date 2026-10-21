@@ -1,5 +1,6 @@
 "use client";
 
+import { HoldGoalCelebration } from "@/components/goals/hold-goal-celebration";
 import { PreparingScene } from "@/components/illustrations/scenes/preparing";
 import { QuestionStepCaption } from "@/components/quiz/quiz-question-footer";
 import { QuizQuestionView } from "@/components/quiz/quiz-question";
@@ -60,7 +61,12 @@ function QuizActiveQuestionStep({ quiz }: { quiz: UseQuizSessionResult }) {
 }
 
 export function QuizPlayingStep({ quiz }: { quiz: UseQuizSessionResult }) {
-  return <QuizActiveQuestionStep quiz={quiz} />;
+  return (
+    <>
+      <HoldGoalCelebration tier="quiz" />
+      <QuizActiveQuestionStep quiz={quiz} />
+    </>
+  );
 }
 
 export function QuizPickerStepSection({

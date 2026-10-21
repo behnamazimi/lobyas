@@ -158,7 +158,7 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
     question.template === "typed_meaning_to_word" && (question.quote?.length ?? 0) <= 40;
 
   return (
-    <div className="quiz-feedback-enter flex min-h-0 flex-1 flex-col gap-2">
+    <div className="study-enter flex min-h-0 flex-1 flex-col gap-2">
       <div className="-mx-5 min-h-0 flex-1 overflow-y-auto px-5 pt-1 pb-3">
         <QuestionCard
           label={questionLabel(question)}

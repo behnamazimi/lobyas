@@ -1,8 +1,10 @@
 import { ArrowRight, Eye } from "lucide-react";
-import { memo } from "react";
+import { memo, useRef } from "react";
+import { HoldGoalCelebration } from "@/components/goals/hold-goal-celebration";
 import { Pill, StudyCard } from "@/components/kit";
 import { QuizKeyboardHint } from "@/components/quiz/quiz-ui";
 import { ReadCardHead } from "@/components/read/read-card-head";
+import { useReviewSwipe } from "@/components/review/use-review-swipe";
 import { FirstExposureKnownPrompt } from "@/components/shared/first-exposure-known-prompt";
 import { StudyTermBody } from "@/components/terms/study-term-body";
 import { TermNarrationPlayer } from "@/components/terms/term-narration-player";
@@ -30,7 +32,7 @@ function ReadCardMasked({
         centered
         onPress={onReveal}
         pressLabel={`${hideQuestion ? `${term.term}.` : `What is ${term.term}?`} Tap to reveal the definition.`}
-        className="lg:max-h-[760px]"
+        className="study-enter lg:max-h-[760px]"
       >
         <span
           lang={term.collectionLanguage}
@@ -80,31 +82,52 @@ export const ReadTermCard = memo(function ReadTermCard({
   onPrevious: () => void;
   onNext: () => void;
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const swipe = useReviewSwipe(cardRef, {
+    onReveal: () => onReveal(term.id),
+    onPrevious,
+    onNext,
+    canGoBack: canGoBack && !isPending,
+    canGoForward: revealed && !isPending,
+    enabled: true,
+  });
+
   return (
     <div data-tour="read-card" className="flex min-h-0 flex-1 flex-col gap-2">
-      {revealed ? (
-        <StudyCard className="lg:max-h-[760px]">
-          <div lang={term.collectionLanguage}>
-            <ReadCardHead term={term} narrationAccess={narrationAccess} narrationPreload />
-            <StudyTermBody key={term.id} term={term} />
-          </div>
-        </StudyCard>
-      ) : (
-        <ReadCardMasked
-          term={term}
-          hideQuestion={hideQuestion}
-          narrationAccess={narrationAccess}
-          onReveal={() => onReveal(term.id)}
-        />
-      )}
-      {revealed && term.isNewToUser ? (
-        <FirstExposureKnownPrompt
-          termId={term.id}
-          term={term.term}
-          onMarkedKnown={onNext}
-          placement="foot"
-        />
-      ) : null}
+      {/* Outside the keyed card, so going back between revealed cards keeps it held. */}
+      {revealed ? <HoldGoalCelebration tier="read" /> : null}
+      <div
+        key={term.id}
+        ref={cardRef}
+        // Every descendant too: the revealed definition scrolls on its own and
+        // would otherwise let the browser take horizontal pans.
+        className="flex min-h-0 flex-1 touch-pan-y flex-col gap-2 [&_*]:touch-pan-y"
+        {...swipe}
+      >
+        {revealed ? (
+          <StudyCard className="study-reveal lg:max-h-[760px]">
+            <div lang={term.collectionLanguage}>
+              <ReadCardHead term={term} narrationAccess={narrationAccess} narrationPreload />
+              <StudyTermBody key={term.id} term={term} />
+            </div>
+          </StudyCard>
+        ) : (
+          <ReadCardMasked
+            term={term}
+            hideQuestion={hideQuestion}
+            narrationAccess={narrationAccess}
+            onReveal={() => onReveal(term.id)}
+          />
+        )}
+        {revealed && term.isNewToUser ? (
+          <FirstExposureKnownPrompt
+            termId={term.id}
+            term={term.term}
+            onMarkedKnown={onNext}
+            placement="foot"
+          />
+        ) : null}
+      </div>
       <div className="flex gap-2">
         {canGoBack ? (
           <Pill
