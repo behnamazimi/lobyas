@@ -1,19 +1,6 @@
 IOS_PROJECT = "ios/App/App.xcodeproj".freeze
 PROFILE_NAME = "match AppStore com.lobyas.app".freeze
 
-# Native paths a release can change; keep in line with scripts/mobile-lib.sh.
-NATIVE_PATHS = %w[capacitor.config.ts native ios android fastlane resources Gemfile Gemfile.lock].freeze
-
-# The commit subjects that touched native files between the previous release and this one.
-def tester_notes(version)
-  tag = "mobile-v#{version}"
-  previous = `git describe --tags --abbrev=0 --match 'mobile-v*' #{tag}^ 2>/dev/null`.strip
-  return "First release." if previous.empty?
-
-  log = `git log --no-merges --format='- %s' #{previous}..#{tag} -- #{NATIVE_PATHS.join(' ')} ':(exclude)fastlane/metadata'`.strip
-  log.empty? ? "Improvements and fixes." : log[0, 3900]
-end
-
 def asc_api_key
   app_store_connect_api_key(
     key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID"),
@@ -60,73 +47,6 @@ platform :ios do
     upload_to_testflight(api_key: api_key, skip_waiting_for_build_processing: true)
   end
 
-  desc "Wait for Apple to process a build, then set its What to test from the native commits"
-  lane :testflight_notes do |options|
-    version = options.fetch(:version).to_s
-    build_number = options.fetch(:build_number).to_s
-    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(**asc_api_key)
-    app = Spaceship::ConnectAPI::App.find("com.lobyas.app")
-    UI.user_error!("No app com.lobyas.app in App Store Connect") unless app
-
-    build = nil
-    45.times do
-      build = Spaceship::ConnectAPI::Build.all(app_id: app.id, version: version, build_number: build_number, limit: 1).first
-      break if build && build.processing_state != "PROCESSING"
-
-      UI.message("Waiting for Apple to process build #{build_number}...")
-      sleep 60
-    end
-    UI.user_error!("Build #{build_number} was not found or is still processing after 45 minutes.") unless build
-    UI.user_error!("Apple could not process build #{build_number} (#{build.processing_state}).") unless build.processing_state == "VALID"
-
-    begin
-      notes = tester_notes(version)
-      existing = build.get_beta_build_localizations.find { |localization| localization.locale == "en-US" }
-      if existing
-        existing.update(attributes: { whatsNew: notes })
-      else
-        Spaceship::ConnectAPI::BetaBuildLocalization.create(build_id: build.id, attributes: { locale: "en-US", whatsNew: notes })
-      end
-      UI.success("Set What to test:\n#{notes}")
-    rescue StandardError => e
-      UI.important("The build is processed, but What to test was not set: #{e.message}")
-    end
-  end
-
-  desc "Upload the store listing and submit the TestFlight build of a version for review (submit:false only uploads and checks it)"
-  lane :promote do |options|
-    api_key = asc_api_key
-    version = options.fetch(:version).to_s
-    submit = options[:submit].to_s != "false"
-    UI.user_error!("'#{version}' is not a version like 1.2.3") unless version.match?(/\A\d+\.\d+\.\d+\z/)
-
-    build = latest_testflight_build_number(
-      api_key: api_key,
-      app_identifier: "com.lobyas.app",
-      version: version,
-      initial_build_number: 0
-    )
-    UI.user_error!("There is no TestFlight build of #{version}.") if build.to_i.zero?
-
-    deliver(
-      api_key: api_key,
-      app_identifier: "com.lobyas.app",
-      app_version: version,
-      build_number: build.to_s,
-      metadata_path: "fastlane/metadata/ios",
-      skip_binary_upload: true,
-      skip_screenshots: true,
-      submit_for_review: submit,
-      automatic_release: false,
-      phased_release: true,
-      force: true,
-      run_precheck_before_submit: true,
-      precheck_include_in_app_purchases: false,
-      submission_information: { add_id_info_uses_idfa: false }
-    )
-    precheck(api_key: api_key, app_identifier: "com.lobyas.app", include_in_app_purchases: false) unless submit
-  end
-
   desc "Fail when the App Store Connect key, the signing repo or the profile is about to stop working"
   lane :health do
     api_key = asc_api_key
@@ -160,40 +80,9 @@ platform :android do
       track: "internal",
       aab: "android/app/build/outputs/bundle/release/app-release.aab",
       json_key_data: ENV.fetch("PLAY_SERVICE_ACCOUNT_JSON"),
-      metadata_path: "fastlane/metadata/android",
       skip_upload_metadata: true,
       skip_upload_images: true,
       skip_upload_screenshots: true
-    )
-  end
-
-  desc "Upload the store listing text, then move the Play internal release to production at a staged percentage (submit:false only uploads the text)"
-  lane :promote do |options|
-    percentage = options.fetch(:rollout, "100").to_i
-    submit = options[:submit].to_s != "false"
-    UI.user_error!("rollout must be from 1 to 100") unless (1..100).cover?(percentage)
-
-    upload_to_play_store(
-      json_key_data: ENV.fetch("PLAY_SERVICE_ACCOUNT_JSON"),
-      metadata_path: "fastlane/metadata/android",
-      skip_upload_apk: true,
-      skip_upload_aab: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true
-    )
-    next unless submit
-
-    upload_to_play_store(
-      track: "internal",
-      track_promote_to: "production",
-      json_key_data: ENV.fetch("PLAY_SERVICE_ACCOUNT_JSON"),
-      metadata_path: "fastlane/metadata/android",
-      skip_upload_metadata: true,
-      skip_upload_changelogs: true,
-      skip_upload_images: true,
-      skip_upload_screenshots: true,
-      **(percentage < 100 ? { rollout: (percentage / 100.0).to_s } : {})
     )
   end
 end

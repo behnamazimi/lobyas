@@ -13,7 +13,6 @@ on:
       - ios/**
       - android/**
       - fastlane/**
-      - "!fastlane/metadata/**"
       - resources/**
       - Gemfile*
       - .github/workflows/mobile.yml
@@ -189,29 +188,5 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
         run: >-
           bundle exec fastlane ios beta
-          version:${{ needs.version.outputs.version }}
-          build_number:${{ github.run_number }}
-
-  ios-notes:
-    needs: [version, ios-release]
-    if: needs.ios-release.result == 'success'
-    runs-on: ubuntu-latest
-    environment: Mobile release
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: "3.3"
-          bundler-cache: true
-      - name: Wait for Apple, then set What to test
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
-        run: >-
-          bundle exec fastlane ios testflight_notes
           version:${{ needs.version.outputs.version }}
           build_number:${{ github.run_number }}

@@ -49,7 +49,7 @@ gh auth status > /dev/null 2>&1 || die "Not logged in to GitHub. Run: gh auth lo
 [ -z "$(git status --porcelain --untracked-files=no)" ] || die "You have uncommitted changes."
 [ "$(git rev-parse --abbrev-ref HEAD)" = "main" ] || die "Release from main (you are on $(git rev-parse --abbrev-ref HEAD))."
 
-git fetch --quiet origin main --tags
+git fetch --quiet origin main --tags || die "Couldn't fetch from origin. If git mentions a tag, a local mobile-v tag differs from the remote one: delete it locally with git tag -d."
 sha="$(git rev-parse HEAD)"
 [ "$sha" = "$(git rev-parse origin/main)" ] || die "main isn't up to date with origin. Run: git pull"
 
@@ -149,7 +149,7 @@ done
 echo "Building and uploading (run ${run_id}); this takes about 15 minutes."
 if gh run watch "$run_id" --exit-status > /dev/null; then
   echo "Done. ${tag} is uploaded: it appears in TestFlight after Apple finishes processing (about 10-30 minutes) and on the Play internal track."
-  echo "Promote it to the public stores with: pnpm mobile:promote"
+  echo "Try the beta build, then release it to the public in App Store Connect and Play Console (see Going public in docs/mobile.md)."
 else
   die "The release run failed: $(gh run view "$run_id" --json url --jq .url). Fix the cause and use 'Re-run failed jobs' there; the build number keeps rising."
 fi
