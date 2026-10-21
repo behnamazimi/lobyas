@@ -50,8 +50,10 @@ if [ -n "${MATCH_GIT_BASIC_AUTHORIZATION:-}" ]; then
 fi
 
 if [ "$failed" -eq 0 ]; then
-  # Only the given header may authenticate: no stored keychain login, no prompt.
-  if output="$(GIT_TERMINAL_PROMPT=0 git -c credential.helper= -c "http.extraheader=Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}" ls-remote "$MATCH_GIT_URL" 2>&1)"; then
+  # Only the given header may authenticate: no stored keychain login, no prompt, and none of
+  # the settings in this checkout or the user's git config (actions/checkout saves a token
+  # header there that would be sent as well).
+  if output="$(cd "$(mktemp -d)" && GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_TERMINAL_PROMPT=0 git -c credential.helper= -c "http.extraheader=Authorization: Basic ${MATCH_GIT_BASIC_AUTHORIZATION}" ls-remote "$MATCH_GIT_URL" 2>&1)"; then
     echo "ok    the match repo can be read"
   else
     fail "the match repo can't be read with these values (git said: ${output//$MATCH_GIT_URL/<url>})"

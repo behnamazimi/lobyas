@@ -129,6 +129,8 @@ jobs:
     environment: Mobile release
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-web
       - uses: maxim-lobanov/setup-xcode@v1
         with:

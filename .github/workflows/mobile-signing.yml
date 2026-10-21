@@ -24,6 +24,8 @@ jobs:
     environment: Mobile release
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.3"
