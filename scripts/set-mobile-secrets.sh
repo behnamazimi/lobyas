@@ -40,7 +40,7 @@ file_base64() {
 set_secret APPLE_TEAM_ID "${APPLE_TEAM_ID:-}"
 set_secret APP_STORE_CONNECT_KEY_ID "${APP_STORE_CONNECT_KEY_ID:-}"
 set_secret APP_STORE_CONNECT_ISSUER_ID "${APP_STORE_CONNECT_ISSUER_ID:-}"
-set_secret APP_STORE_CONNECT_KEY "$(file_contents "${APP_STORE_CONNECT_KEY_FILE:-}")"
+set_secret APP_STORE_CONNECT_KEY "$(file_base64 "${APP_STORE_CONNECT_KEY_FILE:-}")"
 set_secret MATCH_GIT_URL "${MATCH_GIT_URL:-}"
 if [ -n "${MATCH_GIT_USER:-}" ] && [ -n "${MATCH_GIT_TOKEN:-}" ]; then
   set_secret MATCH_GIT_BASIC_AUTHORIZATION "$(printf '%s:%s' "$MATCH_GIT_USER" "$MATCH_GIT_TOKEN" | base64 | tr -d '\n')"
