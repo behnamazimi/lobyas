@@ -5,12 +5,14 @@ import { AuthStateSync } from "@/components/auth-state-sync";
 import { ConsentBanner } from "@/components/consent/consent-banner";
 import { NativeAuthBridge } from "@/components/native/native-auth-bridge";
 import { NativeSplash } from "@/components/native/native-splash";
+import { NativeSplashFrame } from "@/components/native/native-splash-frame";
 import { NativeUpdateGate } from "@/components/native/native-update-gate";
 import { NativeSystemBars } from "@/components/native/native-system-bars";
 import "./globals.css";
 import { PWA_DESCRIPTION, PWA_NAME } from "@/lib/pwa";
 import { AUTH_RESTORE_SCRIPT } from "@/lib/auth/auth-state";
 import { SHELL_RESTORE_SCRIPT } from "@/lib/native/shell";
+import { SPLASH_RESTORE_SCRIPT } from "@/lib/native/splash";
 import { getPublicBaseUrl } from "@/lib/seo/base-url";
 import { SPLASH_IMAGES, splashUrl } from "@/lib/splash";
 import { LIGHT_THEME, THEME_RESTORE_SCRIPT } from "@/lib/theme";
@@ -94,6 +96,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_RESTORE_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: AUTH_RESTORE_SCRIPT }} />
         <script dangerouslySetInnerHTML={{ __html: SHELL_RESTORE_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: SPLASH_RESTORE_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
         <PwaProviders>
@@ -103,6 +106,7 @@ export default function RootLayout({
             <ConsentBanner />
             <NativeAuthBridge />
             <NativeSystemBars />
+            <NativeSplashFrame />
             <NativeSplash />
             <NativeUpdateGate />
           </ToastProvider>

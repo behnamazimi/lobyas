@@ -38,11 +38,12 @@ const config: CapacitorConfig = {
   },
   plugins: {
     // The page hides the splash once it has painted (NativeSplash); the duration is the
-    // fallback for a slow or failed load.
+    // fallback for a load that hangs. No backgroundColor here: on iOS it would override the launch
+    // screen's own light and dark colours.
     // Only the Apple sheet is used; Google sign-in runs in the system browser, so the
     // Facebook and Google SDKs stay out of the app.
     SocialLogin: { providers: { apple: true, google: false, facebook: false, twitter: false } },
-    SplashScreen: { launchAutoHide: true, launchShowDuration: 4000, backgroundColor: "#fdfcf9" },
+    SplashScreen: { launchAutoHide: true, launchShowDuration: 12000 },
   },
 };
 
