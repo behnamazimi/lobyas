@@ -49,12 +49,10 @@ export function useReadQueue({ collectionId, seed }: UseReadQueueArgs) {
   const currentIndexRef = useRef(currentIndex);
   const collectionIdRef = useRef(collectionId);
   const reachedEndRef = useRef(reachedEnd);
-  const loadErrorRef = useRef(loadError);
   termsRef.current = terms;
   currentIndexRef.current = currentIndex;
   collectionIdRef.current = collectionId;
   reachedEndRef.current = reachedEnd;
-  loadErrorRef.current = loadError;
 
   const loadedIdsRef = useRef<Set<string>>(new Set(seed.terms.map((t) => t.id)));
   const inFlightRef = useRef(false);
@@ -79,7 +77,6 @@ export function useReadQueue({ collectionId, seed }: UseReadQueueArgs) {
         // Deliberately NOT surfaced unless goNext hits a genuine dead end
         // (below) — a failed background prefetch shouldn't blow away a
         // perfectly valid currentTerm the user is still looking at.
-        loadErrorRef.current = result.error;
         setLoadError(result.error);
         return;
       }
@@ -89,7 +86,6 @@ export function useReadQueue({ collectionId, seed }: UseReadQueueArgs) {
         return;
       }
       reachedEndRef.current = false;
-      loadErrorRef.current = null;
       setReachedEnd(false);
       setLoadError(null);
       for (const term of result.terms) loadedIdsRef.current.add(term.id);
@@ -106,7 +102,7 @@ export function useReadQueue({ collectionId, seed }: UseReadQueueArgs) {
   }, []);
 
   const maybePrefetch = useCallback(() => {
-    if (reachedEndRef.current || loadErrorRef.current) return;
+    if (reachedEndRef.current) return;
     if (termsRef.current.length - currentIndexRef.current <= PREFETCH_REMAINING_THRESHOLD) {
       void loadMore();
     }

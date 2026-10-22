@@ -121,8 +121,6 @@ export function StorySetupPanel({
         </div>
       </SectionCard>
 
-      <div className="min-h-3 flex-1 md:flex-none" />
-
       {creditsBlock ? (
         <StoryCreditGate
           ai={ai}

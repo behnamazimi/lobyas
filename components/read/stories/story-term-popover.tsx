@@ -26,7 +26,7 @@ export function StoryTermButton({
     <button
       type="button"
       onClick={() => onPress(term)}
-      className="m-0 inline cursor-pointer rounded text-start px-0.5 py-0 font-[inherit] text-read-text underline decoration-read decoration-2 underline-offset-[3px]"
+      className="m-0 inline cursor-pointer rounded p-0 text-start font-[inherit] text-read-text underline decoration-read decoration-2 underline-offset-[3px]"
     >
       {text}
     </button>

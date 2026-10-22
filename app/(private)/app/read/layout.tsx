@@ -1,3 +1,5 @@
+import { SwitchingFallback } from "@/components/app/shell/switching-fallback";
+import ReadLoading from "./loading";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ReadControls } from "@/components/read/read-controls";
@@ -29,7 +31,7 @@ export default async function ReadLayout({ children }: { children: React.ReactNo
                 <ReadControls options={options} />
               </Suspense>
             ) : null}
-            {children}
+            <SwitchingFallback fallback={<ReadLoading />}>{children}</SwitchingFallback>
           </div>
         </SectionTransition>
       </TermLayoutScope>

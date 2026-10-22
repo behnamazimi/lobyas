@@ -48,12 +48,10 @@ export function useReviewQueue({ collectionId, seed }: UseReviewQueueArgs) {
   const currentIndexRef = useRef(currentIndex);
   const collectionIdRef = useRef(collectionId);
   const reachedEndRef = useRef(reachedEnd);
-  const loadErrorRef = useRef(loadError);
   termsRef.current = terms;
   currentIndexRef.current = currentIndex;
   collectionIdRef.current = collectionId;
   reachedEndRef.current = reachedEnd;
-  loadErrorRef.current = loadError;
 
   const loadedIdsRef = useRef<Set<string>>(new Set(seed.terms.map((t) => t.id)));
   const inFlightRef = useRef(false);
@@ -69,7 +67,6 @@ export function useReviewQueue({ collectionId, seed }: UseReviewQueueArgs) {
       if (requestId !== requestIdRef.current) return;
 
       if (result.error) {
-        loadErrorRef.current = result.error;
         setLoadError(result.error);
         return;
       }
@@ -79,7 +76,6 @@ export function useReviewQueue({ collectionId, seed }: UseReviewQueueArgs) {
         return;
       }
       reachedEndRef.current = false;
-      loadErrorRef.current = null;
       setReachedEnd(false);
       setLoadError(null);
       for (const term of result.terms) loadedIdsRef.current.add(term.id);
@@ -95,7 +91,7 @@ export function useReviewQueue({ collectionId, seed }: UseReviewQueueArgs) {
   }, []);
 
   const maybePrefetch = useCallback(() => {
-    if (reachedEndRef.current || loadErrorRef.current) return;
+    if (reachedEndRef.current) return;
     if (termsRef.current.length - currentIndexRef.current <= REVIEW_QUEUE_PREFETCH_REMAINING) {
       void loadMore();
     }
