@@ -182,3 +182,9 @@ test.describe("Daily goals", () => {
     expect(settings?.goal_celebrated.tiers).toEqual(["review"]);
   });
 });
+
+test("the reminders card is only for the phone apps", async ({ page }) => {
+  await gotoReady(page, "/app/goals");
+  await expect(page.getByRole("heading", { name: "Goals" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Reminders" })).toHaveCount(0);
+});

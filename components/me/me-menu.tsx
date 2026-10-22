@@ -17,6 +17,7 @@ import { markSignedOut, restoreSignedIn } from "@/lib/auth/auth-state";
 import { ISSUE_COPY } from "@/lib/issues/copy";
 import { LEGAL_LINKS } from "@/lib/site";
 import { applyTheme, DARK_THEME, LIGHT_THEME } from "@/lib/theme";
+import { clearReminders } from "@/lib/reminders/native";
 
 function subscribeToTheme(onChange: () => void) {
   const observer = new MutationObserver(onChange);
@@ -48,6 +49,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
     resetAnalytics();
     markSignedOut();
     try {
+      await clearReminders().catch(() => {});
       await logout();
     } catch {
       restoreSignedIn();

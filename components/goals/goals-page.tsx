@@ -16,6 +16,7 @@ import { useLiveGoalCounts } from "./use-goal-count";
 import { setLiveCelebrate, setLiveGoals } from "./goal-store";
 import { ForecastPanel } from "./goal-forecast-panel";
 import { TierCard } from "./goal-tier-card";
+import { RemindersCard } from "./reminders-card";
 import { IntroPanel } from "./goal-today-panel";
 
 const FORECAST_DEBOUNCE_MS = 400;
@@ -105,6 +106,8 @@ export function GoalsPage({ settings, day }: { settings: GoalSettings; day: Goal
           onChange={(next) => void toggleCelebrate(next)}
         />
       </Card>
+
+      <RemindersCard initial={settings.reminders} />
 
       <PinnedAction>
         <Pill size="lg" disabled={!dirty || isSaving} onClick={save}>

@@ -4,6 +4,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { AuthStateSync } from "@/components/auth-state-sync";
 import { ConsentBanner } from "@/components/consent/consent-banner";
 import { NativeAuthBridge } from "@/components/native/native-auth-bridge";
+import { NativeReminders } from "@/components/native/native-reminders";
 import { NativeSplash } from "@/components/native/native-splash";
 import { NativeSplashFrame } from "@/components/native/native-splash-frame";
 import { NativeUpdateGate } from "@/components/native/native-update-gate";
@@ -105,6 +106,7 @@ export default function RootLayout({
             <AuthStateSync />
             <ConsentBanner />
             <NativeAuthBridge />
+            <NativeReminders />
             <NativeSystemBars />
             <NativeSplashFrame />
             <NativeSplash />

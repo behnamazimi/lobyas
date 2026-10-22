@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
   // End-to-end runs build into their own folder so they never clobber a running `next dev`.
   distDir: process.env.NEXT_DIST_DIR || undefined,
   devIndicators: false,
+  // The Android emulator reaches `next dev` on the host as 10.0.2.2.
+  allowedDevOrigins: ["10.0.2.2"],
   experimental: {
     viewTransition: true,
     // Going back to a tab page within a minute reuses it instead of re-rendering.
