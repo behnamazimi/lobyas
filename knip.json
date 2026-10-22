@@ -11,6 +11,6 @@
     "playwright.config.ts"
   ],
   "ignore": ["lib/supabase/database.types.ts", "components/ui/**", "native/www/**"],
-  "ignoreDependencies": ["uebersicht", "@capacitor/splash-screen"],
+  "ignoreDependencies": ["uebersicht"],
   "playwright": false
 }

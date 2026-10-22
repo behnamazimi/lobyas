@@ -89,10 +89,27 @@ app, and are used by the quiz only.
 ## Launch
 
 The shell opens `/app` directly (not `/`), so a launch has no redirect hop;
-the proxy sends a signed-out member on to login. The splash stays up until the
-page has painted: `NativeSplash` hides it, and `launchShowDuration` (4s) hides it
-anyway when the site is slow or `offline.html` loads. These are native settings,
-so they reach users with the next store release.
+the proxy sends a signed-out member on to login.
+
+The splash is the app icon (the tile with the clipped lobya), the same on iOS and Android,
+light and dark, and always 108pt/dp. The native part is static: the iOS launch storyboard
+centres the `Splash` image in a 240pt box, and Android uses the system splash with
+`splash_icon` (`styles.xml`, `values-night/`), a 288dp frame whose 192dp circle the tile
+fits inside. Light and dark follow the phone, not the app's own theme (which defaults to light).
+`pnpm mobile:splash` renders `resources/splash*.png` and the Android `splash_icon` files from
+`brandMarkSvg` (`lib/brand-icon.tsx`) (about a minute and a half); run it after changing the icon, then
+`pnpm mobile:assets`, which rewrites the launcher icons too (revert those if the icon didn't change).
+
+`NativeSplashFrame` draws the same picture in the page (`#native-splash`, shown by
+`html[data-splash]`, which `SPLASH_RESTORE_SCRIPT` sets only in a new web view), and
+`NativeSplash` runs it. Once the frame has painted the native splash is hidden, and the
+frame blinks until the page the web view loaded is shown: it must not be a server error
+(5xx, read from the navigation entry's `responseStatus`; a web view that doesn't report it
+counts as fine). A server error reloads once behind the native splash, then is shown as it is.
+The frame is held for at least 700ms (not under reduced motion) and fades out. If the page
+never removes it, CSS hides it after 15s. `launchShowDuration` (12s) hides the native splash
+if the page never loads at all; `native/www/offline.html` hides it itself, since it has no
+app code. These are native settings, so they reach users with the next store release.
 
 ## Offline and the service worker
 
