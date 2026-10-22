@@ -47,6 +47,8 @@ export function useQuizWriteQueue(options: {
         }
         if (result.error) {
           options.setErrorMessage(result.error);
+        } else if (outcome === "success") {
+          options.setErrorMessage(null);
         }
         if (outcome === "exhausted") {
           toast("Couldn't save an answer. Return to Quiz to retry.", "destructive");

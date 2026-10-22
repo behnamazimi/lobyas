@@ -67,6 +67,8 @@ export function useReviewWriteQueue(options: {
         }
         if (result.error) {
           options.setErrorMessage(result.error);
+        } else if (outcome === "success") {
+          options.setErrorMessage(null);
         }
         if (outcome === "exhausted") {
           toast("Couldn't save a rating. Return to Review to retry.", "destructive");
