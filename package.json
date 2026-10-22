@@ -36,7 +36,7 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.47",
     "@ai-sdk/google": "^4.0.24",
-    "@ai-sdk/otel": "^1.0.114",
+    "@ai-sdk/otel": "^1.0.143",
     "@aws-sdk/client-s3": "^3.1126.0",
     "@capacitor/app": "^8",
     "@capacitor/browser": "^8",
