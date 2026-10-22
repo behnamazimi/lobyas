@@ -30,6 +30,9 @@ function readTheme(): string {
     : LIGHT_THEME;
 }
 
+const LEGAL_LINK_CLASS =
+  "flex min-h-11 items-center text-sm font-semibold text-muted underline underline-offset-2 hover:text-muted";
+
 export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
   const { email, isAdmin, initialIsDark, streak } = useShell();
   const install = useInstallAction();
@@ -174,15 +177,11 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
       </SectionCard>
       <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-5 px-2">
         {LEGAL_LINKS.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            className="flex min-h-11 items-center text-sm font-semibold text-muted underline underline-offset-2"
-          >
+          <a key={link.href} href={link.href} className={LEGAL_LINK_CLASS}>
             {link.label}
           </a>
         ))}
-        <ConsentSettingsButton className="flex min-h-11 items-center" />
+        <ConsentSettingsButton className={LEGAL_LINK_CLASS} />
       </nav>
       <ReportIssueSheet isOpen={reportOpen} onOpenChange={setReportOpen} />
       {credits ? (
