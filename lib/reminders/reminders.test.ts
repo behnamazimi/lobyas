@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  applyRemindersChange,
   formatNextReminder,
   formatReminderDays,
   parseReminders,
+  parseRemindersChange,
   validateReminders,
 } from "./reminders";
 
@@ -80,5 +82,54 @@ describe("formatNextReminder", () => {
 
   it("is null with no days", () => {
     expect(formatNextReminder("19:00", [], now)).toBeNull();
+  });
+});
+
+describe("applyRemindersChange", () => {
+  const other = { ...good, id: "b" };
+
+  it("changes one reminder and leaves the rest of the stored list alone", () => {
+    const edited = { ...good, time: "09:00" };
+    expect(applyRemindersChange([good, other], { type: "upsert", reminder: edited })).toEqual([
+      edited,
+      other,
+    ]);
+  });
+
+  it("adds a new reminder", () => {
+    expect(applyRemindersChange([good], { type: "upsert", reminder: other })).toEqual([
+      good,
+      other,
+    ]);
+  });
+
+  it("refuses a fourth reminder", () => {
+    const three = ["a", "b", "c"].map((id) => ({ ...good, id }));
+    expect(
+      applyRemindersChange(three, { type: "upsert", reminder: { ...good, id: "d" } }),
+    ).toBeNull();
+  });
+
+  it("removes by id, and an unknown id changes nothing", () => {
+    expect(applyRemindersChange([good, other], { type: "remove", id: "a" })).toEqual([other]);
+    expect(applyRemindersChange([good], { type: "remove", id: "zzz" })).toEqual([good]);
+  });
+});
+
+describe("parseRemindersChange", () => {
+  it("accepts a valid upsert and remove", () => {
+    expect(parseRemindersChange({ type: "upsert", reminder: good })).toEqual({
+      type: "upsert",
+      reminder: good,
+    });
+    expect(parseRemindersChange({ type: "remove", id: "a" })).toEqual({ type: "remove", id: "a" });
+  });
+
+  it("rejects a bad reminder or an unknown type", () => {
+    expect(
+      parseRemindersChange({ type: "upsert", reminder: { ...good, time: "99:99" } }),
+    ).toBeNull();
+    expect(parseRemindersChange({ type: "wipe" })).toBeNull();
+    expect(parseRemindersChange(null)).toBeNull();
   });
 });

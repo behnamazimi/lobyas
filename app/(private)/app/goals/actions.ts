@@ -4,11 +4,17 @@ import { revalidatePath } from "next/cache";
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
 import { loadGoalForecast, type GoalForecast } from "@/lib/goals/forecast";
 import { GOAL_TIERS, parseDailyGoals, type DailyGoals, type GoalTier } from "@/lib/goals/levels";
-import { validateReminders, type Reminder } from "@/lib/reminders/reminders";
+import {
+  applyRemindersChange,
+  MAX_REMINDERS,
+  parseRemindersChange,
+  type Reminder,
+} from "@/lib/reminders/reminders";
 import {
   claimGoalCelebration,
   getRequestGoalSettings,
   loadGoalDay,
+  loadReminders,
   saveGoalCelebrate,
   saveGoals,
   saveReminders,
@@ -88,19 +94,23 @@ export async function claimGoalCelebrationAction(
   }
 }
 
+/** One change to the stored reminders; the reply is the whole list as saved, so
+ *  the card also picks up what other devices changed. */
 export async function saveRemindersAction(
-  reminders: Reminder[],
+  input: unknown,
 ): Promise<{ error?: string; reminders?: Reminder[] }> {
-  const valid = validateReminders(reminders);
-  if (!valid) return { error: "Those reminders don't look right." };
+  const change = parseRemindersChange(input);
+  if (!change) return { error: "That reminder doesn't look right." };
   const auth = await requireAuthenticatedClient();
   if ("error" in auth) return { error: auth.error };
 
   try {
-    await saveReminders(auth.supabase, auth.user.id, valid);
+    const next = applyRemindersChange(await loadReminders(auth.supabase, auth.user.id), change);
+    if (!next) return { error: `You can have up to ${MAX_REMINDERS} reminders.` };
+    await saveReminders(auth.supabase, auth.user.id, next);
+    revalidatePath("/app/goals");
+    return { reminders: next };
   } catch {
     return { error: "Couldn't save your reminders. Try again." };
   }
-  revalidatePath("/app/goals");
-  return { reminders: valid };
 }

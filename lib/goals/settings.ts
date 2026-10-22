@@ -76,6 +76,17 @@ export async function saveGoalCelebrate(
   if (error) throw error;
 }
 
+/** For saving: reads the stored list directly so a change builds on it. */
+export async function loadReminders(client: Client, userId: string): Promise<Reminder[]> {
+  const { data, error } = await client
+    .from("user_settings")
+    .select("reminders")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  return parseReminders(data?.reminders);
+}
+
 export async function saveReminders(
   client: Client,
   userId: string,

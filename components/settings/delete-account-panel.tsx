@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { deleteOwnAccountAction } from "@/app/(private)/app/settings/actions";
 import { ConfirmDialog, Pill, TextInput } from "@/components/kit";
 import { DangerZone } from "@/components/settings/ui";
-import { clearReminders } from "@/lib/reminders/native";
+import { clearReminders, syncRemindersFromServer } from "@/lib/reminders/native";
 
 function DeleteAccountDialog({ email, onClose }: { email: string; onClose: () => void }) {
   const [typed, setTyped] = useState("");
@@ -16,11 +16,13 @@ function DeleteAccountDialog({ email, onClose }: { email: string; onClose: () =>
   function confirm() {
     if (!canConfirm) return;
     startTransition(async () => {
-      // A deleted account redirects away, so this has to happen first; the app
-      // rearms from the account on its next check if the deletion fails.
+      // A deleted account redirects away, so this has to happen first.
       await clearReminders().catch(() => {});
       const result = await deleteOwnAccountAction(typed.trim());
-      if (result.error) setError(result.error);
+      if (result.error) {
+        setError(result.error);
+        void syncRemindersFromServer();
+      }
     });
   }
 

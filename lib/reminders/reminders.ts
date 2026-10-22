@@ -86,3 +86,36 @@ export function formatNextReminder(time: string, days: number[], now: Date): str
   }
   return null;
 }
+
+export type RemindersChange =
+  | { type: "upsert"; reminder: Reminder }
+  | { type: "remove"; id: string };
+
+/** Reads a change from the browser; null if it isn't one. */
+export function parseRemindersChange(value: unknown): RemindersChange | null {
+  if (typeof value !== "object" || value === null) return null;
+  const change = value as { type?: unknown; reminder?: unknown; id?: unknown };
+  if (change.type === "remove" && typeof change.id === "string") {
+    return { type: "remove", id: change.id };
+  }
+  if (change.type === "upsert") {
+    const [reminder] = validateReminders([change.reminder]) ?? [];
+    return reminder ? { type: "upsert", reminder } : null;
+  }
+  return null;
+}
+
+/** The list after the change, or null when it would go over the limit. A change
+ *  is applied to the stored list, not to what one device last saw, so two
+ *  devices editing different reminders don't undo each other. */
+export function applyRemindersChange(
+  current: Reminder[],
+  change: RemindersChange,
+): Reminder[] | null {
+  if (change.type === "remove") return current.filter((r) => r.id !== change.id);
+  const exists = current.some((r) => r.id === change.reminder.id);
+  const next = exists
+    ? current.map((r) => (r.id === change.reminder.id ? change.reminder : r))
+    : [...current, change.reminder];
+  return next.length > MAX_REMINDERS ? null : next;
+}

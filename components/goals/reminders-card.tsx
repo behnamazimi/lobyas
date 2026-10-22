@@ -6,9 +6,11 @@ import { saveRemindersAction } from "@/app/(private)/app/goals/actions";
 import { Banner, Pill, SectionCard } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { useMountEffect } from "@/hooks/use-mount-effect";
+import { useRemindersSupported } from "@/hooks/use-reminders-supported";
 import {
   applyReminders,
   getReminderPermission,
+  onAppResume,
   openNotificationSettings,
   remindersSupported,
   requestReminderPermission,
@@ -20,6 +22,7 @@ import {
   formatReminderTime,
   MAX_REMINDERS,
   type Reminder,
+  type RemindersChange,
 } from "@/lib/reminders/reminders";
 import { ReminderSheet } from "./reminder-sheet";
 
@@ -33,7 +36,7 @@ function newReminder(): Reminder {
  *  build has no notifications plugin. */
 export function RemindersCard({ initial }: { initial: Reminder[] }) {
   const { toast } = useToast();
-  const [supported, setSupported] = useState(false);
+  const supported = useRemindersSupported();
   const [permission, setPermission] = useState<ReminderPermission>("prompt");
   const [reminders, setReminders] = useState(initial);
   const [editing, setEditing] = useState<{ reminder: Reminder; isNew: boolean } | null>(null);
@@ -41,33 +44,20 @@ export function RemindersCard({ initial }: { initial: Reminder[] }) {
 
   useMountEffect(() => {
     if (!remindersSupported()) return;
-    setSupported(true);
-    void getReminderPermission().then(setPermission);
-
-    let cancelled = false;
-    let remove: (() => Promise<void>) | undefined;
-    void import("@capacitor/app").then(async ({ App }) => {
-      const handle = await App.addListener("appStateChange", ({ isActive }) => {
-        if (isActive) void getReminderPermission().then(setPermission);
-      });
-      if (cancelled) await handle.remove();
-      else remove = handle.remove;
-    });
-    return () => {
-      cancelled = true;
-      void remove?.();
-    };
+    const refresh = () => void getReminderPermission().then(setPermission);
+    refresh();
+    return onAppResume(refresh);
   });
 
   if (!supported) return null;
 
-  async function persist(next: Reminder[]): Promise<boolean> {
+  async function persist(change: RemindersChange): Promise<boolean> {
     setIsSaving(true);
     try {
-      if (next.some((r) => r.enabled) && permission === "prompt") {
+      if (change.type === "upsert" && change.reminder.enabled && permission === "prompt") {
         setPermission(await requestReminderPermission());
       }
-      const result = await saveRemindersAction(next);
+      const result = await saveRemindersAction(change);
       if (result.error || !result.reminders) {
         toast(result.error ?? "Couldn't save your reminders. Try again.", "destructive");
         return false;
@@ -86,18 +76,14 @@ export function RemindersCard({ initial }: { initial: Reminder[] }) {
   }
 
   async function save(reminder: Reminder) {
-    const exists = reminders.some((r) => r.id === reminder.id);
-    const next = exists
-      ? reminders.map((r) => (r.id === reminder.id ? reminder : r))
-      : [...reminders, reminder];
-    if (await persist(next)) {
+    if (await persist({ type: "upsert", reminder })) {
       setEditing(null);
       toast("Reminder saved");
     }
   }
 
   async function remove(id: string) {
-    if (await persist(reminders.filter((r) => r.id !== id))) {
+    if (await persist({ type: "remove", id })) {
       setEditing(null);
       toast("Reminder deleted");
     }
@@ -143,11 +129,10 @@ export function RemindersCard({ initial }: { initial: Reminder[] }) {
               checked={reminder.enabled}
               disabled={isSaving}
               onChange={(event) =>
-                void persist(
-                  reminders.map((r) =>
-                    r.id === reminder.id ? { ...r, enabled: event.target.checked } : r,
-                  ),
-                )
+                void persist({
+                  type: "upsert",
+                  reminder: { ...reminder, enabled: event.target.checked },
+                })
               }
             />
           </li>

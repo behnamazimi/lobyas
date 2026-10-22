@@ -36,8 +36,9 @@ CAP_SERVER_URL=https://<preview>.vercel.app pnpm mobile:sync
 ```
 
 To run the iOS simulator against `pnpm dev`, sync with `CAP_SERVER_URL=http://localhost:3000` and
-build the Debug configuration from Xcode (or `xcodebuild`). A build phase adds the App Transport
-Security exception for local http to Debug builds only; release and archive builds never have it.
+build the Debug configuration from Xcode (or `xcodebuild`). `Info.plist` is preprocessed, and the App
+Transport Security exception for local http sits in an `#ifdef LOCAL_BUILD` block that only the Debug
+configuration defines; release and archive builds never have it.
 On the Android emulator the host is `10.0.2.2`, so sync with `CAP_SERVER_URL=http://10.0.2.2:3000` and
 run `./gradlew assembleDebug` in `android/`. The debug-only manifest (`android/app/src/debug/`) allows
 cleartext http, and `allowedDevOrigins` in `next.config.ts` lets `next dev` serve that origin; without
@@ -87,9 +88,11 @@ older apps and the web never show it.
 - Each enabled reminder becomes one repeating weekly OS schedule per weekday
   (`lib/reminders/schedule.ts`). They survive reboots and follow DST and travel, but can't skip a
   day already studied. The id is `(position + 1) * 10 + weekday`, and the three lobya lines rotate by weekday.
-- `NativeReminders` (root layout) reads `GET /api/reminders` on launch and whenever the app returns
-  to the foreground, and `applyReminders` rearms only if the pending ids or the saved schedule
-  differ. Signed out (a 401 or a redirect to login) clears everything; sign-out and account deletion also clear first.
+- `NativeReminders` (root layout) reads `GET /api/reminders` on launch, whenever the app returns
+  to the foreground and when the visitor signs in, and rearms only if the pending ids, the saved
+  schedule or the device timezone differ (`lib/reminders/arming.ts`). Everything that changes what the
+  device holds runs through one queue in `lib/reminders/native.ts`, so an older sync can't land after a
+  newer save. A save sends one change (add, edit or remove) that the server applies to the stored list. Signed out (a 401 or a redirect to login) clears everything; sign-out and account deletion also clear first.
 - The permission prompt appears only when the first reminder is saved. If it is denied or revoked,
   the card shows an alert with an Open settings button (`capacitor-native-settings`).
 - Android uses inexact alarms (a reminder can be a few minutes late; every notification sets
