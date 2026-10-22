@@ -1,3 +1,5 @@
+import { SwitchingFallback } from "@/components/app/shell/switching-fallback";
+import LibraryLoading from "./loading";
 import type { Metadata } from "next";
 import { SectionTransition } from "@/components/shared/view-transitions";
 
@@ -10,7 +12,9 @@ export default function LibraryLayout({ children }: { children: React.ReactNode 
     // Scrolls on desktop. The column stays as tall as the list, so the term panel can stick.
     <div className="flex flex-1 flex-col bg-base-200 lg:min-h-0 lg:overflow-y-auto">
       <div className="mx-auto flex w-full max-w-[640px] flex-col px-5 py-5 lg:max-w-[1120px] lg:px-10 lg:py-9">
-        <SectionTransition>{children}</SectionTransition>
+        <SwitchingFallback fallback={<LibraryLoading />}>
+          <SectionTransition>{children}</SectionTransition>
+        </SwitchingFallback>
       </div>
     </div>
   );

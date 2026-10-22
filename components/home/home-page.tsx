@@ -1,3 +1,4 @@
+import { SwitchingFallback } from "@/components/app/shell/switching-fallback";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { Suspense, type ReactNode } from "react";
@@ -102,9 +103,11 @@ export function HomePage() {
   return (
     <div className="flex flex-1 flex-col bg-base-200">
       <div className={FRAME}>
-        <Suspense fallback={<HomeSkeleton />}>
-          <HomeContent />
-        </Suspense>
+        <SwitchingFallback fallback={<HomeSkeleton />}>
+          <Suspense fallback={<HomeSkeleton />}>
+            <HomeContent />
+          </Suspense>
+        </SwitchingFallback>
       </div>
     </div>
   );

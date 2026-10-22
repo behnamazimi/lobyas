@@ -14,6 +14,7 @@ export function CollectionSwitcherRow({
   total,
   detail,
   selected = false,
+  disabled = false,
   onPress,
 }: {
   name: string;
@@ -25,6 +26,7 @@ export function CollectionSwitcherRow({
   /** A small third line, for example the queue sizes. */
   detail?: string;
   selected?: boolean;
+  disabled?: boolean;
   onPress: () => void;
 }) {
   const value = total ? mastered / total : 0;
@@ -32,10 +34,12 @@ export function CollectionSwitcherRow({
     <button
       type="button"
       onClick={onPress}
+      disabled={disabled}
       aria-current={selected ? "true" : undefined}
       className={cn(
         "flex min-h-14 w-full items-center gap-3 rounded-2xl px-2 py-2 text-start",
         selected ? "bg-success-tint" : "hover:bg-base-200",
+        disabled && "cursor-wait",
       )}
     >
       <Tile tone={tone} serif>

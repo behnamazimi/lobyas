@@ -536,6 +536,17 @@
     }
   }
 
+  /* Appears only if the wait lasts, so a quick switch never flashes it. */
+  @keyframes delayed-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .delayed-fade-in {
+    animation: delayed-fade-in 200ms ease-out 150ms backwards;
+  }
+
   .study-enter {
     animation: study-enter 240ms cubic-bezier(0.22, 1, 0.36, 1);
   }

@@ -8,7 +8,7 @@ import { collectionLetter, collectionTone } from "./collection-look";
 import { useShell, type ShellCollection } from "./shell-context";
 
 export function CollectionList() {
-  const { collections, current, setCollection } = useShell();
+  const { collections, current, setCollection, switching } = useShell();
   const active = collections.filter((collection) => collection.isActiveForReview);
   const paused = collections.filter((collection) => !collection.isActiveForReview);
   return (
@@ -25,6 +25,7 @@ export function CollectionList() {
             collection.queues.review,
           )} · Quiz ${formatCount(collection.queues.quiz)}`}
           selected={collection.id === current?.id}
+          disabled={switching}
           onPress={() => setCollection(collection.id)}
         />
       ))}
@@ -41,6 +42,7 @@ export function CollectionList() {
               tone={collectionTone(collection.kind)}
               detail="Paused"
               selected={collection.id === current?.id}
+              disabled={switching}
               onPress={() => setCollection(collection.id)}
             />
           ))}
