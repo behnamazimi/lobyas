@@ -35,6 +35,14 @@ on the same network) before syncing:
 CAP_SERVER_URL=https://<preview>.vercel.app pnpm mobile:sync
 ```
 
+To run the iOS simulator against `pnpm dev`, sync with `CAP_SERVER_URL=http://localhost:3000` and
+build the Debug configuration from Xcode (or `xcodebuild`). A build phase adds the App Transport
+Security exception for local http to Debug builds only; release and archive builds never have it.
+On the Android emulator the host is `10.0.2.2`, so sync with `CAP_SERVER_URL=http://10.0.2.2:3000` and
+run `./gradlew assembleDebug` in `android/`. The debug-only manifest (`android/app/src/debug/`) allows
+cleartext http, and `allowedDevOrigins` in `next.config.ts` lets `next dev` serve that origin; without
+it the page loads but never hydrates.
+
 The app shows whatever the site serves, so a web change (CSS, a component) only
 appears in an app that points at a deploy containing it. To get an APK for a
 branch, run the Mobile workflow manually and put the branch's Vercel preview URL
@@ -67,6 +75,32 @@ older than the web code: a plugin added later won't exist in it.
 The proxy uses it for one thing: a request for `/` from the app redirects to the
 study area (`AUTHENTICATED_HOME_PATH`) for a signed-in member, or to `/login`
 otherwise (`lib/native/landing.ts`). Every other public page still opens by link.
+
+## Reminders
+
+Study reminders are local notifications (`@capacitor/local-notifications`), set on the Goals page
+(`components/goals/reminders-card.tsx`) and kept in `user_settings.reminders` (up to 3 of
+`{id, time "HH:MM", days 1 = Mon…7 = Sun, enabled}`, local wall-clock time). The card renders only
+in an app whose binary has the plugin (`remindersSupported()` in `lib/reminders/native.ts`), so
+older apps and the web never show it.
+
+- Each enabled reminder becomes one repeating weekly OS schedule per weekday
+  (`lib/reminders/schedule.ts`). They survive reboots and follow DST and travel, but can't skip a
+  day already studied. The id is `(position + 1) * 10 + weekday`, and the three lobya lines rotate by weekday.
+- `NativeReminders` (root layout) reads `GET /api/reminders` on launch and whenever the app returns
+  to the foreground, and `applyReminders` rearms only if the pending ids or the saved schedule
+  differ. Signed out (a 401 or a redirect to login) clears everything; sign-out and account deletion also clear first.
+- The permission prompt appears only when the first reminder is saved. If it is denied or revoked,
+  the card shows an alert with an Open settings button (`capacitor-native-settings`).
+- Android uses inexact alarms (a reminder can be a few minutes late; every notification sets
+  `isExactNotification: false`, since an exact alarm sends Android 12+ to a settings screen) in a
+  "Reminders" channel with the `ic_stat_lobyas` small icon. Tapping one opens `/app`.
+
+Check on a real iOS and Android device before a release: the permission prompt on the first save;
+denying it shows the alert and Open settings works; revoking in system settings and returning
+updates the card; a reminder fires after a reboot; changing the timezone moves it with the phone;
+signing out stops reminders and signing back in restores them; a tap opens Home; two devices on
+one account both ring.
 
 ## Asking old apps to update
 

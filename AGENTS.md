@@ -385,6 +385,12 @@ before touching any of them. Native releases are one command, `pnpm mobile:relea
 and loads plugins with a dynamic `import()`, because an installed app can be
 older than the web code.
 
+# Reminders
+
+Phone-app study reminders are local notifications set on the Goals page. Read the
+"Reminders" section of [docs/mobile.md](docs/mobile.md) first. The data and schedule
+builder are in `lib/reminders/`; device calls go through `lib/reminders/native.ts`.
+
 # Brand
 
 The product is "Lobyas" in prose and UI, "lobyas" in identifiers, slugs and

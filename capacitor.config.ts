@@ -26,6 +26,7 @@ const config: CapacitorConfig = {
     url: launchUrl,
     allowNavigation: ["lobyas.com", "*.lobyas.com", new URL(serverUrl).hostname],
     errorPath: "offline.html",
+    cleartext: serverUrl.startsWith("http:"),
   },
   ios: {
     appendUserAgent: `LobyasApp/ios/${appVersion}`,
@@ -44,6 +45,7 @@ const config: CapacitorConfig = {
     // Facebook and Google SDKs stay out of the app.
     SocialLogin: { providers: { apple: true, google: false, facebook: false, twitter: false } },
     SplashScreen: { launchAutoHide: true, launchShowDuration: 12000 },
+    LocalNotifications: { smallIcon: "ic_stat_lobyas", iconColor: "#6fcf9a" },
   },
 };
 

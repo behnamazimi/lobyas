@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
+import { parseReminders, type Reminder } from "@/lib/reminders/reminders";
 import { getRequestUserSettingsRow } from "@/lib/streak/settings";
 import { GOAL_TIERS, parseDailyGoals, raisedTiers, type DailyGoals, type GoalTier } from "./levels";
 import { EMPTY_GOAL_COUNTS, type GoalDayCounts } from "./progress";
@@ -10,6 +11,7 @@ export type GoalSettings = {
   /** Null until the user saves goals once. */
   goals: DailyGoals | null;
   celebrate: boolean;
+  reminders: Reminder[];
 };
 
 export type GoalDay = {
@@ -27,6 +29,7 @@ export async function getRequestGoalSettings(userId: string): Promise<GoalSettin
   return {
     goals: row ? parseDailyGoals(row.daily_goals) : null,
     celebrate: row?.goal_celebrate ?? true,
+    reminders: parseReminders(row?.reminders),
   };
 }
 
@@ -68,6 +71,20 @@ export async function saveGoalCelebrate(
     .from("user_settings")
     .upsert(
       { user_id: userId, goal_celebrate: celebrate, updated_at: new Date().toISOString() },
+      { onConflict: "user_id" },
+    );
+  if (error) throw error;
+}
+
+export async function saveReminders(
+  client: Client,
+  userId: string,
+  reminders: Reminder[],
+): Promise<void> {
+  const { error } = await client
+    .from("user_settings")
+    .upsert(
+      { user_id: userId, reminders, updated_at: new Date().toISOString() },
       { onConflict: "user_id" },
     );
   if (error) throw error;

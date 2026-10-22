@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
 import { loadGoalForecast, type GoalForecast } from "@/lib/goals/forecast";
 import { GOAL_TIERS, parseDailyGoals, type DailyGoals, type GoalTier } from "@/lib/goals/levels";
+import { validateReminders, type Reminder } from "@/lib/reminders/reminders";
 import {
   claimGoalCelebration,
   getRequestGoalSettings,
   loadGoalDay,
   saveGoalCelebrate,
   saveGoals,
+  saveReminders,
   type GoalDay,
 } from "@/lib/goals/settings";
 
@@ -84,4 +86,21 @@ export async function claimGoalCelebrationAction(
   } catch {
     return { claimed: false };
   }
+}
+
+export async function saveRemindersAction(
+  reminders: Reminder[],
+): Promise<{ error?: string; reminders?: Reminder[] }> {
+  const valid = validateReminders(reminders);
+  if (!valid) return { error: "Those reminders don't look right." };
+  const auth = await requireAuthenticatedClient();
+  if ("error" in auth) return { error: auth.error };
+
+  try {
+    await saveReminders(auth.supabase, auth.user.id, valid);
+  } catch {
+    return { error: "Couldn't save your reminders. Try again." };
+  }
+  revalidatePath("/app/goals");
+  return { reminders: valid };
 }

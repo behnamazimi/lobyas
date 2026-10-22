@@ -1692,6 +1692,7 @@ export type Database = {
           longest_streak: number;
           promo_dismissed: NonNullable<Json>;
           promo_seen: string[];
+          reminders: NonNullable<Json>;
           read_hide_question: boolean;
           read_keep_awake: boolean;
           read_narration_highlight: boolean;
@@ -1732,6 +1733,7 @@ export type Database = {
           longest_streak?: number;
           promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
+          reminders?: NonNullable<Json>;
           read_hide_question?: boolean;
           read_keep_awake?: boolean;
           read_narration_highlight?: boolean;
@@ -1771,6 +1773,7 @@ export type Database = {
           longest_streak?: number;
           promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
+          reminders?: NonNullable<Json>;
           read_hide_question?: boolean;
           read_keep_awake?: boolean;
           read_narration_highlight?: boolean;
