@@ -1692,7 +1692,6 @@ export type Database = {
           longest_streak: number;
           promo_dismissed: NonNullable<Json>;
           promo_seen: string[];
-          reminders: NonNullable<Json>;
           read_hide_question: boolean;
           read_keep_awake: boolean;
           read_narration_highlight: boolean;
@@ -1703,6 +1702,7 @@ export type Database = {
           read_shadowing_repeats: number;
           read_stories_default: boolean;
           read_tap_to_play: boolean;
+          reminders: NonNullable<Json>;
           review_keep_awake: boolean;
           review_narrate_on_reveal: boolean;
           review_show_next_review: boolean;
@@ -1733,7 +1733,6 @@ export type Database = {
           longest_streak?: number;
           promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
-          reminders?: NonNullable<Json>;
           read_hide_question?: boolean;
           read_keep_awake?: boolean;
           read_narration_highlight?: boolean;
@@ -1744,6 +1743,7 @@ export type Database = {
           read_shadowing_repeats?: number;
           read_stories_default?: boolean;
           read_tap_to_play?: boolean;
+          reminders?: NonNullable<Json>;
           review_keep_awake?: boolean;
           review_narrate_on_reveal?: boolean;
           review_show_next_review?: boolean;
@@ -1773,7 +1773,6 @@ export type Database = {
           longest_streak?: number;
           promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
-          reminders?: NonNullable<Json>;
           read_hide_question?: boolean;
           read_keep_awake?: boolean;
           read_narration_highlight?: boolean;
@@ -1784,6 +1783,7 @@ export type Database = {
           read_shadowing_repeats?: number;
           read_stories_default?: boolean;
           read_tap_to_play?: boolean;
+          reminders?: NonNullable<Json>;
           review_keep_awake?: boolean;
           review_narrate_on_reveal?: boolean;
           review_show_next_review?: boolean;
