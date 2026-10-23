@@ -84,11 +84,15 @@ function CheckEmail({ email, rawNext, onChangeEmail }: CheckEmailProps) {
 
       <p className="m-0 text-sm text-base-content/70">
         Already have an account?{" "}
-        <Link href={appendNextParam("/login", rawNext)} className="underline underline-offset-2">
+        <Link
+          prefetch={false}
+          href={appendNextParam("/login", rawNext)}
+          className="underline underline-offset-2"
+        >
           Log in
         </Link>{" "}
         or{" "}
-        <Link href="/forgot-password" className="underline underline-offset-2">
+        <Link prefetch={false} href="/forgot-password" className="underline underline-offset-2">
           reset your password
         </Link>
         .
@@ -215,14 +219,18 @@ export default function SignupForm({
 
       <p className="text-center text-sm text-base-content/70">
         Already have an account?{" "}
-        <Link href={appendNextParam("/login", rawNext)} className="underline underline-offset-2">
+        <Link
+          prefetch={false}
+          href={appendNextParam("/login", rawNext)}
+          className="underline underline-offset-2"
+        >
           Log in
         </Link>
       </p>
 
       <p className="text-center text-sm text-base-content/70">
         Don&apos;t have an invite code?{" "}
-        <Link href="/request-access" className="underline underline-offset-2">
+        <Link prefetch={false} href="/request-access" className="underline underline-offset-2">
           Request access
         </Link>
       </p>

@@ -51,7 +51,7 @@ export default function ForgotPasswordForm() {
 
       <p className="text-center text-sm text-base-content/70">
         Remembered your password?{" "}
-        <Link href="/login" className="underline underline-offset-2">
+        <Link prefetch={false} href="/login" className="underline underline-offset-2">
           Log in
         </Link>
       </p>

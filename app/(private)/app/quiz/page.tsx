@@ -13,8 +13,6 @@ import { aiAvailable } from "@/lib/llm/types";
 import { hasNoCollections } from "@/lib/study/collections";
 import { withReveal } from "@/components/shared/view-transitions";
 
-export const maxDuration = 60;
-
 type PageProps = {
   searchParams: Promise<{ collection?: string }>;
 };

@@ -24,7 +24,11 @@ export function LoggedOutHeaderNav() {
     return null;
   }
 
-  return <LinkButton href="/login">Log in</LinkButton>;
+  return (
+    <LinkButton href="/login" prefetch={false}>
+      Log in
+    </LinkButton>
+  );
 }
 
 export function FeaturesNavLink() {

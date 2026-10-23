@@ -19,6 +19,7 @@ function GoalsCard({ data }: { data: HomePathData }) {
         <h2 className="m-0 font-sans text-lg font-extrabold">Today’s goals</h2>
         <Link
           href="/app/goals"
+          prefetch={false}
           className="flex min-h-11 items-center text-sm font-extrabold text-info-text"
         >
           Edit pace
@@ -27,7 +28,11 @@ function GoalsCard({ data }: { data: HomePathData }) {
       <ul className="m-0 list-none p-0">
         {data.stops.map((stop) => (
           <li key={stop.tier} className="border-t border-base-300">
-            <Link href={stop.href} className="flex min-h-14 items-center gap-3 text-base-content">
+            <Link
+              href={stop.href}
+              prefetch={false}
+              className="flex min-h-14 items-center gap-3 text-base-content"
+            >
               {stop.ringValue !== null ? (
                 <ProgressRing value={stop.ringValue} tone={stop.tier} size={28} strokeWidth={12} />
               ) : (
@@ -105,13 +110,13 @@ function CollectionCard({ collection }: { collection: ShellCollection }) {
         ))}
       </dl>
       <div className="mt-3.5 flex flex-wrap gap-2">
-        <Link href={`/app/library?collection=${collection.id}`} className={chip}>
+        <Link href={`/app/library?collection=${collection.id}`} prefetch={false} className={chip}>
           Open in Library
         </Link>
-        <Link href="/app/read/stories" className={chip}>
+        <Link href="/app/read/stories" prefetch={false} className={chip}>
           Stories
         </Link>
-        <Link href="/app/triage" className={chip}>
+        <Link href="/app/triage" prefetch={false} className={chip}>
           Triage
         </Link>
       </div>

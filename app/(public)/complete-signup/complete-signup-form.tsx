@@ -42,7 +42,7 @@ export default function CompleteSignupForm({
           <AlertDescription>
             The code you signed up with ran out of seats before your email was confirmed. Enter
             another code, or{" "}
-            <Link href="/request-access" className="underline underline-offset-2">
+            <Link prefetch={false} href="/request-access" className="underline underline-offset-2">
               request access
             </Link>
             .
@@ -54,7 +54,7 @@ export default function CompleteSignupForm({
         <Alert variant="info" icon={<Mail strokeWidth={1.5} />}>
           <AlertDescription>
             No code yet? You get one once your access is approved.{" "}
-            <Link href="/request-access" className="underline underline-offset-2">
+            <Link prefetch={false} href="/request-access" className="underline underline-offset-2">
               Request access
             </Link>{" "}
             to start.
