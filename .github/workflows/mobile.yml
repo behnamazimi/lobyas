@@ -79,7 +79,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
       - run: pnpm exec cap sync android
         env:
           CAP_SERVER_URL: ${{ inputs.server_url }}
@@ -128,7 +128,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 21
-      - uses: gradle/actions/setup-gradle@v5
+      - uses: gradle/actions/setup-gradle@v6
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: "3.3"
