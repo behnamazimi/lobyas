@@ -32,7 +32,7 @@
     "mobile:ios": "cap open ios"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.47",
+    "@ai-sdk/anthropic": "^4.0.84",
     "@ai-sdk/google": "^4.0.24",
     "@ai-sdk/otel": "^1.0.114",
     "@aws-sdk/client-s3": "^3.1126.0",
