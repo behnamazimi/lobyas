@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const plugin = vi.hoisted(() => ({
+  urlHandlers: [] as Array<(event: { url: string }) => void>,
   handlers: [] as Array<(state: { isActive: boolean }) => void>,
   removed: 0,
   deferAdd: null as null | ((value: unknown) => void),
@@ -8,8 +9,9 @@ const plugin = vi.hoisted(() => ({
 
 vi.mock("@capacitor/app", () => ({
   App: {
-    addListener: (_event: string, handler: (state: { isActive: boolean }) => void) => {
-      plugin.handlers.push(handler);
+    addListener: (event: string, handler: (state: never) => void) => {
+      if (event === "appUrlOpen") plugin.urlHandlers.push(handler as never);
+      else plugin.handlers.push(handler as never);
       const handle = { remove: async () => void plugin.removed++ };
       return new Promise((resolve) => {
         if (plugin.deferAdd) plugin.deferAdd = resolve.bind(null, handle) as never;
@@ -19,7 +21,7 @@ vi.mock("@capacitor/app", () => ({
   },
 }));
 
-const { onAppResume } = await import("./events");
+const { onAppResume, onAppUrlOpen } = await import("./events");
 
 function asApp() {
   vi.stubGlobal("navigator", { userAgent: "Chrome/126 LobyasApp/android/1.0.0" });
@@ -31,6 +33,7 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 afterEach(() => {
   vi.unstubAllGlobals();
   plugin.handlers.length = 0;
+  plugin.urlHandlers.length = 0;
   plugin.removed = 0;
   plugin.deferAdd = null;
 });
@@ -71,5 +74,16 @@ describe("onAppResume", () => {
     onAppResume(() => {});
     await settle();
     expect(plugin.handlers).toHaveLength(0);
+  });
+});
+
+describe("onAppUrlOpen", () => {
+  it("passes on the link that opened the app", async () => {
+    asApp();
+    const callback = vi.fn();
+    onAppUrlOpen(callback);
+    await settle();
+    plugin.urlHandlers[0]({ url: "com.lobyas.app://auth/callback?code=abc" });
+    expect(callback).toHaveBeenCalledWith("com.lobyas.app://auth/callback?code=abc");
   });
 });

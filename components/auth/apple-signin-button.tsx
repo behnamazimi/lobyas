@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useNative } from "@/hooks/use-native";
+import { useHasCapability, useNative } from "@/hooks/use-native";
 import {
   APPLE_SERVICES_ID,
   AppleSignInCancelled,
   exchangeAppleCredential,
-  isNativeAppleAvailable,
   requestAppleCredential,
 } from "@/lib/auth/apple-client";
 
@@ -32,19 +31,8 @@ export function AppleSignInButton({
   label = "Continue with Apple",
 }: AppleSignInButtonProps) {
   const shell = useNative();
-  const [nativeAvailable, setNativeAvailable] = useState(false);
+  const nativeAvailable = useHasCapability("appleSignIn");
   const [starting, setStarting] = useState(false);
-
-  useEffect(() => {
-    if (!shell.native) return;
-    let cancelled = false;
-    void isNativeAppleAvailable().then((available) => {
-      if (!cancelled) setNativeAvailable(available);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [shell.native]);
 
   const visible = shell.native ? nativeAvailable : Boolean(APPLE_SERVICES_ID);
   if (!visible) return null;

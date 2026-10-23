@@ -56,13 +56,7 @@
       }
     },
     {
-      "files": [
-        "lib/native/**",
-        "capacitor.config.ts",
-        "components/auth/google-signin-button.tsx",
-        "components/native/native-auth-bridge.tsx",
-        "lib/auth/apple-client.ts"
-      ],
+      "files": ["lib/native/**", "capacitor.config.ts"],
       "rules": {
         "no-restricted-imports": "off"
       }

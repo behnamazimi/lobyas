@@ -34,3 +34,14 @@ export function onAppResume(callback: () => void): () => void {
     ),
   );
 }
+
+/** Runs with the link that opened the app, such as the sign-in callback from the system browser. */
+export function onAppUrlOpen(callback: (url: string) => void): () => void {
+  return subscribe(() =>
+    callNative(
+      "app",
+      () => import("@capacitor/app"),
+      ({ App }) => App.addListener("appUrlOpen", ({ url }) => callback(url)),
+    ),
+  );
+}

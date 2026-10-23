@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signInWithGoogle } from "@/lib/auth/oauth-actions";
 import { Button } from "@/components/ui/button";
 import { NATIVE_REQUEST_HEADER } from "@/lib/native/contract";
+import { openSystemBrowser } from "@/lib/native/browser";
 import { isNativeShell } from "@/lib/native/shell";
 
 type GoogleSignInButtonProps = {
@@ -49,8 +50,9 @@ async function startNativeSignIn(form: HTMLFormElement, onDone: () => void) {
       window.location.assign(`/login?error=${result.error ?? "oauth-failed"}`);
       return;
     }
-    const { Browser } = await import("@capacitor/browser");
-    await Browser.open({ url: result.url });
+    if (!(await openSystemBrowser(result.url))) {
+      window.location.assign("/login?error=oauth-failed");
+    }
   } catch {
     window.location.assign("/login?error=oauth-failed");
   } finally {

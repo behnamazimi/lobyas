@@ -3,16 +3,20 @@ import { isNativeShell } from "./shell";
 /** What the web code can ask of the app, and the Capacitor plugin each one needs. A feature is
  *  only there when the installed app was built with its plugin: an older app has none of the
  *  ones added since. */
-const PLUGINS = {
-  app: "App",
-  appSettings: "NativeSettings",
-  haptics: "Haptics",
-  notifications: "LocalNotifications",
-  splash: "SplashScreen",
-  systemBars: "SystemBars",
-} as const;
+type Entry = { plugin: string; platform?: "ios" | "android" };
 
-export type Capability = keyof typeof PLUGINS;
+const CAPABILITIES = {
+  app: { plugin: "App" },
+  appSettings: { plugin: "NativeSettings" },
+  appleSignIn: { plugin: "SocialLogin", platform: "ios" },
+  browser: { plugin: "Browser" },
+  haptics: { plugin: "Haptics" },
+  notifications: { plugin: "LocalNotifications" },
+  splash: { plugin: "SplashScreen" },
+  systemBars: { plugin: "SystemBars" },
+} satisfies Record<string, Entry>;
+
+export type Capability = keyof typeof CAPABILITIES;
 
 type CapacitorGlobal = {
   isPluginAvailable?: (name: string) => boolean;
@@ -25,7 +29,9 @@ function capacitor(): CapacitorGlobal | undefined {
 }
 
 export function hasCapability(capability: Capability): boolean {
-  return isNativeShell() && capacitor()?.isPluginAvailable?.(PLUGINS[capability]) === true;
+  const { plugin, platform }: Entry = CAPABILITIES[capability];
+  if (!isNativeShell() || capacitor()?.isPluginAvailable?.(plugin) !== true) return false;
+  return platform === undefined || platform === nativePlatform();
 }
 
 /** The platform Capacitor reports; unlike the user agent it is known for every app version. */
