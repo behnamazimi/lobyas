@@ -1,5 +1,6 @@
 "use client";
 
+import { CollectionRow } from "@/components/app/shell/collection-row";
 import { useRef, useState, useTransition } from "react";
 import {
   forecastGoalsAction,
@@ -116,7 +117,8 @@ export function GoalsPage({
     <div className="flex flex-1 flex-col gap-3">
       {saved ? null : <IntroPanel />}
 
-      <h2 className="m-0 px-1 font-heading text-xl font-extrabold [overflow-wrap:anywhere]">
+      <CollectionRow name={collection.name} />
+      <h2 className="m-0 px-1 font-heading text-xl font-extrabold [overflow-wrap:anywhere] max-lg:hidden">
         Goals for {collection.name}
       </h2>
 

@@ -33,11 +33,12 @@ describe("allGoalsMet and metCount", () => {
 });
 
 describe("nextOpenTier", () => {
-  it("goes Read, Review, Quiz and wraps around", () => {
+  it("goes Read, Review, Quiz whichever tier was met first", () => {
     const all = { read: 10, review: 10, quiz: 10 };
     const none = { read: 0, review: 0, quiz: 0 };
-    expect(nextOpenTier(goalProgress(all, { ...none, read: 10 }), "read")).toBe("review");
-    expect(nextOpenTier(goalProgress(all, { ...none, quiz: 10 }), "quiz")).toBe("read");
+    expect(nextOpenTier(goalProgress(all, { ...none, read: 10 }))).toBe("review");
+    expect(nextOpenTier(goalProgress(all, { ...none, review: 10 }))).toBe("read");
+    expect(nextOpenTier(goalProgress(all, { ...none, quiz: 10 }))).toBe("read");
   });
 
   it("skips tiers that are off or done", () => {
@@ -45,11 +46,11 @@ describe("nextOpenTier", () => {
       { read: 10, review: null, quiz: 5 },
       { read: 10, review: 0, quiz: 0 },
     );
-    expect(nextOpenTier(progress, "read")).toBe("quiz");
+    expect(nextOpenTier(progress)).toBe("quiz");
   });
 
   it("is null when nothing is left", () => {
     const progress = goalProgress(goals, { read: 20, review: 10, quiz: 0 });
-    expect(nextOpenTier(progress, "review")).toBeNull();
+    expect(nextOpenTier(progress)).toBeNull();
   });
 });

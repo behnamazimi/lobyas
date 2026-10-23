@@ -31,7 +31,7 @@ test.describe("Daily goals", () => {
         .getByRole("heading", { name: "Review" })
         .locator("..")
         .locator("..")
-        .getByRole("button", { name: "Fewer terms a day" })
+        .getByRole("button", { name: "Fewer terms to recall a day" })
         .click();
       await page.getByRole("button", { name: "Start these goals" }).click();
       await expect
@@ -43,17 +43,17 @@ test.describe("Daily goals", () => {
 
       const dialog = page.getByRole("dialog");
       await expect(dialog.getByRole("heading", { name: "Review goal met!" })).toBeVisible();
-      await dialog.getByRole("link", { name: /^Go to Quiz/ }).click();
-      await expect(page).toHaveURL(/\/app\/quiz/);
+      await dialog.getByRole("button", { name: /^Start reading/ }).click();
+      await expect(page).toHaveURL(/\/app\/read/);
     },
   );
 
-  test("Done for today closes the celebration and goes Home", async ({ page, user }) => {
+  test("Finish for today closes the celebration and goes Home", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
     await setCollectionGoals(user.id, collectionId, { read: null, review: 1, quiz: null });
     await gotoReady(page, `/app/review?collection=${collectionId}`);
     await gradeGood(page, 1);
-    await page.getByRole("dialog").getByRole("button", { name: "Done for today" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Finish for today" }).click();
     await expect(page).toHaveURL(/\/app$/);
   });
 
@@ -129,7 +129,7 @@ test.describe("Daily goals", () => {
     await gradeGood(page, 1);
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByRole("heading", { name: "Today’s goals met!" })).toBeVisible();
-    await dialog.getByRole("button", { name: "Keep going" }).click();
+    await dialog.getByRole("button", { name: "Review more terms" }).click();
     await expect(dialog).toBeHidden();
 
     const toast = page.getByText("Review goal met. Keep going as long as you like.");

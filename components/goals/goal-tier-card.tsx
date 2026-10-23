@@ -14,7 +14,18 @@ import {
 import { formatCount } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
 
-const PER_DAY = "terms a day";
+const UNITS: Record<GoalTier, { short: string; perDay: string }> = {
+  read: { short: "to read", perDay: "terms to read a day" },
+  review: { short: "to recall", perDay: "terms to recall a day" },
+  quiz: { short: "to test", perDay: "terms to test a day" },
+};
+
+const WHAT_COUNTS: Record<GoalTier, string> = {
+  read: "Look terms over to get familiar with them, new ones or ones you’ve seen.",
+  review:
+    "Recall terms from memory, the ones about to slip first. Every term you review counts, not just new ones.",
+  quiz: "Answer questions to show you recognise terms.",
+};
 
 const SELECTED: Record<GoalTier, string> = {
   read: "bg-read-tint ring-2 ring-read-ring",
@@ -37,6 +48,7 @@ export function TierCard({
   const level = nearestLevel(tier, goal);
   const label = GOAL_TIER_LABELS[tier];
   const selected = SELECTED[tier];
+  const { short, perDay } = UNITS[tier];
 
   return (
     <Card radius="md" className="p-4">
@@ -51,14 +63,15 @@ export function TierCard({
         <Stepper
           value={goal ?? 0}
           valueText={goal ? undefined : "Off"}
-          unit={PER_DAY}
-          decreaseLabel={`Fewer ${PER_DAY}`}
-          increaseLabel={`More ${PER_DAY}`}
+          unit={short}
+          decreaseLabel={`Fewer ${perDay}`}
+          increaseLabel={`More ${perDay}`}
           disableDecrease={goal === null}
           onDecrease={() => onChange(stepGoal(goal, -1))}
           onIncrease={() => onChange(stepGoal(goal, 1))}
         />
       </div>
+      <p className="m-0 mt-2.5 text-sm text-muted">{WHAT_COUNTS[tier]}</p>
       <div role="group" aria-label={`${label} pace`} className="mt-3 grid grid-cols-4 gap-1.5">
         {GOAL_LEVELS.map((option) => (
           <button

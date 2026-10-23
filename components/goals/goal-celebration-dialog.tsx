@@ -1,21 +1,35 @@
 "use client";
 
-import { Flame } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { GoalCheerScene } from "@/components/illustrations/scenes/goal-cheer";
-import { BottomSheet, Pill, StatTile } from "@/components/kit";
-import { GOAL_TIER_LABELS, GOAL_TIERS, type GoalTier } from "@/lib/goals/levels";
+import { BottomSheet, Pill } from "@/components/kit";
+import { GOAL_TIER_HREFS, GOAL_TIER_LABELS, type GoalTier } from "@/lib/goals/levels";
 import { allGoalsMet, nextOpenTier } from "@/lib/goals/progress";
 import { formatCount } from "@/lib/kit/text";
 import { closeGoalCelebration, getGoalsSnapshot, subscribeGoals } from "./goal-store";
 import { GoalTodayRows } from "./goal-today-rows";
 
-const COUNT_LABELS: Record<GoalTier, string> = {
-  read: "read today",
-  review: "reviewed today",
-  quiz: "answered today",
+const DONE_NOUNS: Record<GoalTier, [string, string]> = {
+  read: ["term read", "terms read"],
+  review: ["term reviewed", "terms reviewed"],
+  quiz: ["term quizzed", "terms quizzed"],
 };
+
+const NEXT_STEPS: Record<GoalTier, { label: string; unit: [string, string] }> = {
+  read: { label: "Start reading", unit: ["term", "terms"] },
+  review: { label: "Start reviewing", unit: ["term", "terms"] },
+  quiz: { label: "Start your Quiz", unit: ["term", "terms"] },
+};
+
+const MORE_LABELS: Record<GoalTier, string> = {
+  read: "Read more terms",
+  review: "Review more terms",
+  quiz: "Answer a few more",
+};
+
+const plural = (count: number, [one, many]: [string, string]) =>
+  `${formatCount(count)} ${count === 1 ? one : many}`;
 
 export function GoalCelebrationDialog({ streak }: { streak: number }) {
   const router = useRouter();
@@ -28,12 +42,12 @@ export function GoalCelebrationDialog({ streak }: { streak: number }) {
 
   const { tier, progress, collectionName } = celebration;
   const all = allGoalsMet(progress);
-  const next = nextOpenTier(progress, tier);
-  // The tier that just finished, then the busiest other tier if it has any activity today.
-  const other = GOAL_TIERS.filter((t) => t !== tier).sort(
-    (a, b) => progress[b].done - progress[a].done,
-  )[0];
-  const countTiers = progress[other].done > 0 ? [tier, other] : [tier];
+  const next = nextOpenTier(progress);
+  const left = next ? (progress[next].goal ?? 0) - progress[next].done : 0;
+  const leave = (href: string) => {
+    closeGoalCelebration();
+    router.push(href);
+  };
 
   return (
     <BottomSheet
@@ -43,54 +57,54 @@ export function GoalCelebrationDialog({ streak }: { streak: number }) {
         if (!open) closeGoalCelebration();
       }}
       title={all ? "Today’s goals met!" : `${GOAL_TIER_LABELS[tier]} goal met!`}
-      subline={`${collectionName}: that’s your pace for today. Stopping here is fine, and today already counts for your streak.`}
+      subline={`${collectionName}: ${plural(progress[tier].done, DONE_NOUNS[tier])}. Today counts for your ${formatCount(streak)}-day streak, so you can stop here.`}
       hero={
         <div
           className="bg-warning px-6 pt-10 pb-4 md:pt-6"
           style={{ borderRadius: "0 0 50% 50% / 0 0 28px 28px" }}
         >
-          <GoalCheerScene lead={tier} all={all} className="mx-auto w-full max-w-72 md:max-w-56" />
+          <GoalCheerScene
+            lead={tier}
+            all={all}
+            className="ill-on-light mx-auto w-full max-w-72 md:max-w-56"
+          />
         </div>
       }
       footer={
         <div className="flex flex-col gap-2.5">
-          <Pill
-            size="lg"
-            autoFocus
-            onClick={() => {
-              closeGoalCelebration();
-              router.push("/app");
-            }}
-          >
-            Done for today
-          </Pill>
+          {next ? (
+            <Pill
+              size="lg"
+              autoFocus
+              className="flex-col gap-0"
+              onClick={() => leave(GOAL_TIER_HREFS[next])}
+            >
+              {NEXT_STEPS[next].label}
+              <span className="text-[13px] font-semibold opacity-75">
+                {plural(left, NEXT_STEPS[next].unit)} to reach today&rsquo;s goal
+              </span>
+            </Pill>
+          ) : (
+            <Pill size="lg" autoFocus onClick={() => leave("/app")}>
+              Finish for today
+            </Pill>
+          )}
           <Pill
             variant="secondary"
             className="h-[52px] w-full text-base"
             onClick={closeGoalCelebration}
           >
-            Keep going
+            {MORE_LABELS[tier]}
           </Pill>
+          {next ? (
+            <Pill variant="ghost" className="self-center" onClick={() => leave("/app")}>
+              I&rsquo;m done for today
+            </Pill>
+          ) : null}
         </div>
       }
     >
-      <div className="flex flex-col gap-3">
-        <div
-          className={
-            countTiers.length === 1 ? "grid grid-cols-2 gap-2.5" : "grid grid-cols-3 gap-2.5"
-          }
-        >
-          <StatTile
-            icon={<Flame className="size-5 fill-accent text-accent" strokeWidth={2} aria-hidden />}
-            value={formatCount(streak)}
-            label="day streak"
-          />
-          {countTiers.map((t) => (
-            <StatTile key={t} value={formatCount(progress[t].done)} label={COUNT_LABELS[t]} />
-          ))}
-        </div>
-        <GoalTodayRows progress={progress} next={next} onNavigate={closeGoalCelebration} />
-      </div>
+      <GoalTodayRows progress={progress} next={next} />
     </BottomSheet>
   );
 }
