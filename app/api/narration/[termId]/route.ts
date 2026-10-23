@@ -12,8 +12,6 @@ import { getNarrationAccessForUser, isAdminAccount } from "@/lib/narration/acces
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
-export const maxDuration = 60;
-
 /** A request that loses the claim waits this long for the winner's clip. */
 const WAIT_FOR_OTHER_MS = 30_000;
 
