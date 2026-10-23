@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useShell } from "@/hooks/use-shell";
+import { useNative } from "@/hooks/use-native";
 import {
   APPLE_SERVICES_ID,
   AppleSignInCancelled,
@@ -31,7 +31,7 @@ export function AppleSignInButton({
   referenceCode,
   label = "Continue with Apple",
 }: AppleSignInButtonProps) {
-  const shell = useShell();
+  const shell = useNative();
   const [nativeAvailable, setNativeAvailable] = useState(false);
   const [starting, setStarting] = useState(false);
 

@@ -64,7 +64,6 @@
         "components/native/native-splash.tsx",
         "components/native/native-system-bars.tsx",
         "lib/auth/apple-client.ts",
-        "lib/feedback/haptics.ts",
         "lib/reminders/native.ts"
       ],
       "rules": {

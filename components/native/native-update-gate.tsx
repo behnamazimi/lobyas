@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
 import { LinkButton } from "@/components/ui/button";
-import { useShell } from "@/hooks/use-shell";
+import { useNative } from "@/hooks/use-native";
 import { UPDATE_POLICY, storeUrl } from "@/lib/native/update-policy";
 import { updateState } from "@/lib/native/version";
 
@@ -19,7 +19,7 @@ function readDismissed(key: string): boolean {
 
 /** In the native app, asks an old version to update, and blocks one below the required version. */
 export function NativeUpdateGate() {
-  const shell = useShell();
+  const shell = useNative();
   const dismissKey = `${DISMISS_KEY_PREFIX}${UPDATE_POLICY.recommended}`;
   const [dismissed, setDismissed] = useState(true);
 
