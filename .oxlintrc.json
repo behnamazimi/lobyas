@@ -54,12 +54,7 @@
   ],
   "overrides": [
     {
-      "files": [
-        "components/ui/**",
-        "**/*.test.ts",
-        "**/*.test.tsx",
-        "widget/lobyas.widget/index.jsx"
-      ],
+      "files": ["components/ui/**", "**/*.test.ts", "**/*.test.tsx"],
       "rules": {
         "max-lines": "off"
       }

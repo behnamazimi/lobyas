@@ -19,7 +19,7 @@ Known/unknown isn't set by hand — it's read off how well you've actually
 retained a term, and fades again if you stop practicing it.
 
 The same TRACE ranking powers Read, Review, and Quiz across every
-surface — web and macOS desktop widget — not random shuffle,
+surface — not random shuffle,
 and not spaced repetition with future review dates. Collection browse picks
 its own way and doesn't use the ranking.
 
@@ -88,12 +88,10 @@ pnpm supabase:types
 | Command                                   | Purpose                                                      |
 | ----------------------------------------- | ------------------------------------------------------------ |
 | `pnpm dev`                                | Start Next.js in development                                 |
-| `pnpm build`                              | Build widget zip and production app                          |
+| `pnpm build`                              | Build the production app                                     |
 | `pnpm check`                              | Lint, format check, type-check, and unused-code check (knip) |
 | `pnpm supabase:start` / `stop` / `status` | Local Supabase lifecycle                                     |
 | `pnpm supabase:reset`                     | Reset local DB and run migrations                            |
-| `pnpm widget:zip`                         | Package the macOS desktop widget                             |
-| `pnpm widget:link`                        | Symlink the widget into Übersicht                            |
 
 ## Tech stack
 
@@ -111,6 +109,5 @@ TypeScript.
 | `lib/terms/`       | Term model, cards, outcomes, term CRUD  |
 | `lib/library/`     | Library page data, collections, filters |
 | `lib/study/`       | Collection scope and study pool wrapper |
-| `widget/`          | macOS Übersicht desktop widget          |
 | `supabase/`        | Migrations and SQL tests                |
 | `docs/`            | Internal documentation                  |

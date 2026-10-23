@@ -1946,45 +1946,6 @@ export type Database = {
           },
         ];
       };
-      widget_tokens: {
-        Row: {
-          created_at: string;
-          id: string;
-          label: string;
-          last_used_at: string | null;
-          token_hash: string;
-          user_id: string;
-          widget_version: string | null;
-        };
-        ComputedFields: never;
-        Insert: {
-          created_at?: string;
-          id?: string;
-          label?: string;
-          last_used_at?: string | null;
-          token_hash: string;
-          user_id: string;
-          widget_version?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          label?: string;
-          last_used_at?: string | null;
-          token_hash?: string;
-          user_id?: string;
-          widget_version?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "widget_tokens_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
     };
     Views: {
       [_ in never]: never;

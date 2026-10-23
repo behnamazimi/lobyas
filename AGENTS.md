@@ -368,15 +368,6 @@ Keep new ones consistent with the existing scenes:
   wiggles; moves that belong together share a beat; loops pause before
   repeating. Reduced motion turns it all off.
 
-# macOS widget
-
-The widget's source lives in `widget/lobyas.widget/` (`index.jsx` +
-`read-state.sh` / `reveal-term.sh` / `advance-term.sh`), with its app-side
-counterparts in `lib/widget/` and `app/api/widget/`. Any change to the
-widget's logic must bump the version in [widget/version.json](widget/version.json) —
-`lib/widget/version.ts` and `scripts/widget-zip.sh` both read it as the
-single source of truth for the widget's release counter.
-
 # Mobile app
 
 The Android and iOS apps are a Capacitor shell that loads the live site

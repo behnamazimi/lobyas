@@ -1,5 +1,5 @@
 /**
- * Shared review/quiz outcome rules for web + widget.
+ * Shared review/quiz outcome rules for web.
  * Sole writer of review_state events — surfaces must not call the event RPCs directly.
  * @see docs/trace-formula.md
  *
@@ -83,7 +83,7 @@ async function loadState(client: Client, mode: AuthMode, userId: string, termId:
 }
 
 /** Read page/command, `/read`, or opening a term card on the library page: deliberate but untested
- *  exposure. All three Read surfaces (web, widget) gate the definition behind an
+ *  exposure. Read gates the definition behind an
  *  explicit reveal — call this at reveal time, never at delivery/fetch time. */
 export async function recordRead(
   client: Client,

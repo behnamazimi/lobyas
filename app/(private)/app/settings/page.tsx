@@ -1,23 +1,17 @@
 import { Suspense } from "react";
-import {
-  getAccountSettingsData,
-  getLlmSettingsData,
-  getWidgetSettingsData,
-} from "@/app/(private)/app/settings/actions";
+import { getAccountSettingsData, getLlmSettingsData } from "@/app/(private)/app/settings/actions";
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
 import { AccountPanel } from "@/components/settings/account-panel";
 import { LlmPanel } from "@/components/settings/llm-panel";
 import { ScrollToSettingsPanel, type SettingsTabId } from "@/components/settings/ui";
-import { WidgetPanel } from "@/components/settings/widget-panel";
 import { PanelSkeleton } from "@/components/page-skeleton";
-import { LATEST_WIDGET_VERSION } from "@/lib/widget/version";
 
 type PageProps = {
   searchParams: Promise<{ tab?: string }>;
 };
 
 function parseTab(value: string | undefined): SettingsTabId | null {
-  if (value === "widget" || value === "ai" || value === "account") {
+  if (value === "ai" || value === "account") {
     return value;
   }
   // The AI panel used to be the "quiz" tab; keep old links working.
@@ -31,16 +25,6 @@ async function LlmPanelServer() {
     return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
   }
   return <LlmPanel ai={setup.ai} schedule={setup.schedule} />;
-}
-
-async function WidgetPanelServer() {
-  const setup = await getWidgetSettingsData();
-  if ("error" in setup) {
-    return <p className="text-sm font-semibold text-muted">{setup.error}</p>;
-  }
-  return (
-    <WidgetPanel initialTokens={setup.widgetTokens} latestWidgetVersion={LATEST_WIDGET_VERSION} />
-  );
 }
 
 async function AccountPanelServer() {
@@ -65,9 +49,6 @@ export default async function SettingsRoute({ searchParams }: PageProps) {
       {tab ? <ScrollToSettingsPanel tab={tab} /> : null}
       <Suspense fallback={<PanelSkeleton />}>
         <LlmPanelServer />
-      </Suspense>
-      <Suspense fallback={<PanelSkeleton />}>
-        <WidgetPanelServer />
       </Suspense>
       <Suspense fallback={<PanelSkeleton />}>
         <AccountPanelServer />

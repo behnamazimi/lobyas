@@ -33,7 +33,7 @@ These choices are settled. Don't reopen them in a phase.
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Review grades     | Keep the four grades: Again, Hard, Good, Easy. Restyle them as four pressable tiles in the canvas style. The canvas shows three (Missed, Hard, Got it); ignore that.                                                                   |
 | Review intervals  | Keep the **Show when terms come back** option and its current default. When it's on, a tile shows its interval as a small second line.                                                                                                 |
-| Mixed collections | Drop **All active collections** from Read, Review, Quiz and Stories. Every study screen works on the current collection. Telegram and the widget don't change.                                                                         |
+| Mixed collections | Drop **All active collections** from Read, Review, Quiz and Stories. Every study screen works on the current collection. Telegram doesn't change.                                                                                      |
 | Read reveal       | Keep today's behavior. A card opens with the definition hidden, and **Show definitions right away** in Read options stays off by default. The canvas Read frames show the revealed state.                                              |
 | Term fields       | Every surface that shows a term body shows every field the term has, in today's order and with today's per-language labels. The learner's term layout (`TermBlock` placement under **More**) still applies in Read, Review and Triage. |
 | Navigation        | Four destinations: Home, Library, Goals, Me. Read, Review and Quiz open from Home and the Library. Everything in today's **More** sheet moves into **Me**.                                                                             |
@@ -489,11 +489,11 @@ This phase restyles the remaining tab pages and account pages.
    stepper, the forecast, the celebrate toggle. Today's rings move to Home;
    keep a small summary here.
 2. Mastery: Overview and Terms tabs. Grading shows the four grades.
-3. Settings: AI credits, Telegram, desktop widget, Account.
+3. Settings: AI credits, Telegram, Account.
 4. Browse, the AI credits sheet and the report issue sheet.
 
 **Keep:** forecast logic, credit and top-up rules in `docs/ai-credits.md`,
-widget setup, account deletion.
+account deletion.
 
 **Tests:** `goals.spec.ts`, `settings.spec.ts`, `credits.spec.ts`.
 
@@ -848,13 +848,13 @@ Branch `redesign-p8-adding-terms`.
 
 Branch `redesign-p9-goals-me`.
 
-**Built.** Goals, Me, Mastery, Settings and Browse sit in `FlowFrame`'s 640 px column on the cream page. Mastery, Browse and Settings draw their own `PageHeader` with a back button to Me (`ownsHeader` in `lib/chrome.ts`). Goals: a card per mode (tile icon, "N of M today", `Stepper`, Off/Light/Steady/Intense pills named "<Mode> pace"), the forecast card, a `ToggleRow` for celebrate and a pinned **Save goals** (**Start these goals** before the first save). Me: profile card (initials, email, "N day streak · longest M" that still opens the streak sheet), a credits strip with **Details**, then the rows from the frame. Mastery: one top card (Learning, Mastered, lifetime line, Practice activity, Grading with four tiles), a card per collection, and restyled Terms tab. Settings: `SectionCard` sections (AI credits, Desktop widget, Account). Browse: search, Built-in/Community switch with counts, status chips, Most loved, cards. Report an issue is a `BottomSheet`.
+**Built.** Goals, Me, Mastery, Settings and Browse sit in `FlowFrame`'s 640 px column on the cream page. Mastery, Browse and Settings draw their own `PageHeader` with a back button to Me (`ownsHeader` in `lib/chrome.ts`). Goals: a card per mode (tile icon, "N of M today", `Stepper`, Off/Light/Steady/Intense pills named "<Mode> pace"), the forecast card, a `ToggleRow` for celebrate and a pinned **Save goals** (**Start these goals** before the first save). Me: profile card (initials, email, "N day streak · longest M" that still opens the streak sheet), a credits strip with **Details**, then the rows from the frame. Mastery: one top card (Learning, Mastered, lifetime line, Practice activity, Grading with four tiles), a card per collection, and restyled Terms tab. Settings: `SectionCard` sections (AI credits, Account). Browse: search, Built-in/Community switch with counts, status chips, Most loved, cards. Report an issue is a `BottomSheet`.
 
 **Kit.** None added. `ConfirmDialog` takes `confirmDisabled`. `SegmentedControl` carries `data-segmented` so `.flow-fields` does not paint its pills white.
 
 **Data.** Me's page also loads `getMyCreditSchedule` and the story estimate (`storyCost(termsForLength(DEFAULT_PIECE_LENGTH))`) into a `CreditsSummary` for `TopUpSheet` (`components/ai-credits/top-up-sheet.tsx`). `freeCreditsLine` moved to `lib/ai-credits/topup-copy.ts`. Nothing else new.
 
-**Left as is.** Forecast and goal actions, claim flow, top-up rules (`TopUpButton` claims directly), widget hook, password and delete actions, Mastery URL sync, Browse loaders, promo visits, tour targets, public `ProfileMenu` (only the sheet import changed).
+**Left as is.** Forecast and goal actions, claim flow, top-up rules (`TopUpButton` claims directly), password and delete actions, Mastery URL sync, Browse loaders, promo visits, tour targets, public `ProfileMenu` (only the sheet import changed).
 
 **Decisions taken.** Questions went unanswered, so I took the defaults: no Resume on paused Mastery cards, no Auto theme, medium story estimate, 640 px on desktop. Goals lost the lobya scene on tier cards and the Today rings (Home has them). The password form stays visible (no Change button). Mastery's Overview/Terms switch is a radio group. Report issue has no Cancel and is mounted only while open.
 

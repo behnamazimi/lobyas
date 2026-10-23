@@ -96,7 +96,7 @@ export async function pickReadTerms(
   return withIsNewToUser(cards, ranked);
 }
 
-/** Service-role counterpart of {@link pickReadTerms} (widget). */
+/** Service-role counterpart of {@link pickReadTerms}. */
 export async function pickReadTermsForUser(
   client: Client,
   userId: string,

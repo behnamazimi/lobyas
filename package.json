@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "scripts/widget-zip.sh && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "oxlint --fix .",
     "knip": "knip",
@@ -29,10 +29,7 @@
     "mobile:splash": "vitest run --config scripts/splash.vitest.config.ts",
     "mobile:assets": "capacitor-assets generate --ios --android --assetPath resources --iconBackgroundColor '#fdfcf9' --splashBackgroundColor '#fdfcf9' --splashBackgroundColorDark '#1c1916'",
     "mobile:android": "cap open android",
-    "mobile:ios": "cap open ios",
-    "widget:zip": "WIDGET_PRODUCTION_URL=https://lobyas.com scripts/widget-zip.sh",
-    "widget:install": "LOBYAS_BASE_URL=${LOBYAS_BASE_URL:-https://lobyas.com} scripts/widget-install.sh",
-    "widget:link": "scripts/widget-link.sh"
+    "mobile:ios": "cap open ios"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.47",

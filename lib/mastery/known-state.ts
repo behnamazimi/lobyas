@@ -3,7 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { fetchAllRows } from "@/lib/supabase/fetch-all-rows";
 import { computeTraceSnapshot, type TraceState } from "@/lib/trace";
-import { fetchUserCollection, fetchUserCollectionForUser } from "@/lib/library/collections";
+import { fetchUserCollection } from "@/lib/library/collections";
 
 type Client = SupabaseClient<Database>;
 
@@ -82,15 +82,6 @@ export async function fetchProgressStateByCollection(
   return { knownTermIds, markedKnownTermIds, everMasteredTermIds };
 }
 
-async function fetchReviewCollectionIdsFromRpc(client: Client, userId: string) {
-  const { data, error } = await client.rpc("review_collection_ids", {
-    p_user_id: userId,
-  });
-
-  if (error) throw error;
-  return data ?? [];
-}
-
 export const resolveReviewCollectionIds = cache(async function resolveReviewCollectionIds(
   client: Client,
   userId: string,
@@ -105,17 +96,6 @@ export const resolveReviewCollectionIds = cache(async function resolveReviewColl
 
   return { reviewCollectionIds, collectionRows };
 });
-
-export const resolveReviewCollectionIdsForUser = cache(
-  async function resolveReviewCollectionIdsForUser(client: Client, userId: string) {
-    const [collectionRows, reviewCollectionIds] = await Promise.all([
-      fetchUserCollectionForUser(client, userId),
-      fetchReviewCollectionIdsFromRpc(client, userId),
-    ]);
-
-    return { reviewCollectionIds, collectionRows };
-  },
-);
 
 export async function resetCollectionProgress(
   client: Client,

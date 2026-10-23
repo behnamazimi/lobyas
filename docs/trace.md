@@ -488,7 +488,7 @@ that point, it's just no longer being held back.
 A term with no definition is "unfinished". It never enters any of the pools
 above: `get_trace_candidates` and `progress_state_by_collection` skip it, so it
 earns no exposure, adds nothing to mastery denominators or progress counts, and
-never reaches Read, Review, Quiz, Stories or the widget. Finishing a
+never reaches Read, Review, Quiz or Stories. Finishing a
 term makes it eligible from that moment, with no history, like a newly
 imported term. A finished term can't go back, so no trace row ever belongs to
 an unfinished term. See [import.md](./import.md).
@@ -513,8 +513,7 @@ it:
    ranking functions, and loads the winning terms' full content. Entry
    points: `pickReadTerms(ForUser)`, `pickReviewTerms(ForUser)`,
    `pickQuizTerms(ForUser)` in `lib/trace-queue/service.ts`. The `ForUser`
-   variants take an explicit user id and the service-role client. The widget
-   needs them because it has no browser session. The web
+   variants take an explicit user id and the service-role client. The web
    Read and Review feeds use them too, after checking the session, because
    they load the winning cards in one batched `get_term_cards` call.
    Candidates come from `get_trace_candidates_json` (or

@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useId, useState, type ReactNode } from "react";
-import { Card, Pill } from "@/components/kit";
+import { useEffect, type ReactNode } from "react";
+import { Card } from "@/components/kit";
 import { Label } from "@/components/ui/label";
 import { PLATFORM_MEDIA } from "@/lib/platform";
-import { cn } from "@/lib/utils";
 
-export type SettingsTabId = "ai" | "widget" | "account";
+export type SettingsTabId = "ai" | "account";
 
 export function ScrollToSettingsPanel({ tab }: { tab: SettingsTabId }) {
   useEffect(() => {
@@ -37,20 +36,15 @@ export function SettingsPanel({
   title,
   description,
   status,
-  collapsibleOnPhone = false,
   children,
 }: {
   id: SettingsTabId;
   title: string;
   description?: ReactNode;
   status?: ReactNode;
-  /** Setup-heavy panels show only their header on phones until opened. */
-  collapsibleOnPhone?: boolean;
   children: ReactNode;
 }) {
   const headingId = `settings-heading-${id}`;
-  const bodyId = useId();
-  const [phoneOpen, setPhoneOpen] = useState(false);
 
   return (
     <section
@@ -71,25 +65,7 @@ export function SettingsPanel({
             {description}
           </p>
         ) : null}
-        {collapsibleOnPhone ? (
-          <div className="border-t border-base-300 pt-2 md:hidden">
-            <Pill
-              variant="soft"
-              className="w-full"
-              aria-expanded={phoneOpen}
-              aria-controls={bodyId}
-              onClick={() => setPhoneOpen((open) => !open)}
-            >
-              {phoneOpen ? "Hide setup" : "Show setup"}
-            </Pill>
-          </div>
-        ) : null}
-        <div
-          id={bodyId}
-          className={cn("space-y-4", collapsibleOnPhone && !phoneOpen && "max-md:hidden")}
-        >
-          {children}
-        </div>
+        <div className="space-y-4">{children}</div>
       </Card>
     </section>
   );
@@ -169,45 +145,5 @@ export function DangerZone({
       </div>
       {children}
     </div>
-  );
-}
-
-export function SetupStep({
-  step,
-  title,
-  description,
-  children,
-  isLast = false,
-}: {
-  step: number;
-  title: string;
-  description?: string;
-  children: ReactNode;
-  isLast?: boolean;
-}) {
-  return (
-    <li className="relative flex gap-4 pb-6 last:pb-0">
-      {!isLast ? (
-        <span
-          className="absolute top-7 left-3 h-[calc(100%-1.25rem)] w-px bg-base-300"
-          aria-hidden
-        />
-      ) : null}
-      <span
-        className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded-lg bg-neutral text-xs font-extrabold tabular-nums text-neutral-content"
-        aria-hidden
-      >
-        {step}
-      </span>
-      <div className="min-w-0 flex-1 space-y-3">
-        <div>
-          <h3 className="m-0 font-sans text-[15px] font-extrabold">{title}</h3>
-          {description ? (
-            <p className="mt-1 text-[13px] font-semibold text-muted">{description}</p>
-          ) : null}
-        </div>
-        {children}
-      </div>
-    </li>
   );
 }

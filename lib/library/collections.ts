@@ -1,10 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
-import {
-  applyCollectionStats,
-  fetchCollectionStats,
-  fetchCollectionStatsForUser,
-} from "./collection-tally";
+import { applyCollectionStats, fetchCollectionStats } from "./collection-tally";
 
 type Client = SupabaseClient<Database>;
 type CollectionVisibility = Database["public"]["Enums"]["collection_visibility"];
@@ -101,26 +97,6 @@ export async function fetchUserCollection(
   const combined = await fetchUserCollections(client, userId);
   const stats = await fetchCollectionStats(
     client,
-    combined.map((row) => row.id),
-  );
-
-  return applyCollectionStats(combined, stats);
-}
-
-/** Service-role / admin client: collection for an explicit userId (widget). */
-export async function fetchUserCollectionForUser(
-  client: Client,
-  userId: string,
-): Promise<CollectionRow[]> {
-  const [owned, added] = await Promise.all([
-    fetchOwnedCollections(client, userId),
-    fetchAddedCollections(client, userId),
-  ]);
-
-  const combined = combineOwnedAndAdded(owned, added);
-  const stats = await fetchCollectionStatsForUser(
-    client,
-    userId,
     combined.map((row) => row.id),
   );
 

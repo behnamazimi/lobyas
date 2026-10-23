@@ -24,11 +24,11 @@ export const config = {
      * - web app manifest (browsers fetch this without a session)
      * - Serwist service worker
      * - PWA screenshots, app icons and splash images
-     * - robots.txt, sitemap.xml and the widget downloads
+     * - robots.txt and sitemap.xml
      *
      * Excluded by folder only, never by file extension: a dynamic page can be
      * reached at a path ending in ".png", and it must still pass the proxy.
      */
-    "/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|serwist/|screenshots/|icon/|splash/|apple-icon|robots\\.txt|sitemap\\.xml|downloads/|install-widget\\.sh).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest\\.webmanifest|serwist/|screenshots/|icon/|splash/|apple-icon|robots\\.txt|sitemap\\.xml).*)",
   ],
 };
