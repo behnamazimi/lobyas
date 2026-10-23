@@ -40,7 +40,7 @@ export function GoalCelebrationDialog({ streak }: { streak: number }) {
   );
   if (!celebration) return null;
 
-  const { tier, progress, collectionName } = celebration;
+  const { tier, progress, collectionName, collectionId, caughtUp } = celebration;
   const all = allGoalsMet(progress);
   const next = nextOpenTier(progress);
   const left = next ? (progress[next].goal ?? 0) - progress[next].done : 0;
@@ -77,7 +77,7 @@ export function GoalCelebrationDialog({ streak }: { streak: number }) {
               size="lg"
               autoFocus
               className="flex-col gap-0"
-              onClick={() => leave(GOAL_TIER_HREFS[next])}
+              onClick={() => leave(`${GOAL_TIER_HREFS[next]}?collection=${collectionId}`)}
             >
               {NEXT_STEPS[next].label}
               <span className="text-[13px] font-semibold opacity-75">
@@ -94,7 +94,7 @@ export function GoalCelebrationDialog({ streak }: { streak: number }) {
             className="h-[52px] w-full text-base"
             onClick={closeGoalCelebration}
           >
-            {MORE_LABELS[tier]}
+            {caughtUp ? "Close" : MORE_LABELS[tier]}
           </Pill>
           {next ? (
             <Pill variant="ghost" className="self-center" onClick={() => leave("/app")}>

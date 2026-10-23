@@ -7,6 +7,8 @@ type GoalCelebration = {
   collectionName: string;
   tier: GoalTier;
   progress: GoalProgress;
+  /** Met by running out of terms, so there are none left to do more of. */
+  caughtUp: boolean;
 };
 
 export type CollectionEntry = { name: string; day: GoalDay };

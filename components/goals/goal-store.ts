@@ -36,7 +36,7 @@ const claiming = new Set<string>();
 /** Tiers whose celebration waits, e.g. quiz while a quiz is still running. */
 const held = new Set<GoalTier>();
 /** Held celebrations the server already confirmed, shown once released. */
-let deferred: { collectionId: string; tier: GoalTier }[] = [];
+let deferred: { collectionId: string; tier: GoalTier; caughtUp: boolean }[] = [];
 const loading = new Set<string>();
 
 function emit() {
@@ -138,11 +138,11 @@ export function holdGoalCelebration(tier: GoalTier) {
     held.delete(tier);
     const released = deferred.filter((d) => d.tier === tier);
     deferred = deferred.filter((d) => d.tier !== tier);
-    for (const d of released) openCelebration(d.collectionId, d.tier);
+    for (const d of released) openCelebration(d.collectionId, d.tier, d.caughtUp);
   };
 }
 
-function openCelebration(collectionId: string, tier: GoalTier) {
+function openCelebration(collectionId: string, tier: GoalTier, caughtUp: boolean) {
   const entry = state?.collections[collectionId];
   if (!state || !entry?.day.goals) return;
   const progress = goalProgress(entry.day.goals, entry.day.counts, entry.day.celebrated);
@@ -150,7 +150,7 @@ function openCelebration(collectionId: string, tier: GoalTier) {
   update({
     celebrations: [
       ...state.celebrations,
-      { collectionId, collectionName: entry.name, tier, progress },
+      { collectionId, collectionName: entry.name, tier, progress, caughtUp },
     ],
   });
 }
@@ -256,10 +256,10 @@ async function claim(collectionId: string, tier: GoalTier, caughtUp: boolean, re
 
   if (result.claimed) {
     if (held.has(tier)) {
-      deferred.push({ collectionId, tier });
+      deferred.push({ collectionId, tier, caughtUp });
       emit();
     } else {
-      openCelebration(collectionId, tier);
+      openCelebration(collectionId, tier, caughtUp);
     }
     return;
   }

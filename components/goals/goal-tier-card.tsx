@@ -23,7 +23,7 @@ const UNITS: Record<GoalTier, { short: string; perDay: string }> = {
 const WHAT_COUNTS: Record<GoalTier, string> = {
   read: "Look terms over to get familiar with them, new ones or ones you’ve seen.",
   review:
-    "Recall terms from memory, the ones about to slip first. Every term you review counts, not just new ones.",
+    "Recall terms from memory, the ones about to slip first. Each term counts once a day, new or not.",
   quiz: "Answer questions to show you recognise terms.",
 };
 
