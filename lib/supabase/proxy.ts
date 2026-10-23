@@ -20,7 +20,6 @@ const PUBLIC_EXACT_PATHS = new Set([
   "/apple-icon",
   "/manifest.webmanifest",
   "/~offline",
-  "/install-widget.sh",
   "/sitemap.xml",
   "/robots.txt",
   "/collections",
@@ -48,8 +47,6 @@ const PUBLIC_PATH_PREFIXES = [
   "/auth/callback",
   "/auth/apple",
   "/auth/native/",
-  "/downloads/",
-  "/api/widget",
   // Bearer-secret auth in route handlers (narration sync, AI health)
   "/api/internal/narration",
   "/api/internal/ai-health",

@@ -77,17 +77,14 @@ export async function recordReadRevealAction(termId: string): Promise<{ error?: 
 }
 
 /**
- * Deep-link entry: open one specific term (from the widget or a
- * direct link) without touching the queue.
+ * Deep-link entry: open one specific term (from a direct link) without touching the queue.
  *
  * Uses the same get_term_card RPC as the Read queue so relationships and
  * every other field match.
  *
- * `alreadyRead` covers the widget's
- * "Read more" handoff, where the term was already recorded as read (and
- * revealed) at the point the user clicked through. Every other source (a
- * bare link) opens masked, requiring an explicit reveal tap here before
- * anything is recorded.
+ * `alreadyRead` is true when the term was already recorded as read (and
+ * revealed) before the link was followed. Otherwise it opens masked,
+ * requiring an explicit reveal tap here before anything is recorded.
  */
 export async function getReadTermByIdAction(
   termId: string,

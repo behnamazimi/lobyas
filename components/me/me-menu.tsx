@@ -125,7 +125,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
         <ListRow
           href="/app/settings"
           label="Settings"
-          subline="AI credits, widget, account"
+          subline="AI credits, account"
           icon={icon(Settings)}
         />
         {isAdmin

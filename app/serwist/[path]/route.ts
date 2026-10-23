@@ -17,6 +17,5 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
     additionalPrecacheEntries: [{ url: "/~offline", revision: precacheRevision() }],
     swSrc: "app/sw.ts",
     useNativeEsbuild: true,
-    globIgnores: ["**/downloads/**", "**/*.zip", "**/install-widget.sh"],
   },
 );

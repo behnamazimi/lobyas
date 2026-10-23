@@ -20,7 +20,7 @@ are no counters to write on the study path. Without a collection it counts
 every collection, which the mastery overview uses. Only the forecast's personal success
 rates read the log, and they fall back to the defaults without it.
 
-- **Read:** terms read, including Stories and the widget.
+- **Read:** terms read, including Stories.
 - **Review:** cards graded (reveals don't count).
 - **Quiz:** questions answered (practice rounds don't count).
 

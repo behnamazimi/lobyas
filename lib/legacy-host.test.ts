@@ -27,13 +27,8 @@ describe("legacyHostRedirect", () => {
     expect(legacyHostRedirect({ ...base, host: "jargon-gym.vercel.app:443" })).not.toBeNull();
   });
 
-  it("leaves the API, downloads and auth paths on the old host", () => {
-    for (const pathname of [
-      "/api/widget/state",
-      "/downloads/jargon-gym.widget.zip",
-      "/auth/callback",
-      "/install-widget.sh",
-    ])
+  it("leaves the API and auth paths on the old host", () => {
+    for (const pathname of ["/api/narration", "/auth/callback"])
       expect(legacyHostRedirect({ ...base, pathname }), pathname).toBeNull();
   });
 
