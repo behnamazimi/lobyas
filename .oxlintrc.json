@@ -61,8 +61,6 @@
         "capacitor.config.ts",
         "components/auth/google-signin-button.tsx",
         "components/native/native-auth-bridge.tsx",
-        "components/native/native-splash.tsx",
-        "components/native/native-system-bars.tsx",
         "lib/auth/apple-client.ts",
         "lib/reminders/native.ts"
       ],

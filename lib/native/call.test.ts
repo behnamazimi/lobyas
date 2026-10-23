@@ -35,7 +35,7 @@ describe("callNative", () => {
     });
   });
 
-  it("calls a method an older app lacks unavailable", async () => {
+  it("treats a method an older app lacks as unavailable", async () => {
     asApp({ plugins: ["Haptics"] });
     const result = await callNative("haptics", load, () =>
       Promise.reject({ code: "UNIMPLEMENTED" }),

@@ -5,6 +5,8 @@ import { isNativeShell } from "./shell";
  *  ones added since. */
 const PLUGINS = {
   haptics: "Haptics",
+  splash: "SplashScreen",
+  systemBars: "SystemBars",
 } as const;
 
 export type Capability = keyof typeof PLUGINS;
