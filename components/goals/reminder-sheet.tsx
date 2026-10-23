@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type MouseEvent } from "react";
 import { BottomSheet, Chip, Pill } from "@/components/kit";
 import {
   EVERY_DAY,
@@ -18,6 +18,14 @@ const SHORTCUTS = [
   { label: "Weekdays", days: WEEKDAYS_ONLY },
   { label: "Weekends", days: WEEKENDS_ONLY },
 ];
+
+function openPicker(event: MouseEvent<HTMLInputElement>) {
+  try {
+    event.currentTarget.showPicker();
+  } catch {
+    // No showPicker here, or the picker is already open: the browser's own handling applies.
+  }
+}
 
 function sameDays(a: number[], b: number[]) {
   return a.length === b.length && a.every((day) => b.includes(day));
@@ -85,6 +93,8 @@ export function ReminderSheet({
             aria-label="Reminder time"
             value={time}
             onChange={(event) => setTime(event.target.value)}
+            // Some Android WebViews get the click but don't open the picker for an invisible input.
+            onClick={openPicker}
             className="absolute inset-0 size-full cursor-pointer opacity-0"
           />
         </label>
