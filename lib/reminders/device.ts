@@ -60,7 +60,9 @@ async function armNow(reminders: Reminder[]): Promise<boolean> {
 
 async function clearNow() {
   const pending = await pendingNotificationIds();
-  if (pending !== null) await cancelNotifications(pending);
+  // Without the list nothing was cancelled, so the device still holds what was armed.
+  if (pending === null) return;
+  await cancelNotifications(pending);
   writeSignature(null);
 }
 

@@ -10,14 +10,16 @@ export type Listener = { remove: () => Promise<void> };
 export function subscribe(add: () => Promise<NativeResult<Listener>>): () => void {
   let cancelled = false;
   let listener: Listener | undefined;
-  void add().then(async (result) => {
+  // A listener that can't be removed has nothing left to do, so a failure here is dropped.
+  const remove = (target: Listener) => target.remove().catch(() => {});
+  void add().then((result) => {
     if (result.status !== "ok") return;
-    if (cancelled) await result.value.remove();
-    else listener = result.value;
+    if (cancelled) return remove(result.value);
+    listener = result.value;
   });
   return () => {
     cancelled = true;
-    void listener?.remove();
+    if (listener) void remove(listener);
   };
 }
 

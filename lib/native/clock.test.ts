@@ -25,6 +25,13 @@ vi.mock("./events", () => ({
   },
 }));
 
+const store = new Map<string, string>();
+vi.stubGlobal("localStorage", {
+  getItem: (key: string) => store.get(key) ?? null,
+  setItem: (key: string, value: string) => void store.set(key, value),
+  removeItem: (key: string) => void store.delete(key),
+});
+
 const { clockUses24Hours, languageUses24HourClock, resetClock, subscribeToClock } =
   await import("./clock");
 
@@ -36,10 +43,18 @@ function asApp(plugins: string[]) {
 }
 
 beforeEach(() => {
+  store.clear();
   resetClock();
   Object.assign(plugin, { is24Hour: false, calls: 0, registered: 0, resume: null });
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.stubGlobal("localStorage", {
+    getItem: (key: string) => store.get(key) ?? null,
+    setItem: (key: string, value: string) => void store.set(key, value),
+    removeItem: (key: string) => void store.delete(key),
+  });
+});
 
 describe("the phone's clock", () => {
   it("is the language's default until the app answers", () => {
@@ -87,6 +102,47 @@ describe("the phone's clock", () => {
     await settle();
     expect(plugin.calls).toBe(0);
     expect(clockUses24Hours()).toBe(languageUses24HourClock());
+    stop();
+  });
+
+  it("keeps the last answer, so the next page load starts with it", async () => {
+    asApp(["LobyasNative"]);
+    plugin.is24Hour = !languageUses24HourClock();
+    const stop = subscribeToClock(() => {});
+    await settle();
+    stop();
+    resetClock();
+    store.set("lb_clock_24h", plugin.is24Hour ? "1" : "0");
+    expect(clockUses24Hours()).toBe(plugin.is24Hour);
+  });
+
+  it("tells subscribers nothing when the answer matches what the page already showed", async () => {
+    asApp(["LobyasNative"]);
+    store.set("lb_clock_24h", "1");
+    plugin.is24Hour = true;
+    const listener = vi.fn();
+    const stop = subscribeToClock(listener);
+    await settle();
+    expect(listener).not.toHaveBeenCalled();
+    expect(store.get("lb_clock_24h")).toBe("1");
+    stop();
+  });
+
+  it("works when storage is blocked", async () => {
+    asApp(["LobyasNative"]);
+    vi.stubGlobal("localStorage", {
+      getItem: () => {
+        throw new Error("blocked");
+      },
+      setItem: () => {
+        throw new Error("blocked");
+      },
+      removeItem: () => {},
+    });
+    plugin.is24Hour = true;
+    const stop = subscribeToClock(() => {});
+    await settle();
+    expect(clockUses24Hours()).toBe(true);
     stop();
   });
 });

@@ -4,6 +4,7 @@ const plugin = vi.hoisted(() => ({
   urlHandlers: [] as Array<(event: { url: string }) => void>,
   handlers: [] as Array<(state: { isActive: boolean }) => void>,
   removed: 0,
+  failRemove: false,
   deferAdd: null as null | ((value: unknown) => void),
 }));
 
@@ -12,7 +13,12 @@ vi.mock("@capacitor/app", () => ({
     addListener: (event: string, handler: (state: never) => void) => {
       if (event === "appUrlOpen") plugin.urlHandlers.push(handler as never);
       else plugin.handlers.push(handler as never);
-      const handle = { remove: async () => void plugin.removed++ };
+      const handle = {
+        remove: async () => {
+          plugin.removed++;
+          if (plugin.failRemove) throw new Error("already gone");
+        },
+      };
       return new Promise((resolve) => {
         if (plugin.deferAdd) plugin.deferAdd = resolve.bind(null, handle) as never;
         else resolve(handle);
@@ -35,6 +41,7 @@ afterEach(() => {
   plugin.handlers.length = 0;
   plugin.urlHandlers.length = 0;
   plugin.removed = 0;
+  plugin.failRemove = false;
   plugin.deferAdd = null;
 });
 
@@ -67,6 +74,24 @@ describe("onAppResume", () => {
     plugin.deferAdd?.(undefined);
     await settle();
     expect(plugin.removed).toBe(1);
+  });
+
+  it("doesn't leave an unhandled rejection when removing fails", async () => {
+    asApp();
+    const unhandled = vi.fn();
+    process.on("unhandledRejection", unhandled);
+    plugin.failRemove = true;
+    const stop = onAppResume(() => {});
+    await settle();
+    stop();
+    plugin.deferAdd = () => {};
+    const stopEarly = onAppResume(() => {});
+    stopEarly();
+    await settle();
+    plugin.deferAdd?.(undefined);
+    await settle();
+    process.off("unhandledRejection", unhandled);
+    expect(unhandled).not.toHaveBeenCalled();
   });
 
   it("does nothing in a browser", async () => {

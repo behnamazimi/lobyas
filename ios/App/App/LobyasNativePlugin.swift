@@ -12,7 +12,8 @@ public class LobyasNativePlugin: CAPPlugin, CAPBridgedPlugin {
 
     @objc func getClock(_ call: CAPPluginCall) {
         // The "j" template resolves to the user's 12 or 24-hour choice, not just the locale's default.
+        // "a" is the AM/PM marker; some locales write it as "B" (flexible day periods) instead.
         let pattern = DateFormatter.dateFormat(fromTemplate: "j", options: 0, locale: Locale.current) ?? ""
-        call.resolve(["is24Hour": !pattern.contains("a")])
+        call.resolve(["is24Hour": !(pattern.contains("a") || pattern.contains("B"))])
     }
 }

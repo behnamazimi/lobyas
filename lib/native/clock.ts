@@ -21,6 +21,26 @@ export function languageUses24HourClock(): boolean {
   return cycle === "h23" || cycle === "h24";
 }
 
+const STORED_KEY = "lb_clock_24h";
+
+// The last answer, kept so a page load shows the right clock before the app has answered.
+function readStored(): boolean | undefined {
+  try {
+    const value = localStorage.getItem(STORED_KEY);
+    return value === null ? undefined : value === "1";
+  } catch {
+    return undefined;
+  }
+}
+
+function writeStored(value: boolean) {
+  try {
+    localStorage.setItem(STORED_KEY, value ? "1" : "0");
+  } catch {
+    // Without it the next load shows the language's default until the app answers.
+  }
+}
+
 let known: boolean | undefined;
 const listeners = new Set<() => void>();
 let stopResume: (() => void) | undefined;
@@ -29,13 +49,16 @@ async function refresh() {
   const result = await callNative("clock", loadPlugin, ({ LobyasNative }) =>
     LobyasNative.getClock(),
   );
-  if (result.status !== "ok" || result.value.is24Hour === known) return;
+  if (result.status !== "ok") return;
+  const changed = result.value.is24Hour !== clockUses24Hours();
   known = result.value.is24Hour;
-  listeners.forEach((listener) => listener());
+  writeStored(known);
+  if (changed) listeners.forEach((listener) => listener());
 }
 
-/** What the phone's clock uses right now, or the language's default until the app answers. */
+/** What the phone's clock uses, from the app's last answer; the language's default until it has ever answered. */
 export function clockUses24Hours(): boolean {
+  known ??= readStored();
   return known ?? languageUses24HourClock();
 }
 
@@ -54,8 +77,13 @@ export function subscribeToClock(listener: () => void): () => void {
   };
 }
 
-/** For tests: forgets what the app said. */
+/** For tests: forgets what the app said, here and in storage. */
 export function resetClock() {
   known = undefined;
   plugin = undefined;
+  try {
+    localStorage.removeItem(STORED_KEY);
+  } catch {
+    // Nothing stored.
+  }
 }

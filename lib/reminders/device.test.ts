@@ -124,6 +124,17 @@ describe("clearReminders", () => {
   });
 });
 
+describe("clearReminders when the pending schedules can't be read", () => {
+  it("keeps the armed signature, because nothing was cancelled", async () => {
+    await applyReminders([reminder]);
+    expect(stored.size).toBe(1);
+    native.pending = null;
+    await clearReminders();
+    expect(stored.size).toBe(1);
+    expect(native.cancelled).toEqual([]);
+  });
+});
+
 describe("syncRemindersFromServer", () => {
   const respond = (init: { status?: number; type?: string; body?: unknown }) =>
     vi.stubGlobal("fetch", async () => ({

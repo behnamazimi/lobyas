@@ -3,8 +3,9 @@
 The iOS and Android apps are a Capacitor shell around the live site (see
 [mobile.md](mobile.md)). Everything the web code says to the native layer, or hears from it,
 goes through `lib/native/`. Nothing else may import `@capacitor/*`, `@capgo/*` or
-`capacitor-native-settings`: `.oxlintrc.json` fails the build (`no-restricted-imports`) for any
-file outside `lib/native/` that does. Features call `lib/native`, so one rule decides what an
+`capacitor-native-settings`: `.oxlintrc.json` fails the build for any file outside `lib/native/` that does: static and dynamic
+imports (`no-restricted-imports`), `require` (`no-require-imports`), and the injected `Capacitor`
+global in any form (`no-restricted-globals`, `no-restricted-properties`). Features call `lib/native`, so one rule decides what an
 old app, the web or a denied permission looks like.
 
 ## The contract

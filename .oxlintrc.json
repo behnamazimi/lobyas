@@ -22,7 +22,22 @@
           }
         ]
       }
-    ]
+    ],
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "Capacitor",
+        "message": "Native calls go through lib/native (see docs/native-bridge.md)."
+      }
+    ],
+    "no-restricted-properties": [
+      "error",
+      {
+        "property": "Capacitor",
+        "message": "Native calls go through lib/native (see docs/native-bridge.md)."
+      }
+    ],
+    "typescript/no-require-imports": "error"
   },
   "env": {
     "builtin": true
@@ -58,7 +73,9 @@
     {
       "files": ["lib/native/**", "capacitor.config.ts"],
       "rules": {
-        "no-restricted-imports": "off"
+        "no-restricted-imports": "off",
+        "no-restricted-globals": "off",
+        "no-restricted-properties": "off"
       }
     }
   ]
