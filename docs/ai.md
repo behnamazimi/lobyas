@@ -70,7 +70,7 @@ bucket. The shared code is `lib/ai/speech/`:
 - `serveAudio` streams the current clip (ETag is the job id, Range works). It
   never generates; the player prepares a clip with an explicit POST.
 - `GET /api/narration/[termId]?v=<job id>` (and the story route's) serves that
-  exact clip through `serveJob` as `private, max-age=86400, immutable` (a browser may keep playing it for a day,
+  exact clip through `serveJob` as `private, max-age=2592000, immutable` (a browser may keep playing it for 30 days,
   even after the clip is replaced or access is withdrawn): a job's
   file is never rewritten, so a new clip means a new id and a new address. It
   checks access and that the term is readable, then looks the job up by id; it

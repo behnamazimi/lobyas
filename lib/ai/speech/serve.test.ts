@@ -94,10 +94,10 @@ describe("serveAudio", () => {
 });
 
 describe("serveJob", () => {
-  it("lets the browser keep a versioned clip for a day, 200 and 206 alike", async () => {
+  it("lets the browser keep a versioned clip for 30 days, 200 and 206 alike", async () => {
     downloadAudio.mockResolvedValue({ stream: new ReadableStream(), partial: false });
     const whole = await serveJob(request(), admin, READY, { versioned: true });
-    expect(whole.headers.get("Cache-Control")).toBe("private, max-age=86400, immutable");
+    expect(whole.headers.get("Cache-Control")).toBe("private, max-age=2592000, immutable");
 
     downloadAudio.mockResolvedValue({
       stream: new ReadableStream(),
@@ -108,7 +108,7 @@ describe("serveJob", () => {
       versioned: true,
     });
     expect(part.status).toBe(206);
-    expect(part.headers.get("Cache-Control")).toBe("private, max-age=86400, immutable");
+    expect(part.headers.get("Cache-Control")).toBe("private, max-age=2592000, immutable");
   });
 
   it("keeps an unversioned clip revalidating", async () => {

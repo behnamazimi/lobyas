@@ -14,8 +14,9 @@ type Client = SupabaseClient<Database>;
 const REVALIDATE = "private, no-cache";
 
 // A clip asked for by its job id never changes, so the browser may keep it for
-// a day without asking. Access changes still bite once the day is up.
-const VERSIONED = "private, max-age=86400, immutable";
+// 30 days without asking: a review that comes back days later replays from the
+// browser. Losing access only stops clips the browser doesn't already have.
+const VERSIONED = "private, max-age=2592000, immutable";
 
 // A miss must never be cached: the clip may be prepared a moment later.
 const NEVER_CACHE = "no-store";
