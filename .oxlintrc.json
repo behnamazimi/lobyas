@@ -61,8 +61,7 @@
         "capacitor.config.ts",
         "components/auth/google-signin-button.tsx",
         "components/native/native-auth-bridge.tsx",
-        "lib/auth/apple-client.ts",
-        "lib/reminders/native.ts"
+        "lib/auth/apple-client.ts"
       ],
       "rules": {
         "no-restricted-imports": "off"

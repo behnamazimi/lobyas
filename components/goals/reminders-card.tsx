@@ -6,16 +6,15 @@ import { saveRemindersAction } from "@/app/(private)/app/goals/actions";
 import { Banner, Pill, SectionCard } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { useMountEffect } from "@/hooks/use-mount-effect";
-import { useRemindersSupported } from "@/hooks/use-reminders-supported";
+import { useHasCapability } from "@/hooks/use-native";
+import { openNotificationSettings } from "@/lib/native/app-settings";
+import { onAppResume } from "@/lib/native/events";
 import {
-  applyReminders,
-  getReminderPermission,
-  onAppResume,
-  openNotificationSettings,
-  remindersSupported,
-  requestReminderPermission,
-  type ReminderPermission,
-} from "@/lib/reminders/native";
+  notificationPermission,
+  requestNotificationPermission,
+  type NotificationPermission,
+} from "@/lib/native/notifications";
+import { applyReminders } from "@/lib/reminders/device";
 import {
   EVERY_DAY,
   formatReminderDays,
@@ -36,15 +35,17 @@ function newReminder(): Reminder {
  *  build has no notifications plugin. */
 export function RemindersCard({ initial }: { initial: Reminder[] }) {
   const { toast } = useToast();
-  const supported = useRemindersSupported();
-  const [permission, setPermission] = useState<ReminderPermission>("prompt");
+  const supported = useHasCapability("notifications");
+  const [permission, setPermission] = useState<NotificationPermission>("prompt");
   const [reminders, setReminders] = useState(initial);
   const [editing, setEditing] = useState<{ reminder: Reminder; isNew: boolean } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   useMountEffect(() => {
-    if (!remindersSupported()) return;
-    const refresh = () => void getReminderPermission().then(setPermission);
+    const refresh = () =>
+      void notificationPermission().then((answer) => {
+        if (answer !== "unavailable") setPermission(answer);
+      });
     refresh();
     return onAppResume(refresh);
   });
@@ -55,7 +56,8 @@ export function RemindersCard({ initial }: { initial: Reminder[] }) {
     setIsSaving(true);
     try {
       if (change.type === "upsert" && change.reminder.enabled && permission === "prompt") {
-        setPermission(await requestReminderPermission());
+        const answer = await requestNotificationPermission();
+        if (answer !== "unavailable") setPermission(answer);
       }
       const result = await saveRemindersAction(change);
       if (result.error || !result.reminders) {
@@ -63,12 +65,12 @@ export function RemindersCard({ initial }: { initial: Reminder[] }) {
         return false;
       }
       setReminders(result.reminders);
-      await applyReminders(result.reminders).catch(() => {
+      if (!(await applyReminders(result.reminders))) {
         toast(
           "Saved, but this phone couldn't schedule it. Open Lobyas again to retry.",
           "destructive",
         );
-      });
+      }
       return true;
     } finally {
       setIsSaving(false);

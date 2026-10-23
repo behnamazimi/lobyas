@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { deleteOwnAccountAction } from "@/app/(private)/app/settings/actions";
 import { ConfirmDialog, Pill, TextInput } from "@/components/kit";
 import { DangerZone } from "@/components/settings/ui";
-import { clearReminders, syncRemindersFromServer } from "@/lib/reminders/native";
+import { clearReminders, syncRemindersFromServer } from "@/lib/reminders/device";
 
 function DeleteAccountDialog({ email, onClose }: { email: string; onClose: () => void }) {
   const [typed, setTyped] = useState("");
