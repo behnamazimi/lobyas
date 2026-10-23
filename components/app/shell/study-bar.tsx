@@ -40,7 +40,11 @@ export function StudyBar() {
     <div className="px-3 pt-safe pb-2">
       <StudyTopBar
         closeHref={AUTHENTICATED_HOME_PATH}
-        goalSlot={tier ? <StudyGoalPill tier={tier} /> : undefined}
+        goalSlot={
+          tier && current ? (
+            <StudyGoalPill key={current.id} collectionId={current.id} tier={tier} />
+          ) : undefined
+        }
         collection={{
           ...chip,
           onPress: degraded || desktop ? undefined : () => setSwitcherOpen(true),

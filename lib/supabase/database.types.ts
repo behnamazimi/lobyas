@@ -519,6 +519,55 @@ export type Database = {
           },
         ];
       };
+      collection_goals: {
+        Row: {
+          celebrated_on: string | null;
+          celebrated_tiers: string[];
+          collection_id: string;
+          quiz_goal: number | null;
+          read_goal: number | null;
+          review_goal: number | null;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          celebrated_on?: string | null;
+          celebrated_tiers?: string[];
+          collection_id: string;
+          quiz_goal?: number | null;
+          read_goal?: number | null;
+          review_goal?: number | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          celebrated_on?: string | null;
+          celebrated_tiers?: string[];
+          collection_id?: string;
+          quiz_goal?: number | null;
+          read_goal?: number | null;
+          review_goal?: number | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "collection_goals_collection_id_fkey";
+            columns: ["collection_id"];
+            isOneToOne: false;
+            referencedRelation: "collections";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "collection_goals_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       collection_loves: {
         Row: {
           collection_id: string;
@@ -1685,11 +1734,10 @@ export type Database = {
           analytics_consent_version: string | null;
           created_at: string;
           current_streak: number;
-          daily_goals: Json | null;
           goal_celebrate: boolean;
-          goal_celebrated: NonNullable<Json>;
           last_active_date: string | null;
           longest_streak: number;
+          new_collection_goals: Json | null;
           promo_dismissed: NonNullable<Json>;
           promo_seen: string[];
           read_hide_question: boolean;
@@ -1726,11 +1774,10 @@ export type Database = {
           analytics_consent_version?: string | null;
           created_at?: string;
           current_streak?: number;
-          daily_goals?: Json | null;
           goal_celebrate?: boolean;
-          goal_celebrated?: NonNullable<Json>;
           last_active_date?: string | null;
           longest_streak?: number;
+          new_collection_goals?: Json | null;
           promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
           read_hide_question?: boolean;
@@ -1766,11 +1813,10 @@ export type Database = {
           analytics_consent_version?: string | null;
           created_at?: string;
           current_streak?: number;
-          daily_goals?: Json | null;
           goal_celebrate?: boolean;
-          goal_celebrated?: NonNullable<Json>;
           last_active_date?: string | null;
           longest_streak?: number;
+          new_collection_goals?: Json | null;
           promo_dismissed?: NonNullable<Json>;
           promo_seen?: string[];
           read_hide_question?: boolean;
@@ -2430,7 +2476,7 @@ export type Database = {
         }[];
       };
       goal_day_counts: {
-        Args: { p_user_id: string };
+        Args: { p_collection_id?: string; p_user_id: string };
         Returns: {
           quizzed_count: number;
           read_count: number;
@@ -2438,6 +2484,7 @@ export type Database = {
           today: string;
         }[];
       };
+      goal_value: { Args: { p_value: Json }; Returns: number };
       has_feature_access: { Args: { p_feature: string; p_user_id: string }; Returns: boolean };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_in_user_collections: { Args: { p_collection_id: string }; Returns: boolean };
@@ -2454,7 +2501,7 @@ export type Database = {
       my_bump_streak: { Args: { p_timezone?: string }; Returns: undefined };
       my_cancel_collection_request: { Args: { p_id: string }; Returns: undefined };
       my_claim_goal_celebration: {
-        Args: { p_caught_up: boolean; p_tier: string };
+        Args: { p_caught_up: boolean; p_collection_id: string; p_tier: string };
         Returns: boolean;
       };
       my_clear_deferred_collection: { Args: { p_collection_id: string }; Returns: undefined };
@@ -2492,11 +2539,14 @@ export type Database = {
         }[];
       };
       my_get_goal_day: {
-        Args: Record<PropertyKey, never>;
+        Args: { p_collection_id?: string };
         Returns: {
           celebrated: string[];
+          quiz_goal: number;
           quizzed_count: number;
           read_count: number;
+          read_goal: number;
+          review_goal: number;
           reviewed_count: number;
           today: string;
         }[];
@@ -2631,6 +2681,10 @@ export type Database = {
       };
       my_reset_collection_progress: { Args: { p_collection_id: string }; Returns: undefined };
       my_review_collection_ids: { Args: Record<PropertyKey, never>; Returns: string[] };
+      my_save_collection_goals: {
+        Args: { p_apply_all: boolean; p_collection_id: string; p_goals: Json; p_tiers: string[] };
+        Returns: undefined;
+      };
       my_self_topup_ai_credits: {
         Args: Record<PropertyKey, never>;
         Returns: {
@@ -2754,6 +2808,10 @@ export type Database = {
         Returns: undefined;
       };
       review_collection_ids: { Args: { p_user_id: string }; Returns: string[] };
+      set_collection_goal_tiers: {
+        Args: { p_collection_id: string; p_goals: Json; p_tiers: string[]; p_user_id: string };
+        Returns: undefined;
+      };
       set_term_marked_known: {
         Args: { p_marked: boolean; p_term_id: string; p_user_id: string };
         Returns: undefined;

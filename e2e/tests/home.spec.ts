@@ -1,23 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { test, expect } from "../fixtures";
-import { sql } from "../support/db";
 import { gotoReady } from "../support/navigation";
+import { setCollectionGoals } from "../support/goals";
 import { seedCollection } from "../support/seed";
-
-async function saveGoals(userId: string, goals: Record<string, number | null>) {
-  await sql("update public.user_settings set daily_goals = $2 where user_id = $1", [
-    userId,
-    JSON.stringify(goals),
-  ]);
-}
 
 test.describe("Home", () => {
   test(
     "with goals, Home shows progress and Continue opens the next open goal",
     { tag: "@smoke" },
     async ({ page, user, isMobile }) => {
-      const { name } = await seedCollection(user);
-      await saveGoals(user.id, { read: 10, review: 20, quiz: 10 });
+      const { name, collectionId } = await seedCollection(user);
+      await setCollectionGoals(user.id, collectionId, { read: 10, review: 20, quiz: 10 });
       await gotoReady(page, "/app");
 
       await expect(

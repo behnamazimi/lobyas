@@ -21,12 +21,12 @@ export function GoalCelebrationDialog({ streak }: { streak: number }) {
   const router = useRouter();
   const celebration = useSyncExternalStore(
     subscribeGoals,
-    () => getGoalsSnapshot()?.celebration ?? null,
+    () => getGoalsSnapshot()?.celebrations[0] ?? null,
     () => null,
   );
   if (!celebration) return null;
 
-  const { tier, progress } = celebration;
+  const { tier, progress, collectionName } = celebration;
   const all = allGoalsMet(progress);
   const next = nextOpenTier(progress, tier);
   // The tier that just finished, then the busiest other tier if it has any activity today.
@@ -43,7 +43,7 @@ export function GoalCelebrationDialog({ streak }: { streak: number }) {
         if (!open) closeGoalCelebration();
       }}
       title={all ? "Today’s goals met!" : `${GOAL_TIER_LABELS[tier]} goal met!`}
-      subline="That’s your pace for today. Stopping here is fine, and today already counts for your streak."
+      subline={`${collectionName}: that’s your pace for today. Stopping here is fine, and today already counts for your streak.`}
       hero={
         <div
           className="bg-warning px-6 pt-10 pb-4 md:pt-6"

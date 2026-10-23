@@ -22,7 +22,7 @@ export function HomeStudy({
   celebrated: readonly GoalTier[];
   collection: ShellCollection;
 }) {
-  const live = useLiveGoalCounts(counts);
+  const live = useLiveGoalCounts(collection.id, counts);
   const path = buildHomePath({
     goals,
     counts: live,

@@ -95,13 +95,16 @@ export function useLibraryList(data: LibraryPageData, filtersCookie: string) {
   );
 
   /** Opens a term's detail; the first opening of a term counts as a read. */
-  const selectTerm = useCallback((termId: string | null) => {
-    setSelectedTermId(termId);
-    if (!termId || countedShownRef.current.has(termId)) return;
-    countedShownRef.current.add(termId);
-    void recordTermReadAction(termId);
-    tickGoal("read", termId);
-  }, []);
+  const selectTerm = useCallback(
+    (termId: string | null) => {
+      setSelectedTermId(termId);
+      if (!termId || countedShownRef.current.has(termId)) return;
+      countedShownRef.current.add(termId);
+      void recordTermReadAction(termId);
+      tickGoal(data.collection.id, "read", termId);
+    },
+    [data.collection.id],
+  );
 
   const clearSearch = useCallback(() => setSearchQuery(""), []);
 

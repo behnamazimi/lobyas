@@ -6,7 +6,7 @@ import { EmptyPanel, Pill } from "@/components/kit";
 import { EmptyBoxScene } from "@/components/illustrations/scenes/empty-box";
 import { getSessionUser } from "@/lib/auth/require-session";
 import { CURRENT_COLLECTION_COOKIE, parseCurrentCollectionId } from "@/lib/collections/current";
-import { EMPTY_GOAL_DAY, getRequestGoalSettings, loadGoalDay } from "@/lib/goals/settings";
+import { EMPTY_GOAL_DAY, loadGoalDay } from "@/lib/goals/settings";
 import { loadLibraryCollections } from "@/lib/library/load";
 import { HomeBareHeader } from "./home-header";
 import { HomeSkeleton } from "./home-skeleton";
@@ -50,13 +50,8 @@ async function HomeContent() {
   const { supabase, user } = await getSessionUser();
   if (!user) redirect("/login");
 
-  const [library, settings, day, cookieStore] = await Promise.all([
+  const [library, cookieStore] = await Promise.all([
     loadLibraryCollections(supabase, user.id).catch(() => null),
-    getRequestGoalSettings(user.id).catch(() => ({
-      goals: null,
-      celebrate: true,
-    })),
-    loadGoalDay(supabase).catch(() => EMPTY_GOAL_DAY),
     cookies(),
   ]);
 
@@ -77,6 +72,7 @@ async function HomeContent() {
   const currentId = parseCurrentCollectionId(cookieStore.get(CURRENT_COLLECTION_COOKIE)?.value);
   const picked = active.find((collection) => collection.id === currentId) ?? active[0];
   if (!picked) return <NoCollection />;
+  const day = await loadGoalDay(supabase, picked.id).catch(() => EMPTY_GOAL_DAY);
 
   const collection: ShellCollection = {
     id: picked.id,
@@ -91,7 +87,7 @@ async function HomeContent() {
   };
   return (
     <HomeStudy
-      goals={settings.goals}
+      goals={day.goals}
       counts={day.counts}
       celebrated={day.celebrated}
       collection={collection}

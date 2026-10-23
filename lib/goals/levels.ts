@@ -80,13 +80,9 @@ export function parseDailyGoals(value: unknown): DailyGoals | null {
   return goals;
 }
 
-/** Tiers whose goal went up or came back on, so today's celebration for them
- *  can happen again. */
-export function raisedTiers(before: DailyGoals | null, after: DailyGoals): GoalTier[] {
-  if (!before) return [];
-  return GOAL_TIERS.filter((tier) => {
-    const old = before[tier];
-    const next = after[tier];
-    return next !== null && (old === null || next > old);
-  });
+/** The tiers the member changed, which is what "all collections" copies.
+ *  With nothing changed, or nothing saved yet, every tier is copied. */
+export function editedTiers(saved: DailyGoals | null, draft: DailyGoals): GoalTier[] {
+  const changed = GOAL_TIERS.filter((tier) => saved?.[tier] !== draft[tier]);
+  return changed.length > 0 && saved ? changed : [...GOAL_TIERS];
 }
