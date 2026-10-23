@@ -17,6 +17,7 @@ import type { ReviewGrade } from "@/lib/trace";
 import { cn } from "@/lib/utils";
 
 type ReviewPlayingStepProps = {
+  collectionId: string;
   currentCard: ReviewTerm;
   canGoBack: boolean;
   currentRevealed: boolean;
@@ -37,6 +38,7 @@ type ReviewPlayingStepProps = {
 };
 
 export function ReviewPlayingStep({
+  collectionId,
   currentCard,
   canGoBack,
   currentRevealed,
@@ -71,7 +73,7 @@ export function ReviewPlayingStep({
         onPrevious={onPrevious}
         onNext={onNext}
       />
-      <GoalMetToast tier="review" />
+      <GoalMetToast collectionId={collectionId} tier="review" />
 
       <ReviewTermCard
         key={cardKey(currentCard)}

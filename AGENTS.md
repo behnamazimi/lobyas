@@ -248,11 +248,13 @@ The daily streak and its shield are described in [docs/streak.md](docs/streak.md
 
 # Daily goals
 
-Learners set a daily pace per tier at `/app/goals`; meeting one opens a lobya
-celebration, and the page forecasts when each collection would be mastered.
-Study code credits a term with `tickGoal` from `components/goals/goal-store.ts`,
+Learners set a daily pace per tier for each collection at `/app/goals` (rows in
+`collection_goals`; the "Use these goals in every collection" switch copies the changed tiers to every
+collection and to new ones); meeting one opens a lobya celebration, and the
+page forecasts when the collection would be mastered. Study code credits a term
+with `tickGoal(collectionId, tier, termId)` from `components/goals/goal-store.ts`,
 and the server (`my_claim_goal_celebration`) decides each celebration, once per
-tier a day. The forecast (`lib/trace/forecast.ts`) replays TRACE's own ranking
+collection and tier a day. The forecast (`lib/trace/forecast.ts`) replays TRACE's own ranking
 and update functions. Read [docs/goals.md](docs/goals.md) before changing it.
 
 # Page promos

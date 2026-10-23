@@ -39,6 +39,7 @@ export type GoalForecast =
 export async function loadGoalForecast(
   client: Client,
   userId: string,
+  collectionId: string,
   goals: DailyGoals,
 ): Promise<GoalForecast> {
   const [{ collectionRows, reviewCollectionIds }, candidates, rates] = await Promise.all([
@@ -47,11 +48,13 @@ export async function loadGoalForecast(
     loadForecastRates(client),
   ]);
 
-  const active = collectionRows.filter((row) => reviewCollectionIds.includes(row.id));
+  const active = collectionRows.filter(
+    (row) => row.id === collectionId && reviewCollectionIds.includes(row.id),
+  );
   if (active.length === 0) return { kind: "noCollections" };
 
   const result = forecastMastery(
-    candidates,
+    candidates.filter((candidate) => candidate.collectionId === collectionId),
     { read: goals.read ?? 0, review: goals.review ?? 0, quiz: goals.quiz ?? 0 },
     rates,
     new Date(),

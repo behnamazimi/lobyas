@@ -11,7 +11,8 @@ export function IntroPanel() {
         ))}
       </div>
       <p className="m-0 text-sm font-semibold text-muted">
-        Set a pace for each mode below. When you reach a goal, the lobyas celebrate with you.
+        Set a pace for each mode below, for this collection. When you reach a goal, the lobyas
+        celebrate with you.
       </p>
     </Card>
   );

@@ -35,6 +35,7 @@ export function submitQuizAnswer(
     practice: boolean;
     /** The learner couldn't answer (no sound): not scored, not sent to TRACE. */
     skipped?: boolean;
+    collectionId: string;
   },
 ) {
   const { question } = args;
@@ -60,6 +61,7 @@ export function submitQuizAnswer(
       termId: args.question.termId,
       passed,
       questionType: traceQuestionType(args.question),
+      collectionId: args.collectionId,
     };
     setters.setPendingWrites((prev) => [...prev, write]);
     setters.enqueueAnswerWrite(write);

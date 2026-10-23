@@ -13,6 +13,8 @@ export type PendingQuizWrite = {
   termId: string;
   passed: boolean;
   questionType: QuestionType;
+  /** The collection it was answered in, so a replay credits the right goals. */
+  collectionId?: string;
 };
 
 export type QuizSessionState = {

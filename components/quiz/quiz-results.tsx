@@ -11,6 +11,7 @@ import { formatCount } from "@/lib/kit/text";
 import type { QuizTerm } from "@/lib/quiz/types";
 
 type QuizResultsProps = {
+  collectionId: string;
   score: number;
   total: number;
   practice: boolean;
@@ -28,8 +29,8 @@ function scoreMessage(score: number, total: number, missed: number) {
   return `${missed === 1 ? "One term" : `${missed} terms`} could use another look.`;
 }
 
-function GoalRow() {
-  const today = useGoalCount("quiz");
+function GoalRow({ collectionId }: { collectionId: string }) {
+  const today = useGoalCount(collectionId, "quiz");
   if (!today || today.goal === null) return null;
   return (
     <Card radius="md" className="flex items-center gap-3 px-3.5 py-2.5">
@@ -90,6 +91,7 @@ function MissedTerms({ terms }: { terms: QuizTerm[] }) {
 }
 
 export function QuizResults({
+  collectionId,
   score,
   total,
   practice,
@@ -133,7 +135,7 @@ export function QuizResults({
           <StatTile tone="read" value={`${percent}%`} label="Score" />
         </div>
 
-        {practice ? null : <GoalRow />}
+        {practice ? null : <GoalRow collectionId={collectionId} />}
         {hasMisses ? <MissedTerms terms={missedTerms} /> : null}
       </div>
 

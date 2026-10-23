@@ -2,7 +2,10 @@ import { useCallback, useRef, useState } from "react";
 import { recordReadRevealAction } from "@/app/(private)/app/read/actions";
 import { tickGoal } from "@/components/goals/goal-store";
 
-export function useReadRevealTracking(initialRevealedTermIds: string[] | undefined) {
+export function useReadRevealTracking(
+  collectionId: string,
+  initialRevealedTermIds: string[] | undefined,
+) {
   const [revealedIds, setRevealedIds] = useState<Set<string>>(
     () => new Set(initialRevealedTermIds ?? []),
   );
@@ -13,19 +16,22 @@ export function useReadRevealTracking(initialRevealedTermIds: string[] | undefin
   // the actual source of truth for "have we recorded this yet".
   const recordedIdsRef = useRef<Set<string>>(new Set(initialRevealedTermIds ?? []));
 
-  const reveal = useCallback((termId: string) => {
-    // Always sync UI state, even if the DB write below is guarded off —
-    // self-healing if a stray extra call ever arrives after the ref guard
-    // has already tripped (e.g. a re-fired observer), rather than a
-    // desync where recordedIdsRef thinks a term is done but the masked/
-    // revealed UI never actually reflects it.
-    setRevealedIds((current) => (current.has(termId) ? current : new Set(current).add(termId)));
+  const reveal = useCallback(
+    (termId: string) => {
+      // Always sync UI state, even if the DB write below is guarded off —
+      // self-healing if a stray extra call ever arrives after the ref guard
+      // has already tripped (e.g. a re-fired observer), rather than a
+      // desync where recordedIdsRef thinks a term is done but the masked/
+      // revealed UI never actually reflects it.
+      setRevealedIds((current) => (current.has(termId) ? current : new Set(current).add(termId)));
 
-    if (recordedIdsRef.current.has(termId)) return;
-    recordedIdsRef.current.add(termId);
-    void recordReadRevealAction(termId);
-    tickGoal("read", termId);
-  }, []);
+      if (recordedIdsRef.current.has(termId)) return;
+      recordedIdsRef.current.add(termId);
+      void recordReadRevealAction(termId);
+      tickGoal(collectionId, "read", termId);
+    },
+    [collectionId],
+  );
 
   const isRevealed = useCallback((termId: string) => revealedIds.has(termId), [revealedIds]);
 

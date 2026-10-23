@@ -124,7 +124,8 @@ export function useStorySession(setup: StoriesSetupData) {
     }
     const readAt = result.readAt ?? new Date().toISOString();
     setStory((current) => (current ? { ...current, readAt } : current));
-    if (result.readAt) tickGoal("read", story.termIds);
+    const storyCollectionId = story.collectionId ?? collectionId;
+    if (result.readAt && storyCollectionId) tickGoal(storyCollectionId, "read", story.termIds);
   }
 
   async function vote(value: -1 | 1) {

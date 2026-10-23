@@ -49,7 +49,7 @@ export function ReviewPage({
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const queue = useReviewQueue({ collectionId, seed });
-  const { enqueueRating } = useReviewWriteQueue({ setErrorMessage });
+  const { enqueueRating } = useReviewWriteQueue({ collectionId, setErrorMessage });
   const narrationRef = useRef<TermNarrationHandle>(null);
 
   const currentCard = queue.currentTerm;
@@ -130,6 +130,7 @@ export function ReviewPage({
 
   return (
     <ReviewPlayingStep
+      collectionId={collectionId}
       currentCard={currentCard}
       canGoBack={queue.canGoBack}
       currentRevealed={currentRevealed}

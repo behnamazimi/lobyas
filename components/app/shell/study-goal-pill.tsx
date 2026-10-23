@@ -14,10 +14,10 @@ const TIER_LOOK: Record<GoalTier, { tone: Tone; verb: string }> = {
   quiz: { tone: "quiz", verb: "answered" },
 };
 
-/** Today's progress for the tier being studied. Shows nothing until the shell
- *  has loaded today's counts. */
-export function StudyGoalPill({ tier }: { tier: GoalTier }) {
-  const today = useGoalCount(tier);
+/** Today's progress for the tier being studied in a collection. Shows nothing
+ *  until its counts are loaded. Key it by collection. */
+export function StudyGoalPill({ collectionId, tier }: { collectionId: string; tier: GoalTier }) {
+  const today = useGoalCount(collectionId, tier);
   if (!today) return null;
   const { tone, verb } = TIER_LOOK[tier];
   const { count, goal } = today;

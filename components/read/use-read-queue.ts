@@ -38,7 +38,7 @@ export function useReadQueue({ collectionId, seed }: UseReadQueueArgs) {
   const [reachedEnd, setReachedEnd] = useState(seed.caughtUp ?? false);
   const [loadError, setLoadError] = useState<string | null>(seed.error ?? null);
   const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const { reveal, isRevealed } = useReadRevealTracking(seed.revealedTermIds);
+  const { reveal, isRevealed } = useReadRevealTracking(collectionId, seed.revealedTermIds);
 
   // Refs mirror the latest render's values so stable callbacks (goNext,
   // loadMore) always read current state without needing to be recreated
