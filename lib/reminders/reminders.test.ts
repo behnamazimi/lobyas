@@ -3,8 +3,10 @@ import {
   applyRemindersChange,
   formatNextReminder,
   formatReminderDays,
+  joinTime,
   parseReminders,
   parseRemindersChange,
+  splitTime,
   validateReminders,
 } from "./reminders";
 
@@ -131,5 +133,18 @@ describe("parseRemindersChange", () => {
     ).toBeNull();
     expect(parseRemindersChange({ type: "wipe" })).toBeNull();
     expect(parseRemindersChange(null)).toBeNull();
+  });
+});
+
+describe("splitTime and joinTime", () => {
+  it.each([
+    ["00:00", { hour: 12, minute: 0, pm: false }],
+    ["07:05", { hour: 7, minute: 5, pm: false }],
+    ["12:00", { hour: 12, minute: 0, pm: true }],
+    ["19:30", { hour: 7, minute: 30, pm: true }],
+    ["23:59", { hour: 11, minute: 59, pm: true }],
+  ])("%s is %j and back", (time, parts) => {
+    expect(splitTime(time)).toEqual(parts);
+    expect(joinTime(parts)).toBe(time);
   });
 });

@@ -1,17 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { BottomSheet, Chip, Pill } from "@/components/kit";
+import { BottomSheet, Chip, Pill, SelectInput } from "@/components/kit";
 import {
   EVERY_DAY,
   formatNextReminder,
   formatReminderTime,
+  joinTime,
+  splitTime,
   WEEKDAYS,
   WEEKDAYS_ONLY,
   WEEKENDS_ONLY,
   type Reminder,
 } from "@/lib/reminders/reminders";
 import { cn } from "@/lib/utils";
+
+const HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
+const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
 const SHORTCUTS = [
   { label: "Every day", days: EVERY_DAY },
@@ -40,7 +45,8 @@ export function ReminderSheet({
 }) {
   const [time, setTime] = useState(reminder.time);
   const [days, setDays] = useState(reminder.days);
-  const next = time ? formatNextReminder(time, days, new Date()) : null;
+  const parts = splitTime(time);
+  const next = formatNextReminder(time, days, new Date());
 
   function toggleDay(day: number) {
     setDays((current) =>
@@ -59,7 +65,7 @@ export function ReminderSheet({
         <div className="flex flex-col gap-1 pt-3">
           <Pill
             size="lg"
-            disabled={days.length === 0 || time === "" || isSaving}
+            disabled={days.length === 0 || isSaving}
             onClick={() => onSave({ ...reminder, time, days, enabled: true })}
           >
             {isSaving ? "Saving…" : "Save reminder"}
@@ -73,21 +79,52 @@ export function ReminderSheet({
       }
     >
       <div className="flex flex-col gap-6 pt-2 pb-2">
-        <label className="relative flex h-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-[24px] bg-base-200">
-          <span className="text-[13px] font-extrabold tracking-wide text-muted uppercase">
-            Remind me at
-          </span>
-          <span className="font-heading text-5xl leading-none font-extrabold tabular-nums">
-            {time ? formatReminderTime(time) : "Pick a time"}
-          </span>
-          <input
-            type="time"
-            aria-label="Reminder time"
-            value={time}
-            onChange={(event) => setTime(event.target.value)}
-            className="absolute inset-0 size-full cursor-pointer opacity-0"
-          />
-        </label>
+        <div className="flex flex-col gap-3">
+          <div className="flex h-28 flex-col items-center justify-center gap-1 rounded-[24px] bg-base-200">
+            <span className="text-[13px] font-extrabold tracking-wide text-muted uppercase">
+              Remind me at
+            </span>
+            <span className="font-heading text-5xl leading-none font-extrabold tabular-nums">
+              {formatReminderTime(time)}
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <SelectInput
+              aria-label="Hour"
+              value={parts.hour}
+              onChange={(event) =>
+                setTime(joinTime({ ...parts, hour: Number(event.target.value) }))
+              }
+            >
+              {HOURS.map((hour) => (
+                <option key={hour} value={hour}>
+                  {hour}
+                </option>
+              ))}
+            </SelectInput>
+            <SelectInput
+              aria-label="Minute"
+              value={parts.minute}
+              onChange={(event) =>
+                setTime(joinTime({ ...parts, minute: Number(event.target.value) }))
+              }
+            >
+              {MINUTES.map((minute) => (
+                <option key={minute} value={minute}>
+                  {String(minute).padStart(2, "0")}
+                </option>
+              ))}
+            </SelectInput>
+            <SelectInput
+              aria-label="AM or PM"
+              value={parts.pm ? "pm" : "am"}
+              onChange={(event) => setTime(joinTime({ ...parts, pm: event.target.value === "pm" }))}
+            >
+              <option value="am">AM</option>
+              <option value="pm">PM</option>
+            </SelectInput>
+          </div>
+        </div>
 
         <div className="flex flex-col gap-3">
           <span className="text-sm font-extrabold" id="reminder-days-label">

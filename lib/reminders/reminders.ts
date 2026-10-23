@@ -119,3 +119,14 @@ export function applyRemindersChange(
     : [...current, change.reminder];
   return next.length > MAX_REMINDERS ? null : next;
 }
+
+/** "19:05" as the three parts a person picks: 7, 5 and PM. */
+export function splitTime(time: string): { hour: number; minute: number; pm: boolean } {
+  const [hour24, minute] = time.split(":").map(Number);
+  return { hour: hour24 % 12 === 0 ? 12 : hour24 % 12, minute, pm: hour24 >= 12 };
+}
+
+export function joinTime({ hour, minute, pm }: { hour: number; minute: number; pm: boolean }) {
+  const hour24 = (hour % 12) + (pm ? 12 : 0);
+  return `${String(hour24).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
