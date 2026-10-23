@@ -3,7 +3,7 @@ import { renderPauses, type PauseStyle } from "../pause";
 import type { SpeechProviderAdapter } from "./types";
 
 const MODEL: keyof typeof MODELS = "falcon-2";
-// Short enough that the fallback still fits in the narration routes' 60 second limit.
+// Short enough that the fallback still fits in the story narration route's 60 second limit.
 const REQUEST_TIMEOUT_MS = 25_000;
 
 // Each voice is native to one language; an English voice reading Dutch mixes the pronunciations.

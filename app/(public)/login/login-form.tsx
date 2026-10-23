@@ -55,7 +55,11 @@ export default function LoginForm() {
         <input type="hidden" name="next" value={next} />
         <AuthFormError error={error} />
         {showResetLink ? (
-          <Link href="/forgot-password" className="text-sm underline underline-offset-2">
+          <Link
+            prefetch={false}
+            href="/forgot-password"
+            className="text-sm underline underline-offset-2"
+          >
             Request a new reset link
           </Link>
         ) : null}
@@ -70,6 +74,7 @@ export default function LoginForm() {
             <div className="flex items-center justify-between">
               <FieldLabel htmlFor="login-password">Password</FieldLabel>
               <Link
+                prefetch={false}
                 href="/forgot-password"
                 className="text-xs text-base-content/70 underline underline-offset-2"
               >
@@ -93,7 +98,11 @@ export default function LoginForm() {
 
       <p className="text-center text-sm text-base-content/70">
         Need an account?{" "}
-        <Link href={appendNextParam("/signup", rawNext)} className="underline underline-offset-2">
+        <Link
+          prefetch={false}
+          href={appendNextParam("/signup", rawNext)}
+          className="underline underline-offset-2"
+        >
           Sign up
         </Link>
       </p>

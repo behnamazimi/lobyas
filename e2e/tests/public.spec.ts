@@ -14,6 +14,8 @@ test.describe("Public pages", () => {
       }
     });
     await gotoReady(page, "/");
+    await expect.poll(() => prefetched).toContain("/features");
+    await page.waitForLoadState("networkidle");
 
     expect(
       prefetched.filter((path) => ["/login", "/signup", "/request-access"].includes(path)),

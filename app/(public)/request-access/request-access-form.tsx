@@ -85,7 +85,7 @@ export default function RequestAccessForm({
 
       <p className="m-0 text-center text-sm text-base-content/70">
         Already have an account?{" "}
-        <Link href="/login" className="underline underline-offset-2">
+        <Link prefetch={false} href="/login" className="underline underline-offset-2">
           Log in
         </Link>
       </p>

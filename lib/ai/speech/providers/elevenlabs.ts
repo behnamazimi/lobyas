@@ -5,7 +5,7 @@ import type { SpeechProviderAdapter } from "./types";
 
 const MODEL_ID = "eleven_v3";
 const OUTPUT_FORMAT = "mp3_44100_128";
-// Murf has the same limit, so the two together fit in the narration routes' 60 seconds.
+// Murf has the same limit, so the two together fit in the story narration route's 60 seconds.
 const REQUEST_TIMEOUT_MS = 25_000;
 
 // ElevenLabs' own long-standing default ("Rachel") voice — verify this id

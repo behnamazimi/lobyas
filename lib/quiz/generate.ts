@@ -28,8 +28,9 @@ function toGenerationPlan(slots: AiSlot[]): GenerationPlan {
   })) as GenerationPlan;
 }
 
-// The Quiz page is cut off at 60 seconds. Stopping earlier lets the failure be
-// reported and the credits refunded instead of the request being killed.
+// The Quiz page runs under the platform's 300 second default. Stopping well
+// before that reports the failure and refunds the credits while the learner is
+// still waiting for an answer.
 const QUIZ_TIMEOUT_MS = 45_000;
 
 type ModelInput = {

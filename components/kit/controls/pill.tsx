@@ -62,6 +62,7 @@ export function IconButton({
   label,
   tone = "ghost",
   href,
+  prefetch,
   transitionTypes,
   className,
   children,
@@ -70,6 +71,8 @@ export function IconButton({
   label: string;
   tone?: "ghost" | "soft";
   href?: string;
+  /** `false` fetches the link's page only on tap, for links rarely followed. */
+  prefetch?: false;
   transitionTypes?: ComponentProps<typeof Link>["transitionTypes"];
   className?: string;
   children: ReactNode;
@@ -83,6 +86,7 @@ export function IconButton({
     return (
       <Link
         href={href}
+        prefetch={prefetch}
         aria-label={label}
         className={classes}
         {...(transitionTypes ? { transitionTypes } : {})}

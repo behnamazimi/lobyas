@@ -40,11 +40,14 @@ test.describe("Home", () => {
         prefetched.add(new URL(request.url()).pathname);
       }
     });
+    // Tall enough that every link on Home is on screen, where Next prefetches it.
+    await page.setViewportSize({ width: 1280, height: 2000 });
     await gotoReady(page, "/app");
+    await expect.poll(() => [...prefetched]).toContain("/app/read");
+    await page.waitForLoadState("networkidle");
 
     const allowed = ["/app", "/app/goals", "/app/library", "/app/me", "/app/read"];
     expect([...prefetched].filter((path) => !allowed.includes(path))).toEqual([]);
-    expect(prefetched).toContain("/app/read");
   });
 
   test(
