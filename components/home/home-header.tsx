@@ -105,7 +105,7 @@ export function HomeHeader({
           <MasteryLine name={name} mastered={mastered} total={total} className="mt-2.5" />
         </div>
         <div className="flex shrink-0 gap-2.5">
-          <Pill href={addTermsHref} variant="secondary" size="md" className="h-12">
+          <Pill href={addTermsHref} prefetch={false} variant="secondary" size="md" className="h-12">
             <Plus className="size-[18px]" strokeWidth={2.8} aria-hidden />
             Add terms
           </Pill>

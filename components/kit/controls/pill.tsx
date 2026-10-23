@@ -19,6 +19,8 @@ type PillProps = {
   size?: "md" | "lg";
   /** Renders a link instead of a button. */
   href?: string;
+  /** `false` fetches the link's page only on tap, for links rarely followed. */
+  prefetch?: false;
   className?: string;
   /** Marks the pill as a guided-tour target. */
   "data-tour"?: string;
@@ -30,6 +32,7 @@ export function Pill({
   variant = "primary",
   size = "md",
   href,
+  prefetch,
   className,
   children,
   ...rest
@@ -42,7 +45,7 @@ export function Pill({
   );
   if (href) {
     return (
-      <Link href={href} className={classes} data-tour={rest["data-tour"]}>
+      <Link href={href} prefetch={prefetch} className={classes} data-tour={rest["data-tour"]}>
         {children}
       </Link>
     );

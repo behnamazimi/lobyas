@@ -30,6 +30,23 @@ test.describe("Home", () => {
     },
   );
 
+  // Every prefetch is a server render, so Home only warms the tabs and the next step.
+  test("Home prefetches only the nav tabs and Continue", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await setCollectionGoals(user.id, collectionId, { read: 10, review: 20, quiz: 10 });
+    const prefetched = new Set<string>();
+    page.on("request", (request) => {
+      if (request.headers()["next-router-prefetch"]) {
+        prefetched.add(new URL(request.url()).pathname);
+      }
+    });
+    await gotoReady(page, "/app");
+
+    const allowed = ["/app", "/app/goals", "/app/library", "/app/me", "/app/read"];
+    expect([...prefetched].filter((path) => !allowed.includes(path))).toEqual([]);
+    expect(prefetched).toContain("/app/read");
+  });
+
   test(
     "without goals, Home still offers a place to start and a way to set a pace",
     { tag: "@smoke" },
