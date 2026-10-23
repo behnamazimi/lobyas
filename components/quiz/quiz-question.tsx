@@ -5,7 +5,7 @@ import { feedback } from "@/lib/feedback";
 import { QuestionCard } from "@/components/kit";
 import { QuizAnswerChoices } from "@/components/quiz/quiz-answer-choices";
 import { DictationPlayer } from "@/components/quiz/dictation-player";
-import { questionLabel, quizNote } from "@/components/quiz/quiz-note";
+import { quizNote } from "@/components/quiz/quiz-note";
 import { QuizQuestionFooter } from "@/components/quiz/quiz-question-footer";
 import type { QuizQuestion } from "@/lib/quiz/types";
 import { gradeAnswer } from "@/lib/quiz/grade";
@@ -154,18 +154,11 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
       })
     : null;
   const isDictation = question.interaction === "text" && question.dictation;
-  const quoteIsWord =
-    question.template === "typed_meaning_to_word" && (question.quote?.length ?? 0) <= 40;
 
   return (
     <div className="study-enter flex min-h-0 flex-1 flex-col gap-2">
       <div className="-mx-5 min-h-0 flex-1 overflow-y-auto px-5 pt-1 pb-3">
-        <QuestionCard
-          label={questionLabel(question)}
-          prompt={question.prompt}
-          quote={question.quote}
-          quoteStyle={quoteIsWord ? "word" : "box"}
-        >
+        <QuestionCard prompt={question.prompt} quote={question.quote}>
           {question.interaction === "text" && question.dictation ? (
             <DictationPlayer
               termId={question.termId}

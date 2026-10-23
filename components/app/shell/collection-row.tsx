@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown } from "lucide-react";
-import { useShell } from "@/components/app/shell/shell-context";
+import { useShell } from "./shell-context";
 
 /** Phone and tablet: the current collection, opening the shell's switcher. The
  *  desktop rail has its own switcher, so this hides from `lg`. */

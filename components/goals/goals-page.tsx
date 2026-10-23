@@ -1,5 +1,6 @@
 "use client";
 
+import { CollectionRow } from "@/components/app/shell/collection-row";
 import { useRef, useState, useTransition } from "react";
 import {
   forecastGoalsAction,
@@ -50,6 +51,7 @@ export function GoalsPage({
   const latestRequest = useRef(0);
 
   const dirty = saved === null || GOAL_TIERS.some((tier) => saved[tier] !== draft[tier]);
+  const canSave = dirty || applyToAll;
   const done = useLiveGoalCounts(collection.id, day.counts);
 
   async function loadForecast(goals: DailyGoals) {
@@ -116,7 +118,8 @@ export function GoalsPage({
     <div className="flex flex-1 flex-col gap-3">
       {saved ? null : <IntroPanel />}
 
-      <h2 className="m-0 px-1 font-heading text-xl font-extrabold [overflow-wrap:anywhere]">
+      <CollectionRow name={collection.name} />
+      <h2 className="m-0 px-1 font-heading text-xl font-extrabold [overflow-wrap:anywhere] max-lg:hidden">
         Goals for {collection.name}
       </h2>
 
@@ -150,12 +153,14 @@ export function GoalsPage({
 
       <RemindersCard initial={settings.reminders} />
 
-      <PinnedAction>
-        <Pill
-          size="lg"
-          disabled={(!dirty && !applyToAll) || isSaving}
-          onClick={() => save(applyToAll)}
-        >
+      <PinnedAction
+        className={
+          canSave
+            ? "lg:sticky lg:z-10 lg:-mx-1 lg:bg-linear-to-t lg:px-1 lg:pt-4 lg:pb-6"
+            : "static"
+        }
+      >
+        <Pill size="lg" disabled={!canSave || isSaving} onClick={() => save(applyToAll)}>
           {isSaving ? "Saving…" : saved ? "Save goals" : "Start these goals"}
         </Pill>
       </PinnedAction>

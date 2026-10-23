@@ -1,5 +1,6 @@
 "use client";
 
+import { CollectionRow } from "@/components/app/shell/collection-row";
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Suspense, useCallback, useMemo, useRef, useState, type ReactNode } from "react";
@@ -16,7 +17,6 @@ import { TermActionsSheet } from "@/components/terms/term-actions-sheet";
 import { TermDetail } from "@/components/terms/term-detail";
 import { TermList } from "@/components/terms/term-list";
 import { TermRowDialogs } from "@/components/terms/term-row-dialogs";
-import { CollectionRow } from "./collection-row";
 import { LibraryCollectionHeader } from "./library-collection-header";
 import { LibraryFilters } from "./library-filters";
 
