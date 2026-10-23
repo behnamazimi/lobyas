@@ -56,12 +56,12 @@ WebView's user agent (`ios.appendUserAgent` / `android.appendUserAgent`). The ve
 release tag's (`mobile-vX.Y.Z`), passed to `cap sync` as `CAP_APP_VERSION`, so it is the store
 version. A local build reports `999.0.0`, which no update prompt replaces. Apps built
 before that send `LobyasApp/<os>` or plain `LobyasApp`, so the os or the version can be unknown
-(`useShell()` gives `version: null`). Everything reads it through
+(`useNative()` gives `version: null`). Everything reads it through
 `lib/native/shell.ts`, and there is no cookie: the user agent is on every
 request, including the first, and a cookie would make the cached public pages
 dynamic.
 
-- Component: `const { native, os } = useShell()` (`hooks/use-shell.ts`). It
+- Component: `const { native, os } = useNative()` (`hooks/use-native.ts`). It
   reports "not native" on the server and during hydration, then the real value.
 - Event handler or effect: `isNativeShell()`.
 - CSS: `native-app:`, `ios-app:` and `android-app:` variants. An inline script
@@ -69,9 +69,10 @@ dynamic.
   need no server work.
 
 It is a hint for the UI only; anything that must be restricted to the app still
-needs the `x-lobyas-native` header or a server check. Load Capacitor plugins with
-a dynamic `import()` inside a check for it, and assume an installed app may be
-older than the web code: a plugin added later won't exist in it.
+needs the `x-lobyas-native` header or a server check. Never import a Capacitor
+plugin: everything the web code says to the app goes through `lib/native/`, which
+answers "unavailable" for an app that was built without the plugin
+([native-bridge.md](native-bridge.md)).
 
 The proxy uses it for one thing: a request for `/` from the app redirects to the
 study area (`AUTHENTICATED_HOME_PATH`) for a signed-in member, or to `/login`
@@ -82,7 +83,7 @@ otherwise (`lib/native/landing.ts`). Every other public page still opens by link
 Study reminders are local notifications (`@capacitor/local-notifications`), set on the Goals page
 (`components/goals/reminders-card.tsx`) and kept in `user_settings.reminders` (up to 3 of
 `{id, time "HH:MM", days 1 = Mon…7 = Sun, enabled}`, local wall-clock time). The card renders only
-in an app whose binary has the plugin (`remindersSupported()` in `lib/reminders/native.ts`), so
+in an app whose binary has the plugin (`hasCapability("notifications")` in `lib/native/capabilities.ts`), so
 older apps and the web never show it.
 
 - Each enabled reminder becomes one repeating weekly OS schedule per weekday
@@ -91,7 +92,7 @@ older apps and the web never show it.
 - `NativeReminders` (root layout) reads `GET /api/reminders` on launch, whenever the app returns
   to the foreground and when the visitor signs in, and rearms only if the pending ids, the saved
   schedule or the device timezone differ (`lib/reminders/arming.ts`). Everything that changes what the
-  device holds runs through one queue in `lib/reminders/native.ts`, so an older sync can't land after a
+  device holds runs through one queue in `lib/reminders/device.ts`, so an older sync can't land after a
   newer save. A save sends one change (add, edit or remove) that the server applies to the stored list. Signed out (a 401 or a redirect to login) clears everything; sign-out and account deletion also clear first.
 - The permission prompt appears only when the first reminder is saved. If it is denied or revoked,
   the card shows an alert with an Open settings button (`capacitor-native-settings`).
@@ -107,7 +108,7 @@ one account both ring.
 
 ## Asking old apps to update
 
-`NativeUpdateGate` (mounted in the root layout) reads the version from `useShell()` and
+`NativeUpdateGate` (mounted in the root layout) reads the version from `useNative()` and
 compares it with `UPDATE_POLICY` in `lib/native/update-policy.ts`. Below `recommended` it shows a
 dismissible banner (dismissal is remembered per recommended version); below `required` it
 covers the app with an Update screen. An app that reports no version counts as `0.0.0`. Both
@@ -192,8 +193,8 @@ handled; the user just taps the button again.
 ## Sign in with Apple
 
 `AppleSignInButton` sits under Google on the login and signup pages. In the iOS app it opens
-the system Apple sheet (`@capgo/capacitor-social-login`, loaded with a dynamic `import()` and
-shown only when `Capacitor.isPluginAvailable("SocialLogin")`, so older installs just don't see it).
+the system Apple sheet (`@capgo/capacitor-social-login`, wrapped in `lib/native/social-login.ts` and
+shown only when `hasCapability("appleSignIn")`, so older installs just don't see it).
 In browsers it uses Apple's popup script and needs `NEXT_PUBLIC_APPLE_SERVICES_ID`; without it
 (previews, local dev; Apple rejects `localhost`) the button is hidden. The Android app has
 neither, so it shows no Apple button.

@@ -390,7 +390,7 @@ app can be older than the web code, so every call must cope with "unavailable".
 
 Phone-app study reminders are local notifications set on the Goals page. Read the
 "Reminders" section of [docs/mobile.md](docs/mobile.md) first. The data and schedule
-builder are in `lib/reminders/`; device calls go through `lib/reminders/native.ts`.
+builder are in `lib/reminders/`; the device side is `lib/reminders/device.ts`, which calls `lib/native/`.
 
 # Brand
 

@@ -23,6 +23,10 @@ old app, the web or a denied permission looks like.
 `lib/native/shell.test.ts` checks that the user agent the config sends is the one the parser
 reads.
 
+`isNativeShell()` (`lib/native/shell.ts`) is the synchronous version of the same question, for event
+handlers and effects. `nativePlatform()` reads Capacitor's own platform, which is known for every app
+version.
+
 ## What crosses the boundary
 
 | Topic                                                    | Direction    | Notes                                                      |
@@ -58,3 +62,12 @@ hand. Registration was checked on Capacitor 8 on both platforms:
 
 An app already installed does not have a plugin added later, so every call must cope with
 "unavailable".
+
+## Adding a native call
+
+1. Add the capability and its plugin name to `lib/native/capabilities.ts`.
+2. Write the wrapper in its own `lib/native/<feature>.ts` with `callNative`, and expose plain
+   functions that say what the feature needs (`openSystemBrowser(url): Promise<boolean>`).
+3. Test it with a faked plugin and a faked app (`vi.stubGlobal("navigator", ...)` and
+   `vi.stubGlobal("Capacitor", ...)`, see `lib/native/call.test.ts`).
+4. Use it from components and `lib/`; never import the plugin there.

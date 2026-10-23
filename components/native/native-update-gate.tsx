@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
 import { LinkButton } from "@/components/ui/button";
+import { useMountEffect } from "@/hooks/use-mount-effect";
 import { useNative } from "@/hooks/use-native";
 import { UPDATE_POLICY, storeUrl } from "@/lib/native/update-policy";
 import { updateState } from "@/lib/native/version";
@@ -23,9 +24,8 @@ export function NativeUpdateGate() {
   const dismissKey = `${DISMISS_KEY_PREFIX}${UPDATE_POLICY.recommended}`;
   const [dismissed, setDismissed] = useState(true);
 
-  useEffect(() => {
-    setDismissed(readDismissed(dismissKey));
-  }, [dismissKey]);
+  // The key comes from the policy, which is fixed for a build, so this runs once.
+  useMountEffect(() => setDismissed(readDismissed(dismissKey)));
 
   if (!shell.native) return null;
 
