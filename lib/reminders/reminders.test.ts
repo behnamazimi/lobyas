@@ -3,6 +3,7 @@ import {
   applyRemindersChange,
   formatNextReminder,
   formatReminderDays,
+  formatReminderTime,
   parseReminders,
   parseRemindersChange,
   validateReminders,
@@ -65,23 +66,23 @@ describe("formatNextReminder", () => {
   const now = new Date(2026, 9, 21, 20, 0);
 
   it("is today while the time is still ahead", () => {
-    expect(formatNextReminder("21:30", [3], now)).toBe("Today at 9:30 PM");
+    expect(formatNextReminder("21:30", [3], now, false)).toBe("Today at 9:30 PM");
   });
 
   it("skips to the next listed day once today's time has passed", () => {
-    expect(formatNextReminder("19:00", [3, 5], now)).toBe("Fri at 7:00 PM");
+    expect(formatNextReminder("19:00", [3, 5], now, false)).toBe("Fri at 7:00 PM");
   });
 
   it("says tomorrow for the next day", () => {
-    expect(formatNextReminder("08:00", [4], now)).toBe("Tomorrow at 8:00 AM");
+    expect(formatNextReminder("08:00", [4], now, false)).toBe("Tomorrow at 8:00 AM");
   });
 
   it("wraps to the same weekday next week", () => {
-    expect(formatNextReminder("19:00", [3], now)).toBe("Wed at 7:00 PM");
+    expect(formatNextReminder("19:00", [3], now, false)).toBe("Wed at 7:00 PM");
   });
 
   it("is null with no days", () => {
-    expect(formatNextReminder("19:00", [], now)).toBeNull();
+    expect(formatNextReminder("19:00", [], now, false)).toBeNull();
   });
 });
 
@@ -131,5 +132,22 @@ describe("parseRemindersChange", () => {
     ).toBeNull();
     expect(parseRemindersChange({ type: "wipe" })).toBeNull();
     expect(parseRemindersChange(null)).toBeNull();
+  });
+});
+
+describe("formatReminderTime", () => {
+  it.each([
+    ["00:00", false, "12:00 AM"],
+    ["12:00", false, "12:00 PM"],
+    ["19:05", false, "7:05 PM"],
+    ["19:05", true, "19:05"],
+    ["07:05", true, "07:05"],
+  ])("%s on a 24-hour clock = %s reads %s", (time, is24Hour, text) => {
+    expect(formatReminderTime(time, is24Hour)).toBe(text);
+  });
+
+  it("says the next reminder in the same clock", () => {
+    const now = new Date(2026, 9, 21, 20, 0);
+    expect(formatNextReminder("21:30", [3], now, true)).toBe("Today at 21:30");
   });
 });

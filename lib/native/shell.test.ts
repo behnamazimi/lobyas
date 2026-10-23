@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { shellUserAgent } from "./contract";
 import { parseShell, SHELL_RESTORE_SCRIPT } from "./shell";
 
 const CHROME = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/126 Mobile Safari/537.36";
@@ -62,5 +63,15 @@ describe("SHELL_RESTORE_SCRIPT", () => {
 
   it("leaves a normal browser unmarked", () => {
     expect(attributeFor(CHROME)).toBeUndefined();
+  });
+});
+
+describe("the user agent the config sends", () => {
+  it.each(["ios", "android"] as const)("is read back for %s", (os) => {
+    expect(parseShell(`${CHROME} ${shellUserAgent(os, "1.2.3")}`)).toEqual({
+      native: true,
+      os,
+      version: "1.2.3",
+    });
   });
 });

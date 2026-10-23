@@ -1,16 +1,17 @@
-import { isNativeShell } from "@/lib/native/shell";
+import { callNative } from "./call";
 
 export type HapticKind = "tap" | "success" | "warning";
 
-/** Native app only. An installed app older than the plugin throws, and that is ignored. */
+/** App only; a browser, or an app without the plugin, does nothing. */
 export function buzz(kind: HapticKind) {
-  if (!isNativeShell()) return;
-  void import("@capacitor/haptics")
-    .then(({ Haptics, ImpactStyle, NotificationType }) => {
+  void callNative(
+    "haptics",
+    () => import("@capacitor/haptics"),
+    ({ Haptics, ImpactStyle, NotificationType }) => {
       if (kind === "tap") return Haptics.impact({ style: ImpactStyle.Light });
       return Haptics.notification({
         type: kind === "success" ? NotificationType.Success : NotificationType.Warning,
       });
-    })
-    .catch(() => {});
+    },
+  );
 }

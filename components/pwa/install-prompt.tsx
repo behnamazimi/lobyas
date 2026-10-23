@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { useHydrated } from "@/hooks/use-hydrated";
 import { usePlatform } from "@/hooks/use-platform";
-import { useShell } from "@/hooks/use-shell";
+import { useNative } from "@/hooks/use-native";
 import { PWA_INSTALL_DISMISS_KEY, PWA_NAME } from "@/lib/pwa";
 
 type BeforeInstallPromptEvent = Event & {
@@ -43,7 +43,7 @@ export function PwaInstallProvider({ children }: { children: ReactNode }) {
   const { isIos, displayMode } = usePlatform();
   const isStandalone = displayMode === "standalone";
   const [installed, setInstalled] = useState(false);
-  const { native: inNativeShell } = useShell();
+  const { native: inNativeShell } = useNative();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [toastDismissed, setToastDismissed] = useState(true);
   const [iosDialogOpen, setIosDialogOpen] = useState(false);

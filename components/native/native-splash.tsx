@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useMountEffect } from "@/hooks/use-mount-effect";
 import { isNativeShell } from "@/lib/native/shell";
+import { hideNativeSplash } from "@/lib/native/splash-screen";
 import {
   hasRetriedSplashLoad,
   markSplashDone,
@@ -23,18 +24,13 @@ function loadStatus(): number | undefined {
  * The app's own `launchShowDuration` hides the native splash anyway if the page never loads.
  */
 export function NativeSplash() {
-  useEffect(() => {
+  useMountEffect(() => {
     if (!isNativeShell()) return;
 
     const root = document.documentElement;
     const frame = document.getElementById("native-splash");
     const timers: number[] = [];
     let cancelled = false;
-
-    const hideNative = () =>
-      void import("@capacitor/splash-screen")
-        .then(({ SplashScreen }) => SplashScreen.hide({ fadeOutDuration: 0 }))
-        .catch(() => {});
 
     const leave = () => {
       frame?.setAttribute("data-leaving", "");
@@ -50,7 +46,7 @@ export function NativeSplash() {
     const painted = requestAnimationFrame(() =>
       requestAnimationFrame(() => {
         if (cancelled) return;
-        if (!root.hasAttribute("data-splash")) return hideNative();
+        if (!root.hasAttribute("data-splash")) return hideNativeSplash();
 
         const step = nextSplashStep({
           status: loadStatus(),
@@ -62,7 +58,7 @@ export function NativeSplash() {
           return location.reload();
         }
 
-        hideNative();
+        hideNativeSplash();
         const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
         timers.push(window.setTimeout(leave, reducedMotion ? 0 : SPLASH_MIN_MS));
       }),
@@ -73,7 +69,7 @@ export function NativeSplash() {
       cancelAnimationFrame(painted);
       timers.forEach(clearTimeout);
     };
-  }, []);
+  });
 
   return null;
 }

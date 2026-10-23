@@ -1,8 +1,6 @@
+import { NATIVE_AUTH_REDIRECT } from "@/lib/native/contract";
 import { normalizeReferralCode } from "@/lib/auth/referral-code";
 import { safeNextPath } from "@/lib/auth/safe-next-path";
-
-/** Where Supabase sends the system browser once Google sign-in is done; the app opens from it. */
-export const NATIVE_AUTH_REDIRECT = "com.lobyas.app://auth/callback";
 
 const CALLBACK_PATH = "/auth/callback";
 const PASSED_THROUGH = ["code", "error_code", "flow"] as const;

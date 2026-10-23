@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type MouseEvent } from "react";
+import { useClock24h } from "@/hooks/use-native";
 import { BottomSheet, Chip, Pill } from "@/components/kit";
 import {
   EVERY_DAY,
@@ -48,7 +49,8 @@ export function ReminderSheet({
 }) {
   const [time, setTime] = useState(reminder.time);
   const [days, setDays] = useState(reminder.days);
-  const next = time ? formatNextReminder(time, days, new Date()) : null;
+  const is24Hour = useClock24h();
+  const next = time ? formatNextReminder(time, days, new Date(), is24Hour) : null;
 
   function toggleDay(day: number) {
     setDays((current) =>
@@ -86,7 +88,7 @@ export function ReminderSheet({
             Remind me at
           </span>
           <span className="font-heading text-5xl leading-none font-extrabold tabular-nums">
-            {time ? formatReminderTime(time) : "Pick a time"}
+            {time ? formatReminderTime(time, is24Hour) : "Pick a time"}
           </span>
           <input
             type="time"

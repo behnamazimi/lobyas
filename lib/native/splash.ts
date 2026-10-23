@@ -1,3 +1,5 @@
+import { SHELL_ATTRIBUTE } from "./contract";
+
 const DONE_KEY = "lobyas-splash-done";
 const RETRIED_KEY = "lobyas-splash-retried";
 
@@ -10,7 +12,7 @@ export const SPLASH_FADE_MS = 300;
  * (a cold start) has no `DONE_KEY` yet, so the page draws its splash frame until it is ready.
  * Later loads in the same web view, and the plain web, skip it.
  */
-export const SPLASH_RESTORE_SCRIPT = `try{if(document.documentElement.hasAttribute("data-shell")&&!sessionStorage.getItem("${DONE_KEY}"))document.documentElement.setAttribute("data-splash","")}catch(e){}`;
+export const SPLASH_RESTORE_SCRIPT = `try{if(document.documentElement.hasAttribute("${SHELL_ATTRIBUTE}")&&!sessionStorage.getItem("${DONE_KEY}"))document.documentElement.setAttribute("data-splash","")}catch(e){}`;
 
 // Storage can throw (blocked, full). A splash must never get stuck because of it.
 export function markSplashDone(storage: Storage) {
