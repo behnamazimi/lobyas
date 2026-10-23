@@ -47,17 +47,3 @@ export function quizNote(
     ? { kind: "correct", title: "Correct", detail, answer: null }
     : { kind: "wrong", title: "Not quite", detail, answer: named };
 }
-
-const LABELS: Record<QuizQuestion["template"], string> = {
-  definition_to_term: "Pick the match",
-  term_to_meaning: "Pick the meaning",
-  masked_example: "Fill the blank",
-  does_it_fit: "Does it fit?",
-  typed_cloze: "Fill the blank",
-  typed_meaning_to_word: "Type it",
-  dictation: "Listen and type",
-};
-
-export function questionLabel(question: QuizQuestion): string {
-  return LABELS[question.template];
-}

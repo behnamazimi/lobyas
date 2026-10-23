@@ -26,7 +26,7 @@ export function TextAnswer({ question, response, submitted, skipped, onRespond }
 
   return (
     <div className="mt-4 flex flex-col gap-2">
-      <label htmlFor={id} className="pl-1 text-sm font-extrabold">
+      <label htmlFor={id} className="sr-only">
         Your answer
       </label>
       <AnswerInput
@@ -41,7 +41,7 @@ export function TextAnswer({ question, response, submitted, skipped, onRespond }
         autoCapitalize="none"
         spellCheck={false}
         lang={question.language}
-        placeholder="Type here"
+        placeholder="Your answer"
       />
     </div>
   );
