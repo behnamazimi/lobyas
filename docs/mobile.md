@@ -106,6 +106,9 @@ updates the card; a reminder fires after a reboot; changing the timezone moves i
 signing out stops reminders and signing back in restores them; a tap opens Home; two devices on
 one account both ring.
 
+Reminder times follow the phone's 12 or 24-hour setting, read through the app's own `LobyasNative`
+plugin (`lib/native/clock.ts`); see [native-bridge.md](native-bridge.md).
+
 ## Asking old apps to update
 
 `NativeUpdateGate` (mounted in the root layout) reads the version from `useNative()` and

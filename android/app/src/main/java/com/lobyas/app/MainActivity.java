@@ -15,6 +15,8 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // The bridge is built in super.onCreate, so the app's own plugin is registered first.
+        registerPlugin(LobyasNativePlugin.class);
         super.onCreate(savedInstanceState);
         if (bridge != null) {
             bridge.setWebViewClient(new ConnectionErrorWebViewClient(bridge));

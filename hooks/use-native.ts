@@ -2,6 +2,7 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 import { hasCapability, type Capability } from "@/lib/native/capabilities";
+import { clockUses24Hours, subscribeToClock } from "@/lib/native/clock";
 import { parseShell, type Shell } from "@/lib/native/shell";
 
 const subscribe = () => () => {};
@@ -23,4 +24,10 @@ export function useHasCapability(capability: Capability): boolean {
     () => hasCapability(capability),
     () => false,
   );
+}
+
+/** True when the phone is set to a 24-hour clock. Before the app answers, and in a browser, it is
+ *  the language's default. */
+export function useClock24h(): boolean {
+  return useSyncExternalStore(subscribeToClock, clockUses24Hours, () => false);
 }

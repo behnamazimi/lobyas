@@ -8,6 +8,7 @@ type Entry = { plugin: string; platform?: "ios" | "android" };
 const CAPABILITIES = {
   app: { plugin: "App" },
   appSettings: { plugin: "NativeSettings" },
+  clock: { plugin: "LobyasNative" },
   appleSignIn: { plugin: "SocialLogin", platform: "ios" },
   browser: { plugin: "Browser" },
   haptics: { plugin: "Haptics" },

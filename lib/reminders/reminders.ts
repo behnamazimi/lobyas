@@ -59,10 +59,11 @@ export function validateReminders(value: unknown): Reminder[] | null {
   return parsed.length === value.length ? parsed : null;
 }
 
-export function formatReminderTime(time: string): string {
+/** "19:05" as the person reads it: "7:05 PM", or "19:05" on a 24-hour clock. */
+export function formatReminderTime(time: string, is24Hour: boolean): string {
+  if (is24Hour) return time;
   const [hour, minute] = time.split(":").map(Number);
-  const suffix = hour < 12 ? "AM" : "PM";
-  return `${hour % 12 === 0 ? 12 : hour % 12}:${String(minute).padStart(2, "0")} ${suffix}`;
+  return `${hour % 12 === 0 ? 12 : hour % 12}:${String(minute).padStart(2, "0")} ${hour < 12 ? "AM" : "PM"}`;
 }
 
 export function formatReminderDays(days: number[]): string {
@@ -75,14 +76,19 @@ export function formatReminderDays(days: number[]): string {
 
 /** "Today at 7:00 PM", "Tomorrow at 7:00 PM" or "Wed at 7:00 PM": when the
  *  reminder next goes off, counting from `now` in the device's local time. */
-export function formatNextReminder(time: string, days: number[], now: Date): string | null {
+export function formatNextReminder(
+  time: string,
+  days: number[],
+  now: Date,
+  is24Hour: boolean,
+): string | null {
   const [hour, minute] = time.split(":").map(Number);
   for (let ahead = 0; ahead <= 7; ahead++) {
     const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + ahead, hour, minute);
     const isoDay = date.getDay() === 0 ? 7 : date.getDay();
     if (date <= now || !days.includes(isoDay)) continue;
     const label = ahead === 0 ? "Today" : ahead === 1 ? "Tomorrow" : WEEKDAYS[isoDay - 1].short;
-    return `${label} at ${formatReminderTime(time)}`;
+    return `${label} at ${formatReminderTime(time, is24Hour)}`;
   }
   return null;
 }

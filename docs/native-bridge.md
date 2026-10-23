@@ -41,6 +41,12 @@ version.
 | App comes to the foreground                              | native tells | `appStateChange`                                           |
 | A reminder was tapped                                    | native tells | `localNotificationActionPerformed`                         |
 
+The app's own plugin is `LobyasNative` (`LobyasNativePlugin.java` on Android, `LobyasNativePlugin.swift`
+on iOS). It currently has one method, `getClock()`, which `lib/native/clock.ts` wraps: the phone's 12 or
+24-hour setting, which the page can't read (its locale follows the language, not that toggle).
+`useClock24h()` gives it to components; the reminder times and the "Next reminder" line follow it, and
+an app without the plugin falls back to the language's default.
+
 Native code owned by the app today: `MainActivity.java` (flushes cookies on pause, keeps a
 failed connection from replacing a working page) and the iOS delegates.
 

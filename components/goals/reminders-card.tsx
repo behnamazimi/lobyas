@@ -6,7 +6,7 @@ import { saveRemindersAction } from "@/app/(private)/app/goals/actions";
 import { Banner, Pill, SectionCard } from "@/components/kit";
 import { useToast } from "@/components/ui/toast";
 import { useMountEffect } from "@/hooks/use-mount-effect";
-import { useHasCapability } from "@/hooks/use-native";
+import { useClock24h, useHasCapability } from "@/hooks/use-native";
 import { openNotificationSettings } from "@/lib/native/app-settings";
 import { onAppResume } from "@/lib/native/events";
 import {
@@ -36,6 +36,7 @@ function newReminder(): Reminder {
 export function RemindersCard({ initial }: { initial: Reminder[] }) {
   const { toast } = useToast();
   const supported = useHasCapability("notifications");
+  const is24Hour = useClock24h();
   const [permission, setPermission] = useState<NotificationPermission>("prompt");
   const [reminders, setReminders] = useState(initial);
   const [editing, setEditing] = useState<{ reminder: Reminder; isNew: boolean } | null>(null);
@@ -117,7 +118,7 @@ export function RemindersCard({ initial }: { initial: Reminder[] }) {
               className="flex min-h-14 min-w-0 flex-1 flex-col items-start justify-center gap-0.5 py-3 text-left"
             >
               <span className="text-base font-extrabold tabular-nums">
-                {formatReminderTime(reminder.time)}
+                {formatReminderTime(reminder.time, is24Hour)}
               </span>
               <span className="text-[13px] font-semibold text-muted">
                 {formatReminderDays(reminder.days)}
@@ -126,7 +127,7 @@ export function RemindersCard({ initial }: { initial: Reminder[] }) {
             <input
               type="checkbox"
               role="switch"
-              aria-label={`Reminder at ${formatReminderTime(reminder.time)}`}
+              aria-label={`Reminder at ${formatReminderTime(reminder.time, is24Hour)}`}
               className="toggle shrink-0 border-muted/50 text-muted checked:border-mastered checked:bg-mastered checked:text-white"
               checked={reminder.enabled}
               disabled={isSaving}
