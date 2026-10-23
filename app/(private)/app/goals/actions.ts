@@ -27,13 +27,13 @@ export async function getGoalsPageData() {
   const auth = await requireAuthenticatedClient();
   if ("error" in auth) return { error: "Log in to set your daily goals." as const };
 
-  const collection = await loadGoalCollection(auth.supabase, auth.user.id);
-  if (!collection) return { collection: null };
-
-  const [settings, day] = await Promise.all([
+  const [collection, settings] = await Promise.all([
+    loadGoalCollection(auth.supabase, auth.user.id),
     getRequestGoalSettings(auth.user.id),
-    loadGoalDay(auth.supabase, collection.id),
   ]);
+  if (!collection) return { collection: null, settings };
+
+  const day = await loadGoalDay(auth.supabase, collection.id);
   return { collection, settings, day };
 }
 

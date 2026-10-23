@@ -41,6 +41,7 @@ export function useReviewWriteQueue(options: {
       id: crypto.randomUUID(),
       termId,
       grade,
+      collectionId: options.collectionId,
       ...(visit > 0 ? { visit } : {}),
     };
     const isRetry = (write.visit ?? 0) > 0;
@@ -59,7 +60,7 @@ export function useReviewWriteQueue(options: {
       onSettled: (result, outcome) => {
         if (outcome === "success") {
           // A retry is the same term again, not another term done.
-          if (!isRetry) tickGoal(options.collectionId, "review", termId);
+          if (!isRetry && write.collectionId) tickGoal(write.collectionId, "review", termId);
           setPendingWrites((prev) => {
             const next = prev.filter((w) => w.id !== write.id);
             savePendingReviewWrites(next);

@@ -142,7 +142,7 @@ export function GoalsPage({
         <Divider className="mx-0 my-0" />
         <ToggleRow
           label="Use these goals in every collection"
-          description="Sets them in every collection now, and in collections you add later."
+          description="Saving copies them to every collection, and to ones you add later."
           checked={applyToAll}
           onChange={setApplyToAll}
         />

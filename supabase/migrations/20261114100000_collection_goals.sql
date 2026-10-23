@@ -124,6 +124,9 @@ end;
 $$;
 
 revoke all on function public.set_collection_goal_tiers(uuid, uuid, jsonb, text[]) from public;
+-- Supabase grants new functions to anon and authenticated apart from `public`.
+revoke execute on function public.set_collection_goal_tiers(uuid, uuid, jsonb, text[])
+  from anon, authenticated;
 
 -- Distinct terms of one collection (every collection when none is given), by
 -- tier, on the member's local day. A term
@@ -183,6 +186,7 @@ as $$
 $$;
 
 revoke all on function public.goal_day_counts(uuid, uuid) from public;
+revoke execute on function public.goal_day_counts(uuid, uuid) from anon, authenticated;
 grant execute on function public.goal_day_counts(uuid, uuid) to service_role;
 
 drop function public.goal_day_counts(uuid);
@@ -227,6 +231,7 @@ end;
 $$;
 
 revoke all on function public.my_get_goal_day(uuid) from public;
+revoke execute on function public.my_get_goal_day(uuid) from anon;
 grant execute on function public.my_get_goal_day(uuid) to authenticated;
 
 -- Records a tier of one collection as celebrated today and returns true, but
@@ -310,6 +315,7 @@ end;
 $$;
 
 revoke all on function public.my_claim_goal_celebration(uuid, text, boolean) from public;
+revoke execute on function public.my_claim_goal_celebration(uuid, text, boolean) from anon;
 grant execute on function public.my_claim_goal_celebration(uuid, text, boolean) to authenticated;
 
 -- Saves a collection's goals. With p_apply_all, p_tiers (all three when empty)
@@ -388,6 +394,7 @@ end;
 $$;
 
 revoke all on function public.my_save_collection_goals(uuid, jsonb, boolean, text[]) from public;
+revoke execute on function public.my_save_collection_goals(uuid, jsonb, boolean, text[]) from anon;
 grant execute on function public.my_save_collection_goals(uuid, jsonb, boolean, text[]) to authenticated;
 
 -- A collection the member adds or creates starts with their saved default.
@@ -425,6 +432,7 @@ end;
 $$;
 
 revoke all on function public.apply_new_collection_goals() from public;
+revoke execute on function public.apply_new_collection_goals() from anon, authenticated;
 
 create trigger collections_apply_goals
   after insert on public.collections
@@ -449,6 +457,7 @@ end;
 $$;
 
 revoke all on function public.drop_left_collection_goals() from public;
+revoke execute on function public.drop_left_collection_goals() from anon, authenticated;
 
 create trigger user_collections_drop_goals
   after delete on public.user_collections

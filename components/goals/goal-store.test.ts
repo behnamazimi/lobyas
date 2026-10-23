@@ -229,6 +229,17 @@ describe("goal store", () => {
       expect(claim).toHaveBeenCalledExactlyOnceWith(B, "review", false);
     });
 
+    it("claims a caught-up report that came before the collection loaded", async () => {
+      seed(0);
+      fetchDay.mockResolvedValue({ ok: true, json: async () => ({ name: "Beta", day: day(2) }) });
+      claim.mockResolvedValue({ claimed: true, day: day(2, ["review"]) });
+
+      goalCaughtUp(B, "review");
+      await settle();
+
+      expect(claim).toHaveBeenCalledExactlyOnceWith(B, "review", true);
+    });
+
     it("queues celebrations from different collections", async () => {
       seed(2);
       fetchDay.mockResolvedValue({ ok: true, json: async () => ({ name: "Beta", day: day(2) }) });

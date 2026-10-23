@@ -10,7 +10,6 @@ import { dropPendingQuizWrite, type PendingQuizWrite } from "@/lib/quiz/session-
  *  crash-recovery replay, and reports when it's safe to clear session
  *  storage (queue idle, session already marked complete). */
 export function useQuizWriteQueue(options: {
-  collectionId: string;
   setErrorMessage: (message: string | null) => void;
   onSessionIdleAfterComplete: () => void;
 }) {
@@ -42,7 +41,7 @@ export function useQuizWriteQueue(options: {
         }),
       onSettled: (result, outcome) => {
         if (outcome === "success") {
-          tickGoal(options.collectionId, "quiz", write.termId);
+          if (write.collectionId) tickGoal(write.collectionId, "quiz", write.termId);
           setPendingWrites((prev) => prev.filter((w) => w.id !== write.id));
           dropPendingQuizWrite(write.id);
         }

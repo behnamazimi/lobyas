@@ -55,7 +55,6 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     markSessionComplete,
     resetSession,
   } = useQuizWriteQueue({
-    collectionId,
     setErrorMessage,
     onSessionIdleAfterComplete: () => {
       clearQuizSession();
@@ -244,6 +243,7 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
       questions,
       practice,
       skipped,
+      collectionId,
     });
   }
 

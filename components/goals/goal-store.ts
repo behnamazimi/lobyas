@@ -16,7 +16,9 @@ import {
   creditTerm,
   dropCredits,
   rollOverCollections,
+  queueCaughtUp,
   scheduleRetry,
+  takeCaughtUp,
 } from "./goal-credits";
 import type { CollectionEntry, GoalCount, Seed, State } from "./goal-store-types";
 
@@ -98,11 +100,11 @@ export function setLiveGoals(next: { collectionId: string; name: string; day: Go
   setEntry(next.collectionId, { name: next.name, day: next.day });
 }
 
-/** After a change that reaches other collections ("all collections"), their
- *  goals here are stale, so they load again on next use. */
+/** After a change that reaches other collections, theirs load again on next use. */
 export function forgetOtherGoalCollections(keepId: string) {
   if (!state) return;
-  const kept = state.collections[keepId];
+  const { [keepId]: kept, ...others } = state.collections;
+  for (const id of Object.keys(others)) clearCredits(id);
   update({ collections: kept ? { [keepId]: kept } : {} });
 }
 
@@ -163,7 +165,8 @@ export function ensureGoalCollection(collectionId: string) {
       if (!body || !state || state.collections[collectionId]) return;
       setEntry(collectionId, { name: body.name, day: body.day });
       for (const tier of GOAL_TIERS) {
-        if (looksMet(collectionId, tier)) void claim(collectionId, tier, false, MAX_RETRIES);
+        if (takeCaughtUp(collectionId, tier)) goalCaughtUp(collectionId, tier);
+        else if (looksMet(collectionId, tier)) void claim(collectionId, tier, false, MAX_RETRIES);
       }
     })
     .finally(() => loading.delete(collectionId));
@@ -190,7 +193,10 @@ export function tickGoal(
 export function goalCaughtUp(collectionId: string, tier: GoalTier) {
   if (!state) return;
   rollOverIfNewDay();
-  ensureGoalCollection(collectionId);
+  if (!state.collections[collectionId]) {
+    queueCaughtUp(collectionId, tier);
+    return ensureGoalCollection(collectionId);
+  }
   if (isOpen(collectionId, tier) && localTotal(collectionId, tier) > 0) {
     void claim(collectionId, tier, true, 0);
   }

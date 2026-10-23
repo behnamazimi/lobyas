@@ -45,6 +45,17 @@ export function dropCredits(collectionId: string, tier: GoalTier, termIds: reado
   for (const id of termIds) set.delete(id);
 }
 
+/** "Ran out of terms" reports that came before the collection's goals loaded. */
+const waitingCaughtUp = new Set<string>();
+
+export function queueCaughtUp(collectionId: string, tier: GoalTier) {
+  waitingCaughtUp.add(creditKey(collectionId, tier));
+}
+
+export function takeCaughtUp(collectionId: string, tier: GoalTier) {
+  return waitingCaughtUp.delete(creditKey(collectionId, tier));
+}
+
 const retryTimers = new Map<string, ReturnType<typeof setTimeout>>();
 
 export function cancelRetry(collectionId: string, tier: GoalTier) {
@@ -59,6 +70,7 @@ export function scheduleRetry(collectionId: string, tier: GoalTier, run: () => v
 /** Forgets one collection's credits and pending retries, or everyone's. */
 export function clearCredits(collectionId?: string) {
   const mine = (key: string) => !collectionId || key.startsWith(`${collectionId}:`);
+  for (const key of waitingCaughtUp) if (mine(key)) waitingCaughtUp.delete(key);
   for (const map of [seen, credited]) {
     for (const key of map.keys()) if (mine(key)) map.delete(key);
   }

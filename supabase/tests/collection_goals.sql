@@ -70,6 +70,12 @@ begin
   select * into v_counts from public.goal_day_counts(u);
   assert v_counts.read_count = 2 and v_counts.reviewed_count = 1, 'no collection counts all of them';
 
+  -- Only the my_* wrappers are callable by members; the p_user_id helpers are not.
+  assert not has_function_privilege('authenticated', 'public.set_collection_goal_tiers(uuid,uuid,jsonb,text[])', 'execute'), 'members can write anyone''s goals';
+  assert not has_function_privilege('anon', 'public.set_collection_goal_tiers(uuid,uuid,jsonb,text[])', 'execute'), 'anon can write anyone''s goals';
+  assert not has_function_privilege('authenticated', 'public.goal_day_counts(uuid,uuid)', 'execute'), 'members can read anyone''s counts';
+  assert not has_function_privilege('anon', 'public.my_claim_goal_celebration(uuid,text,boolean)', 'execute'), 'anon can claim';
+
   perform pg_temp.act_as(u);
 
   -- A save to one collection leaves the others without goals.
