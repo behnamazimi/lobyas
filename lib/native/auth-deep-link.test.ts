@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { NATIVE_AUTH_REDIRECT, parseAuthDeepLink } from "./auth-deep-link";
+import { parseAuthDeepLink } from "./auth-deep-link";
+import { NATIVE_AUTH_REDIRECT } from "./contract";
 
 describe("parseAuthDeepLink", () => {
   it("maps the sign-in link to the web callback with the code and a safe next", () => {

@@ -1,4 +1,4 @@
-type ShellOs = "ios" | "android";
+import { SHELL_ATTRIBUTE, SHELL_NAME, type ShellOs } from "./contract";
 
 export type Shell =
   | { native: false }
@@ -10,7 +10,9 @@ export type Shell =
  * change sends `LobyasApp/<os>` or plain `LobyasApp`, so the os or the version
  * can be unknown.
  */
-const SHELL_USER_AGENT = /LobyasApp(?:\/(ios|android)(?:\/(\d+\.\d+\.\d+))?)?/;
+const SHELL_USER_AGENT = new RegExp(
+  `${SHELL_NAME}(?:\\/(ios|android)(?:\\/(\\d+\\.\\d+\\.\\d+))?)?`,
+);
 
 const NOT_NATIVE: Shell = { native: false };
 
@@ -24,8 +26,6 @@ export function parseShell(userAgent: string): Shell {
   };
 }
 
-const SHELL_ATTRIBUTE = "data-shell";
-
 /** Cached pages can't read the user agent on the server, so it is copied to
  *  <html> before paint, for CSS (`native-app:`, `ios-app:`, `android-app:`). */
 export const SHELL_RESTORE_SCRIPT = `try{var m=/${SHELL_USER_AGENT.source}/.exec(navigator.userAgent);if(m)document.documentElement.setAttribute("${SHELL_ATTRIBUTE}",m[1]||"app")}catch(e){}`;
@@ -33,7 +33,3 @@ export const SHELL_RESTORE_SCRIPT = `try{var m=/${SHELL_USER_AGENT.source}/.exec
 export function isNativeShell(): boolean {
   return typeof navigator !== "undefined" && parseShell(navigator.userAgent).native;
 }
-
-/** Sent by the app's WebView on calls only it should make; a cross-site form can't set a custom header.
- *  The user agent is a hint for the UI and is never proof of the app. */
-export const NATIVE_REQUEST_HEADER = "x-lobyas-native";

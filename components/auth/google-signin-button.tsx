@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { signInWithGoogle } from "@/lib/auth/oauth-actions";
 import { Button } from "@/components/ui/button";
-import { isNativeShell, NATIVE_REQUEST_HEADER } from "@/lib/native/shell";
+import { NATIVE_REQUEST_HEADER } from "@/lib/native/contract";
+import { isNativeShell } from "@/lib/native/shell";
 
 type GoogleSignInButtonProps = {
   next?: string;

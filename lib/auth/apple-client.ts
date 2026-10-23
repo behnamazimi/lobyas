@@ -1,3 +1,5 @@
+import { APP_ID } from "@/lib/native/contract";
+
 const APPLE_JS_URL =
   "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 
@@ -50,7 +52,7 @@ export async function isNativeAppleAvailable(): Promise<boolean> {
 async function nativeCredential(): Promise<AppleCredential> {
   const nonce = await createNonce();
   const { SocialLogin } = await import("@capgo/capacitor-social-login");
-  await SocialLogin.initialize({ apple: { clientId: "com.lobyas.app" } });
+  await SocialLogin.initialize({ apple: { clientId: APP_ID } });
   try {
     const { result } = await SocialLogin.login({
       provider: "apple",

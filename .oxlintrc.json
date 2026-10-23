@@ -6,7 +6,23 @@
   },
   "rules": {
     "max-lines": ["error", 280],
-    "complexity": ["error", { "max": 15 }]
+    "complexity": [
+      "error",
+      {
+        "max": 15
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@capacitor/*", "@capgo/*", "capacitor-native-settings"],
+            "message": "Native calls go through lib/native (see docs/native-bridge.md)."
+          }
+        ]
+      }
+    ]
   },
   "env": {
     "builtin": true
@@ -37,6 +53,22 @@
       "files": ["components/illustrations/scenes/**"],
       "rules": {
         "max-lines": ["error", 500]
+      }
+    },
+    {
+      "files": [
+        "lib/native/**",
+        "capacitor.config.ts",
+        "components/auth/google-signin-button.tsx",
+        "components/native/native-auth-bridge.tsx",
+        "components/native/native-splash.tsx",
+        "components/native/native-system-bars.tsx",
+        "lib/auth/apple-client.ts",
+        "lib/feedback/haptics.ts",
+        "lib/reminders/native.ts"
+      ],
+      "rules": {
+        "no-restricted-imports": "off"
       }
     }
   ]

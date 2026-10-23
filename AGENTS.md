@@ -381,9 +381,10 @@ The Android and iOS apps are a Capacitor shell that loads the live site
 (`capacitor.config.ts`, `native/`, `ios/`, `android/`, `fastlane/`,
 `.github/workflows/mobile.yml`, `lib/native/`). Read [docs/mobile.md](docs/mobile.md)
 before touching any of them. Native releases are one command, `pnpm mobile:release`
-(CI builds from the tag; see "Releasing" in that doc). Web code detects the app with `isNativeShell()`
-and loads plugins with a dynamic `import()`, because an installed app can be
-older than the web code.
+(CI builds from the tag; see "Releasing" in that doc). Web code never imports a Capacitor plugin itself: everything it says to the
+native layer, or hears from it, goes through `lib/native/` (lint enforces it). Read
+[docs/native-bridge.md](docs/native-bridge.md) before adding a native call. An installed
+app can be older than the web code, so every call must cope with "unavailable".
 
 # Reminders
 

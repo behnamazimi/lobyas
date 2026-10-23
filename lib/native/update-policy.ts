@@ -1,3 +1,4 @@
+import { APP_ID } from "./contract";
 import type { UpdatePolicy } from "./version";
 
 /**
@@ -10,7 +11,7 @@ export const UPDATE_POLICY: UpdatePolicy = {
   required: "0.0.0",
 };
 
-const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.lobyas.app";
+const PLAY_STORE_URL = `https://play.google.com/store/apps/details?id=${APP_ID}`;
 
 // Set to `https://apps.apple.com/app/id<App Store ID>` once the listing exists.
 const APP_STORE_URL: string | null = null;
