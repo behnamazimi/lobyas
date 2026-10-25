@@ -49,11 +49,20 @@ export const loadLibraryCollections = cache(async function loadLibraryCollection
   userId: string,
 ): Promise<LibraryCollections> {
   const loadedAt = Date.now();
-  const list = await loadLibraryCollectionList(client, userId);
-  const stats = await fetchCollectionStats(
-    client,
-    list.map(({ row }) => row.id),
-  );
+  let stage = "collection list";
+  let list: Awaited<ReturnType<typeof loadLibraryCollectionList>>;
+  let stats: Awaited<ReturnType<typeof fetchCollectionStats>>;
+  try {
+    list = await loadLibraryCollectionList(client, userId);
+    stage = "collection stats";
+    stats = await fetchCollectionStats(
+      client,
+      list.map(({ row }) => row.id),
+    );
+  } catch (error) {
+    console.error(`Loading collections failed at ${stage} after ${Date.now() - loadedAt}ms`, error);
+    throw error;
+  }
   const collections = list.map(({ row, isActiveForReview }) => {
     const rowStats = stats.get(row.id);
     return mapCollection(row, {

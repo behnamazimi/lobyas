@@ -18,6 +18,7 @@ async function fetchPageWithRetry<Row>(
 ): Promise<PageResult<Row>> {
   const first = await fetchPage(from, from + PAGE_SIZE - 1);
   if (!first.error) return first;
+  console.warn(`Page at row ${from} failed, retrying: ${first.error.message}`);
   await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
   return fetchPage(from, from + PAGE_SIZE - 1);
 }
