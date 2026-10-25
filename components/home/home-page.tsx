@@ -9,6 +9,7 @@ import { CURRENT_COLLECTION_COOKIE, parseCurrentCollectionId } from "@/lib/colle
 import { EMPTY_GOAL_DAY, loadGoalDay } from "@/lib/goals/settings";
 import { loadLibraryCollections } from "@/lib/library/load";
 import { HomeBareHeader } from "./home-header";
+import { HomeRetryButton } from "./home-retry-button";
 import { HomeSkeleton } from "./home-skeleton";
 import { HomeStudy } from "./home-study";
 import type { ShellCollection } from "@/components/app/shell/shell-context";
@@ -51,7 +52,10 @@ async function HomeContent() {
   if (!user) redirect("/login");
 
   const [library, cookieStore] = await Promise.all([
-    loadLibraryCollections(supabase, user.id).catch(() => null),
+    loadLibraryCollections(supabase, user.id).catch((error: unknown) => {
+      console.error("Home couldn't load collections", error);
+      return null;
+    }),
     cookies(),
   ]);
 
@@ -62,7 +66,7 @@ async function HomeContent() {
           className="my-auto"
           title="Home couldn’t load"
           description="Your collections didn’t come through. Try again in a moment."
-          actions={<Pill href="/app">Try again</Pill>}
+          actions={<HomeRetryButton />}
         />
       </Bare>
     );
