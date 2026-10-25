@@ -90,6 +90,14 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
     startLockout();
   }
 
+  function giveUp() {
+    if (stateRef.current.state.phase !== "answering") return;
+    dispatch({ type: "SUBMIT", passed: false });
+    feedback("answer-wrong");
+    if (isTextEntryTarget(document.activeElement)) (document.activeElement as HTMLElement).blur();
+    startLockout();
+  }
+
   function advanceAnswer() {
     const current = stateRef.current;
     if (current.state.phase !== "ready") return;
@@ -154,6 +162,7 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
       })
     : null;
   const isDictation = question.interaction === "text" && question.dictation;
+  const isTyped = question.interaction === "text" && !question.dictation;
 
   return (
     <div className="study-enter flex min-h-0 flex-1 flex-col gap-2">
@@ -191,6 +200,15 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
               className="mx-auto min-h-11 px-3.5 text-[15px] font-extrabold text-read-text"
             >
               Can&apos;t listen now
+            </button>
+          ) : isTyped ? (
+            <button
+              type="button"
+              onClick={giveUp}
+              onMouseDown={(event) => event.preventDefault()}
+              className="mx-auto min-h-11 px-3.5 text-[15px] font-extrabold text-read-text"
+            >
+              I don&apos;t know
             </button>
           ) : null
         }
