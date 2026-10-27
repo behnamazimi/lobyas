@@ -2,7 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { AdminError } from "@/lib/admin/admin-error";
 import type { Database } from "@/lib/supabase/database.types";
 import { isNarrationEnabled } from "./feature";
-import { listMissingNarrationTermIds } from "./sync-missing";
+import { PROVIDER_LABELS } from "@/lib/ai/speech/labels";
+import type { SpeechProvider } from "@/lib/ai/speech/provider";
+import { listMissingNarrationTermIds, listTermIdsNotMadeBy } from "./sync-missing";
 import {
   isNarrationSyncLeaseStale,
   NARRATION_SYNC_ACTIVE_STATUSES,
@@ -87,6 +89,7 @@ export async function enqueueNarrationSync(
   admin: AdminClient,
   collectionId: string,
   startedBy: string,
+  provider?: SpeechProvider,
 ): Promise<NarrationSyncJobView> {
   if (!(await isNarrationEnabled(admin))) {
     throw new AdminError("Narration is turned off.");
@@ -96,9 +99,15 @@ export async function enqueueNarrationSync(
     throw new AdminError("A sync is already running.");
   }
 
-  const termIds = await listMissingNarrationTermIds(admin, collectionId);
+  const termIds = provider
+    ? await listTermIdsNotMadeBy(admin, collectionId, provider)
+    : await listMissingNarrationTermIds(admin, collectionId);
   if (termIds.length === 0) {
-    throw new AdminError("No missing audio in that collection.");
+    throw new AdminError(
+      provider
+        ? `Every clip in that collection is already made by ${PROVIDER_LABELS[provider]}.`
+        : "No missing audio in that collection.",
+    );
   }
 
   const { data: collection, error: collectionError } = await admin

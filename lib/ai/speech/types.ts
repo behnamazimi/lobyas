@@ -1,6 +1,7 @@
 import type { CollectionLanguage } from "@/lib/terms/languages";
 import type { Database } from "@/lib/supabase/database.types";
 import type { ProviderCall } from "./provider";
+import type { NarrationRoute } from "./routes";
 
 export type AudioJob = Database["public"]["Tables"]["audio_jobs"]["Row"];
 
@@ -10,6 +11,8 @@ export type AudioJob = Database["public"]["Tables"]["audio_jobs"]["Row"];
 export type SpeechSubject = {
   type: "term" | "story";
   id: string;
+  /** Which provider setting applies: terms of a vocabulary collection, other terms, or stories. */
+  route: NarrationRoute;
   /** The story's owner. Terms are shared, so it is null for them. */
   userId: string | null;
   /** Hash of the current version. New clips are made with it. */

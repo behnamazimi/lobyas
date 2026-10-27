@@ -148,11 +148,17 @@ const encodedAudio: Route = ({ path, res }) => {
   json(res, 200, { encodedAudio: MP3.toString("base64") });
 };
 
+const googleAudio: Route = ({ path, res }) => {
+  requests.push({ service: "narration", path });
+  json(res, 200, { audioContent: MP3.toString("base64") });
+};
+
 function service(path: string): Route | undefined {
   if (path.includes(":generateContent")) return llm;
   if (path === "/emails") return email;
   if (path.startsWith("/v1/text-to-speech/") || path === "/v1/speech/stream") return rawAudio;
   if (path === "/v1/speech/generate") return encodedAudio;
+  if (path === "/v1/text:synthesize") return googleAudio;
   return undefined;
 }
 

@@ -12,6 +12,16 @@ describe("renderPauses", () => {
     expect(renderPauses(script, "elevenlabs")).toBe("One.  -- --  Two.  -- --  Three.");
   });
 
+  it("writes every pause as an SSML break", () => {
+    expect(renderPauses(script, "google")).toBe(
+      'One. <break time="1s"/> Two. <break time="1s"/> Three.',
+    );
+  });
+
+  it("writes every pause as a Gemini tag", () => {
+    expect(renderPauses(script, "gemini")).toBe("One. [long pause] Two. [long pause] Three.");
+  });
+
   it("drops the pauses and their spacing for a voice that doesn't use them", () => {
     expect(renderPauses(script, "none")).toBe("One. Two. Three.");
   });

@@ -12,6 +12,8 @@ import {
   getLastNarrationSyncJob,
   kickNarrationSyncWorker,
 } from "@/lib/narration/sync";
+import type { SpeechProvider } from "@/lib/ai/speech/provider";
+import type { NarrationRoute } from "@/lib/ai/speech/routes";
 import { capsSchema, type CapsInput } from "@/lib/narration/caps-schema";
 import { isActiveNarrationSyncStatus } from "@/lib/narration/sync-shared";
 import {
@@ -38,6 +40,19 @@ export async function setNarrationEnabled(value: boolean) {
   return runAdminAction(
     async ({ supabase }) => {
       const { error } = await supabase.rpc("admin_set_narration_enabled", { p_enabled: value });
+      if (error) throw error;
+    },
+    { revalidate: REVALIDATE },
+  );
+}
+
+export async function setNarrationRoute(route: NarrationRoute, provider: SpeechProvider) {
+  return runAdminAction(
+    async ({ supabase }) => {
+      const { error } = await supabase.rpc("admin_set_narration_route", {
+        p_route: route,
+        p_provider: provider,
+      });
       if (error) throw error;
     },
     { revalidate: REVALIDATE },

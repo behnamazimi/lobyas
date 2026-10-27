@@ -4,7 +4,9 @@ import { computeNarrationHash } from "@/lib/narration/content-hash-v2";
 import { getNarrationMode } from "@/lib/narration/mode";
 import { buildNarrationScript } from "@/lib/narration/template";
 import type { NarratedTermFields } from "@/lib/narration/types";
+import { parseKind } from "@/lib/terms/kinds";
 import { parseLanguage } from "@/lib/terms/languages";
+import { routeForCollection } from "./routes";
 import { getStoryForUser } from "@/lib/stories/repository";
 import { buildStoryScript } from "@/lib/stories/script";
 import type { Database } from "@/lib/supabase/database.types";
@@ -13,7 +15,7 @@ import type { SpeechSubject } from "./types";
 type Client = SupabaseClient<Database>;
 
 const TERM_COLUMNS =
-  "collection_id, term, definition, example, mental_model, discussion, anti_example, controversy, collections(language)";
+  "collection_id, term, definition, example, mental_model, discussion, anti_example, controversy, collections(language, kind)";
 
 /** Stories never change once written, so a constant stands in for a hash. The
  *  version 1 value is what the earlier mirror wrote. */
@@ -39,6 +41,7 @@ export async function loadTermSubject(
   return {
     type: "term",
     id: termId,
+    route: routeForCollection(parseKind(collections?.kind)),
     userId: null,
     contentHash: computeNarrationHash(mode, narrated, language),
     // Only full clips can still be the older version 1 ones.
@@ -66,6 +69,7 @@ export async function loadStorySubject(
   return {
     type: "story",
     id: storyId,
+    route: "story",
     userId,
     contentHash: STORY_HASH,
     legacyHash: STORY_LEGACY_HASH,

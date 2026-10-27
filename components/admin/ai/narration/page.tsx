@@ -11,6 +11,10 @@ import { AdminSettingRow } from "@/components/admin/admin-setting-row";
 import { AdminSwitch } from "@/components/admin/admin-switch";
 import { AllowlistManager } from "@/components/admin/ai/narration/allowlist-manager";
 import { AdminNarrationCaps } from "@/components/admin/ai/narration/caps";
+import { RouteSelect } from "@/components/admin/ai/narration/route-select";
+import { PROVIDER_LABELS } from "@/lib/ai/speech/labels";
+import { NARRATION_ROUTES, ROUTE_LABELS } from "@/lib/ai/speech/routes";
+import type { SpeechProvider } from "@/lib/ai/speech/provider";
 import type { NarrationSettings } from "@/lib/admin/narration/narration-settings";
 import type { AdminNarrationAllowlistRow } from "@/lib/admin/narration/list-narration-allowlist";
 import {
@@ -25,7 +29,8 @@ type AdminNarrationPageClientProps = {
   usageLast24h: NarrationSettings["usageLast24h"];
   enabled: boolean;
   providers: NarrationSettings["providers"];
-  providerKeys: NarrationSettings["providers"];
+  routes: NarrationSettings["routes"];
+  providerKeys: Record<SpeechProvider, boolean>;
   allowlist: AdminNarrationAllowlistRow[];
   lastJob: NarrationSyncJobView | null;
 };
@@ -37,6 +42,7 @@ export function AdminNarrationPageClient({
   usageLast24h,
   enabled,
   providers,
+  routes,
   providerKeys,
   allowlist,
   lastJob,
@@ -68,9 +74,25 @@ export function AdminNarrationPageClient({
         }
       />
 
+      {NARRATION_ROUTES.map((route) => (
+        <AdminSettingRow
+          key={route}
+          title={`Voice for ${ROUTE_LABELS[route].toLowerCase()}`}
+          description="Makes every new clip of this kind. The other providers stay as fallbacks if it fails."
+          notes={
+            providerKeys[routes[route]] ? null : (
+              <p className="m-0 mt-1 text-sm text-warning">
+                {PROVIDER_LABELS[routes[route]]} has no API key, so it is skipped.
+              </p>
+            )
+          }
+          control={<RouteSelect route={route} provider={routes[route]} />}
+        />
+      ))}
+
       <AdminSettingRow
         title="Murf"
-        description="The main provider. Used first whenever it is on."
+        description="Falcon 2 voices. Not available for Russian or Turkish."
         notes={
           providerKeys.murf ? null : (
             <p className="m-0 mt-1 text-sm text-warning">Missing MURF_API_KEY, so it is skipped.</p>
@@ -86,7 +108,7 @@ export function AdminNarrationPageClient({
       />
       <AdminSettingRow
         title="ElevenLabs"
-        description="The fallback. Used when Murf is off, not set up or fails."
+        description="One voice for every language."
         notes={
           providerKeys.elevenlabs ? null : (
             <p className="m-0 mt-1 text-sm text-warning">
