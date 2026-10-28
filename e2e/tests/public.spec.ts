@@ -5,6 +5,23 @@ import { gotoReady } from "../support/navigation";
 import { createReferralCode } from "../support/users";
 
 test.describe("Public pages", () => {
+  // The auth pages are rendered per request, so a visitor only loads them by clicking.
+  test("the landing page does not prefetch the auth pages", async ({ page }) => {
+    const prefetched: string[] = [];
+    page.on("request", (request) => {
+      if (request.headers()["next-router-prefetch"]) {
+        prefetched.push(new URL(request.url()).pathname);
+      }
+    });
+    await gotoReady(page, "/");
+    await expect.poll(() => prefetched).toContain("/features");
+    await page.waitForLoadState("networkidle");
+
+    expect(
+      prefetched.filter((path) => ["/login", "/signup", "/request-access"].includes(path)),
+    ).toEqual([]);
+  });
+
   test("a public collection page shows its terms and a way to join", async ({ page }) => {
     await page.goto("/collections/standup");
     await expect(page.getByRole("heading", { name: "Standup", level: 1 })).toBeVisible();

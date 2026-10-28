@@ -37,7 +37,6 @@ vi.mock("@/app/(private)/auth/actions", () => ({
 }));
 vi.mock("@/lib/supabase/admin", () => ({ createAdminClient: () => ({}) }));
 vi.mock("@/lib/llm/access", () => ({ getAiAccessView: async () => ({}) }));
-vi.mock("@/lib/widget/tokens", () => ({}));
 vi.mock("@/lib/issues/storage", () => ({
   deleteUserScreenshots: async () => undefined,
 }));

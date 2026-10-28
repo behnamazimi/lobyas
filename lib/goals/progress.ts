@@ -45,13 +45,8 @@ export function allGoalsMet(progress: GoalProgress): boolean {
   return set.length > 0 && set.every((tier) => progress[tier].met);
 }
 
-/** The next tier with an open goal, in Read → Review → Quiz order starting
- *  after the current one. */
-export function nextOpenTier(progress: GoalProgress, current: GoalTier): GoalTier | null {
-  const start = GOAL_TIERS.indexOf(current);
-  for (let offset = 1; offset < GOAL_TIERS.length; offset++) {
-    const tier = GOAL_TIERS[(start + offset) % GOAL_TIERS.length];
-    if (progress[tier].goal !== null && !progress[tier].met) return tier;
-  }
-  return null;
+/** The first tier with an open goal in Read → Review → Quiz order, whichever
+ *  tier the learner started the day with. */
+export function nextOpenTier(progress: GoalProgress): GoalTier | null {
+  return GOAL_TIERS.find((tier) => progress[tier].goal !== null && !progress[tier].met) ?? null;
 }

@@ -26,6 +26,7 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
     setQuestionCount,
     setQuestionCountInput,
     setErrorMessage,
+    collectionId,
     collectionIds,
     questionCount,
   } = setup;
@@ -242,6 +243,7 @@ export function useQuizPlaying(setup: ReturnType<typeof useQuizSetup>) {
       questions,
       practice,
       skipped,
+      collectionId,
     });
   }
 

@@ -48,6 +48,7 @@ export function QuizPage({ ai, collections, paused, initialSetup }: QuizPageProp
     case "results":
       return (
         <QuizResults
+          collectionId={quiz.collectionId}
           score={quiz.score}
           total={quiz.resultsTotal}
           practice={quiz.practice}

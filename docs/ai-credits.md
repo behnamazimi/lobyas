@@ -165,16 +165,18 @@ characters, has anything that looks like a key removed, and never includes a
 prompt or what the user wrote. The first reason stays if a refund is attempted
 twice.
 
-Every charged request has a time limit that is shorter than the platform's
-60-second limit, so a slow provider is reported and refunded instead of the
-request being killed:
+Every charged request has a time limit that is shorter than its route's limit,
+so a slow provider is reported and refunded instead of the request being
+killed. The Stories routes set `maxDuration = 60`; the Quiz page and term
+narration run under the platform's 300-second default, so Vercel keeps them in
+the same function as the rest of the app.
 
 - AI quizzes give up after 45 seconds (`lib/quiz/generate.ts`) and stories after
   55 (`lib/stories/generate.ts`). In both, the app retries once at most, only
   for a failure a second attempt can fix and only while time remains, and the
   AI SDK's own retries are off. Both attempts share the one limit.
 - Each speech provider gives up after 25 seconds, so Murf and then ElevenLabs
-  still fit in a narration route's 60 seconds.
+  still fit in the story narration route's 60 seconds.
 
 A request that is killed outright anyway, for example when the server process
 dies between the charge and the refund, still leaves the credits spent. Nothing
@@ -239,8 +241,8 @@ Set these server-only environment variables, listed in `.env-template`:
 Apply the migrations before you set the key. If the key is set on a deployment
 that doesn't have the migrations yet, the balance lookup fails and users see the
 same "AI isn't available" screens as before. Apply the two credit lots
-migrations with no AI request in flight (the run guard times out after 70
-seconds), so no charge or refund straddles the cutover.
+migrations with no AI request in flight (the run guard times out at most 310
+seconds after a run starts), so no charge or refund straddles the cutover.
 
 When someone uses AI credits, the terms, their definitions, and any outline the
 person writes are sent to the app's AI provider. The AI credits panel in
@@ -348,12 +350,16 @@ row means off.
 
 ## Running one request at a time
 
-Quiz and Stories take a per-user, per-feature guard (`begin_ai_run`) around the
-work, through the credits charge (`lib/ai/run-guard.ts`). It is taken before
-credits are reserved, so a refused duplicate is never charged. It catches a
-second tab or a direct duplicate request; clicks in one tab are already queued
-by Next. A request killed by the platform frees the guard after 70 seconds, and
-the user sees "busy" until then. If the guard can't be reached the request runs
+Quiz, Stories and term narration take a per-user, per-feature guard
+(`begin_ai_run`) around the work, through the credits charge where there is one
+(`lib/ai/run-guard.ts`). It is taken before credits are reserved, so a refused
+duplicate is never charged. It catches a second tab or a direct duplicate
+request; clicks in one tab are already queued by Next. The guard lasts 10
+seconds longer than the route's request limit: 70 seconds for Stories, whose
+route sets `maxDuration = 60`, and 310 for Quiz and term narration, which run
+under the 300-second default. So a request still running is never joined by a
+second one, and a request killed by the platform frees the guard soon after; the
+user sees "busy" until then. If the guard can't be reached the request runs
 without it. Story narration doesn't use it: winning the claim on the clip is its
 guard.
 

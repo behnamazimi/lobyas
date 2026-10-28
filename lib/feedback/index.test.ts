@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { feedback } from "@/lib/feedback";
-import { buzz } from "@/lib/feedback/haptics";
+import { buzz } from "@/lib/native/haptics";
 import { playSound } from "@/lib/feedback/sounds";
 
-vi.mock("@/lib/feedback/haptics", () => ({ buzz: vi.fn() }));
+vi.mock("@/lib/native/haptics", () => ({ buzz: vi.fn() }));
 vi.mock("@/lib/feedback/sounds", () => ({ playSound: vi.fn() }));
 
 describe("feedback", () => {

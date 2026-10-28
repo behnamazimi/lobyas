@@ -41,12 +41,14 @@ export function useQuizWriteQueue(options: {
         }),
       onSettled: (result, outcome) => {
         if (outcome === "success") {
-          tickGoal("quiz", write.termId);
+          if (write.collectionId) tickGoal(write.collectionId, "quiz", write.termId);
           setPendingWrites((prev) => prev.filter((w) => w.id !== write.id));
           dropPendingQuizWrite(write.id);
         }
         if (result.error) {
           options.setErrorMessage(result.error);
+        } else if (outcome === "success") {
+          options.setErrorMessage(null);
         }
         if (outcome === "exhausted") {
           toast("Couldn't save an answer. Return to Quiz to retry.", "destructive");

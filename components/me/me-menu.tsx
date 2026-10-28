@@ -17,6 +17,7 @@ import { markSignedOut, restoreSignedIn } from "@/lib/auth/auth-state";
 import { ISSUE_COPY } from "@/lib/issues/copy";
 import { LEGAL_LINKS } from "@/lib/site";
 import { applyTheme, DARK_THEME, LIGHT_THEME } from "@/lib/theme";
+import { clearReminders } from "@/lib/reminders/device";
 
 function subscribeToTheme(onChange: () => void) {
   const observer = new MutationObserver(onChange);
@@ -29,6 +30,9 @@ function readTheme(): string {
     ? DARK_THEME
     : LIGHT_THEME;
 }
+
+const LEGAL_LINK_CLASS =
+  "flex min-h-11 items-center text-sm font-semibold text-muted underline underline-offset-2 hover:text-muted";
 
 export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
   const { email, isAdmin, initialIsDark, streak } = useShell();
@@ -45,6 +49,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
     resetAnalytics();
     markSignedOut();
     try {
+      await clearReminders().catch(() => {});
       await logout();
     } catch {
       restoreSignedIn();
@@ -120,7 +125,7 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
         <ListRow
           href="/app/settings"
           label="Settings"
-          subline="AI credits, widget, account"
+          subline="AI credits, account"
           icon={icon(Settings)}
         />
         {isAdmin
@@ -174,15 +179,11 @@ export function MeMenu({ credits }: { credits: CreditsSummary | null }) {
       </SectionCard>
       <nav aria-label="Legal" className="flex flex-wrap items-center justify-center gap-x-5 px-2">
         {LEGAL_LINKS.map((link) => (
-          <a
-            key={link.href}
-            href={link.href}
-            className="flex min-h-11 items-center text-sm font-semibold text-muted underline underline-offset-2"
-          >
+          <a key={link.href} href={link.href} className={LEGAL_LINK_CLASS}>
             {link.label}
           </a>
         ))}
-        <ConsentSettingsButton className="flex min-h-11 items-center" />
+        <ConsentSettingsButton className={LEGAL_LINK_CLASS} />
       </nav>
       <ReportIssueSheet isOpen={reportOpen} onOpenChange={setReportOpen} />
       {credits ? (

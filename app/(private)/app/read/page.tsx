@@ -27,10 +27,6 @@ import { hasNoCollections } from "@/lib/study/collections";
 import type { StudyCollection } from "@/lib/study/types";
 import { withReveal } from "@/components/shared/view-transitions";
 
-// Narration generation (ElevenLabs) can take longer than the platform's
-// default Server Action timeout on a cache miss.
-export const maxDuration = 60;
-
 type PageProps = {
   searchParams: Promise<{
     termId?: string;

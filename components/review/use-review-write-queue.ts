@@ -18,6 +18,7 @@ import { useMountEffect } from "@/hooks/use-mount-effect";
  *  retries/toasts on failure, and keeps unconfirmed writes in a slim
  *  localStorage key so a refresh can replay them. */
 export function useReviewWriteQueue(options: {
+  collectionId: string;
   setErrorMessage: (message: string | null) => void;
 }) {
   const [, setPendingWrites] = useState<PendingReviewWrite[]>([]);
@@ -40,6 +41,7 @@ export function useReviewWriteQueue(options: {
       id: crypto.randomUUID(),
       termId,
       grade,
+      collectionId: options.collectionId,
       ...(visit > 0 ? { visit } : {}),
     };
     const isRetry = (write.visit ?? 0) > 0;
@@ -58,7 +60,7 @@ export function useReviewWriteQueue(options: {
       onSettled: (result, outcome) => {
         if (outcome === "success") {
           // A retry is the same term again, not another term done.
-          if (!isRetry) tickGoal("review", termId);
+          if (!isRetry && write.collectionId) tickGoal(write.collectionId, "review", termId);
           setPendingWrites((prev) => {
             const next = prev.filter((w) => w.id !== write.id);
             savePendingReviewWrites(next);
@@ -67,6 +69,8 @@ export function useReviewWriteQueue(options: {
         }
         if (result.error) {
           options.setErrorMessage(result.error);
+        } else if (outcome === "success") {
+          options.setErrorMessage(null);
         }
         if (outcome === "exhausted") {
           toast("Couldn't save a rating. Return to Review to retry.", "destructive");

@@ -53,6 +53,7 @@ export function SharedCollectionCta({ collection, state, compact }: SharedCollec
     return (
       <LinkButton
         href={appendNextParam("/login", `/c/${collection.id}`)}
+        prefetch={false}
         size={size}
         className={className}
       >

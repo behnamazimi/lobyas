@@ -42,6 +42,7 @@ export function SignedOutCtas() {
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
         <LinkButton
           href="/request-access"
+          prefetch={false}
           size="lg"
           className="group min-h-12 w-full gap-2 ps-5 pe-4 transition-transform duration-150 ease-out active:scale-[0.96] sm:w-auto"
         >
@@ -54,6 +55,7 @@ export function SignedOutCtas() {
         </LinkButton>
         <LinkButton
           href="/login"
+          prefetch={false}
           variant="ghost"
           size="lg"
           className="min-h-12 w-full transition-transform duration-150 ease-out active:scale-[0.96] sm:w-auto"
@@ -63,7 +65,7 @@ export function SignedOutCtas() {
       </div>
       <p className="mt-3 m-0 text-sm leading-relaxed text-base-content/70">
         Sign-up is by invite. Request access, or{" "}
-        <Link href="/signup" className="underline underline-offset-2">
+        <Link href="/signup" prefetch={false} className="underline underline-offset-2">
           sign up with an invite code
         </Link>{" "}
         if you have one.

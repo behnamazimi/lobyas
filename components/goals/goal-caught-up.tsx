@@ -8,7 +8,7 @@ import { goalCaughtUp } from "./goal-store";
  *  one collection, so running out of terms in it counts toward the goal. */
 export function GoalCaughtUp({ tier, collectionId }: { tier: GoalTier; collectionId: string }) {
   useMountEffect(() => {
-    if (collectionId) goalCaughtUp(tier);
+    if (collectionId) goalCaughtUp(collectionId, tier);
   });
   return null;
 }

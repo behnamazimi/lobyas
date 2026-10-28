@@ -50,6 +50,7 @@ export function PathStop({
   return (
     <Link
       href={href}
+      prefetch={highlighted ? undefined : false}
       aria-label={label}
       className={cn("relative block shrink-0 rounded-full", className)}
       style={{ width: size, height: size }}

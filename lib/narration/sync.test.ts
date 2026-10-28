@@ -63,9 +63,11 @@ function audioJob(
     hash_version?: number;
     content_hash?: string;
     storage_path?: string | null;
+    provider?: string | null;
   } = {},
 ) {
   return {
+    provider: null as string | null,
     subject_type: "term",
     subject_id: termId,
     status: "ready",
@@ -350,14 +352,15 @@ describe("getCollectionNarrationCoverage", () => {
       audioJobs: [audioJob("t-current"), audioJob("t-stale", { content_hash: HASH_V2 })],
     });
 
-    await expect(getCollectionNarrationCoverage(makeClient(store), COLLECTION_ID)).resolves.toEqual(
-      {
-        total: 3,
-        current: 1,
-        stale: 1,
-        missing: 1,
-      },
-    );
+    await expect(
+      getCollectionNarrationCoverage(makeClient(store), COLLECTION_ID, "murf"),
+    ).resolves.toEqual({
+      total: 3,
+      current: 1,
+      stale: 1,
+      missing: 1,
+      needsProvider: 3,
+    });
   });
 });
 
@@ -374,7 +377,10 @@ describe("listCollectionTermClips", () => {
         pageSize: 25,
         state: "missing",
       }),
-    ).resolves.toEqual({ clips: [{ id: "t2", term: "Closure", state: "missing" }], total: 1 });
+    ).resolves.toEqual({
+      clips: [{ id: "t2", term: "Closure", state: "missing", provider: null }],
+      total: 1,
+    });
   });
 });
 
@@ -404,6 +410,30 @@ describe("enqueueNarrationSync", () => {
     await expect(enqueueNarrationSync(makeClient(store), COLLECTION_ID, USER_ID)).rejects.toThrow(
       "No missing audio in that collection.",
     );
+  });
+
+  it("with a provider, snapshots every clip not made by it", async () => {
+    const store = emptyStore({
+      terms: [termRow("t-google"), termRow("t-murf"), termRow("t-old"), termRow("t-missing")],
+      audioJobs: [
+        audioJob("t-google", { provider: "google" }),
+        audioJob("t-murf", { provider: "murf" }),
+        audioJob("t-old"),
+      ],
+    });
+    const job = await enqueueNarrationSync(makeClient(store), COLLECTION_ID, USER_ID, "google");
+    expect(job).toMatchObject({ total: 3 });
+    expect(store.jobs[0]!.term_ids.sort()).toEqual(["t-missing", "t-murf", "t-old"]);
+  });
+
+  it("with a provider, rejects when every clip is already made by it", async () => {
+    const store = emptyStore({
+      terms: [termRow("t1")],
+      audioJobs: [audioJob("t1", { provider: "google" })],
+    });
+    await expect(
+      enqueueNarrationSync(makeClient(store), COLLECTION_ID, USER_ID, "google"),
+    ).rejects.toThrow("Every clip in that collection is already made by Google WaveNet.");
   });
 
   it("snapshots missing term ids onto a queued job", async () => {
@@ -623,6 +653,26 @@ describe("processNarrationSyncBatch", () => {
     expect(job.cursor).toBe(5);
     expect(job.generated_count).toBe(5);
     expect(job.status).toBe("completed");
+  });
+
+  it("always remakes the clips of a job", async () => {
+    vi.mocked(getOrCreateAudio).mockResolvedValue(READY);
+    const job = jobRow({
+      status: "running",
+      term_ids: ["term-1"],
+      lease_expires_at: "2099-01-01T00:00:00.000Z",
+    });
+    const store = emptyStore({
+      jobs: [job],
+      claim: [{ job_id: job.id, term_id: "term-1", cursor: 0, term_count: 1 }],
+    });
+
+    await processNarrationSyncBatch(makeClient(store), { budgetMs: 60_000 });
+    expect(getOrCreateAudio).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ regenerate: true }),
+    );
   });
 
   it("stops after the budget and leaves remaining terms for the next kick", async () => {

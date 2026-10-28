@@ -35,6 +35,15 @@ on the same network) before syncing:
 CAP_SERVER_URL=https://<preview>.vercel.app pnpm mobile:sync
 ```
 
+To run the iOS simulator against `pnpm dev`, sync with `CAP_SERVER_URL=http://localhost:3000` and
+build the Debug configuration from Xcode (or `xcodebuild`). `Info.plist` is preprocessed, and the App
+Transport Security exception for local http sits in an `#ifdef LOCAL_BUILD` block that only the Debug
+configuration defines; release and archive builds never have it.
+On the Android emulator the host is `10.0.2.2`, so sync with `CAP_SERVER_URL=http://10.0.2.2:3000` and
+run `./gradlew assembleDebug` in `android/`. The debug-only manifest (`android/app/src/debug/`) allows
+cleartext http, and `allowedDevOrigins` in `next.config.ts` lets `next dev` serve that origin; without
+it the page loads but never hydrates.
+
 The app shows whatever the site serves, so a web change (CSS, a component) only
 appears in an app that points at a deploy containing it. To get an APK for a
 branch, run the Mobile workflow manually and put the branch's Vercel preview URL
@@ -47,12 +56,12 @@ WebView's user agent (`ios.appendUserAgent` / `android.appendUserAgent`). The ve
 release tag's (`mobile-vX.Y.Z`), passed to `cap sync` as `CAP_APP_VERSION`, so it is the store
 version. A local build reports `999.0.0`, which no update prompt replaces. Apps built
 before that send `LobyasApp/<os>` or plain `LobyasApp`, so the os or the version can be unknown
-(`useShell()` gives `version: null`). Everything reads it through
+(`useNative()` gives `version: null`). Everything reads it through
 `lib/native/shell.ts`, and there is no cookie: the user agent is on every
 request, including the first, and a cookie would make the cached public pages
 dynamic.
 
-- Component: `const { native, os } = useShell()` (`hooks/use-shell.ts`). It
+- Component: `const { native, os } = useNative()` (`hooks/use-native.ts`). It
   reports "not native" on the server and during hydration, then the real value.
 - Event handler or effect: `isNativeShell()`.
 - CSS: `native-app:`, `ios-app:` and `android-app:` variants. An inline script
@@ -60,17 +69,49 @@ dynamic.
   need no server work.
 
 It is a hint for the UI only; anything that must be restricted to the app still
-needs the `x-lobyas-native` header or a server check. Load Capacitor plugins with
-a dynamic `import()` inside a check for it, and assume an installed app may be
-older than the web code: a plugin added later won't exist in it.
+needs the `x-lobyas-native` header or a server check. Never import a Capacitor
+plugin: everything the web code says to the app goes through `lib/native/`, which
+answers "unavailable" for an app that was built without the plugin
+([native-bridge.md](native-bridge.md)).
 
 The proxy uses it for one thing: a request for `/` from the app redirects to the
 study area (`AUTHENTICATED_HOME_PATH`) for a signed-in member, or to `/login`
 otherwise (`lib/native/landing.ts`). Every other public page still opens by link.
 
+## Reminders
+
+Study reminders are local notifications (`@capacitor/local-notifications`), set on the Goals page
+(`components/goals/reminders-card.tsx`) and kept in `user_settings.reminders` (up to 3 of
+`{id, time "HH:MM", days 1 = Mon…7 = Sun, enabled}`, local wall-clock time). The card renders only
+in an app whose binary has the plugin (`hasCapability("notifications")` in `lib/native/capabilities.ts`), so
+older apps and the web never show it.
+
+- Each enabled reminder becomes one repeating weekly OS schedule per weekday
+  (`lib/reminders/schedule.ts`). They survive reboots and follow DST and travel, but can't skip a
+  day already studied. The id is `(position + 1) * 10 + weekday`, and the three lobya lines rotate by weekday.
+- `NativeReminders` (root layout) reads `GET /api/reminders` on launch, whenever the app returns
+  to the foreground and when the visitor signs in, and rearms only if the pending ids, the saved
+  schedule or the device timezone differ (`lib/reminders/arming.ts`). Everything that changes what the
+  device holds runs through one queue in `lib/reminders/device.ts`, so an older sync can't land after a
+  newer save. A save sends one change (add, edit or remove) that the server applies to the stored list. Signed out (a 401 or a redirect to login) clears everything; sign-out and account deletion also clear first.
+- The permission prompt appears only when the first reminder is saved. If it is denied or revoked,
+  the card shows an alert with an Open settings button (`capacitor-native-settings`).
+- Android uses inexact alarms (a reminder can be a few minutes late; every notification sets
+  `isExactNotification: false`, since an exact alarm sends Android 12+ to a settings screen) in a
+  "Reminders" channel with the `ic_stat_lobyas` small icon. Tapping one opens `/app`.
+
+Check on a real iOS and Android device before a release: the permission prompt on the first save;
+denying it shows the alert and Open settings works; revoking in system settings and returning
+updates the card; a reminder fires after a reboot; changing the timezone moves it with the phone;
+signing out stops reminders and signing back in restores them; a tap opens Home; two devices on
+one account both ring.
+
+Reminder times follow the phone's 12 or 24-hour setting, read through the app's own `LobyasNative`
+plugin (`lib/native/clock.ts`); see [native-bridge.md](native-bridge.md).
+
 ## Asking old apps to update
 
-`NativeUpdateGate` (mounted in the root layout) reads the version from `useShell()` and
+`NativeUpdateGate` (mounted in the root layout) reads the version from `useNative()` and
 compares it with `UPDATE_POLICY` in `lib/native/update-policy.ts`. Below `recommended` it shows a
 dismissible banner (dismissal is remembered per recommended version); below `required` it
 covers the app with an Update screen. An app that reports no version counts as `0.0.0`. Both
@@ -89,10 +130,27 @@ app, and are used by the quiz only.
 ## Launch
 
 The shell opens `/app` directly (not `/`), so a launch has no redirect hop;
-the proxy sends a signed-out member on to login. The splash stays up until the
-page has painted: `NativeSplash` hides it, and `launchShowDuration` (4s) hides it
-anyway when the site is slow or `offline.html` loads. These are native settings,
-so they reach users with the next store release.
+the proxy sends a signed-out member on to login.
+
+The splash is the app icon (the tile with the clipped lobya), the same on iOS and Android,
+light and dark, and always 108pt/dp. The native part is static: the iOS launch storyboard
+centres the `Splash` image in a 240pt box, and Android uses the system splash with
+`splash_icon` (`styles.xml`, `values-night/`), a 288dp frame whose 192dp circle the tile
+fits inside. Light and dark follow the phone, not the app's own theme (which defaults to light).
+`pnpm mobile:splash` renders `resources/splash*.png` and the Android `splash_icon` files from
+`brandMarkSvg` (`lib/brand-icon.tsx`) (about a minute and a half); run it after changing the icon, then
+`pnpm mobile:assets`, which rewrites the launcher icons too (revert those if the icon didn't change).
+
+`NativeSplashFrame` draws the same picture in the page (`#native-splash`, shown by
+`html[data-splash]`, which `SPLASH_RESTORE_SCRIPT` sets only in a new web view), and
+`NativeSplash` runs it. Once the frame has painted the native splash is hidden, and the
+frame blinks until the page the web view loaded is shown: it must not be a server error
+(5xx, read from the navigation entry's `responseStatus`; a web view that doesn't report it
+counts as fine). A server error reloads once behind the native splash, then is shown as it is.
+The frame is held for at least 700ms (not under reduced motion) and fades out. If the page
+never removes it, CSS hides it after 15s. `launchShowDuration` (12s) hides the native splash
+if the page never loads at all; `native/www/offline.html` hides it itself, since it has no
+app code. These are native settings, so they reach users with the next store release.
 
 ## Offline and the service worker
 
@@ -138,8 +196,8 @@ handled; the user just taps the button again.
 ## Sign in with Apple
 
 `AppleSignInButton` sits under Google on the login and signup pages. In the iOS app it opens
-the system Apple sheet (`@capgo/capacitor-social-login`, loaded with a dynamic `import()` and
-shown only when `Capacitor.isPluginAvailable("SocialLogin")`, so older installs just don't see it).
+the system Apple sheet (`@capgo/capacitor-social-login`, wrapped in `lib/native/social-login.ts` and
+shown only when `hasCapability("appleSignIn")`, so older installs just don't see it).
 In browsers it uses Apple's popup script and needs `NEXT_PUBLIC_APPLE_SERVICES_ID`; without it
 (previews, local dev; Apple rejects `localhost`) the button is hidden. The Android app has
 neither, so it shows no Apple button.

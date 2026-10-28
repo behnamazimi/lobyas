@@ -12,5 +12,12 @@
       <p>Lobyas needs a connection to load your terms. Check your network and try again.</p>
       <button type="button" onclick="location.href = 'https://lobyas.com/'">Try again</button>
     </main>
+    <script>
+      // This page has no app code, so it hides the launch splash itself instead of leaving it up
+      // until the safety timeout.
+      try {
+        window.Capacitor.nativePromise("SplashScreen", "hide", {}).catch(function () {});
+      } catch (e) {}
+    </script>
   </body>
 </html>

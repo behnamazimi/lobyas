@@ -23,6 +23,8 @@ export type PendingReviewWrite = {
   id: string;
   termId: string;
   grade: ReviewGrade;
+  /** The collection it was rated in, so a replay credits the right goals. */
+  collectionId?: string;
   /** Which showing of the term this grade is for; 1.. means a retry. */
   visit?: number;
 };

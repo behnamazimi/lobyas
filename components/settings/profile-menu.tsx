@@ -32,6 +32,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { clearReminders } from "@/lib/reminders/device";
 
 const ITEM_CLASS =
   "min-h-11 gap-3 rounded-2xl px-3 text-[15px] font-extrabold focus-visible:outline-none";
@@ -66,6 +67,7 @@ export function ProfileMenu({ email, isAdmin = false, aiCreditsMode }: ProfileMe
     resetAnalytics();
     markSignedOut();
     try {
+      await clearReminders().catch(() => {});
       await logout();
     } catch {
       restoreSignedIn();

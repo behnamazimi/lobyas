@@ -10,12 +10,16 @@ export type NarrationCoverage = {
   current: number;
   stale: number;
   missing: number;
+  /** Clips that are missing, stale or made by a provider other than the selected one. */
+  needsProvider: number;
 };
 
 export type NarrationTermClip = {
   id: string;
   term: string;
   state: "current" | "stale" | "missing";
+  /** Who made the live clip; null when it predates the record or there is none. */
+  provider: string | null;
 };
 
 export type NarrationSyncJobView = {

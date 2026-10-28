@@ -1,16 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { logout } from "@/app/(private)/auth/actions";
 import { formatAuthError } from "@/lib/auth/format-auth-error";
 import { getPasswordValidationError } from "@/lib/auth/password-policy";
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
-import { createAdminClient } from "@/lib/supabase/admin";
 import type { createClient } from "@/lib/supabase/server";
 import { getMyCreditSchedule } from "@/lib/ai-credits/repository";
 import type { CreditSchedule } from "@/lib/ai-credits/types";
 import { getAiAccessView } from "@/lib/llm/access";
-import { createWidgetToken, listWidgetTokens, revokeWidgetToken } from "@/lib/widget/tokens";
 import { deleteUserScreenshots } from "@/lib/issues/storage";
 
 export type AccountSettings = { email: string | null; hasPassword: boolean };
@@ -124,50 +121,6 @@ async function getCreditSchedule(
   } catch (err) {
     console.error("Couldn't load the credit schedule:", err);
     return null;
-  }
-}
-
-export async function getWidgetSettingsData() {
-  const auth = await requireAuthenticatedClient();
-  if ("error" in auth) {
-    return { error: "Log in to view settings." as const };
-  }
-
-  const widgetTokens = await listWidgetTokens(auth.supabase, auth.user.id);
-  return { widgetTokens };
-}
-
-export async function generateWidgetTokenAction(): Promise<{
-  error?: string;
-  token?: string;
-  id?: string;
-}> {
-  const auth = await requireAuthenticatedClient();
-  if ("error" in auth) return { error: auth.error };
-
-  try {
-    const admin = createAdminClient();
-    const result = await createWidgetToken(admin, auth.user.id);
-    revalidatePath("/app/settings");
-    return result;
-  } catch (err) {
-    console.error("Settings action failed:", err);
-    return { error: "Couldn't generate a token. Try again." };
-  }
-}
-
-export async function revokeWidgetTokenAction(tokenId: string): Promise<{ error?: string }> {
-  const auth = await requireAuthenticatedClient();
-  if ("error" in auth) return { error: auth.error };
-
-  try {
-    const admin = createAdminClient();
-    await revokeWidgetToken(admin, auth.user.id, tokenId);
-    revalidatePath("/app/settings");
-    return {};
-  } catch (err) {
-    console.error("Settings action failed:", err);
-    return { error: "Couldn't revoke that token. Try again." };
   }
 }
 

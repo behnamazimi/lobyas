@@ -1,3 +1,5 @@
+import { SwitchingFallback } from "@/components/app/shell/switching-fallback";
+import ReviewLoading from "./loading";
 import type { Metadata } from "next";
 import { PromoSlot } from "@/components/promos/promo-slot";
 import { TermLayoutScope } from "@/components/terms/term-layout-scope";
@@ -11,7 +13,7 @@ export default function ReviewLayout({ children }: { children: React.ReactNode }
       <SectionTransition>
         <div className="mx-auto flex min-h-0 w-full max-w-[640px] flex-1 flex-col gap-3 px-5 pt-1 pb-[max(1rem,var(--safe-bottom))] md:pb-6">
           <PromoSlot route="review" />
-          {children}
+          <SwitchingFallback fallback={<ReviewLoading />}>{children}</SwitchingFallback>
         </div>
       </SectionTransition>
     </TermLayoutScope>

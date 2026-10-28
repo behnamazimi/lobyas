@@ -2,15 +2,8 @@ import type { Page } from "@playwright/test";
 import { test, expect } from "../fixtures";
 import { sql } from "../support/db";
 import { gotoReady } from "../support/navigation";
+import { setCollectionGoals, storedGoals } from "../support/goals";
 import { seedCollection } from "../support/seed";
-
-async function storedGoals(userId: string) {
-  const [row] = await sql<{ daily_goals: Record<string, number | null> | null }>(
-    "select daily_goals from public.user_settings where user_id = $1",
-    [userId],
-  );
-  return row?.daily_goals ?? null;
-}
 
 async function gradeGood(page: Page, times: number) {
   for (let i = 0; i < times; i++) {
@@ -38,43 +31,35 @@ test.describe("Daily goals", () => {
         .getByRole("heading", { name: "Review" })
         .locator("..")
         .locator("..")
-        .getByRole("button", { name: "Fewer terms a day" })
+        .getByRole("button", { name: "Fewer terms to recall a day" })
         .click();
       await page.getByRole("button", { name: "Start these goals" }).click();
-      await expect.poll(() => storedGoals(user.id)).toEqual({ read: 20, review: 5, quiz: 10 });
+      await expect
+        .poll(() => storedGoals(user.id, collectionId))
+        .toEqual({ read: 20, review: 5, quiz: 10 });
 
       await gotoReady(page, `/app/review?collection=${collectionId}`);
       await gradeGood(page, 5);
 
       const dialog = page.getByRole("dialog");
       await expect(dialog.getByRole("heading", { name: "Review goal met!" })).toBeVisible();
-      await dialog.getByRole("link", { name: /^Go to Quiz/ }).click();
-      await expect(page).toHaveURL(/\/app\/quiz/);
+      await dialog.getByRole("button", { name: /^Start reading/ }).click();
+      await expect(page).toHaveURL(/\/app\/read/);
     },
   );
 
-  test("Done for today closes the celebration and goes Home", async ({ page, user }) => {
+  test("Finish for today closes the celebration and goes Home", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
-    await sql(
-      `insert into public.user_settings (user_id, daily_goals)
-       values ($1, '{"read": null, "review": 1, "quiz": null}')
-       on conflict (user_id) do update set daily_goals = excluded.daily_goals`,
-      [user.id],
-    );
+    await setCollectionGoals(user.id, collectionId, { read: null, review: 1, quiz: null });
     await gotoReady(page, `/app/review?collection=${collectionId}`);
     await gradeGood(page, 1);
-    await page.getByRole("dialog").getByRole("button", { name: "Done for today" }).click();
+    await page.getByRole("dialog").getByRole("button", { name: "Finish for today" }).click();
     await expect(page).toHaveURL(/\/app$/);
   });
 
   test("a quiz goal celebrates on the results, not mid-quiz", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
-    await sql(
-      `insert into public.user_settings (user_id, daily_goals)
-       values ($1, '{"read": null, "review": null, "quiz": 1}')
-       on conflict (user_id) do update set daily_goals = excluded.daily_goals`,
-      [user.id],
-    );
+    await setCollectionGoals(user.id, collectionId, { read: null, review: null, quiz: 1 });
     await gotoReady(page, `/app/quiz?collection=${collectionId}`);
     await page.getByRole("radio", { name: "5", exact: true }).click({ force: true });
     await page.getByRole("button", { name: "Start quiz" }).click();
@@ -114,12 +99,7 @@ test.describe("Daily goals", () => {
 
   test("a read goal celebrates on the next card's front, not its back", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
-    await sql(
-      `insert into public.user_settings (user_id, daily_goals)
-       values ($1, '{"read": 1, "review": null, "quiz": null}')
-       on conflict (user_id) do update set daily_goals = excluded.daily_goals`,
-      [user.id],
-    );
+    await setCollectionGoals(user.id, collectionId, { read: 1, review: null, quiz: null });
     await gotoReady(page, `/app/read?collection=${collectionId}&view=cards`);
     const celebration = page.getByRole("dialog").getByRole("heading", { name: /goals? met!$/ });
 
@@ -143,18 +123,13 @@ test.describe("Daily goals", () => {
 
   test("the last goal of the day celebrates once", async ({ page, user }) => {
     const { collectionId } = await seedCollection(user);
-    await sql(
-      `insert into public.user_settings (user_id, daily_goals)
-       values ($1, '{"read": null, "review": 1, "quiz": null}')
-       on conflict (user_id) do update set daily_goals = excluded.daily_goals`,
-      [user.id],
-    );
+    await setCollectionGoals(user.id, collectionId, { read: null, review: 1, quiz: null });
 
     await gotoReady(page, `/app/review?collection=${collectionId}`);
     await gradeGood(page, 1);
     const dialog = page.getByRole("dialog");
     await expect(dialog.getByRole("heading", { name: "Today’s goals met!" })).toBeVisible();
-    await dialog.getByRole("button", { name: "Keep going" }).click();
+    await dialog.getByRole("button", { name: "Review more terms" }).click();
     await expect(dialog).toBeHidden();
 
     const toast = page.getByText("Review goal met. Keep going as long as you like.");
@@ -175,10 +150,62 @@ test.describe("Daily goals", () => {
     // a second dialog the time it would need to show up before checking.
     await page.waitForTimeout(3000);
     await expect(page.getByRole("dialog")).toBeHidden();
-    const [settings] = await sql<{ goal_celebrated: { tiers: string[] } }>(
-      "select goal_celebrated from public.user_settings where user_id = $1",
-      [user.id],
+    const [row] = await sql<{ celebrated_tiers: string[] }>(
+      "select celebrated_tiers from public.collection_goals where user_id = $1 and collection_id = $2",
+      [user.id, collectionId],
     );
-    expect(settings?.goal_celebrated.tiers).toEqual(["review"]);
+    expect(row?.celebrated_tiers).toEqual(["review"]);
   });
+});
+
+test.describe("Goals per collection", () => {
+  test("study in another collection doesn't count, and the every-collection switch copies the goals", async ({
+    page,
+    user,
+    baseURL,
+  }) => {
+    const first = await seedCollection(user);
+    const second = await seedCollection(user);
+    await setCollectionGoals(user.id, first.collectionId, { review: 1 });
+    await page
+      .context()
+      .addCookies([{ name: "lb_lib_collection", value: first.collectionId, url: baseURL ?? "" }]);
+
+    await gotoReady(page, `/app/review?collection=${second.collectionId}`);
+    await gradeGood(page, 1);
+    await expect
+      .poll(async () => {
+        const [row] = await sql<{ count: string }>(
+          "select count(*) as count from public.review_state where user_id = $1 and review_recall_count > 0",
+          [user.id],
+        );
+        return Number(row!.count);
+      })
+      .toBeGreaterThan(0);
+    await page.waitForTimeout(2000);
+    await expect(page.getByRole("dialog")).toBeHidden();
+
+    // Opening a collection from a link makes it the current one.
+    await page
+      .context()
+      .addCookies([{ name: "lb_lib_collection", value: first.collectionId, url: baseURL ?? "" }]);
+    await gotoReady(page, `/app/goals`);
+    await page
+      .getByRole("switch", { name: "Use these goals in every collection" })
+      .click({ force: true });
+    await page.getByRole("button", { name: "Save goals" }).click();
+    await expect
+      .poll(() => storedGoals(user.id, second.collectionId))
+      .toEqual({
+        read: null,
+        review: 1,
+        quiz: null,
+      });
+  });
+});
+
+test("the reminders card is only for the phone apps", async ({ page }) => {
+  await gotoReady(page, "/app/goals");
+  await expect(page.getByRole("heading", { name: "Goals" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Reminders" })).toHaveCount(0);
 });

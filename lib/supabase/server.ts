@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { cache } from "react";
 import type { Database } from "@/lib/supabase/database.types";
+import { retryFutureJwt } from "@/lib/supabase/retry-future-jwt";
 
 export const createClient = cache(async function createClient() {
   const cookieStore = await cookies();
@@ -10,6 +11,7 @@ export const createClient = cache(async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
+      global: { fetch: retryFutureJwt() },
       cookies: {
         getAll() {
           return cookieStore.getAll();

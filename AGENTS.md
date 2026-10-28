@@ -248,11 +248,13 @@ The daily streak and its shield are described in [docs/streak.md](docs/streak.md
 
 # Daily goals
 
-Learners set a daily pace per tier at `/app/goals`; meeting one opens a lobya
-celebration, and the page forecasts when each collection would be mastered.
-Study code credits a term with `tickGoal` from `components/goals/goal-store.ts`,
+Learners set a daily pace per tier for each collection at `/app/goals` (rows in
+`collection_goals`; the "Use these goals in every collection" switch copies the changed tiers to every
+collection and to new ones); meeting one opens a lobya celebration, and the
+page forecasts when the collection would be mastered. Study code credits a term
+with `tickGoal(collectionId, tier, termId)` from `components/goals/goal-store.ts`,
 and the server (`my_claim_goal_celebration`) decides each celebration, once per
-tier a day. The forecast (`lib/trace/forecast.ts`) replays TRACE's own ranking
+collection and tier a day. The forecast (`lib/trace/forecast.ts`) replays TRACE's own ranking
 and update functions. Read [docs/goals.md](docs/goals.md) before changing it.
 
 # Page promos
@@ -366,24 +368,23 @@ Keep new ones consistent with the existing scenes:
   wiggles; moves that belong together share a beat; loops pause before
   repeating. Reduced motion turns it all off.
 
-# macOS widget
-
-The widget's source lives in `widget/lobyas.widget/` (`index.jsx` +
-`read-state.sh` / `reveal-term.sh` / `advance-term.sh`), with its app-side
-counterparts in `lib/widget/` and `app/api/widget/`. Any change to the
-widget's logic must bump the version in [widget/version.json](widget/version.json) —
-`lib/widget/version.ts` and `scripts/widget-zip.sh` both read it as the
-single source of truth for the widget's release counter.
-
 # Mobile app
 
 The Android and iOS apps are a Capacitor shell that loads the live site
 (`capacitor.config.ts`, `native/`, `ios/`, `android/`, `fastlane/`,
 `.github/workflows/mobile.yml`, `lib/native/`). Read [docs/mobile.md](docs/mobile.md)
 before touching any of them. Native releases are one command, `pnpm mobile:release`
-(CI builds from the tag; see "Releasing" in that doc). Web code detects the app with `isNativeShell()`
-and loads plugins with a dynamic `import()`, because an installed app can be
-older than the web code.
+(CI builds from the tag; see "Releasing" in that doc). Web code never imports a Capacitor
+plugin itself: everything it says to the native layer, or hears from it, goes through
+`lib/native/` (lint enforces it). Read
+[docs/native-bridge.md](docs/native-bridge.md) before adding a native call. An installed
+app can be older than the web code, so every call must cope with "unavailable".
+
+# Reminders
+
+Phone-app study reminders are local notifications set on the Goals page. Read the
+"Reminders" section of [docs/mobile.md](docs/mobile.md) first. The data and schedule
+builder are in `lib/reminders/`; the device side is `lib/reminders/device.ts`, which calls `lib/native/`.
 
 # Brand
 

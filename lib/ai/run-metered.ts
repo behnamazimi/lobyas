@@ -13,6 +13,8 @@ type MeteredInput = {
   userId: string;
   feature: BillableFeatureId;
   units: number;
+  /** The calling route's maxDuration, when it sets one. */
+  limitSeconds?: number;
 };
 
 /** Charges credits around one AI call, allowing a single running request per
@@ -20,10 +22,10 @@ type MeteredInput = {
  *  charged. Story narration bills through its own hook instead (it must only charge
  *  the request that wins the clip). */
 export async function runMetered<T>(
-  { admin, userId, feature, units }: MeteredInput,
+  { admin, userId, feature, units, limitSeconds }: MeteredInput,
   run: (charge: { ledgerId: number }) => Promise<T>,
 ): Promise<MeteredOutcome<T>> {
-  const guarded = await withRunGuard({ admin, userId, feature }, () =>
+  const guarded = await withRunGuard({ admin, userId, feature, limitSeconds }, () =>
     runWithCredits({ admin, userId, feature, units }, run),
   );
   if (guarded.busy) return { charged: false, reason: "busy" };

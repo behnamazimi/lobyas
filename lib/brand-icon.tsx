@@ -11,20 +11,29 @@ const GREEN = "#6ac48c";
 /** The brand green at 15% on paper, the tile the in-app icon sits on (BrandIcon). */
 const TILE = "#e4f2e8";
 
+const DARK_PALETTE = { ink: "#f3efe7", paper: "#1c1916", tile: "#273329" };
+const LIGHT_PALETTE = { ink: INK, paper: PAPER, tile: TILE };
+
 /** The illustrations' marker jitter; `scale` is how far it pushes lines, in the drawing's units. */
 const wobble = (id: string, scale: number) =>
   `<filter id="${id}" filterUnits="userSpaceOnUse" x="-400" y="-400" width="1200" height="1200" color-interpolation-filters="sRGB">
 <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7"/>
 <feDisplacementMap in="SourceGraphic" scale="${scale}" xChannelSelector="R" yChannelSelector="G"/></filter>`;
 
-/** The brand lobya itself (in LOBYA_MARK's coordinates), as SVG markup. */
-function beanMarkup() {
+/**
+ * The brand lobya itself (in LOBYA_MARK's coordinates), as SVG markup. The classes let the
+ * in-app splash (NativeSplash) re-colour it for dark and blink the eyes.
+ */
+function beanMarkup(palette = LIGHT_PALETTE) {
   const eyes = LOBYA_MARK.eyes
-    .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${LOBYA_MARK.eyeRadius}" fill="${INK}"/>`)
+    .map(
+      ([x, y]) =>
+        `<circle class="sp-eye" cx="${x}" cy="${y}" r="${LOBYA_MARK.eyeRadius}" fill="${INK}"/>`,
+    )
     .join("");
-  return `<path d="${LOBYA_MARK.body}" fill="${PAPER}"/>
+  return `<path class="sp-paper" d="${LOBYA_MARK.body}" fill="${palette.paper}"/>
 <path d="${LOBYA_MARK.body}" transform="translate(6 5)" fill="${GREEN}"/>
-<path d="${LOBYA_MARK.body}" fill="none" stroke="${INK}" stroke-width="6"/>
+<path class="sp-ink" d="${LOBYA_MARK.body}" fill="none" stroke="${palette.ink}" stroke-width="6"/>
 ${eyes}
 <path d="${LOBYA_MARK.smile}" fill="none" stroke="${INK}" stroke-width="4.5"/>`;
 }
@@ -35,7 +44,16 @@ ${eyes}
  * cropped off, like BrandIcon. `maskable` keeps the face inside the safe zone
  * Android crops icons to.
  */
-function brandMarkSvg({ maskable, rounded }: { maskable: boolean; rounded: boolean }) {
+export function brandMarkSvg({
+  maskable,
+  rounded,
+  dark = false,
+}: {
+  maskable: boolean;
+  rounded: boolean;
+  dark?: boolean;
+}) {
+  const palette = dark ? DARK_PALETTE : LIGHT_PALETTE;
   // The bean's box is LOBYA_MARK.viewBox (19 15 88 103); its top sits at `top` on a 140 tile.
   const scale = maskable ? 1.1 : 1.445;
   const top = maskable ? 43 : 36;
@@ -43,10 +61,10 @@ function brandMarkSvg({ maskable, rounded }: { maskable: boolean; rounded: boole
   const radius = rounded ? 30 : 0;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 140">
-<defs><clipPath id="t"><rect width="140" height="140" rx="${radius}"/></clipPath>${wobble("w", 5)}</defs>
-<g clip-path="url(#t)"><rect width="140" height="140" fill="${TILE}"/>
-<g transform="${transform}"><g filter="url(#w)" stroke-linecap="round" stroke-linejoin="round">
-${beanMarkup()}
+<defs><clipPath id="bm-t"><rect width="140" height="140" rx="${radius}"/></clipPath>${wobble("bm-w", 5)}</defs>
+<g clip-path="url(#bm-t)"><rect class="sp-tile" width="140" height="140" fill="${palette.tile}"/>
+<g transform="${transform}"><g filter="url(#bm-w)" stroke-linecap="round" stroke-linejoin="round">
+${beanMarkup(palette)}
 </g></g></g></svg>`;
 }
 

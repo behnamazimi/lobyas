@@ -536,6 +536,17 @@
     }
   }
 
+  /* Appears only if the wait lasts, so a quick switch never flashes it. */
+  @keyframes delayed-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .delayed-fade-in {
+    animation: delayed-fade-in 200ms ease-out 150ms backwards;
+  }
+
   .study-enter {
     animation: study-enter 240ms cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -592,4 +603,69 @@
 .flow-fields .choice-cards > label:not([data-selected]) {
   background-color: var(--color-base-100);
   box-shadow: 0 1px 2px rgb(var(--shadow-rgb) / 0.08);
+}
+
+/* The app's splash frame (NativeSplash): the launch image redrawn in the page so it can blink.
+   Light or dark follows the phone, like the native launch screen, not the app's own theme. */
+#native-splash {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  align-items: center;
+  justify-content: center;
+  background: #fdfcf9;
+  transition: opacity 300ms ease-out;
+}
+html[data-splash] #native-splash {
+  display: flex;
+  /* If the page never gets to remove it, it still gets out of the way. */
+  animation: sp-failsafe 300ms linear 15s forwards;
+}
+#native-splash[data-leaving] {
+  opacity: 0;
+}
+#native-splash svg {
+  width: 108px;
+  height: auto;
+}
+@media (prefers-color-scheme: dark) {
+  #native-splash {
+    background: #1c1916;
+  }
+  #native-splash .sp-tile {
+    fill: #273329;
+  }
+  #native-splash .sp-paper {
+    fill: #1c1916;
+  }
+  #native-splash .sp-ink {
+    stroke: #f3efe7;
+  }
+}
+#native-splash .sp-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sp-blink 2s ease-in-out 0.25s infinite;
+}
+@keyframes sp-blink {
+  0%,
+  12%,
+  100% {
+    transform: none;
+  }
+  6% {
+    transform: scaleY(0.12);
+  }
+}
+@keyframes sp-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #native-splash .sp-eye {
+    animation: none;
+  }
 }

@@ -65,6 +65,15 @@ export const APP_AUDIT_ACTIONS = {
     label: "Narration sync started",
     describe: (d) => (text(d.job) ? `Job ${text(d.job)}` : null),
   },
+  "app.narration_resync_start": {
+    label: "Narration regenerate started",
+    describe: (d) =>
+      text(d.provider) ? `With ${text(d.provider)}, job ${text(d.job) ?? "?"}` : null,
+  },
+  "app.narration_clip_regenerate": {
+    label: "Narration clip regenerated",
+    describe: (d) => (text(d.provider) ? `Made by ${text(d.provider)}` : null),
+  },
   "app.narration_sync_cancel": {
     label: "Narration sync cancelled",
     describe: () => null,
@@ -136,6 +145,10 @@ export const DB_AUDIT_ACTIONS = {
   set_narration_provider: {
     label: "Narration provider switched",
     describe: (d) => `${text(d.provider) ?? "?"} now ${onOff(d.enabled)}`,
+  },
+  set_narration_route: {
+    label: "Narration voice used first changed",
+    describe: (d) => `${text(d.route) ?? "?"}: now ${text(d.provider) ?? "?"}`,
   },
   set_narration_caps: {
     label: "Narration limits changed",

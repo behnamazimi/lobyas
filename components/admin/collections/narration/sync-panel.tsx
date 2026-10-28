@@ -9,11 +9,14 @@ import {
   resumeNarrationSync,
   startNarrationSync,
 } from "@/app/(private)/admin/ai/narration/actions";
+import { startProviderResync } from "@/app/(private)/admin/collections/narration-clip-actions";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { useAdminAction } from "@/hooks/use-admin-action";
 import { useInterval } from "@/hooks/use-interval";
 import { settleAdminAction } from "@/lib/admin/settle-action";
+import { PROVIDER_LABELS } from "@/lib/ai/speech/labels";
+import type { SpeechProvider } from "@/lib/ai/speech/provider";
 import {
   canResumeNarrationSync,
   isActiveNarrationSyncStatus,
@@ -138,11 +141,17 @@ function SyncButtons({
   showCancel,
   showResume,
   onStart,
+  regenerateLabel,
+  regenerateDisabled,
+  onRegenerate,
   onCancel,
   onResume,
 }: {
   startLabel: string;
   startDisabled: boolean;
+  regenerateLabel: string;
+  regenerateDisabled: boolean;
+  onRegenerate: () => void;
   busy: boolean;
   showCancel: boolean;
   showResume: boolean;
@@ -154,6 +163,9 @@ function SyncButtons({
     <div className="flex flex-wrap gap-2">
       <button type="button" className="btn" disabled={startDisabled} onClick={onStart}>
         {startLabel}
+      </button>
+      <button type="button" className="btn" disabled={regenerateDisabled} onClick={onRegenerate}>
+        {regenerateLabel}
       </button>
       {showCancel ? (
         <button type="button" className="btn" disabled={busy} onClick={onCancel}>
@@ -174,11 +186,16 @@ export function NarrationSyncPanel({
   collectionId,
   narrationEnabled,
   needsAudioCount,
+  provider,
+  needsProviderCount,
   lastJob,
 }: {
   collectionId: string;
   narrationEnabled: boolean;
   needsAudioCount: number;
+  /** The provider used first; the regenerate button remakes clips with it. */
+  provider: SpeechProvider;
+  needsProviderCount: number;
   lastJob: NarrationSyncJobView | null;
 }) {
   const sync = useNarrationSync(lastJob);
@@ -186,6 +203,7 @@ export function NarrationSyncPanel({
   const { job, active, isPending } = sync;
   const mine = job?.collectionId === collectionId;
   const message = sync.error ?? sync.pollError;
+  const blocked = isPending || !narrationEnabled || active;
 
   return (
     <div className="flex flex-col gap-3">
@@ -197,8 +215,14 @@ export function NarrationSyncPanel({
       />
       <SyncButtons
         startLabel={isPending && !active ? "Starting…" : `Make ${needsAudioCount} missing or stale`}
-        startDisabled={isPending || !narrationEnabled || needsAudioCount === 0 || active}
+        startDisabled={blocked || needsAudioCount === 0}
         busy={isPending}
+        regenerateLabel={`Regenerate ${needsProviderCount} with ${PROVIDER_LABELS[provider]}`}
+        regenerateDisabled={blocked || needsProviderCount === 0}
+        onRegenerate={() => {
+          sync.clearError();
+          void sync.run(() => startProviderResync(collectionId), { onSuccess: sync.setJob });
+        }}
         showCancel={active && mine}
         showResume={mine && canResumeNarrationSync(job)}
         onStart={() => {

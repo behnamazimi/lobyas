@@ -63,7 +63,7 @@ reset and are not used.
 
 The app is pointed at it through optional base-URL variables that are unset in
 every real environment: `LLM_BASE_URL`, `RESEND_BASE_URL`, `MURF_BASE_URL`,
-`ELEVENLABS_BASE_URL` (see `appEnv` in `e2e/support/env.ts`).
+`ELEVENLABS_BASE_URL`, `GOOGLE_TTS_BASE_URL`, `GEMINI_BASE_URL` (see `appEnv` in `e2e/support/env.ts`).
 
 - Quiz and story answers are built from the request itself, so they stay valid
   for whichever terms a test seeded.

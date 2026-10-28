@@ -55,7 +55,7 @@ begin
   assert not has_table_privilege('authenticated', 'public.users', 'update'), 'users updatable by clients';
   assert not has_column_privilege('authenticated', 'public.users', 'suspended_at', 'update'), 'suspended_at updatable by clients';
 
-  -- Fixtures: the member owns a private and a shared collection, has a session and a widget token.
+  -- Fixtures: the member owns a private and a shared collection, has a session.
   insert into public.collections (name, owner_id) values ('UM Private', member_id) returning id into d_priv;
   insert into public.collections (name, owner_id, visibility) values ('UM Shared', member_id, 'shared') returning id into d_shared;
   insert into public.terms (collection_id, term, category, definition) values (d_shared, 'um-term', 'c', 'd') returning id into t_shared;

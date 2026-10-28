@@ -2,13 +2,10 @@
 
 import { ChevronRight, Flame, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { clearShieldNoticeAction, getStreakHistoryAction } from "@/app/(private)/actions";
-import { getGoalsSnapshot, subscribeGoals } from "@/components/goals/goal-store";
 import { StreakFlameScene } from "@/components/illustrations/scenes/streak-flame";
 import { BottomSheet } from "@/components/kit";
-import { GOAL_TIERS } from "@/lib/goals/levels";
-import { goalProgress, metCount } from "@/lib/goals/progress";
 import type { StreakDay } from "@/lib/streak/history";
 import { SHIELD_DAYS, type ShieldSummary, type StreakSummary } from "@/lib/streak/status";
 import { cn } from "@/lib/utils";
@@ -146,7 +143,7 @@ export function StreakModal({
           A day counts when you read, review or quiz at least one term.
         </p>
 
-        <GoalsRow today={days.at(-1)} onNavigate={() => onOpenChange(false)} />
+        <GoalsRow onNavigate={() => onOpenChange(false)} />
 
         {error ? <p className="text-sm text-error-text">{error}</p> : null}
       </div>
@@ -234,40 +231,14 @@ function ShieldLine({ shield }: { shield: ShieldSummary }) {
   );
 }
 
-function GoalsRow({ today, onNavigate }: { today?: StreakDay; onNavigate: () => void }) {
-  const live = useSyncExternalStore(subscribeGoals, getGoalsSnapshot, () => null);
-  const goals = live?.goals ?? null;
-  // A tier met by running out of terms is only known from the celebrations.
-  const celebrated = today && live?.day.date === today.date ? live.day.celebrated : [];
-  const progress =
-    goals && today
-      ? goalProgress(
-          goals,
-          { read: today.readCount, review: today.reviewedCount, quiz: today.quizzedCount },
-          celebrated,
-        )
-      : null;
-  const total = goals ? GOAL_TIERS.filter((tier) => goals[tier] !== null).length : 0;
-
+function GoalsRow({ onNavigate }: { onNavigate: () => void }) {
   return (
     <Link
       href="/app/goals"
       onClick={onNavigate}
       className="flex min-h-11 items-center justify-between gap-3 rounded-field bg-base-200/60 px-3 py-2 text-sm font-medium transition-colors hover:bg-base-200"
     >
-      {total > 0 ? (
-        <span>
-          Today&apos;s goals
-          {progress ? (
-            <span className="tabular-nums">
-              {" "}
-              · {metCount(progress)} of {total}
-            </span>
-          ) : null}
-        </span>
-      ) : (
-        <span>Set daily goals</span>
-      )}
+      <span>Daily goals</span>
       <ChevronRight className="size-4 text-base-content/70" aria-hidden />
     </Link>
   );

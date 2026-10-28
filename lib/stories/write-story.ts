@@ -136,6 +136,8 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
         feature: "story",
         // Charged by length, not by the size of the pool the model picks from.
         units: Math.min(cards.length, termsForLength(pieceLength)),
+        // app/api/stories/route.ts's maxDuration.
+        limitSeconds: 60,
       },
       produce,
     );

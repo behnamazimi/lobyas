@@ -1,13 +1,13 @@
 import { blob, box, curve, quad, wave } from "../geometry";
 import { Illustration } from "../illustration";
-import { Dot, DottedPath, Eye, Face, ScribbleLines, Spark, Squiggle } from "../marks";
+import { Dot, DottedPath, Eye, Face, ScribbleLines, Squiggle } from "../marks";
 import { Motion } from "../motion";
 import { BLUE, CORAL, PURPLE, YELLOW } from "../palette";
 import { Hatch, Line, Shape, STROKE } from "../shape";
 
 /**
  * One queue on every device. Someone taps through a card on their phone, and the
- * laptop and the desktop widget flip to the same next card at the same moment.
+ * laptop flips to the same next card at the same moment.
  */
 export function EverywhereScene({ className, title }: { className?: string; title?: string }) {
   return (
@@ -34,7 +34,6 @@ export function EverywhereScene({ className, title }: { className?: string; titl
         ])}
       />
 
-      <Widget />
       <Laptop />
       <Person />
     </Illustration>
@@ -64,19 +63,6 @@ function QueueCard({ x, y, w }: { x: number; y: number; w: number }) {
       <Motion kind="flip-back">
         <Shape d={box(x, y, w, h, { bow: 1 })} color={BLUE} stroke={STROKE.fine} offset={[3, 2]} />
         {lines}
-      </Motion>
-    </g>
-  );
-}
-
-function Widget() {
-  return (
-    <g>
-      <Shape d={box(588, 92, 112, 104, { seed: 3, bow: 2 })} color={CORAL} />
-      <Shape d={box(600, 104, 88, 80, { seed: 4, bow: 1 })} stroke={STROKE.fine} />
-      <QueueCard x={612} y={126} w={64} />
-      <Motion kind="twinkle" phase={0.5}>
-        <Spark x={724} y={92} r={16} />
       </Motion>
     </g>
   );

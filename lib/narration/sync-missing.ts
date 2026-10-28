@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { isCurrentJob } from "@/lib/ai/speech/audio";
+import type { SpeechProvider } from "@/lib/ai/speech/provider";
 import type { AudioJob } from "@/lib/ai/speech/types";
 import { parseLanguage } from "@/lib/terms/languages";
 import { computeContentHash } from "./content-hash";
@@ -19,7 +20,7 @@ export type TermRow = {
 
 export type JobRow = Pick<
   AudioJob,
-  "id" | "subject_id" | "status" | "hash_version" | "content_hash" | "storage_path"
+  "id" | "subject_id" | "status" | "hash_version" | "content_hash" | "storage_path" | "provider"
 >;
 
 export const TERM_FIELD_COLUMNS =
@@ -102,7 +103,7 @@ export async function loadLiveJobs(
   for (const chunk of chunkIds(termIds)) {
     const { data, error } = await admin
       .from("audio_jobs")
-      .select("id, subject_id, status, hash_version, content_hash, storage_path")
+      .select("id, subject_id, status, hash_version, content_hash, storage_path, provider")
       .eq("subject_type", "term")
       .neq("status", "superseded")
       .in("subject_id", chunk)
@@ -123,6 +124,20 @@ export async function listMissingNarrationTermIds(
   return clips.filter((clip) => clip.state !== "current").map((clip) => clip.id);
 }
 
+/** Terms whose clip is missing, stale or made by another provider, for a regenerate. */
+export async function listTermIdsNotMadeBy(
+  admin: AdminClient,
+  collectionId: string,
+  provider: SpeechProvider,
+): Promise<string[]> {
+  const clips = await loadCollectionClips(admin, collectionId);
+  return clips.filter((clip) => needsProvider(clip, provider)).map((clip) => clip.id);
+}
+
+function needsProvider(clip: NarrationTermClip, provider: SpeechProvider): boolean {
+  return clip.state !== "current" || clip.provider !== provider;
+}
+
 async function loadCollectionClips(
   admin: AdminClient,
   collectionId: string,
@@ -140,12 +155,14 @@ async function loadCollectionClips(
     id: term.id,
     term: term.term,
     state: narrationClipState(term, jobs.get(term.id), mode),
+    provider: jobs.get(term.id)?.provider ?? null,
   }));
 }
 
 export async function getCollectionNarrationCoverage(
   admin: AdminClient,
   collectionId: string,
+  selectedProvider: SpeechProvider,
 ): Promise<NarrationCoverage> {
   const clips = await loadCollectionClips(admin, collectionId);
   const count = (state: NarrationClipState) => clips.filter((clip) => clip.state === state).length;
@@ -154,6 +171,7 @@ export async function getCollectionNarrationCoverage(
     current: count("current"),
     stale: count("stale"),
     missing: count("missing"),
+    needsProvider: clips.filter((clip) => needsProvider(clip, selectedProvider)).length,
   };
 }
 

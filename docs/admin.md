@@ -6,21 +6,21 @@ and what they cost. It lives under `/admin`, with the code in `app/(private)/adm
 
 ## Pages
 
-| Address                   | What it is                                                                                                                |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `/admin`                  | Overview: what needs attention (missing keys, refunds, switches off, waitlist, stalled sync) and recent activity          |
-| `/admin/people`           | Waitlist (approve one or up to ten at a time, resend), shared codes, and the members list                                 |
-| `/admin/people/[id]`      | One person: waitlist request, narration, AI credits, admin history, suspend, delete                                       |
-| `/admin/collections`      | Built-in and all collections, read-only: status, address, narration mode; the Reported view lists reported ones           |
-| `/admin/collections/[id]` | One collection: status, kind, address, sharing and reports, narration mode, audio sync and per-term clips                 |
-| `/admin/requests`         | Collection requests: queue, switches and estimates; `/admin/requests/[id]` accepts, asks, merges, declines, delivers      |
-| `/admin/issues`           | Problems and ideas people sent; `/admin/issues/[id]` shows one with its screenshot, marks it done or won't do, deletes it |
-| `/admin/ai`               | Every AI feature: switch, vendor, what is sent, price or limit                                                            |
-| `/admin/ai/credits`       | Credits switch, starter and monthly credits, prices, health, usage, grants                                                |
-| `/admin/ai/narration`     | Narration switch, providers, limits, access; links to the running sync                                                    |
-| `/admin/system/audit`     | What admins changed, and when                                                                                             |
-| `/admin/system/queue`     | Queue debug: what Read, Review and Quiz would serve one member now, what is on cooldown, and what is left out             |
-| `/admin/system/health`    | Database health: row counts and size of the tables that grow with use, with a warning past a limit                        |
+| Address                   | What it is                                                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `/admin`                  | Overview: what needs attention (missing keys, refunds, switches off, waitlist, stalled sync) and recent activity                      |
+| `/admin/people`           | Waitlist (approve one or up to ten at a time, resend), shared codes, and the members list                                             |
+| `/admin/people/[id]`      | One person: waitlist request, narration, AI credits, admin history, suspend, delete                                                   |
+| `/admin/collections`      | Built-in and all collections, read-only: status, address, narration mode; the Reported view lists reported ones                       |
+| `/admin/collections/[id]` | One collection: status, kind, address, sharing and reports, narration mode, audio sync and per-term clips                             |
+| `/admin/requests`         | Collection requests: queue, switches and estimates; `/admin/requests/[id]` accepts, asks, merges, declines, delivers                  |
+| `/admin/issues`           | Problems and ideas people sent; `/admin/issues/[id]` shows one with its screenshot, marks it done or won't do, deletes it             |
+| `/admin/ai`               | Every AI feature: switch, vendor, what is sent, price or limit                                                                        |
+| `/admin/ai/credits`       | Credits switch, starter and monthly credits, prices, health, usage, grants                                                            |
+| `/admin/ai/narration`     | Narration switch, the voice used first for each kind of clip, Murf and ElevenLabs switches, limits, access; links to the running sync |
+| `/admin/system/audit`     | What admins changed, and when                                                                                                         |
+| `/admin/system/queue`     | Queue debug: what Read, Review and Quiz would serve one member now, what is on cooldown, and what is left out                         |
+| `/admin/system/health`    | Database health: row counts and size of the tables that grow with use, with a warning past a limit                                    |
 
 Old addresses (`/admin/invites`, `/admin/ai-credits`, `/admin/narration`) redirect with
 temporary (307) redirects from `lib/redirects.ts`.
@@ -51,7 +51,7 @@ temporary (307) redirects from `lib/redirects.ts`.
 ## What the database does
 
 `supabase/migrations/20260930110000_admin_rpcs.sql` adds the audit log and the functions that must be atomic:
-`admin_list_collections`, `admin_publish_collection`, `admin_set_narration_enabled`, `admin_set_narration_provider` (added in `20260930140000_narration_providers.sql`), `admin_set_narration_caps`,
+`admin_list_collections`, `admin_publish_collection`, `admin_set_narration_enabled`, `admin_set_narration_provider` (added in `20260930140000_narration_providers.sql`), `admin_set_narration_route` (`20261116100000_narration_routes.sql`), `admin_set_narration_caps`,
 `admin_set_ai_credit_settings`, `admin_write_audit`, and audit rows inside `admin_grant_ai_credits` and
 `admin_reset_ai_credits`.
 
@@ -80,7 +80,7 @@ characters is required. Errors the admin should read use the database code `AD00
   shown as "This account has been suspended."); the proxy, which checks the session token locally (`getClaims`), so it stops them when
   the token next refreshes, up to about an hour later (`getSessionUser` checks `isBanned` itself only when the
   proxy's headers are absent);
-  widget tokens (`resolveUserFromToken`). A new way in that doesn't go through a
+  A new way in that doesn't go through a
   session must check `users.suspended_at` too.
 - **Delete** removes the auth user; everything else cascades. It is refused while other people have something
   hanging off the person's collections (added, studying, story preferences, review state or events), because

@@ -1,3 +1,5 @@
+import { signInWithAppleNative } from "@/lib/native/social-login";
+
 const APPLE_JS_URL =
   "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 
@@ -38,30 +40,12 @@ async function createNonce(): Promise<{ raw: string; hashed: string }> {
   return { raw, hashed: toHex(new Uint8Array(digest)) };
 }
 
-export async function isNativeAppleAvailable(): Promise<boolean> {
-  try {
-    const { Capacitor } = await import("@capacitor/core");
-    return Capacitor.getPlatform() === "ios" && Capacitor.isPluginAvailable("SocialLogin");
-  } catch {
-    return false;
-  }
-}
-
 async function nativeCredential(): Promise<AppleCredential> {
   const nonce = await createNonce();
-  const { SocialLogin } = await import("@capgo/capacitor-social-login");
-  await SocialLogin.initialize({ apple: { clientId: "com.lobyas.app" } });
-  try {
-    const { result } = await SocialLogin.login({
-      provider: "apple",
-      options: { scopes: ["email", "name"], nonce: nonce.hashed },
-    });
-    if (!result.idToken) throw new Error("Apple returned no ID token.");
-    return { idToken: result.idToken, nonce: nonce.raw };
-  } catch (error) {
-    if ((error as { code?: string }).code === "USER_CANCELLED") throw new AppleSignInCancelled();
-    throw error;
-  }
+  const result = await signInWithAppleNative(nonce.hashed);
+  if (result.status === "cancelled") throw new AppleSignInCancelled();
+  if (result.status === "failed") throw new Error("Sign in with Apple failed.");
+  return { idToken: result.idToken, nonce: nonce.raw };
 }
 
 let appleScript: Promise<void> | null = null;

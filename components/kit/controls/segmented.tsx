@@ -25,7 +25,7 @@ export function SegmentedControl({
       orientation="horizontal"
       value={value}
       onChange={onChange}
-      className={cn("grid rounded-full bg-base-300 p-0", className)}
+      className={cn("relative grid rounded-full bg-base-300 p-0", className)}
       style={{
         gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))`,
       }}

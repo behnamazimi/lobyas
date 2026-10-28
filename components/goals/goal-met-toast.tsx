@@ -14,15 +14,18 @@ const TIER_NAME: Record<GoalTier, string> = {
 /** A quiet toast, once per visit, when today's goal for a tier is met. A visit
  *  that showed the celebration skips it: the dialog already said so, and its
  *  buttons navigate away right after closing. */
-export function GoalMetToast({ tier }: { tier: GoalTier }) {
+export function GoalMetToast({ collectionId, tier }: { collectionId: string; tier: GoalTier }) {
   const settled = useSyncExternalStore(
     subscribeGoals,
-    () => goalMetSettled(tier),
+    () => goalMetSettled(collectionId, tier),
     () => false,
   );
   const celebrating = useSyncExternalStore(
     subscribeGoals,
-    () => getGoalsSnapshot()?.celebration?.tier === tier,
+    () =>
+      getGoalsSnapshot()?.celebrations.some(
+        (c) => c.collectionId === collectionId && c.tier === tier,
+      ) ?? false,
     () => false,
   );
   const { toast } = useToast();

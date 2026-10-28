@@ -1,4 +1,5 @@
 import { getSessionUser } from "@/lib/auth/require-session";
+import { loadGoalCollection } from "@/lib/goals/current";
 import { getRequestGoalSettings, loadGoalDay } from "@/lib/goals/settings";
 import { getStudyPhoneUserSettings } from "@/lib/streak/settings";
 import { withTodayDone } from "@/lib/streak/status";
@@ -10,18 +11,18 @@ export async function GoalsIsland() {
   if (!user) return null;
 
   try {
-    const [settings, phone, day] = await Promise.all([
+    const [settings, phone, picked] = await Promise.all([
       getRequestGoalSettings(user.id),
       getStudyPhoneUserSettings(user.id),
-      loadGoalDay(supabase),
+      loadGoalCollection(supabase, user.id),
     ]);
+    const collection = picked ? { ...picked, day: await loadGoalDay(supabase, picked.id) } : null;
     return (
       <GoalTracker
         key={user.id}
-        goals={settings.goals}
+        collection={collection}
         celebrate={settings.celebrate}
         timeZone={studyTimezone(phone.timezone)}
-        day={day}
         // A goal is only met once something counted today.
         streak={withTodayDone(phone.streak).current}
       />

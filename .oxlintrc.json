@@ -6,7 +6,38 @@
   },
   "rules": {
     "max-lines": ["error", 280],
-    "complexity": ["error", { "max": 15 }]
+    "complexity": [
+      "error",
+      {
+        "max": 15
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["@capacitor/*", "@capgo/*", "capacitor-native-settings"],
+            "message": "Native calls go through lib/native (see docs/native-bridge.md)."
+          }
+        ]
+      }
+    ],
+    "no-restricted-globals": [
+      "error",
+      {
+        "name": "Capacitor",
+        "message": "Native calls go through lib/native (see docs/native-bridge.md)."
+      }
+    ],
+    "no-restricted-properties": [
+      "error",
+      {
+        "property": "Capacitor",
+        "message": "Native calls go through lib/native (see docs/native-bridge.md)."
+      }
+    ],
+    "typescript/no-require-imports": "error"
   },
   "env": {
     "builtin": true
@@ -23,12 +54,7 @@
   ],
   "overrides": [
     {
-      "files": [
-        "components/ui/**",
-        "**/*.test.ts",
-        "**/*.test.tsx",
-        "widget/lobyas.widget/index.jsx"
-      ],
+      "files": ["components/ui/**", "**/*.test.ts", "**/*.test.tsx"],
       "rules": {
         "max-lines": "off"
       }
@@ -37,6 +63,14 @@
       "files": ["components/illustrations/scenes/**"],
       "rules": {
         "max-lines": ["error", 500]
+      }
+    },
+    {
+      "files": ["lib/native/**", "capacitor.config.ts"],
+      "rules": {
+        "no-restricted-imports": "off",
+        "no-restricted-globals": "off",
+        "no-restricted-properties": "off"
       }
     }
   ]

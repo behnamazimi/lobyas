@@ -1,5 +1,6 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 import { AUTHENTICATED_HOME_PATH } from "./lib/auth/safe-next-path";
+import { APP_ID, shellUserAgent } from "./lib/native/contract";
 
 const PRODUCTION_URL = "https://lobyas.com";
 
@@ -18,7 +19,7 @@ const launchUrl = process.env.CAP_SERVER_URL
   : `${PRODUCTION_URL}${AUTHENTICATED_HOME_PATH}`;
 
 const config: CapacitorConfig = {
-  appId: "com.lobyas.app",
+  appId: APP_ID,
   appName: "Lobyas",
   webDir: "native/www",
   backgroundColor: "#fdfcf9",
@@ -26,23 +27,26 @@ const config: CapacitorConfig = {
     url: launchUrl,
     allowNavigation: ["lobyas.com", "*.lobyas.com", new URL(serverUrl).hostname],
     errorPath: "offline.html",
+    cleartext: serverUrl.startsWith("http:"),
   },
   ios: {
-    appendUserAgent: `LobyasApp/ios/${appVersion}`,
+    appendUserAgent: shellUserAgent("ios", appVersion),
     // Lets the service worker run in WKWebView. Info.plist lists the allowed
     // domain, so it can't apply to a preview host.
     limitsNavigationsToAppBoundDomains: isProduction,
   },
   android: {
-    appendUserAgent: `LobyasApp/android/${appVersion}`,
+    appendUserAgent: shellUserAgent("android", appVersion),
   },
   plugins: {
     // The page hides the splash once it has painted (NativeSplash); the duration is the
-    // fallback for a slow or failed load.
+    // fallback for a load that hangs. No backgroundColor here: on iOS it would override the launch
+    // screen's own light and dark colours.
     // Only the Apple sheet is used; Google sign-in runs in the system browser, so the
     // Facebook and Google SDKs stay out of the app.
     SocialLogin: { providers: { apple: true, google: false, facebook: false, twitter: false } },
-    SplashScreen: { launchAutoHide: true, launchShowDuration: 4000, backgroundColor: "#fdfcf9" },
+    SplashScreen: { launchAutoHide: true, launchShowDuration: 12000 },
+    LocalNotifications: { smallIcon: "ic_stat_lobyas", iconColor: "#6fcf9a" },
   },
 };
 

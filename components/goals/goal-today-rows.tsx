@@ -1,23 +1,20 @@
 import { Check } from "lucide-react";
-import Link from "next/link";
 import { ProgressRing, SECTION_TITLE } from "@/components/kit";
 import { TONES, type Tone } from "@/components/kit/tones";
-import { GOAL_TIER_HREFS, GOAL_TIER_LABELS, GOAL_TIERS, type GoalTier } from "@/lib/goals/levels";
+import { GOAL_TIER_LABELS, GOAL_TIERS, type GoalTier } from "@/lib/goals/levels";
 import type { GoalProgress } from "@/lib/goals/progress";
 import { formatCount } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
 
 const TIER_TONE: Record<GoalTier, Tone> = { read: "read", review: "review", quiz: "quiz" };
 
-/** Today's goals with a check on the met ones. The open tier to go to next gets a link. */
+/** Today's goals with a check on the met ones. The open tier to go to next is tagged. */
 export function GoalTodayRows({
   progress,
   next,
-  onNavigate,
 }: {
   progress: GoalProgress;
   next: GoalTier | null;
-  onNavigate: () => void;
 }) {
   const tiers = GOAL_TIERS.filter((tier) => progress[tier].goal !== null);
   return (
@@ -43,6 +40,16 @@ export function GoalTodayRows({
               />
             )}
             <span className="flex-1 text-[15px] font-bold">{GOAL_TIER_LABELS[tier]}</span>
+            {tier === next ? (
+              <span
+                className={cn(
+                  "rounded-full px-2 py-0.5 text-xs font-extrabold",
+                  TONES[TIER_TONE[tier]].soft,
+                )}
+              >
+                Up next
+              </span>
+            ) : null}
             <span
               className={cn(
                 "text-sm font-extrabold tabular-nums",
@@ -51,18 +58,6 @@ export function GoalTodayRows({
             >
               {formatCount(done)} of {formatCount(goal ?? 0)}
             </span>
-            {tier === next ? (
-              <Link
-                href={GOAL_TIER_HREFS[tier]}
-                onClick={onNavigate}
-                className={cn(
-                  "-my-2 flex h-11 items-center rounded-full px-3.5 text-sm font-extrabold",
-                  TONES[TIER_TONE[tier]].soft,
-                )}
-              >
-                Go to {GOAL_TIER_LABELS[tier]}
-              </Link>
-            ) : null}
           </div>
         );
       })}

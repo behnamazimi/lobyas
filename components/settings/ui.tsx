@@ -5,12 +5,5 @@ export {
   SettingsStack,
   SettingsRow,
   DangerZone,
-  SetupStep,
 } from "@/components/settings/ui-layout";
-export {
-  CopyIconSwap,
-  CopyField,
-  AlertBanner,
-  HighlightPanel,
-  TokenRow,
-} from "@/components/settings/ui-fields";
+export { CopyIconSwap } from "@/components/settings/ui-fields";

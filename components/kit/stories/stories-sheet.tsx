@@ -53,7 +53,7 @@ export function SheetStories() {
           hero={<div className="h-40 bg-warning" />}
           footer={
             <Pill size="lg" onClick={() => setHeroOpen(false)}>
-              Done for today
+              Finish for today
             </Pill>
           }
         >

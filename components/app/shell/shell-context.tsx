@@ -1,7 +1,15 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+  useTransition,
+  type ReactNode,
+} from "react";
 import { setCurrentCollection } from "@/lib/collections/current";
 import { shellLayout } from "@/lib/chrome";
 import type { StreakSummary } from "@/lib/streak/status";
@@ -30,6 +38,8 @@ type ShellValue = {
   switcherOpen: boolean;
   setSwitcherOpen: (open: boolean) => void;
   setCollection: (id: string) => void;
+  /** True from picking a collection until the new page is on screen. */
+  switching: boolean;
   hasInAppHistory: boolean;
 };
 
@@ -76,6 +86,7 @@ export function ShellProvider({
   const router = useRouter();
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [overrideId, setOverrideId] = useState<string | null>(null);
+  const [switching, startSwitch] = useTransition();
   const [seenPath, setSeenPath] = useState(pathname);
   const [hasInAppHistory, setHasInAppHistory] = useState(false);
   if (pathname !== seenPath) {
@@ -87,6 +98,7 @@ export function ShellProvider({
   const currentId = overrideId ?? initialCurrentId;
   const setCollection = useCallback(
     (id: string) => {
+      if (switching) return;
       setCurrentCollection(id);
       setOverrideId(id);
       setSwitcherOpen(false);
@@ -95,18 +107,18 @@ export function ShellProvider({
         (collection) => collection.id === id && !collection.isActiveForReview,
       );
       if (pathname === "/app/library" || paused) {
-        router.push(`/app/library?collection=${id}`);
+        startSwitch(() => router.push(`/app/library?collection=${id}`));
         return;
       }
       if (shellLayout(pathname) === "study") {
         const params = new URLSearchParams(window.location.search);
         params.set("collection", id);
-        router.replace(`${pathname}?${params.toString()}`);
+        startSwitch(() => router.replace(`${pathname}?${params.toString()}`));
         return;
       }
-      router.refresh();
+      startSwitch(() => router.refresh());
     },
-    [collections, pathname, router],
+    [collections, pathname, router, switching],
   );
 
   const value = useMemo<ShellValue>(
@@ -121,6 +133,7 @@ export function ShellProvider({
       switcherOpen,
       setSwitcherOpen,
       setCollection,
+      switching,
       hasInAppHistory,
     }),
     [
@@ -134,6 +147,7 @@ export function ShellProvider({
       degraded,
       switcherOpen,
       setCollection,
+      switching,
       hasInAppHistory,
     ],
   );

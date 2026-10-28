@@ -1,43 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useMountEffect } from "@/hooks/use-mount-effect";
+import { closeSystemBrowser } from "@/lib/native/browser";
 import { parseAuthDeepLink } from "@/lib/native/auth-deep-link";
-import { isNativeShell } from "@/lib/native/shell";
+import { onAppUrlOpen } from "@/lib/native/events";
 
 /** In the native app, finishes Google sign-in when the system browser hands control back. */
 export function NativeAuthBridge() {
   const [finishing, setFinishing] = useState(false);
 
-  useEffect(() => {
-    if (!isNativeShell()) return;
-
-    let cancelled = false;
-    let removeListener: (() => Promise<void>) | undefined;
-
-    void (async () => {
-      const [{ App }, { Browser }] = await Promise.all([
-        import("@capacitor/app"),
-        import("@capacitor/browser"),
-      ]);
-      const handle = await App.addListener("appUrlOpen", ({ url }) => {
-        const path = parseAuthDeepLink(url);
-        if (!path) return;
-        setFinishing(true);
-        void Browser.close().catch(() => {});
-        window.location.assign(path);
-      });
-      if (cancelled) {
-        await handle.remove();
-        return;
-      }
-      removeListener = handle.remove;
-    })();
-
-    return () => {
-      cancelled = true;
-      void removeListener?.();
-    };
-  }, []);
+  useMountEffect(() =>
+    onAppUrlOpen((url) => {
+      const path = parseAuthDeepLink(url);
+      if (!path) return;
+      setFinishing(true);
+      closeSystemBrowser();
+      window.location.assign(path);
+    }),
+  );
 
   if (!finishing) return null;
 

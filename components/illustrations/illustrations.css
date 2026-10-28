@@ -2,7 +2,8 @@
 
 @layer base {
   :root,
-  .ill-mark {
+  .ill-mark,
+  .ill-on-light {
     --ill-ink: oklch(22% 0.02 60);
     --ill-face: oklch(22% 0.02 60);
     --ill-paper: var(--color-base-100);
@@ -13,8 +14,10 @@
     --ill-green: oklch(76% 0.12 153);
   }
 
-  /* The logo is a printed badge: it keeps its light colours on the dark theme too. */
-  .ill-mark {
+  /* The logo is a printed badge, and .ill-on-light sits on a light backdrop:
+     both keep their light colours on the dark theme too. */
+  .ill-mark,
+  .ill-on-light {
     --ill-paper: oklch(99% 0.005 85);
   }
 

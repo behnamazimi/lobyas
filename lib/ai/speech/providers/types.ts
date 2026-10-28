@@ -1,6 +1,6 @@
 import type { CollectionLanguage } from "@/lib/terms/languages";
 
-export type SpeechProvider = "murf" | "elevenlabs";
+export type SpeechProvider = "murf" | "elevenlabs" | "google" | "gemini";
 
 export type SynthesisRequest = {
   /** May contain NARRATION_PAUSE, which each provider writes its own way. */

@@ -38,7 +38,7 @@ export function QuestionStepCaption({
 
 type QuizQuestionFooterProps = {
   note: QuizNote | null;
-  /** Shown above Check, for a dictation question the learner can't listen to. */
+  /** Shown above Check: "Can't listen now" on dictation, "I don't know" on typed questions. */
   skipSlot: ReactNode;
   submitted: boolean;
   isLast: boolean;

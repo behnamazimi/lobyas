@@ -141,10 +141,11 @@ async function peekSlice(
   return row.term_ids.slice(row.cursor, row.cursor + limit);
 }
 
+// Every term in a job was picked as needing a new clip, so it is always made again.
 async function generateTerm(admin: AdminClient, termId: string): Promise<WaveResult> {
   const subject = await loadTermSubject(admin, termId);
   const result = subject
-    ? await getOrCreateAudio(admin, subject, { waitMs: WAIT_FOR_OTHER_MS })
+    ? await getOrCreateAudio(admin, subject, { waitMs: WAIT_FOR_OTHER_MS, regenerate: true })
     : null;
   const generated = result?.status === "ready";
   return { generated, lastError: generated ? null : `Unavailable for term ${termId}` };

@@ -1,4 +1,4 @@
-import { buzz, type HapticKind } from "@/lib/feedback/haptics";
+import { buzz, type HapticKind } from "@/lib/native/haptics";
 import { playSound, type SoundName } from "@/lib/feedback/sounds";
 
 type Effects = { sound?: SoundName; haptic?: HapticKind };

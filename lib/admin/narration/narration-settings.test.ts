@@ -8,27 +8,36 @@ function client(usageError: boolean) {
     from: (table: string) => {
       const node: Record<string, unknown> = {};
       const result = () =>
-        table === "ai_feature_settings"
+        table === "narration_routes"
           ? {
               data: [
-                {
-                  feature: "narration_term",
-                  enabled: true,
-                  daily_cap: null,
-                  murf_enabled: true,
-                  elevenlabs_enabled: false,
-                },
-                {
-                  feature: "narration_story",
-                  enabled: true,
-                  daily_cap: 20,
-                  murf_enabled: true,
-                  elevenlabs_enabled: true,
-                },
+                { route: "vocab_term", provider: "google" },
+                { route: "term", provider: "gemini" },
+                { route: "story", provider: "gemini" },
               ],
               error: null,
             }
-          : { count: 7, error: usageError ? new Error("x") : null };
+          : table === "ai_feature_settings"
+            ? {
+                data: [
+                  {
+                    feature: "narration_term",
+                    enabled: true,
+                    daily_cap: null,
+                    murf_enabled: true,
+                    elevenlabs_enabled: false,
+                  },
+                  {
+                    feature: "narration_story",
+                    enabled: true,
+                    daily_cap: 20,
+                    murf_enabled: true,
+                    elevenlabs_enabled: true,
+                  },
+                ],
+                error: null,
+              }
+            : { count: 7, error: usageError ? new Error("x") : null };
       const settle = () => Object.assign(Promise.resolve(result()), node);
       for (const method of ["select", "in", "eq", "gte"]) node[method] = settle;
       return node;
@@ -41,6 +50,7 @@ describe("getNarrationSettingsForAdmin", () => {
     expect(await getNarrationSettingsForAdmin(client(false))).toEqual({
       enabled: true,
       providers: { murf: true, elevenlabs: false },
+      routes: { vocab_term: "google", term: "gemini", story: "gemini" },
       caps: { term: null, story: 20 },
       usageLast24h: { term: 7, story: 7 },
     });

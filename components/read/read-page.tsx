@@ -72,7 +72,7 @@ export function ReadPage({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
-      <GoalMetToast tier="read" />
+      <GoalMetToast collectionId={collectionId} tier="read" />
 
       <div
         key={term?.id ?? "empty"}

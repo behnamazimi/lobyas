@@ -151,26 +151,6 @@ export async function fetchCollectionStats(client: Client, collectionIds: string
   return stats;
 }
 
-/** Service-role / admin client: stats for an explicit userId (no `auth.uid()` session). */
-export async function fetchCollectionStatsForUser(
-  client: Client,
-  userId: string,
-  collectionIds: string[],
-) {
-  if (collectionIds.length === 0) return tallyCollectionStats(collectionIds, []);
-
-  const data = await fetchAllRows((from, to) =>
-    client
-      .rpc("progress_state_by_collection", {
-        p_user_id: userId,
-        p_collection_ids: collectionIds,
-      })
-      .order("term_id")
-      .range(from, to),
-  );
-  return tallyCollectionStats(collectionIds, data);
-}
-
 export function applyCollectionStats<T extends { id: string }>(
   rows: T[],
   stats: Map<string, CollectionStats>,

@@ -146,7 +146,6 @@ export function StudyStories() {
         note="Radio answers keep arrow keys and digit shortcuts; the number shows on desktop keyboards only. The tiles are the does-it-fit pair."
       >
         <QuestionCard
-          label="Pick the term"
           prompt="Which term matches this definition?"
           quote="Something that stops you from making progress until it is cleared."
         />
@@ -179,13 +178,11 @@ export function StudyStories() {
         </RadioGroup>
         <QuestionCard
           className="mt-4"
-          label="Type it"
           prompt="Type the word or phrase that means this."
-          quote="thank you"
-          quoteStyle="word"
+          quote="To show you are grateful."
         />
         <div className="mt-3 flex flex-col gap-2">
-          <AnswerInput aria-label="Typed answer" placeholder="Type here" />
+          <AnswerInput aria-label="Typed answer" placeholder="Your answer" />
           <AnswerInput aria-label="Correct" state="correct" defaultValue="dank je" readOnly />
           <AnswerInput aria-label="Wrong" state="wrong" defaultValue="dank" readOnly />
           <AnswerInput aria-label="Skipped" state="skipped" readOnly />

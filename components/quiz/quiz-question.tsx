@@ -5,7 +5,7 @@ import { feedback } from "@/lib/feedback";
 import { QuestionCard } from "@/components/kit";
 import { QuizAnswerChoices } from "@/components/quiz/quiz-answer-choices";
 import { DictationPlayer } from "@/components/quiz/dictation-player";
-import { questionLabel, quizNote } from "@/components/quiz/quiz-note";
+import { quizNote } from "@/components/quiz/quiz-note";
 import { QuizQuestionFooter } from "@/components/quiz/quiz-question-footer";
 import type { QuizQuestion } from "@/lib/quiz/types";
 import { gradeAnswer } from "@/lib/quiz/grade";
@@ -90,6 +90,14 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
     startLockout();
   }
 
+  function giveUp() {
+    if (stateRef.current.state.phase !== "answering") return;
+    dispatch({ type: "SUBMIT", passed: false });
+    feedback("answer-wrong");
+    if (isTextEntryTarget(document.activeElement)) (document.activeElement as HTMLElement).blur();
+    startLockout();
+  }
+
   function advanceAnswer() {
     const current = stateRef.current;
     if (current.state.phase !== "ready") return;
@@ -154,18 +162,12 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
       })
     : null;
   const isDictation = question.interaction === "text" && question.dictation;
-  const quoteIsWord =
-    question.template === "typed_meaning_to_word" && (question.quote?.length ?? 0) <= 40;
+  const isTyped = question.interaction === "text" && !question.dictation;
 
   return (
     <div className="study-enter flex min-h-0 flex-1 flex-col gap-2">
       <div className="-mx-5 min-h-0 flex-1 overflow-y-auto px-5 pt-1 pb-3">
-        <QuestionCard
-          label={questionLabel(question)}
-          prompt={question.prompt}
-          quote={question.quote}
-          quoteStyle={quoteIsWord ? "word" : "box"}
-        >
+        <QuestionCard prompt={question.prompt} quote={question.quote}>
           {question.interaction === "text" && question.dictation ? (
             <DictationPlayer
               termId={question.termId}
@@ -198,6 +200,15 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
               className="mx-auto min-h-11 px-3.5 text-[15px] font-extrabold text-read-text"
             >
               Can&apos;t listen now
+            </button>
+          ) : isTyped ? (
+            <button
+              type="button"
+              onClick={giveUp}
+              onMouseDown={(event) => event.preventDefault()}
+              className="mx-auto min-h-11 px-3.5 text-[15px] font-extrabold text-read-text"
+            >
+              I don&apos;t know
             </button>
           ) : null
         }

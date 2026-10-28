@@ -1,23 +1,16 @@
 import { randomUUID } from "node:crypto";
 import { test, expect } from "../fixtures";
-import { sql } from "../support/db";
 import { gotoReady } from "../support/navigation";
+import { setCollectionGoals } from "../support/goals";
 import { seedCollection } from "../support/seed";
-
-async function saveGoals(userId: string, goals: Record<string, number | null>) {
-  await sql("update public.user_settings set daily_goals = $2 where user_id = $1", [
-    userId,
-    JSON.stringify(goals),
-  ]);
-}
 
 test.describe("Home", () => {
   test(
     "with goals, Home shows progress and Continue opens the next open goal",
     { tag: "@smoke" },
     async ({ page, user, isMobile }) => {
-      const { name } = await seedCollection(user);
-      await saveGoals(user.id, { read: 10, review: 20, quiz: 10 });
+      const { name, collectionId } = await seedCollection(user);
+      await setCollectionGoals(user.id, collectionId, { read: 10, review: 20, quiz: 10 });
       await gotoReady(page, "/app");
 
       await expect(
@@ -36,6 +29,26 @@ test.describe("Home", () => {
       await expect(page).toHaveURL(/\/app\/read/);
     },
   );
+
+  // Every prefetch is a server render, so Home only warms the tabs and the next step.
+  test("Home prefetches only the nav tabs and Continue", async ({ page, user }) => {
+    const { collectionId } = await seedCollection(user);
+    await setCollectionGoals(user.id, collectionId, { read: 10, review: 20, quiz: 10 });
+    const prefetched = new Set<string>();
+    page.on("request", (request) => {
+      if (request.headers()["next-router-prefetch"]) {
+        prefetched.add(new URL(request.url()).pathname);
+      }
+    });
+    // Tall enough that every link on Home is on screen, where Next prefetches it.
+    await page.setViewportSize({ width: 1280, height: 2000 });
+    await gotoReady(page, "/app");
+    await expect.poll(() => [...prefetched]).toContain("/app/read");
+    await page.waitForLoadState("networkidle");
+
+    const allowed = ["/app", "/app/goals", "/app/library", "/app/me", "/app/read"];
+    expect([...prefetched].filter((path) => !allowed.includes(path))).toEqual([]);
+  });
 
   test(
     "without goals, Home still offers a place to start and a way to set a pace",
