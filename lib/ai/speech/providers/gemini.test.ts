@@ -32,7 +32,7 @@ const request = {
 const isMp3 = (audio: Buffer) => audio[0] === 0xff && (audio[1]! & 0xe0) === 0xe0;
 
 describe("geminiProvider", () => {
-  it("asks for audio with the key in a header, the style first and a pause tag", async () => {
+  it("asks for audio with the key in a header, the script as is and a pause tag", async () => {
     const audio = await geminiProvider.synthesize(request);
 
     const [url, init] = fetchMock.mock.calls[0]!;
@@ -44,7 +44,7 @@ describe("geminiProvider", () => {
       contents: [
         {
           role: "user",
-          parts: [{ text: "Say in a neutral and friendly tone:\nTom & Jerry <long pause> <b>" }],
+          parts: [{ text: "Tom & Jerry <long pause> <b>" }],
         },
       ],
       generationConfig: {

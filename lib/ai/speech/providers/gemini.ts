@@ -6,8 +6,6 @@ import type { SpeechProviderAdapter } from "./types";
 const MODEL = "gemini-3.8-flash-tts";
 // A Gemini voice speaks any language, so one voice serves them all.
 const VOICE = "Charon";
-// Gemini takes tone as part of the text, spoken instruction first.
-const STYLE = "Say in a neutral and friendly tone:";
 // Short enough that the fallback still fits in the story narration route's 60 second limit.
 const REQUEST_TIMEOUT_MS = 25_000;
 // Not documented for this model; kept under the 4,000 bytes the earlier Gemini TTS models accept.
@@ -33,7 +31,7 @@ async function synthesizeChunk(
     method: "POST",
     headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: `${STYLE}\n${renderPauses(chunk, "gemini")}` }] }],
+      contents: [{ role: "user", parts: [{ text: renderPauses(chunk, "gemini") }] }],
       generationConfig: {
         responseModalities: ["AUDIO"],
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } },
