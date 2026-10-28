@@ -2239,12 +2239,12 @@ export type Database = {
         Returns: undefined;
       };
       admin_set_narration_enabled: { Args: { p_enabled: boolean }; Returns: undefined };
-      admin_set_narration_route: {
-        Args: { p_provider: string; p_route: string };
-        Returns: undefined;
-      };
       admin_set_narration_provider: {
         Args: { p_enabled: boolean; p_provider: string };
+        Returns: undefined;
+      };
+      admin_set_narration_route: {
+        Args: { p_provider: string; p_route: string };
         Returns: undefined;
       };
       admin_set_referral_code_active: {
