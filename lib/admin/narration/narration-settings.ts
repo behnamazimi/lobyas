@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SpeechProvider } from "@/lib/ai/speech/provider";
+import { NARRATION_ROUTES, type NarrationRoute } from "@/lib/ai/speech/routes";
 import type { Database } from "@/lib/supabase/database.types";
 
 type Client = SupabaseClient<Database>;
@@ -9,6 +11,8 @@ export type NarrationSettings = {
   enabled: boolean;
   /** Provider switches; on only when both narration features agree. */
   providers: { murf: boolean; elevenlabs: boolean };
+  /** The provider tried first for each kind of clip; the others are fallbacks. */
+  routes: Record<NarrationRoute, SpeechProvider>;
   /** Per-person daily caps; null means no cap. */
   caps: { term: number | null; story: number | null };
   /** Provider calls made in the last 24 hours, failed ones included. Null when the count couldn't be read. */
@@ -35,18 +39,26 @@ async function usageCount(client: Client, feature: string, since: string): Promi
  *  the page doesn't read as "on". */
 export async function getNarrationSettingsForAdmin(client: Client): Promise<NarrationSettings> {
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-  const [settings, term, story] = await Promise.all([
+  const [settings, routeRows, term, story] = await Promise.all([
     client
       .from("ai_feature_settings")
       .select("feature, enabled, daily_cap, murf_enabled, elevenlabs_enabled")
       .in("feature", [...NARRATION_FEATURES]),
+    client.from("narration_routes").select("route, provider"),
     usageCount(client, "narration_term", since),
     usageCount(client, "narration_story", since),
   ]);
   if (settings.error) throw settings.error;
+  if (routeRows.error) throw routeRows.error;
 
   const rows = settings.data;
   const capOf = (feature: string) => rows.find((row) => row.feature === feature)?.daily_cap ?? null;
+  const routes = Object.fromEntries(
+    NARRATION_ROUTES.map((route) => [
+      route,
+      routeRows.data.find((row) => row.route === route)?.provider,
+    ]),
+  ) as Record<NarrationRoute, SpeechProvider>;
 
   return {
     enabled: rows.length === 2 && rows.every((row) => row.enabled),
@@ -54,6 +66,7 @@ export async function getNarrationSettingsForAdmin(client: Client): Promise<Narr
       murf: rows.length === 2 && rows.every((row) => row.murf_enabled),
       elevenlabs: rows.length === 2 && rows.every((row) => row.elevenlabs_enabled),
     },
+    routes,
     caps: { term: capOf("narration_term"), story: capOf("narration_story") },
     usageLast24h: { term, story },
   };

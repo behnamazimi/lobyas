@@ -14,7 +14,7 @@ const uploadAudio = vi.fn();
 const deleteAudio = vi.fn();
 
 vi.mock("./jobs", () => jobs);
-const getProviderSwitches = vi.fn();
+const getProviderSettings = vi.fn();
 
 class SpeechSynthesisError extends Error {
   constructor(
@@ -26,7 +26,7 @@ class SpeechSynthesisError extends Error {
 }
 
 vi.mock("./provider", () => ({ synthesizeSpeech, SpeechSynthesisError }));
-vi.mock("./switches", () => ({ getProviderSwitches }));
+vi.mock("./switches", () => ({ getProviderSettings }));
 vi.mock("./storage", () => ({ uploadAudio, deleteAudio }));
 
 const { getOrCreateAudio, getReadyAudio, isCurrentJob } = await import("./audio");
@@ -59,6 +59,7 @@ function subject(overrides: Partial<SpeechSubject> = {}): SpeechSubject {
   return {
     type: "term",
     id: "t1",
+    route: "term",
     userId: null,
     contentHash: "h2",
     legacyHash: "h1",
@@ -72,7 +73,10 @@ beforeEach(() => {
   jobs.objectPathFor.mockResolvedValue(PATH);
   jobs.setJobPath.mockResolvedValue(true);
   jobs.markReady.mockResolvedValue(true);
-  getProviderSwitches.mockResolvedValue({ murf: true, elevenlabs: true });
+  getProviderSettings.mockResolvedValue({
+    switches: { murf: true, elevenlabs: true, google: true },
+    primary: "google",
+  });
   synthesizeSpeech.mockResolvedValue({
     audio: Buffer.from("mp3"),
     provider: "murf",
@@ -168,7 +172,8 @@ describe("getOrCreateAudio", () => {
     await getOrCreateAudio(admin, subject());
     expect(synthesizeSpeech).toHaveBeenCalledWith(
       { script: "Closure. A function.", language: "en", kind: "term" },
-      { murf: true, elevenlabs: true },
+      { murf: true, elevenlabs: true, google: true },
+      "google",
     );
     expect(jobs.markReady).toHaveBeenCalledWith(admin, "job-2", "murf");
   });
@@ -273,7 +278,7 @@ describe("getOrCreateAudio", () => {
   it("fails the job and records no provider calls when the switches can't be read", async () => {
     jobs.getLiveJob.mockResolvedValue(null);
     jobs.claimJob.mockResolvedValue(job({ id: "job-2", status: "pending", storage_path: null }));
-    getProviderSwitches.mockRejectedValue(new Error("no settings row"));
+    getProviderSettings.mockRejectedValue(new Error("no settings row"));
     const result = await getOrCreateAudio(admin, subject());
     expect(result).toEqual({ status: "unavailable", generation: { calls: [] } });
     expect(jobs.markFailed).toHaveBeenCalledWith(admin, "job-2", "no settings row");

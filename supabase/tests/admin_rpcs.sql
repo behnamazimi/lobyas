@@ -242,6 +242,19 @@ begin
   begin perform public.admin_set_narration_provider('murf', null); exception when others then v_failed := true; end;
   assert v_failed, 'null provider switch accepted';
 
+  assert (select string_agg(route || ':' || provider, ',' order by route) from public.narration_routes) = 'story:gemini,term:gemini,vocab_term:google', 'the routes start on their defaults';
+  perform public.admin_set_narration_route('story', 'murf');
+  assert (select provider from public.narration_routes where route = 'story') = 'murf', 'the story route was not set';
+  assert (select count(*) from public.narration_routes where provider = 'murf') = 1, 'only the chosen route changed';
+  assert exists (select 1 from public.admin_audit_log where action = 'set_narration_route' and details = jsonb_build_object('route', 'story', 'provider', 'murf')), 'the route change is audited';
+  v_failed := false;
+  begin perform public.admin_set_narration_route('story', 'polly'); exception when others then v_failed := sqlerrm like 'Unknown narration provider%'; end;
+  assert v_failed, 'an unknown provider was accepted for a route';
+  v_failed := false;
+  begin perform public.admin_set_narration_route('podcast', 'murf'); exception when others then v_failed := sqlerrm like 'Unknown narration route%'; end;
+  assert v_failed, 'an unknown route was accepted';
+  perform public.admin_set_narration_route('story', 'gemini');
+
   perform public.admin_set_narration_caps(null, 15);
   assert (select daily_cap is null from public.ai_feature_settings where feature = 'narration_term'), 'line 170';
   assert (select daily_cap = 15 from public.ai_feature_settings where feature = 'narration_story'), 'line 171';
@@ -310,7 +323,7 @@ begin
   assert v_failed, 'non-object audit details accepted';
 
   -- The audit trail: exactly what this run did, by this admin, and nothing for refused calls.
-  assert (select count(*) from public.admin_audit_log where actor_id = admin_id and actor_email = 'rpc-admin@example.test') = 15, 'unexpected number of audit rows';
+  assert (select count(*) from public.admin_audit_log where actor_id = admin_id and actor_email = 'rpc-admin@example.test') = 17, 'unexpected number of audit rows';
   assert (select count(*) from public.admin_audit_log where actor_id = admin_id and action = 'publish_collection') = 3, 'publish audit rows';
   assert (select count(*) from public.admin_audit_log where actor_id = admin_id and action = 'set_narration_enabled') = 1, 'narration enabled audit rows';
   assert (select count(*) from public.admin_audit_log where actor_id = admin_id and action = 'set_narration_caps') = 2, 'narration caps audit rows';

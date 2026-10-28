@@ -17,6 +17,9 @@ dependencies:
   '@aws-sdk/client-s3':
     specifier: ^3.1126.0
     version: 3.1126.0
+  '@breezystack/lamejs':
+    specifier: ^1.2.7
+    version: 1.2.7
   '@capacitor/app':
     specifier: ^8
     version: 8.1.2(@capacitor/core@8.5.3)
@@ -525,6 +528,10 @@ packages:
   /@aws/lambda-invoke-store@0.3.0:
     resolution: {integrity: sha512-sl4Bm6yiMNYrZKkqqDFWN0UfnWhlS8ivKxrYl+6t0gCLrqr8y3B2IqZZbFRkfaVVp7C/baApyh71P+LeE1A2sQ==}
     engines: {node: '>=18.0.0'}
+    dev: false
+
+  /@breezystack/lamejs@1.2.7:
+    resolution: {integrity: sha512-6wc7ck65ctA75Hq7FYHTtTvGnYs6msgdxiSUICQ+A01nVOWg6rqouZB8IdyteRlfpYYiFovkf67dIeOgWIUzTA==}
     dev: false
 
   /@capacitor/android@8.5.3(@capacitor/core@8.5.3):

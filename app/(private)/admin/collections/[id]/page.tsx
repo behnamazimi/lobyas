@@ -24,6 +24,8 @@ import {
   getLastNarrationSyncJob,
   listCollectionTermClips,
 } from "@/lib/narration/sync";
+import { routeForCollection } from "@/lib/ai/speech/routes";
+import { getRouteProvider } from "@/lib/ai/speech/switches";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type PageProps = {
@@ -48,19 +50,23 @@ export default async function AdminCollectionPage({ params, searchParams }: Page
 
   const narratable = canNarrateCollection(collection);
   const admin = createAdminClient();
-  const narration = narratable
-    ? await Promise.all([
-        getNarrationMode(supabase, id),
-        getCollectionNarrationCoverage(admin, id),
-        listCollectionTermClips(admin, id, {
-          page,
-          pageSize: PAGE_SIZE,
-          state: filter === "all" ? "all" : filter,
-        }),
-        getLastNarrationSyncJob(admin),
-        isNarrationEnabled(admin),
-      ])
+  const primary = narratable
+    ? await getRouteProvider(admin, routeForCollection(collection.kind))
     : null;
+  const narration =
+    narratable && primary
+      ? await Promise.all([
+          getNarrationMode(supabase, id),
+          getCollectionNarrationCoverage(admin, id, primary),
+          listCollectionTermClips(admin, id, {
+            page,
+            pageSize: PAGE_SIZE,
+            state: filter === "all" ? "all" : filter,
+          }),
+          getLastNarrationSyncJob(admin),
+          isNarrationEnabled(admin),
+        ])
+      : null;
 
   return (
     <>
@@ -108,6 +114,8 @@ export default async function AdminCollectionPage({ params, searchParams }: Page
             collectionId={id}
             narrationEnabled={narration[4]}
             needsAudioCount={narration[1].stale + narration[1].missing}
+            provider={primary!}
+            needsProviderCount={narration[1].needsProvider}
             lastJob={narration[3]}
           />
 
@@ -117,6 +125,7 @@ export default async function AdminCollectionPage({ params, searchParams }: Page
             total={narration[2].total}
             filter={filter}
             page={page}
+            canRegenerate={narration[4]}
           />
         </AdminSection>
       ) : null}

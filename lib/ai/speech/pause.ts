@@ -8,6 +8,10 @@ const PAUSE_SYNTAX = {
   murf: `[pause ${PAUSE_SECONDS}s]`,
   // ElevenLabs has no pause tag; the dashes are read as a beat.
   elevenlabs: " -- -- ",
+  // Gemini reads this tag as a pause of about a second.
+  gemini: "<long pause>",
+  // SSML; the script must be XML-escaped before this is rendered.
+  google: `<break time="${PAUSE_SECONDS}s"/>`,
   // For voices that pause on their own, so the characters aren't spent.
   none: "",
 } as const;

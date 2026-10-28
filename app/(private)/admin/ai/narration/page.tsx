@@ -37,6 +37,7 @@ export default async function AdminNarrationPage() {
       cronNote={cronNote}
       enabled={settings.enabled}
       providers={settings.providers}
+      routes={settings.routes}
       providerKeys={configuredProviders()}
       caps={settings.caps}
       usageLast24h={settings.usageLast24h}

@@ -3,7 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { CURRENT_HASH_VERSION } from "@/lib/narration/content-hash-v2";
 import { claimJob, getLiveJob, markFailed, markReady, objectPathFor, setJobPath } from "./jobs";
 import { SpeechSynthesisError, synthesizeSpeech, type ProviderCall } from "./provider";
-import { getProviderSwitches } from "./switches";
+import { getProviderSettings } from "./switches";
 import { deleteAudio, uploadAudio } from "./storage";
 import type { AudioJob, AudioResult, SpeechSubject } from "./types";
 
@@ -115,10 +115,11 @@ async function generate(
       return { status: "pending" };
     }
 
-    const switches = await getProviderSwitches(admin, subject.type);
+    const { switches, primary } = await getProviderSettings(admin, subject);
     const result = await synthesizeSpeech(
       { script: loaded.script, language: loaded.language, kind: subject.type },
       switches,
+      primary,
     );
     calls = result.calls;
     await uploadAudio(path, result.audio);

@@ -7,12 +7,12 @@ this page explains how the pieces fit. Credits and their ledger are covered in
 
 ## Features
 
-| Feature           | What it does                    | Vendor                       | Billing | Unit             |
-| ----------------- | ------------------------------- | ---------------------------- | ------- | ---------------- |
-| `quiz`            | Writes quiz questions           | Google or Anthropic          | Credits | question         |
-| `story`           | Writes a story around due terms | Google or Anthropic          | Credits | term             |
-| `narration_term`  | Spoken clip for a term          | Murf, ElevenLabs as fallback | None    | clip             |
-| `narration_story` | Spoken clip for a story         | Murf, ElevenLabs as fallback | Credits | 1,000 characters |
+| Feature           | What it does                    | Vendor                     | Billing | Unit             |
+| ----------------- | ------------------------------- | -------------------------- | ------- | ---------------- |
+| `quiz`            | Writes quiz questions           | Google or Anthropic        | Credits | question         |
+| `story`           | Writes a story around due terms | Google or Anthropic        | Credits | term             |
+| `narration_term`  | Spoken clip for a term          | Google, Murf or ElevenLabs | None    | clip             |
+| `narration_story` | Spoken clip for a story         | Google, Murf or ElevenLabs | Credits | 1,000 characters |
 
 `billing: none` means the feature never touches credits or the ledger.
 Story narration is billed, but the charge is passed into `lib/ai/speech/` from
@@ -48,17 +48,38 @@ a time.
 
 ## Narration
 
-Audio is made by Murf, with ElevenLabs as the fallback, and kept in the storage
-bucket. The shared code is `lib/ai/speech/`:
+Audio is made by Google WaveNet, Gemini, Murf or ElevenLabs, and kept in the
+storage bucket. Which provider is tried first depends on what is narrated,
+a route set by the admin in `narration_routes`: `vocab_term` (words and
+phrases of a vocabulary collection), `term` (other terms) and `story`. The
+others are fallbacks. The shared code is `lib/ai/speech/`:
 
-- `provider.ts` is the router. It tries Murf, then ElevenLabs, skipping a
-  provider that the admin switched off (`murf_enabled`, `elevenlabs_enabled` on
-  the narration rows of `ai_feature_settings`, read by `switches.ts`) or that has
-  no API key. Any error from one provider moves on to the next. The adapters
-  are in `providers/` and are the only files that know a vendor.
+- `routes.ts` names the routes; a subject carries its `route` (terms by their
+  collection's kind). `switches.ts` reads the route's provider and the Murf and
+  ElevenLabs switches (`murf_enabled`, `elevenlabs_enabled`).
+- `provider.ts` is the router. It tries the route's provider, then the others
+  (Murf, ElevenLabs, Google, Gemini), skipping a provider that is switched off
+  or has no API key or no voice for the language. Any error from one provider
+  moves on to the next. The adapters are in `providers/` and are the only
+  files that know a vendor.
 - Every provider call is recorded in `ai_usage_events` with its provider, so a
   fallback counts as two calls. The job stores the provider that made the clip.
   Rows older than 90 days are deleted daily by `prune_operational_rows()`.
+- `providers/google.ts` is the `google` adapter: Cloud Text-to-Speech over REST
+  (`GOOGLE_TTS_API_KEY`) with WaveNet voices and SSML pauses; no style prompt.
+  A request is limited to 5,000 bytes, so `google-chunks.ts` splits a long
+  script at pauses and paragraphs (counted in bytes) and the MP3 parts are joined.
+- `providers/gemini.ts` is the `gemini` adapter: `gemini-3.8-flash-tts` through
+  `generateContent` on `aiplatform.googleapis.com` (`GEMINI_API_KEY`, sent in a
+  header). The tone is a spoken instruction before the script and pauses are
+  `<long pause>` tags. The reply is headerless 24 kHz PCM, which the adapter
+  encodes to MP3 (`@breezystack/lamejs`, pure JS) so storage and serving stay
+  MP3-only. Cloud Text-to-Speech cannot reach this model. It is a preview model,
+  so the fallbacks matter.
+- The provider is not part of a clip's content hash: changing a route affects
+  new clips only. "Regenerate" on `/admin/collections/[id]` remakes one clip, or
+  every clip not made by the collection's route provider (a normal sync job:
+  its terms are always made again). A fallback still applies to those.
 - `pause.ts` is the one place that knows about pauses: the marker term scripts
   carry (`NARRATION_PAUSE`), the pause length, and how each provider writes it.
   Adapters call `renderPauses`; to change a pause, change it there.
@@ -116,9 +137,9 @@ the collection's page (`/admin/collections/[id]`) and continued by a cron job; s
 
 ## Environment
 
-| Variable                                      | Used for                             |
-| --------------------------------------------- | ------------------------------------ |
-| `CENTRAL_LLM_PROVIDER`, `CENTRAL_LLM_API_KEY` | The app's key for Quiz and Stories   |
-| `MURF_API_KEY`, `ELEVENLABS_API_KEY`          | Narration providers (main, fallback) |
-| `SUPABASE_S3_*`                               | Narration audio storage              |
-| `AI_INTERNAL_SECRET`                          | Narration sync route                 |
+| Variable                                                   | Used for                           |
+| ---------------------------------------------------------- | ---------------------------------- |
+| `CENTRAL_LLM_PROVIDER`, `CENTRAL_LLM_API_KEY`              | The app's key for Quiz and Stories |
+| `GOOGLE_TTS_API_KEY`, `MURF_API_KEY`, `ELEVENLABS_API_KEY` | Narration providers                |
+| `SUPABASE_S3_*`                                            | Narration audio storage            |
+| `AI_INTERNAL_SECRET`                                       | Narration sync route               |

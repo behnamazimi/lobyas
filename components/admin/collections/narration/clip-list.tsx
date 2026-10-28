@@ -1,5 +1,8 @@
 import { AdminPagination } from "@/components/admin/admin-pagination";
 import { AdminTabs } from "@/components/admin/admin-tabs";
+import { RegenerateClipButton } from "@/components/admin/collections/narration/clip-actions";
+import { PROVIDER_LABELS } from "@/lib/ai/speech/labels";
+import type { SpeechProvider } from "@/lib/ai/speech/provider";
 import type { NarrationTermClip } from "@/lib/narration/sync-shared";
 
 export type ClipFilter = "all" | "missing" | "stale";
@@ -34,12 +37,14 @@ export function ClipList({
   total,
   filter,
   page,
+  canRegenerate,
 }: {
   collectionId: string;
   clips: NarrationTermClip[];
   total: number;
   filter: ClipFilter;
   page: number;
+  canRegenerate: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -57,7 +62,9 @@ export function ClipList({
             <tr>
               <th>Term</th>
               <th>Clip</th>
+              <th>Voice</th>
               <th>Listen</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -66,6 +73,9 @@ export function ClipList({
                 <td className="font-medium text-base-content">{clip.term}</td>
                 <td>
                   <span className={`badge badge-sm ${STATE_BADGE[clip.state]}`}>{clip.state}</span>
+                </td>
+                <td className="text-base-content/65">
+                  {clip.provider ? PROVIDER_LABELS[clip.provider as SpeechProvider] : "—"}
                 </td>
                 <td>
                   {clip.state === "current" ? (
@@ -80,11 +90,19 @@ export function ClipList({
                     <span className="text-base-content/50">—</span>
                   )}
                 </td>
+                <td>
+                  <RegenerateClipButton
+                    collectionId={collectionId}
+                    termId={clip.id}
+                    term={clip.term}
+                    disabled={!canRegenerate}
+                  />
+                </td>
               </tr>
             ))}
             {clips.length === 0 ? (
               <tr>
-                <td colSpan={3} className="text-center text-base-content/50">
+                <td colSpan={5} className="text-center text-base-content/50">
                   No terms here.
                 </td>
               </tr>
