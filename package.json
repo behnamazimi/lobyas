@@ -34,9 +34,9 @@
     "widget:link": "scripts/widget-link.sh"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.47",
-    "@ai-sdk/google": "^4.0.24",
-    "@ai-sdk/otel": "^1.0.143",
+    "@ai-sdk/anthropic": "^4.0.90",
+    "@ai-sdk/google": "^4.0.107",
+    "@ai-sdk/otel": "^1.0.155",
     "@aws-sdk/client-s3": "^3.1126.0",
     "@capacitor/app": "^8",
     "@capacitor/browser": "^8",
@@ -55,7 +55,7 @@
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.112.4",
     "@types/mdx": "^2.0.14",
-    "ai": "^7.0.114",
+    "ai": "^7.0.155",
     "clsx": "^2.1.1",
     "entities": "8.0.0",
     "lucide-react": "^1.52.0",
