@@ -1,5 +1,6 @@
 import { Mp3Encoder } from "@breezystack/lamejs";
 import { renderPauses } from "../pause";
+import { trimTrailingNoise } from "./gemini-trim";
 import { chunkScript } from "./google-chunks";
 import type { SpeechProviderAdapter } from "./types";
 
@@ -51,7 +52,7 @@ async function synthesizeChunk(
 
   const sampleRate = Number(audio[0]!.mimeType?.match(/rate=(\d+)/)?.[1]) || DEFAULT_SAMPLE_RATE;
   const pcm = Buffer.concat(audio.map((part) => stripWavHeader(Buffer.from(part.data!, "base64"))));
-  return { pcm, sampleRate };
+  return { pcm: trimTrailingNoise(pcm, sampleRate), sampleRate };
 }
 
 // The API sends headerless PCM; a WAV header, if one ever comes, must not be encoded as sound.
@@ -81,10 +82,6 @@ export const geminiProvider: SpeechProviderAdapter = {
   async synthesize({ script }) {
     const apiKey = process.env.GEMINI_TTS_API_KEY;
     if (!apiKey) throw new Error("Missing GEMINI_TTS_API_KEY.");
-
-    console.log("================================================");
-    console.log(apiKey?.slice(-4), "...");
-    console.log("================================================");
 
     const chunks: Buffer[] = [];
     let sampleRate = DEFAULT_SAMPLE_RATE;

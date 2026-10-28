@@ -73,7 +73,9 @@ others are fallbacks. The shared code is `lib/ai/speech/`:
   `generateContent` on `aiplatform.googleapis.com` (`GEMINI_TTS_API_KEY`, sent in a
   header). Its text is read verbatim, so it has no tone
   instruction (the endpoint has no style field, and a line of instruction is read
-  aloud). Pauses are `<long pause>` tags. The reply is headerless 24 kHz PCM, which the adapter
+  aloud). Pauses are `<long pause>` tags. Gemini often ends a clip with a short burst
+  of noise, so `gemini-trim.ts` drops a final sound under 0.4 s that follows a pause
+  (per request, before the parts are joined) and fades the end. The reply is headerless 24 kHz PCM, which the adapter
   encodes to MP3 (`@breezystack/lamejs`, pure JS) so storage and serving stay
   MP3-only. Cloud Text-to-Speech cannot reach this model. It is a preview model,
   so the fallbacks matter.
