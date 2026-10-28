@@ -1,13 +1,12 @@
 import { Mp3Encoder } from "@breezystack/lamejs";
 import { renderPauses } from "../pause";
+import { trimTrailingNoise } from "./gemini-trim";
 import { chunkScript } from "./google-chunks";
 import type { SpeechProviderAdapter } from "./types";
 
-const MODEL = "gemini-3.8-flash-tts";
+const MODEL = "gemini-3.8-flash-lite-tts";
 // A Gemini voice speaks any language, so one voice serves them all.
 const VOICE = "Charon";
-// Gemini takes tone as part of the text, spoken instruction first.
-const STYLE = "Say in a neutral and friendly tone:";
 // Short enough that the fallback still fits in the story narration route's 60 second limit.
 const REQUEST_TIMEOUT_MS = 25_000;
 // Not documented for this model; kept under the 4,000 bytes the earlier Gemini TTS models accept.
@@ -33,7 +32,7 @@ async function synthesizeChunk(
     method: "POST",
     headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
     body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: `${STYLE}\n${renderPauses(chunk, "gemini")}` }] }],
+      contents: [{ role: "user", parts: [{ text: renderPauses(chunk, "gemini") }] }],
       generationConfig: {
         responseModalities: ["AUDIO"],
         speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: VOICE } } },
@@ -53,7 +52,7 @@ async function synthesizeChunk(
 
   const sampleRate = Number(audio[0]!.mimeType?.match(/rate=(\d+)/)?.[1]) || DEFAULT_SAMPLE_RATE;
   const pcm = Buffer.concat(audio.map((part) => stripWavHeader(Buffer.from(part.data!, "base64"))));
-  return { pcm, sampleRate };
+  return { pcm: trimTrailingNoise(pcm, sampleRate), sampleRate };
 }
 
 // The API sends headerless PCM; a WAV header, if one ever comes, must not be encoded as sound.
@@ -79,10 +78,10 @@ export function encodeMp3(pcm: Buffer, sampleRate: number): Buffer {
 
 export const geminiProvider: SpeechProviderAdapter = {
   id: "gemini",
-  isConfigured: () => Boolean(process.env.GEMINI_API_KEY?.trim()),
+  isConfigured: () => Boolean(process.env.GEMINI_TTS_API_KEY?.trim()),
   async synthesize({ script }) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("Missing GEMINI_API_KEY.");
+    const apiKey = process.env.GEMINI_TTS_API_KEY;
+    if (!apiKey) throw new Error("Missing GEMINI_TTS_API_KEY.");
 
     const chunks: Buffer[] = [];
     let sampleRate = DEFAULT_SAMPLE_RATE;

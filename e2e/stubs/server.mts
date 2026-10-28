@@ -170,7 +170,7 @@ const geminiAudio: Route = ({ path, res }) => {
 };
 
 function service(path: string): Route | undefined {
-  if (path.includes("/publishers/google/models/gemini-3.8-flash-tts:")) return geminiAudio;
+  if (path.includes("/publishers/google/models/gemini-3.8-flash-lite-tts:")) return geminiAudio;
   if (path.includes(":generateContent")) return llm;
   if (path === "/emails") return email;
   if (path.startsWith("/v1/text-to-speech/") || path === "/v1/speech/stream") return rawAudio;

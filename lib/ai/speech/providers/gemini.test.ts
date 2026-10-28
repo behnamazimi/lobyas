@@ -14,7 +14,7 @@ const reply = (pcm: Buffer, mimeType = "audio/L16;codec=pcm;rate=24000") =>
 
 beforeEach(() => {
   vi.stubGlobal("fetch", fetchMock);
-  vi.stubEnv("GEMINI_API_KEY", "key");
+  vi.stubEnv("GEMINI_TTS_API_KEY", "key");
   fetchMock.mockImplementation(async () => reply(SECOND_OF_SILENCE));
 });
 
@@ -32,19 +32,19 @@ const request = {
 const isMp3 = (audio: Buffer) => audio[0] === 0xff && (audio[1]! & 0xe0) === 0xe0;
 
 describe("geminiProvider", () => {
-  it("asks for audio with the key in a header, the style first and a pause tag", async () => {
+  it("asks for audio with the key in a header, the script as is and a pause tag", async () => {
     const audio = await geminiProvider.synthesize(request);
 
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe(
-      "https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-3.8-flash-tts:generateContent",
+      "https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-3.8-flash-lite-tts:generateContent",
     );
     expect(init.headers["x-goog-api-key"]).toBe("key");
     expect(JSON.parse(init.body)).toMatchObject({
       contents: [
         {
           role: "user",
-          parts: [{ text: "Say in a neutral and friendly tone:\nTom & Jerry <long pause> <b>" }],
+          parts: [{ text: "Tom & Jerry <long pause> <b>" }],
         },
       ],
       generationConfig: {
@@ -79,7 +79,7 @@ describe("geminiProvider", () => {
   });
 
   it("is unconfigured without a key", () => {
-    vi.stubEnv("GEMINI_API_KEY", " ");
+    vi.stubEnv("GEMINI_TTS_API_KEY", " ");
     expect(geminiProvider.isConfigured()).toBe(false);
   });
 });
