@@ -28,8 +28,12 @@ export function featureHealth(feature: FeatureId): FeatureHealth {
       if (note) return { ok: false, note };
       return missing("MURF_API_KEY") &&
         missing("ELEVENLABS_API_KEY") &&
-        missing("GOOGLE_TTS_API_KEY")
-        ? { ok: false, note: "Missing MURF_API_KEY, ELEVENLABS_API_KEY and GOOGLE_TTS_API_KEY." }
+        missing("GOOGLE_TTS_API_KEY") &&
+        missing("GEMINI_API_KEY")
+        ? {
+            ok: false,
+            note: "Missing every narration API key (MURF, ELEVENLABS, GOOGLE_TTS, GEMINI).",
+          }
         : { ok: true };
     }
   }

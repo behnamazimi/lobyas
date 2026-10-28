@@ -19,7 +19,7 @@ describe("renderPauses", () => {
   });
 
   it("writes every pause as a Gemini tag", () => {
-    expect(renderPauses(script, "gemini")).toBe("One. [long pause] Two. [long pause] Three.");
+    expect(renderPauses(script, "gemini")).toBe("One. <long pause> Two. <long pause> Three.");
   });
 
   it("drops the pauses and their spacing for a voice that doesn't use them", () => {

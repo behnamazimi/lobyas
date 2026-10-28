@@ -65,13 +65,17 @@ others are fallbacks. The shared code is `lib/ai/speech/`:
 - Every provider call is recorded in `ai_usage_events` with its provider, so a
   fallback counts as two calls. The job stores the provider that made the clip.
   Rows older than 90 days are deleted daily by `prune_operational_rows()`.
-- `providers/google.ts` holds two adapters that call Cloud Text-to-Speech over
-  REST with one key (`GOOGLE_TTS_API_KEY`): `google` (WaveNet voices, SSML
-  pauses, no style prompt) and `gemini` (`gemini-3.1-flash-tts-preview`, a
-  "Neutral and friendly." style prompt, `[long pause]` tags). Their limits are
-  5,000 and 4,000 bytes per request, so `google-chunks.ts` splits a long script
-  at pauses and paragraphs (counted in bytes) and the MP3 parts are joined.
-  Gemini is a preview model, so the fallbacks matter.
+- `providers/google.ts` is the `google` adapter: Cloud Text-to-Speech over REST
+  (`GOOGLE_TTS_API_KEY`) with WaveNet voices and SSML pauses; no style prompt.
+  A request is limited to 5,000 bytes, so `google-chunks.ts` splits a long
+  script at pauses and paragraphs (counted in bytes) and the MP3 parts are joined.
+- `providers/gemini.ts` is the `gemini` adapter: `gemini-3.8-flash-tts` through
+  `generateContent` on `aiplatform.googleapis.com` (`GEMINI_API_KEY`, sent in a
+  header). The tone is a spoken instruction before the script and pauses are
+  `<long pause>` tags. The reply is headerless 24 kHz PCM, which the adapter
+  encodes to MP3 (`@breezystack/lamejs`, pure JS) so storage and serving stay
+  MP3-only. Cloud Text-to-Speech cannot reach this model. It is a preview model,
+  so the fallbacks matter.
 - The provider is not part of a clip's content hash: changing a route affects
   new clips only. "Regenerate" on `/admin/collections/[id]` remakes one clip, or
   every clip not made by the collection's route provider (a normal sync job:

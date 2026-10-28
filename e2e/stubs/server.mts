@@ -153,7 +153,24 @@ const googleAudio: Route = ({ path, res }) => {
   json(res, 200, { audioContent: MP3.toString("base64") });
 };
 
+// One second of silence, the 24 kHz 16-bit mono PCM Gemini returns.
+const SILENCE = Buffer.alloc(24_000 * 2).toString("base64");
+
+const geminiAudio: Route = ({ path, res }) => {
+  requests.push({ service: "narration", path });
+  json(res, 200, {
+    candidates: [
+      {
+        content: {
+          parts: [{ inlineData: { mimeType: "audio/L16;codec=pcm;rate=24000", data: SILENCE } }],
+        },
+      },
+    ],
+  });
+};
+
 function service(path: string): Route | undefined {
+  if (path.includes("/publishers/google/models/gemini-3.8-flash-tts:")) return geminiAudio;
   if (path.includes(":generateContent")) return llm;
   if (path === "/emails") return email;
   if (path.startsWith("/v1/text-to-speech/") || path === "/v1/speech/stream") return rawAudio;

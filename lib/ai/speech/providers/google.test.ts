@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { geminiProvider, googleProvider } from "./google";
+import { googleProvider } from "./google";
 
 const fetchMock = vi.fn();
 const audio = (text: string) =>
@@ -56,24 +56,5 @@ describe("googleProvider", () => {
   it("is unconfigured without a key", () => {
     vi.stubEnv("GOOGLE_TTS_API_KEY", " ");
     expect(googleProvider.isConfigured()).toBe(false);
-  });
-});
-
-describe("geminiProvider", () => {
-  it("sends the text with pause tags, the style prompt and the model, unescaped", async () => {
-    await geminiProvider.synthesize({ ...request, language: "ja" });
-
-    expect(JSON.parse(fetchMock.mock.calls[0]![1].body)).toMatchObject({
-      input: { text: "Tom & Jerry [long pause] <b>", prompt: "Neutral and friendly." },
-      voice: { languageCode: "ja-JP", name: "Charon", modelName: "gemini-3.1-flash-tts-preview" },
-      audioConfig: { audioEncoding: "MP3" },
-    });
-  });
-
-  it("splits a script under Gemini's smaller 4,000-byte text limit", async () => {
-    const script = `${"x".repeat(2_000)}\n\n${"y".repeat(2_000)}`;
-    fetchMock.mockImplementation(async () => audio("mp3"));
-    await geminiProvider.synthesize({ ...request, script });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 });

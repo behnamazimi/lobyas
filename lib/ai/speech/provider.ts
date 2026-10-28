@@ -1,5 +1,6 @@
 import { elevenLabsProvider } from "./providers/elevenlabs";
-import { geminiProvider, googleProvider } from "./providers/google";
+import { geminiProvider } from "./providers/gemini";
+import { googleProvider } from "./providers/google";
 import { murfProvider } from "./providers/murf";
 import type { SpeechProvider, SpeechProviderAdapter, SynthesisRequest } from "./providers/types";
 

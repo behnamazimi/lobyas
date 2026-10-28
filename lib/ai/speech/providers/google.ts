@@ -10,14 +10,20 @@ const REQUEST_TIMEOUT_MS = 25_000;
 const endpoint = () =>
   `${process.env.GOOGLE_TTS_BASE_URL ?? "https://texttospeech.googleapis.com"}/v1/text:synthesize`;
 
-type SynthesizeRequest = { input: object; voice: object };
-
-/** One call to Cloud Text-to-Speech, which WaveNet and Gemini voices share. */
-async function synthesizeChunk(request: SynthesizeRequest, apiKey: string): Promise<Buffer> {
+/** One call to Cloud Text-to-Speech. */
+async function synthesizeChunk(
+  ssml: string,
+  voice: { name: string; languageCode: string },
+  apiKey: string,
+): Promise<Buffer> {
   const response = await fetch(endpoint(), {
     method: "POST",
     headers: { "X-Goog-Api-Key": apiKey, "Content-Type": "application/json" },
-    body: JSON.stringify({ ...request, audioConfig: { audioEncoding: "MP3" } }),
+    body: JSON.stringify({
+      input: { ssml },
+      voice,
+      audioConfig: { audioEncoding: "MP3" },
+    }),
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) {
@@ -28,30 +34,6 @@ async function synthesizeChunk(request: SynthesizeRequest, apiKey: string): Prom
   const audio = body.audioContent ? Buffer.from(body.audioContent, "base64") : null;
   if (!audio || audio.length === 0) throw new Error("Google returned no audio.");
   return audio;
-}
-
-function cloudTtsProvider(options: {
-  id: "google" | "gemini";
-  supports: (language: CollectionLanguage) => boolean;
-  /** Each request carries at most this many bytes of the script. */
-  chunkBytes: number;
-  requestFor: (chunk: string, language: CollectionLanguage) => SynthesizeRequest;
-}): SpeechProviderAdapter {
-  return {
-    id: options.id,
-    isConfigured: () => Boolean(process.env.GOOGLE_TTS_API_KEY?.trim()),
-    supports: options.supports,
-    async synthesize({ script, language }) {
-      const apiKey = process.env.GOOGLE_TTS_API_KEY;
-      if (!apiKey) throw new Error("Missing GOOGLE_TTS_API_KEY.");
-
-      const parts: Buffer[] = [];
-      for (const chunk of chunkScript(script, options.chunkBytes)) {
-        parts.push(await synthesizeChunk(options.requestFor(chunk, language), apiKey));
-      }
-      return Buffer.concat(parts);
-    },
-  };
 }
 
 // One male WaveNet voice per language. WaveNet takes no style prompt.
@@ -73,44 +55,22 @@ const WAVENET_VOICES: Record<CollectionLanguage, { name: string; languageCode: s
 const escapeXml = (text: string) =>
   text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
-export const googleProvider = cloudTtsProvider({
+// The limit is 5,000 bytes per request; the SSML wrapper and pause tags take some of it.
+const CHUNK_BYTES = 4_500;
+
+export const googleProvider: SpeechProviderAdapter = {
   id: "google",
+  isConfigured: () => Boolean(process.env.GOOGLE_TTS_API_KEY?.trim()),
   supports: (language) => language in WAVENET_VOICES,
-  // The limit is 5,000 bytes; the SSML wrapper and pause tags take some of it.
-  chunkBytes: 4_500,
-  requestFor: (chunk, language) => ({
-    input: { ssml: `<speak>${renderPauses(escapeXml(chunk), "google")}</speak>` },
-    voice: WAVENET_VOICES[language],
-  }),
-});
+  async synthesize({ script, language }) {
+    const apiKey = process.env.GOOGLE_TTS_API_KEY;
+    if (!apiKey) throw new Error("Missing GOOGLE_TTS_API_KEY.");
 
-const GEMINI_MODEL = "gemini-3.1-flash-tts-preview";
-// A Gemini voice speaks any language; the locale decides the accent.
-const GEMINI_VOICE = "Charon";
-const GEMINI_STYLE = "Neutral and friendly.";
-
-const GEMINI_LOCALES: Record<CollectionLanguage, string> = {
-  en: "en-US",
-  nl: "nl-NL",
-  es: "es-ES",
-  fr: "fr-FR",
-  de: "de-DE",
-  it: "it-IT",
-  pt: "pt-BR",
-  ru: "ru-RU",
-  tr: "tr-TR",
-  ja: "ja-JP",
-  ko: "ko-KR",
-  zh: "cmn-CN",
+    const parts: Buffer[] = [];
+    for (const chunk of chunkScript(script, CHUNK_BYTES)) {
+      const ssml = `<speak>${renderPauses(escapeXml(chunk), "google")}</speak>`;
+      parts.push(await synthesizeChunk(ssml, WAVENET_VOICES[language], apiKey));
+    }
+    return Buffer.concat(parts);
+  },
 };
-
-export const geminiProvider = cloudTtsProvider({
-  id: "gemini",
-  supports: (language) => language in GEMINI_LOCALES,
-  // The text limit is 4,000 bytes; the pause tags take some of it.
-  chunkBytes: 3_500,
-  requestFor: (chunk, language) => ({
-    input: { text: renderPauses(chunk, "gemini"), prompt: GEMINI_STYLE },
-    voice: { languageCode: GEMINI_LOCALES[language], name: GEMINI_VOICE, modelName: GEMINI_MODEL },
-  }),
-});

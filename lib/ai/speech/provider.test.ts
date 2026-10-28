@@ -12,7 +12,8 @@ const gemini = vi.hoisted(() => ({ id: "gemini", isConfigured: vi.fn(), synthesi
 
 vi.mock("./providers/murf", () => ({ murfProvider: murf }));
 vi.mock("./providers/elevenlabs", () => ({ elevenLabsProvider: eleven }));
-vi.mock("./providers/google", () => ({ googleProvider: google, geminiProvider: gemini }));
+vi.mock("./providers/google", () => ({ googleProvider: google }));
+vi.mock("./providers/gemini", () => ({ geminiProvider: gemini }));
 vi.spyOn(console, "error").mockImplementation(() => undefined);
 
 const { synthesizeSpeech, SpeechSynthesisError, configuredProviders } = await import("./provider");
