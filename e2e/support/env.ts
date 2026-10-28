@@ -69,7 +69,7 @@ export function appEnv(supabase: SupabaseEnv): Record<string, string> {
     LLM_BASE_URL: `${STUB_URL}/v1beta`,
     RESEND_API_KEY: "e2e-key",
     RESEND_BASE_URL: STUB_URL,
-    GEMINI_API_KEY: "e2e-key",
+    GEMINI_TTS_API_KEY: "e2e-key",
     GEMINI_BASE_URL: STUB_URL,
     GOOGLE_TTS_API_KEY: "e2e-key",
     GOOGLE_TTS_BASE_URL: STUB_URL,

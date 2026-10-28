@@ -14,7 +14,7 @@ const reply = (pcm: Buffer, mimeType = "audio/L16;codec=pcm;rate=24000") =>
 
 beforeEach(() => {
   vi.stubGlobal("fetch", fetchMock);
-  vi.stubEnv("GEMINI_API_KEY", "key");
+  vi.stubEnv("GEMINI_TTS_API_KEY", "key");
   fetchMock.mockImplementation(async () => reply(SECOND_OF_SILENCE));
 });
 
@@ -79,7 +79,7 @@ describe("geminiProvider", () => {
   });
 
   it("is unconfigured without a key", () => {
-    vi.stubEnv("GEMINI_API_KEY", " ");
+    vi.stubEnv("GEMINI_TTS_API_KEY", " ");
     expect(geminiProvider.isConfigured()).toBe(false);
   });
 });

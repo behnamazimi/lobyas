@@ -70,7 +70,7 @@ others are fallbacks. The shared code is `lib/ai/speech/`:
   A request is limited to 5,000 bytes, so `google-chunks.ts` splits a long
   script at pauses and paragraphs (counted in bytes) and the MP3 parts are joined.
 - `providers/gemini.ts` is the `gemini` adapter: `gemini-3.8-flash-tts` through
-  `generateContent` on `aiplatform.googleapis.com` (`GEMINI_API_KEY`, sent in a
+  `generateContent` on `aiplatform.googleapis.com` (`GEMINI_TTS_API_KEY`, sent in a
   header). The tone is a spoken instruction before the script and pauses are
   `<long pause>` tags. The reply is headerless 24 kHz PCM, which the adapter
   encodes to MP3 (`@breezystack/lamejs`, pure JS) so storage and serving stay

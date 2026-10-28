@@ -79,10 +79,14 @@ export function encodeMp3(pcm: Buffer, sampleRate: number): Buffer {
 
 export const geminiProvider: SpeechProviderAdapter = {
   id: "gemini",
-  isConfigured: () => Boolean(process.env.GEMINI_API_KEY?.trim()),
+  isConfigured: () => Boolean(process.env.GEMINI_TTS_API_KEY?.trim()),
   async synthesize({ script }) {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) throw new Error("Missing GEMINI_API_KEY.");
+    const apiKey = process.env.GEMINI_TTS_API_KEY;
+    if (!apiKey) throw new Error("Missing GEMINI_TTS_API_KEY.");
+
+    console.log("================================================");
+    console.log(apiKey?.slice(-4), "...");
+    console.log("================================================");
 
     const chunks: Buffer[] = [];
     let sampleRate = DEFAULT_SAMPLE_RATE;
