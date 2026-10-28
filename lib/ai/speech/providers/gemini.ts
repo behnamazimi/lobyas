@@ -3,7 +3,7 @@ import { renderPauses } from "../pause";
 import { chunkScript } from "./google-chunks";
 import type { SpeechProviderAdapter } from "./types";
 
-const MODEL = "gemini-3.8-flash-tts";
+const MODEL = "gemini-3.8-flash-lite-tts";
 // A Gemini voice speaks any language, so one voice serves them all.
 const VOICE = "Charon";
 // Short enough that the fallback still fits in the story narration route's 60 second limit.

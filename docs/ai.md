@@ -69,7 +69,7 @@ others are fallbacks. The shared code is `lib/ai/speech/`:
   (`GOOGLE_TTS_API_KEY`) with WaveNet voices and SSML pauses; no style prompt.
   A request is limited to 5,000 bytes, so `google-chunks.ts` splits a long
   script at pauses and paragraphs (counted in bytes) and the MP3 parts are joined.
-- `providers/gemini.ts` is the `gemini` adapter: `gemini-3.8-flash-tts` through
+- `providers/gemini.ts` is the `gemini` adapter: `gemini-3.8-flash-lite-tts` through
   `generateContent` on `aiplatform.googleapis.com` (`GEMINI_TTS_API_KEY`, sent in a
   header). Its text is read verbatim, so it has no tone
   instruction (the endpoint has no style field, and a line of instruction is read

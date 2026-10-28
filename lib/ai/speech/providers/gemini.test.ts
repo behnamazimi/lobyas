@@ -37,7 +37,7 @@ describe("geminiProvider", () => {
 
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe(
-      "https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-3.8-flash-tts:generateContent",
+      "https://aiplatform.googleapis.com/v1/publishers/google/models/gemini-3.8-flash-lite-tts:generateContent",
     );
     expect(init.headers["x-goog-api-key"]).toBe("key");
     expect(JSON.parse(init.body)).toMatchObject({
