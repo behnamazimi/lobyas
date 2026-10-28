@@ -32,9 +32,9 @@
     "mobile:ios": "cap open ios"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^4.0.47",
-    "@ai-sdk/google": "^4.0.24",
-    "@ai-sdk/otel": "^1.0.114",
+    "@ai-sdk/anthropic": "^4.0.90",
+    "@ai-sdk/google": "^4.0.107",
+    "@ai-sdk/otel": "^1.0.155",
     "@aws-sdk/client-s3": "^3.1126.0",
     "@breezystack/lamejs": "^1.2.7",
     "@capacitor/app": "^8",
@@ -55,7 +55,7 @@
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.112.4",
     "@types/mdx": "^2.0.14",
-    "ai": "^7.0.114",
+    "ai": "^7.0.155",
     "capacitor-native-settings": "^8.2.0",
     "clsx": "^2.1.1",
     "entities": "8.0.0",
