@@ -24,32 +24,62 @@ const client = new S3Client({
   forcePathStyle: true,
 });
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** Retries a throttled or failing call; a key that vanished meanwhile (swept)
+ *  is skipped by the caller. */
+async function withRetry(send) {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await send();
+    } catch (error) {
+      const status = error.$metadata?.httpStatusCode;
+      if (attempt >= 4 || !(status === 429 || status >= 500)) throw error;
+      await sleep(attempt * 1000);
+    }
+  }
+}
+
+function isGone(error) {
+  return error.name === "NoSuchKey" || error.name === "NotFound";
+}
+
 let updated = 0;
 let skipped = 0;
+let gone = 0;
 let token;
 do {
   const page = await client.send(
     new ListObjectsV2Command({ Bucket: bucket, ContinuationToken: token }),
   );
   for (const { Key } of page.Contents ?? []) {
-    const head = await client.send(new HeadObjectCommand({ Bucket: bucket, Key }));
-    if (head.CacheControl === CACHE_CONTROL) {
-      skipped += 1;
-      continue;
+    try {
+      const head = await withRetry(() =>
+        client.send(new HeadObjectCommand({ Bucket: bucket, Key })),
+      );
+      if (head.CacheControl === CACHE_CONTROL) {
+        skipped += 1;
+        continue;
+      }
+      await withRetry(() =>
+        client.send(
+          new CopyObjectCommand({
+            Bucket: bucket,
+            Key,
+            CopySource: `${bucket}/${Key}`,
+            MetadataDirective: "REPLACE",
+            ContentType: head.ContentType ?? "audio/mpeg",
+            CacheControl: CACHE_CONTROL,
+          }),
+        ),
+      );
+      updated += 1;
+    } catch (error) {
+      if (!isGone(error)) throw error;
+      gone += 1;
     }
-    await client.send(
-      new CopyObjectCommand({
-        Bucket: bucket,
-        Key,
-        CopySource: `${bucket}/${Key}`,
-        MetadataDirective: "REPLACE",
-        ContentType: head.ContentType ?? "audio/mpeg",
-        CacheControl: CACHE_CONTROL,
-      }),
-    );
-    updated += 1;
   }
   token = page.NextContinuationToken;
 } while (token);
 
-console.log(`Updated ${updated}, already fine ${skipped}.`);
+console.log(`Updated ${updated}, already fine ${skipped}, gone meanwhile ${gone}.`);

@@ -58,6 +58,7 @@ export function TermNarrationPlayer({
   const mountedRef = useRef(true);
   const abortRetriedRef = useRef(false);
   const routeTriedRef = useRef(false);
+  const viaRouteRef = useRef(false);
   const prepareRef = useRef<"idle" | "running" | "done">("idle");
   const [prepared, setPrepared] = useState<PreparedClip>();
   const { url, knownMissing } = resolveClipUrl(clipUrl, prepared);
@@ -87,14 +88,16 @@ export function TermNarrationPlayer({
     if (mountedRef.current) onUnavailable?.();
   }
 
-  // Loading never generates audio. When the public address fails, the app
-  // route gets one try (it also retires a clip whose file is gone); when the
-  // clip is not cached yet, ask the server to make it once, then load it again.
+  // Loading never generates audio. A failed public address gets one try at the
+  // app route (which also retires a missing file); then the server makes the clip once.
   async function prepareThenPlay(audio: HTMLAudioElement) {
     // An error event and a rejected play() can both land for one failed load.
     if (prepareRef.current === "running") return;
+    // A late signal from the address we already left, while the route is loading.
+    if (routeTriedRef.current && audio.networkState === HTMLMediaElement.NETWORK_LOADING) return;
     if (prepareRef.current !== "done" && !routeTriedRef.current && src !== routeSrc) {
       routeTriedRef.current = true;
+      viaRouteRef.current = true;
       abortRetriedRef.current = false;
       audio.src = routeSrc;
       audio.load();
@@ -118,6 +121,7 @@ export function TermNarrationPlayer({
       const body: { url?: string } = await response.json();
       if (body.url) {
         setPrepared({ from: clipUrl, url: body.url });
+        viaRouteRef.current = false;
         preparedSrc = body.url;
       }
     } catch {
@@ -199,9 +203,11 @@ export function TermNarrationPlayer({
     // iOS Safari will not replay a finished clip; loading it again makes it play.
     if (audio.ended) audio.load();
 
-    const alreadySet = srcMatches(audio, src);
+    // Once the route has had to serve this clip, skip the address that failed.
+    const target = viaRouteRef.current ? routeSrc : src;
+    const alreadySet = srcMatches(audio, target);
     const ready = alreadySet && canPlayThrough(audio);
-    if (!alreadySet) audio.src = src;
+    if (!alreadySet) audio.src = target;
 
     claimActiveAudio(audio);
 
