@@ -7,8 +7,6 @@ const getReadyAudio = vi.fn();
 const getOrCreateAudio = vi.fn();
 const loadTermSubject = vi.fn();
 const serveAudio = vi.fn();
-const serveJob = vi.fn();
-const getReadyJobById = vi.fn();
 const termRow = vi.fn();
 const getFeatureSettings = vi.fn();
 const countRecentGenerations = vi.fn();
@@ -19,8 +17,10 @@ const SUBJECT = { type: "term", id: "term-1" };
 vi.mock("@/lib/narration/access", () => ({ getNarrationAccessForUser, isAdminAccount }));
 vi.mock("@/lib/ai/speech/audio", () => ({ getReadyAudio, getOrCreateAudio }));
 vi.mock("@/lib/ai/speech/subjects", () => ({ loadTermSubject }));
-vi.mock("@/lib/ai/speech/serve", () => ({ serveAudio, serveJob }));
-vi.mock("@/lib/ai/speech/jobs", () => ({ getReadyJobById }));
+vi.mock("@/lib/ai/speech/serve", () => ({ serveAudio }));
+vi.mock("@/lib/ai/speech/storage", () => ({
+  publicAudioUrl: (path: string) => `https://cdn.test/${path}`,
+}));
 vi.mock("@/lib/ai/run-guard", () => ({
   withRunGuard: async (input: unknown, run: () => Promise<unknown>) => {
     guard.inputs.push(input);
@@ -43,10 +43,8 @@ const ctx = { params: Promise.resolve({ termId: "term-1" }) };
 
 const USER_HEADERS = await signedUserHeaders("user-1");
 
-const JOB_ID = "0b4f6a52-6a06-4a0f-9c0e-3f2d5a1b7c11";
-
-function request(method: string, headers: Record<string, string> = {}, query = "") {
-  return new Request(`http://localhost/api/narration/term-1${query}`, {
+function request(method: string, headers: Record<string, string> = {}) {
+  return new Request("http://localhost/api/narration/term-1", {
     method,
     headers: { ...USER_HEADERS, ...headers },
   });
@@ -58,10 +56,8 @@ beforeEach(() => {
   isAdminAccount.mockResolvedValue(false);
   termRow.mockResolvedValue({ data: { id: "term-1" } });
   loadTermSubject.mockResolvedValue(SUBJECT);
-  getReadyAudio.mockResolvedValue({ id: "job-1" });
+  getReadyAudio.mockResolvedValue({ id: "job-1", storage_path: "terms/job-1.mp3" });
   serveAudio.mockResolvedValue(new Response("audio", { status: 200 }));
-  serveJob.mockResolvedValue(new Response("audio", { status: 200 }));
-  getReadyJobById.mockResolvedValue({ id: JOB_ID, storage_path: "p.mp3" });
   guard.busy = false;
   guard.inputs = [];
   getFeatureSettings.mockResolvedValue({ dailyCap: 5 });
@@ -113,47 +109,6 @@ describe("GET", () => {
   });
 });
 
-describe("GET with a version", () => {
-  const versioned = () => request("GET", {}, `?v=${JOB_ID}`);
-
-  it("serves that exact clip as cacheable, without loading the term or its mode", async () => {
-    const res = await GET(versioned(), ctx);
-    expect(res.status).toBe(200);
-    expect(getReadyJobById).toHaveBeenCalledWith({}, { type: "term", id: "term-1" }, JOB_ID);
-    expect(serveJob).toHaveBeenCalledWith(
-      expect.any(Request),
-      {},
-      expect.objectContaining({ id: JOB_ID }),
-      { versioned: true },
-    );
-    expect(loadTermSubject).not.toHaveBeenCalled();
-    expect(serveAudio).not.toHaveBeenCalled();
-  });
-
-  it("still checks access and that the term is readable", async () => {
-    getNarrationAccessForUser.mockResolvedValue(false);
-    expect((await GET(versioned(), ctx)).status).toBe(403);
-    getNarrationAccessForUser.mockResolvedValue(true);
-    termRow.mockResolvedValue({ data: null });
-    expect((await GET(versioned(), ctx)).status).toBe(404);
-    expect(getReadyJobById).not.toHaveBeenCalled();
-  });
-
-  it("is an uncacheable 404 when the clip is gone or replaced", async () => {
-    getReadyJobById.mockResolvedValue(null);
-    const res = await GET(versioned(), ctx);
-    expect(res.status).toBe(404);
-    expect(res.headers.get("Cache-Control")).toBe("no-store");
-    expect(serveJob).not.toHaveBeenCalled();
-  });
-
-  it("treats a version that is not a uuid as a 404 without a lookup", async () => {
-    const res = await GET(request("GET", {}, "?v=nope"), ctx);
-    expect(res.status).toBe(404);
-    expect(getReadyJobById).not.toHaveBeenCalled();
-  });
-});
-
 describe("POST", () => {
   beforeEach(() => {
     getReadyAudio.mockResolvedValue(null);
@@ -161,7 +116,7 @@ describe("POST", () => {
 
   const generated = {
     status: "ready",
-    job: { id: "job-2" },
+    job: { id: "job-2", storage_path: "terms/job-2.mp3" },
     generation: { calls: [{ provider: "murf", units: 120, outcome: "ok" }] },
   };
 
@@ -169,13 +124,13 @@ describe("POST", () => {
     getOrCreateAudio.mockResolvedValue(generated);
     const res = await POST(request("POST"), ctx);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ready: true, version: "job-2" });
+    expect(await res.json()).toEqual({ ready: true, url: "https://cdn.test/terms/job-2.mp3" });
   });
 
   it("serves a cached clip without counting it or checking the cap", async () => {
-    getReadyAudio.mockResolvedValue({ id: "job-1" });
+    getReadyAudio.mockResolvedValue({ id: "job-1", storage_path: "terms/job-1.mp3" });
     const res = await POST(request("POST"), ctx);
-    expect(await res.json()).toEqual({ ready: true, version: "job-1" });
+    expect(await res.json()).toEqual({ ready: true, url: "https://cdn.test/terms/job-1.mp3" });
     expect(getOrCreateAudio).not.toHaveBeenCalled();
     expect(countRecentGenerations).not.toHaveBeenCalled();
     expect(recordUsage).not.toHaveBeenCalled();
@@ -210,7 +165,7 @@ describe("POST", () => {
   });
 
   it("does not count a request that only waited for someone else's generation", async () => {
-    getOrCreateAudio.mockResolvedValue({ status: "ready", job: {} });
+    getOrCreateAudio.mockResolvedValue({ status: "ready", job: { storage_path: "terms/x.mp3" } });
     await POST(request("POST"), ctx);
     expect(recordUsage).not.toHaveBeenCalled();
   });

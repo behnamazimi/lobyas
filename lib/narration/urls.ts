@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
+import { publicAudioUrl } from "@/lib/ai/speech/storage";
 import { getNarrationAccessForUser } from "./access";
 import { DEFAULT_NARRATION_MODE, getNarrationModes } from "./mode";
 import {
@@ -12,16 +13,16 @@ import {
 
 type AdminClient = SupabaseClient<Database>;
 
-/** The job id of each term's current clip, or null when it has none (never
- *  made, still pending, failed or out of date). The player puts the id in the
- *  clip's address so the browser can keep the file. Callers must already have
- *  checked that the person may read these terms and has narration access. */
-export async function loadNarrationVersions(
+/** The public address of each term's current clip, or null when it has none
+ *  (never made, still pending, failed or out of date). The player plays it
+ *  straight from the CDN. Callers must already have checked that the person
+ *  may read these terms and has narration access. */
+export async function loadNarrationUrls(
   admin: AdminClient,
   termIds: string[],
 ): Promise<Map<string, string | null>> {
-  const versions = new Map<string, string | null>(termIds.map((id) => [id, null]));
-  if (termIds.length === 0) return versions;
+  const urls = new Map<string, string | null>(termIds.map((id) => [id, null]));
+  if (termIds.length === 0) return urls;
 
   const terms: TermRow[] = [];
   for (const chunk of chunkIds(termIds)) {
@@ -45,27 +46,29 @@ export async function loadNarrationVersions(
   for (const term of terms) {
     const job = jobs.get(term.id);
     const mode = modes.get(term.collection_id) ?? DEFAULT_NARRATION_MODE;
-    if (job && isCurrentAudio(term, job, mode)) versions.set(term.id, job.id);
+    if (job?.storage_path && isCurrentAudio(term, job, mode)) {
+      urls.set(term.id, publicAudioUrl(job.storage_path));
+    }
   }
-  return versions;
+  return urls;
 }
 
-/** Adds `narrationVersion` to each term when the person has narration. Without
+/** Adds `narrationUrl` to each term when the person has narration. Without
  *  access, or if the lookup fails, the terms come back untouched and the
  *  player falls back to asking the server for the clip. */
-export async function attachNarrationVersions<T extends { id: string }>(
+export async function attachNarrationUrls<T extends { id: string }>(
   admin: AdminClient,
   userId: string,
   terms: T[],
-): Promise<(T & { narrationVersion?: string | null })[]> {
+): Promise<(T & { narrationUrl?: string | null })[]> {
   if (terms.length === 0) return terms;
   try {
     if (!(await getNarrationAccessForUser(admin, userId))) return terms;
-    const versions = await loadNarrationVersions(
+    const urls = await loadNarrationUrls(
       admin,
       terms.map((term) => term.id),
     );
-    return terms.map((term) => ({ ...term, narrationVersion: versions.get(term.id) ?? null }));
+    return terms.map((term) => ({ ...term, narrationUrl: urls.get(term.id) ?? null }));
   } catch (error) {
     console.error("Couldn't look up narration clips:", error);
     return terms;

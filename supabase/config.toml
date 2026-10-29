@@ -125,7 +125,7 @@ file_size_limit = "50MiB"
 # objects_path = "./images"
 
 [storage.buckets.term-narrations]
-public = false
+public = true
 file_size_limit = "10MiB"
 allowed_mime_types = ["audio/mpeg"]
 

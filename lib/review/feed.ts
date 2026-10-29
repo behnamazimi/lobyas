@@ -2,7 +2,7 @@ import { requireAuthenticatedClient } from "@/lib/auth/require-session";
 import { isUuid } from "@/lib/library/details";
 import { isCollectionPreference } from "@/lib/study/collection-preference";
 import { getNarrationAccessForUser } from "@/lib/narration/access";
-import { attachNarrationVersions } from "@/lib/narration/versions";
+import { attachNarrationUrls } from "@/lib/narration/urls";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { listStudyCollectionState } from "@/lib/study/collections";
 import { pickReviewTermsForUser } from "@/lib/trace-queue";
@@ -46,7 +46,7 @@ export async function loadReviewFeed(
     );
 
     if (cards.length === 0) return { caughtUp: true, terms: [] };
-    return { terms: await attachNarrationVersions(admin, auth.user.id, cards.map(toReviewTerm)) };
+    return { terms: await attachNarrationUrls(admin, auth.user.id, cards.map(toReviewTerm)) };
   } catch (err) {
     console.error("Review queue failed:", err);
     return { error: "Couldn't load more terms. Try again.", terms: [] };

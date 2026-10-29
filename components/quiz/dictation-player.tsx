@@ -10,7 +10,7 @@ import { useMountEffect } from "@/hooks/use-mount-effect";
 
 type DictationPlayerProps = {
   termId: string;
-  clipVersion: string;
+  clipUrl: string;
   /** Hides the "tap Play" note once the answer is in. */
   answered: boolean;
   /** The clip won't load: the question is skipped. */
@@ -21,12 +21,7 @@ type DictationPlayerProps = {
  *  Only the clip the question was built with plays: a new one could say more
  *  than the word, or a renamed word. If it won't load, or they can't listen,
  *  the question is skipped. */
-export function DictationPlayer({
-  termId,
-  clipVersion,
-  answered,
-  onCantListen,
-}: DictationPlayerProps) {
+export function DictationPlayer({ termId, clipUrl, answered, onCantListen }: DictationPlayerProps) {
   const playerRef = useRef<TermNarrationHandle>(null);
   const [needsTap, setNeedsTap] = useState(false);
 
@@ -38,7 +33,7 @@ export function DictationPlayer({
     <div className="mt-3 flex flex-col items-start gap-2">
       <TermNarrationPlayer
         termId={termId}
-        clipVersion={clipVersion}
+        clipUrl={clipUrl}
         preload
         canPrepare={false}
         showButton={false}

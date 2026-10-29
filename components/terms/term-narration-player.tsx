@@ -13,31 +13,22 @@ import {
   isAbortError,
   isAutoplayBlocked,
   narrationSrc,
+  resolveClipUrl,
   srcMatches,
+  type PreparedClip,
 } from "@/components/terms/narration-audio";
 
 export type TermNarrationHandle = { play: () => void };
 
-type PreparedClip = { from: string | null | undefined; version: string };
-
-/** A clip learned from a POST only holds while the parent still hands in the
- *  version it had then; a newer one from the parent wins. */
-function resolveClipVersion(clipVersion: string | null | undefined, prepared?: PreparedClip) {
-  const preparedVersion = prepared && prepared.from === clipVersion ? prepared.version : undefined;
-  return {
-    version: preparedVersion ?? clipVersion ?? undefined,
-    knownMissing: clipVersion === null && preparedVersion === undefined,
-  };
-}
-
 /** Play/pause for one term. `preload` buffers the clip before the tap;
  *  the collection list leaves it off so it does not fetch every term.
- *  `clipVersion` is the job id of the term's current clip: a string plays that
- *  exact file, null means there is no clip yet (so the first tap prepares one
- *  without a doomed request), undefined means it was not looked up. */
+ *  `clipUrl` is the public address of the term's current clip: a string plays
+ *  it straight from the CDN, null means there is no clip yet (so the first tap
+ *  prepares one without a doomed request), undefined means it was not looked up
+ *  and the app route is asked. */
 export function TermNarrationPlayer({
   termId,
-  clipVersion,
+  clipUrl,
   preload = false,
   showButton = true,
   handleRef,
@@ -47,7 +38,7 @@ export function TermNarrationPlayer({
   look = "icon",
 }: {
   termId: string;
-  clipVersion?: string | null;
+  clipUrl?: string | null;
   preload?: boolean;
   showButton?: boolean;
   /** Lets a parent start the clip from its own press handler. */
@@ -66,10 +57,13 @@ export function TermNarrationPlayer({
   const wantPlayingRef = useRef(false);
   const mountedRef = useRef(true);
   const abortRetriedRef = useRef(false);
+  const routeTriedRef = useRef(false);
+  const viaRouteRef = useRef(false);
   const prepareRef = useRef<"idle" | "running" | "done">("idle");
   const [prepared, setPrepared] = useState<PreparedClip>();
-  const { version, knownMissing } = resolveClipVersion(clipVersion, prepared);
-  const src = narrationSrc(termId, version);
+  const { url, knownMissing } = resolveClipUrl(clipUrl, prepared);
+  const routeSrc = narrationSrc(termId);
+  const src = url ?? routeSrc;
 
   useMountEffect(() => {
     return () => {
@@ -94,11 +88,22 @@ export function TermNarrationPlayer({
     if (mountedRef.current) onUnavailable?.();
   }
 
-  // Loading never generates audio. When the clip is not cached yet, ask the
-  // server to make it once, then load it again.
+  // Loading never generates audio. A failed public address gets one try at the
+  // app route (which also retires a missing file); then the server makes the clip once.
   async function prepareThenPlay(audio: HTMLAudioElement) {
     // An error event and a rejected play() can both land for one failed load.
     if (prepareRef.current === "running") return;
+    // A late signal from the address we already left, while the route is loading.
+    if (routeTriedRef.current && audio.networkState === HTMLMediaElement.NETWORK_LOADING) return;
+    if (prepareRef.current !== "done" && !routeTriedRef.current && src !== routeSrc) {
+      routeTriedRef.current = true;
+      viaRouteRef.current = true;
+      abortRetriedRef.current = false;
+      audio.src = routeSrc;
+      audio.load();
+      void playClip(audio);
+      return;
+    }
     if (prepareRef.current === "done" || !canPrepare) {
       fail(audio);
       return;
@@ -107,16 +112,17 @@ export function TermNarrationPlayer({
     setStatus("loading");
     let preparedSrc = src;
     try {
-      const response = await fetch(narrationSrc(termId), { method: "POST" });
+      const response = await fetch(routeSrc, { method: "POST" });
       if (!response.ok) {
         prepareRef.current = "done";
         fail(audio);
         return;
       }
-      const body: { version?: string } = await response.json();
-      if (body.version) {
-        setPrepared({ from: clipVersion, version: body.version });
-        preparedSrc = narrationSrc(termId, body.version);
+      const body: { url?: string } = await response.json();
+      if (body.url) {
+        setPrepared({ from: clipUrl, url: body.url });
+        viaRouteRef.current = false;
+        preparedSrc = body.url;
       }
     } catch {
       prepareRef.current = "done";
@@ -184,6 +190,7 @@ export function TermNarrationPlayer({
     }
 
     abortRetriedRef.current = false;
+    routeTriedRef.current = false;
     prepareRef.current = "idle";
     wantPlayingRef.current = true;
 
@@ -196,9 +203,11 @@ export function TermNarrationPlayer({
     // iOS Safari will not replay a finished clip; loading it again makes it play.
     if (audio.ended) audio.load();
 
-    const alreadySet = srcMatches(audio, src);
+    // Once the route has had to serve this clip, skip the address that failed.
+    const target = viaRouteRef.current ? routeSrc : src;
+    const alreadySet = srcMatches(audio, target);
     const ready = alreadySet && canPlayThrough(audio);
-    if (!alreadySet) audio.src = src;
+    if (!alreadySet) audio.src = target;
 
     claimActiveAudio(audio);
 

@@ -6,6 +6,7 @@ import {
 } from "@/lib/library/load-library-page-data";
 import type { FullLibraryPageData } from "@/lib/terms/types";
 import { getNarrationAccessForUser } from "@/lib/narration/access";
+import { attachNarrationUrls } from "@/lib/narration/urls";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const LOAD_FAILED_MESSAGE = "Couldn't load your library. Refresh the page or try again.";
@@ -35,7 +36,10 @@ export async function getLibrarySetupData(
       }),
       getNarrationAccessForUser(createAdminClient(), auth.user.id),
     ]);
-    return { data, narrationAccess };
+    const terms = narrationAccess
+      ? await attachNarrationUrls(createAdminClient(), auth.user.id, data.terms)
+      : data.terms;
+    return { data: { ...data, terms }, narrationAccess };
   } catch (err) {
     if (err instanceof LibraryDataError && err.message === NO_COLLECTIONS_MESSAGE) {
       return { emptyCollection: true as const };

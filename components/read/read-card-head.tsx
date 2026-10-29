@@ -38,7 +38,7 @@ export function ReadCardHead({
       {narrationAccess ? (
         <TermNarrationPlayer
           termId={term.id}
-          clipVersion={term.narrationVersion}
+          clipUrl={term.narrationUrl}
           preload={narrationPreload}
           look="pill"
         />

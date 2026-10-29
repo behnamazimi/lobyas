@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { attachNarrationVersions } from "@/lib/narration/versions";
+import { attachNarrationUrls } from "@/lib/narration/urls";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { readVerifiedUser } from "@/lib/auth/verified-user-header";
 import { fetchTermDetails, parseDetailIds } from "@/lib/library/details";
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const details = await fetchTermDetails(await createClient(), ids);
-    const terms = await attachNarrationVersions(createAdminClient(), user.id, details);
+    const terms = await attachNarrationUrls(createAdminClient(), user.id, details);
     return NextResponse.json({ terms }, { headers: NO_STORE });
   } catch (error) {
     console.error("Couldn't load term details:", error);

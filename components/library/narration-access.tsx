@@ -21,10 +21,8 @@ export function NarrationAccess({
 function NarrationButtonInner({ termId, look }: { termId: string; look: "icon" | "pill" }) {
   const allowed = use(useContext(NarrationAccessContext));
   const details = useTermDetails(termId);
-  const clipVersion = details && details !== "failed" ? details.narrationVersion : undefined;
-  return allowed ? (
-    <TermNarrationPlayer termId={termId} clipVersion={clipVersion} look={look} />
-  ) : null;
+  const clipUrl = details && details !== "failed" ? details.narrationUrl : undefined;
+  return allowed ? <TermNarrationPlayer termId={termId} clipUrl={clipUrl} look={look} /> : null;
 }
 
 export function NarrationButton({

@@ -18,6 +18,7 @@
     "test:e2e:smoke": "playwright test --grep @smoke",
     "test:e2e:ui": "playwright test --ui",
     "e2e:install": "playwright install --with-deps chromium",
+    "narration:backfill-cache": "node scripts/backfill-audio-cache-control.mjs",
     "supabase": "supabase",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",

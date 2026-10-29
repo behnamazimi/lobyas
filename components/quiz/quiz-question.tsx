@@ -171,7 +171,7 @@ export function QuizQuestionView({ question, isLast, onAnswer, onSkip }: QuizQue
           {question.interaction === "text" && question.dictation ? (
             <DictationPlayer
               termId={question.termId}
-              clipVersion={question.dictation.clipVersion}
+              clipUrl={question.dictation.clipUrl}
               answered={submitted}
               onCantListen={skipQuestion}
             />

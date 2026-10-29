@@ -91,24 +91,30 @@ others are fallbacks. The shared code is `lib/ai/speech/`:
   file path on the job, uploads to a never-reused key
   (`terms/<id>/<hash version>/<hash>/<job id>.mp3`, or `stories/…`) and marks the job
   ready. A job that is replaced is `superseded`, never rewritten.
-- `serveAudio` streams the current clip (ETag is the job id, Range works). It
-  never generates; the player prepares a clip with an explicit POST.
-- `GET /api/narration/[termId]?v=<job id>` (and the story route's) serves that
-  exact clip through `serveJob` as `private, max-age=86400, immutable` (a browser may keep playing it for a day,
-  even after the clip is replaced or access is withdrawn): a job's
-  file is never rewritten, so a new clip means a new id and a new address. It
-  checks access and that the term is readable, then looks the job up by id; it
-  does not recompute the hash. A job that is not ready answers an uncacheable 404. Misses are never cached. POST returns `{ ready, version }`.
-- Players learn the id without asking per play: `loadNarrationVersions` /
-  `attachNarrationVersions` (`lib/narration/versions.ts`) give the current
-  clip's job id for a batch of terms (null when none). It is attached to Read
-  and Review terms and to the Library's `/api/terms/details` batches as
-  `narrationVersion`. Simple quizzes look it up for vocabulary terms in `term`
+- Clips are played from their public address, not through the app. The bucket
+  is public and a clip's key ends in its job id, which is never reused, so the
+  address never changes meaning. `uploadAudio` sets
+  `Cache-Control: public, max-age=2592000, immutable` and `publicAudioUrl`
+  (`storage.ts`) builds the address, so Supabase's CDN serves repeat plays
+  without a function call. Access is the address itself: anyone holding a clip's
+  URL can play it, and a deleted or replaced clip can stay in the CDN for up to
+  30 days. Clips made before this need
+  `pnpm narration:backfill-cache` once per environment (it needs the `SUPABASE_S3_*`
+  values, including the bucket, in the environment, and prints the target first).
+- `serveAudio` streams the current clip through the app (ETag is the job id,
+  Range works, `private, no-cache`). It never generates; the player prepares a
+  clip with an explicit POST. It is the player's one fallback when the public
+  address fails, and it retires a job whose file is gone, so the next prepare
+  makes a new one. POST returns `{ ready, url }`.
+- Players learn the address without asking per play: `loadNarrationUrls` /
+  `attachNarrationUrls` (`lib/narration/urls.ts`) give the current clip's public
+  URL for a batch of terms (null when none). It is attached to Read, Review and
+  Triage terms and to the Library's `/api/terms/details` batches as
+  `narrationUrl`. Simple quizzes look it up for vocabulary terms in `term`
   mode (`lib/quiz/dictation-clips.ts`), and a dictation question plays only
-  that clip, never asking for a new one. Triage has no lookup yet and plays
-  unversioned. With
-  `null` the player prepares on the first tap instead of a GET that would 404;
-  with nothing it asks the server as before.
+  that clip, never asking for a new one. With `null` the player prepares on the
+  first tap instead of a request that would 404; with nothing it asks the app
+  route as before. Stories always prepare first and play the URL the POST returns.
 - `sweepSupersededAudio` removes the files of superseded jobs, at least an hour
   after they were replaced, and then the jobs themselves. It runs after each
   sync tick.

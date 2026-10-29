@@ -53,7 +53,7 @@ export function useReviewGrading({
     revealRecordedRef.current.add(cardKey(currentCard));
     setRevealedKeys((keys) => [...keys, cardKey(currentCard)]);
     // Only a clip that already exists plays; this never asks for one to be made.
-    if (narrateOnReveal && narrationAccess && typeof currentCard.narrationVersion === "string") {
+    if (narrateOnReveal && narrationAccess && typeof currentCard.narrationUrl === "string") {
       narrationRef.current?.play();
     }
     // Asking a missed term again isn't new exposure, so only the first showing is recorded.

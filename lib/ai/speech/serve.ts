@@ -13,10 +13,6 @@ type Client = SupabaseClient<Database>;
 // is replaced.
 const REVALIDATE = "private, no-cache";
 
-// A clip asked for by its job id never changes, so the browser may keep it for
-// a day without asking. Access changes still bite once the day is up.
-const VERSIONED = "private, max-age=86400, immutable";
-
 // A miss must never be cached: the clip may be prepared a moment later.
 const NEVER_CACHE = "no-store";
 
@@ -30,17 +26,15 @@ function matchesEtag(header: string | null, etag: string): boolean {
 }
 
 /** Streams a clip, with ETag, 304 and Range support. A job whose file is gone
- *  is failed here, so the next prepare makes a new one. `versioned` is for a
- *  request that named the job by id: its bytes are immutable, so the response
- *  may be cached. The caller has already checked access. */
-export async function serveJob(
+ *  is failed here, so the next prepare makes a new one. The caller has already
+ *  checked access. */
+async function serveJob(
   request: Request,
   admin: Client,
   job: Pick<AudioJob, "id" | "storage_path">,
-  { versioned }: { versioned: boolean },
 ): Promise<NextResponse> {
   if (!job.storage_path) return missing(404);
-  const cacheControl = versioned ? VERSIONED : REVALIDATE;
+  const cacheControl = REVALIDATE;
 
   const etag = `"${job.id}"`;
   if (matchesEtag(request.headers.get("if-none-match"), etag)) {
@@ -85,5 +79,5 @@ export async function serveAudio(
 ): Promise<NextResponse> {
   const job = await getReadyAudio(admin, subject);
   if (!job?.storage_path) return missing(404);
-  return serveJob(request, admin, job, { versioned: false });
+  return serveJob(request, admin, job);
 }

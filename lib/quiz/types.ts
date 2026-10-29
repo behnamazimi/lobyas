@@ -76,7 +76,7 @@ export type QuizTextQuestion = QuizQuestionBase & {
   /** Extra help shown under the quote, such as the meaning of a blanked word. */
   hint?: string;
   /** Set when the learner types a word they hear instead of reading a prompt. */
-  dictation?: { clipVersion: string; meaning: string };
+  dictation?: { clipUrl: string; meaning: string };
 };
 
 export type QuizQuestion = QuizChoiceQuestion | QuizBooleanQuestion | QuizTextQuestion;

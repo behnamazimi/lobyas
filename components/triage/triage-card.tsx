@@ -81,7 +81,7 @@ export function TriageCard({ term, revealed, narrationAccess, onReveal }: Triage
               {narrationAccess ? (
                 <TermNarrationPlayer
                   termId={term.id}
-                  clipVersion={term.narrationVersion}
+                  clipUrl={term.narrationUrl}
                   preload
                   look="pill"
                 />

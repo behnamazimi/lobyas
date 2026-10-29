@@ -135,7 +135,7 @@ export function ReviewTermCard({
               {narrationAccess ? (
                 <TermNarrationPlayer
                   termId={term.id}
-                  clipVersion={term.narrationVersion}
+                  clipUrl={term.narrationUrl}
                   preload
                   look="pill"
                   handleRef={narrationHandleRef}
