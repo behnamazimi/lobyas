@@ -51,7 +51,7 @@ function ReadCardMasked({
         <div className="invisible pointer-events-none h-0 overflow-hidden" aria-hidden>
           <TermNarrationPlayer
             termId={term.id}
-            clipVersion={term.narrationVersion}
+            clipUrl={term.narrationUrl}
             preload
             showButton={false}
           />

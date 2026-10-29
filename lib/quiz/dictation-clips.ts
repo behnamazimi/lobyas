@@ -2,7 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { getNarrationAccessForUser } from "@/lib/narration/access";
 import { DEFAULT_NARRATION_MODE, getNarrationModes } from "@/lib/narration/mode";
-import { loadNarrationVersions } from "@/lib/narration/versions";
+import { loadNarrationUrls } from "@/lib/narration/urls";
 import type { QuizTerm } from "./types";
 
 /** Gives vocabulary terms the clip a dictation question plays. Only clips that
@@ -27,7 +27,7 @@ export async function attachDictationClips(
     );
     if (wordOnly.length === 0) return terms;
 
-    const versions = await loadNarrationVersions(
+    const versions = await loadNarrationUrls(
       admin,
       wordOnly.map((term) => term.id),
     );

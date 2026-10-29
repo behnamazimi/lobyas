@@ -11,7 +11,7 @@ vi.mock("./audio", () => ({ getReadyAudio }));
 vi.mock("./jobs", () => ({ markFileMissing }));
 vi.mock("./storage", () => ({ downloadAudio, AudioMissingError }));
 
-const { serveAudio, serveJob } = await import("./serve");
+const { serveAudio } = await import("./serve");
 
 const admin = {} as never;
 const subject = { type: "term", id: "t1" } as SpeechSubject;
@@ -90,41 +90,5 @@ describe("serveAudio", () => {
     downloadAudio.mockRejectedValue(new Error("s3 down"));
     expect((await serveAudio(request(), admin, subject)).status).toBe(502);
     expect(markFileMissing).not.toHaveBeenCalled();
-  });
-});
-
-describe("serveJob", () => {
-  it("lets the browser keep a versioned clip for a day, 200 and 206 alike", async () => {
-    downloadAudio.mockResolvedValue({ stream: new ReadableStream(), partial: false });
-    const whole = await serveJob(request(), admin, READY, { versioned: true });
-    expect(whole.headers.get("Cache-Control")).toBe("private, max-age=86400, immutable");
-
-    downloadAudio.mockResolvedValue({
-      stream: new ReadableStream(),
-      contentRange: "bytes 0-9/100",
-      partial: true,
-    });
-    const part = await serveJob(request({ range: "bytes=0-9" }), admin, READY, {
-      versioned: true,
-    });
-    expect(part.status).toBe(206);
-    expect(part.headers.get("Cache-Control")).toBe("private, max-age=86400, immutable");
-  });
-
-  it("keeps an unversioned clip revalidating", async () => {
-    downloadAudio.mockResolvedValue({ stream: new ReadableStream(), partial: false });
-    const res = await serveJob(request(), admin, READY, { versioned: false });
-    expect(res.headers.get("Cache-Control")).toBe("private, no-cache");
-  });
-
-  it("is an uncacheable 404 for a job with no file path", async () => {
-    const res = await serveJob(
-      request(),
-      admin,
-      { id: "j", storage_path: null },
-      { versioned: true },
-    );
-    expect(res.status).toBe(404);
-    expect(res.headers.get("Cache-Control")).toBe("no-store");
   });
 });

@@ -11,6 +11,9 @@ const db = vi.hoisted(() => ({
 }));
 
 vi.mock("./access", () => ({ getNarrationAccessForUser }));
+vi.mock("@/lib/ai/speech/storage", () => ({
+  publicAudioUrl: (path: string) => `https://cdn.test/${path}`,
+}));
 vi.mock("./mode", () => ({ DEFAULT_NARRATION_MODE: "term", getNarrationModes }));
 // Real hashing and chunking; only the database reads are replaced.
 vi.mock("./sync-missing", async (importOriginal) => ({
@@ -18,7 +21,7 @@ vi.mock("./sync-missing", async (importOriginal) => ({
   loadLiveJobs,
 }));
 
-const { attachNarrationVersions, loadNarrationVersions } = await import("./versions");
+const { attachNarrationUrls, loadNarrationUrls } = await import("./urls");
 
 const admin = {
   from: () => ({
@@ -80,8 +83,8 @@ beforeEach(() => {
   loadLiveJobs.mockResolvedValue(new Map());
 });
 
-describe("loadNarrationVersions", () => {
-  it("returns the job id only for a clip that matches what would be spoken now", async () => {
+describe("loadNarrationUrls", () => {
+  it("returns the public address only for a clip that matches what would be spoken now", async () => {
     const renamed = { ...FIELDS, term: "idempotence" };
     db.terms = [
       term("current"),
@@ -101,10 +104,10 @@ describe("loadNarrationVersions", () => {
     );
 
     expect(
-      await loadNarrationVersions(admin, ["current", "renamed", "pending", "failed", "none"]),
+      await loadNarrationUrls(admin, ["current", "renamed", "pending", "failed", "none"]),
     ).toEqual(
       new Map([
-        ["current", "job-current"],
+        ["current", "https://cdn.test/terms/job-current.mp3"],
         ["renamed", null],
         ["pending", null],
         ["failed", null],
@@ -124,14 +127,14 @@ describe("loadNarrationVersions", () => {
       ]),
     );
 
-    const versions = await loadNarrationVersions(admin, ["name-only", "full"]);
+    const urls = await loadNarrationUrls(admin, ["name-only", "full"]);
     // A definition edit doesn't matter when only the name is spoken.
-    expect(versions.get("name-only")).toBe("job-a");
-    expect(versions.get("full")).toBeNull();
+    expect(urls.get("name-only")).toBe("https://cdn.test/terms/job-a.mp3");
+    expect(urls.get("full")).toBeNull();
   });
 
   it("answers null for a term it could not read", async () => {
-    expect((await loadNarrationVersions(admin, ["gone"])).get("gone")).toBeNull();
+    expect((await loadNarrationUrls(admin, ["gone"])).get("gone")).toBeNull();
   });
 
   it("reads terms in chunks so the id filter stays short", async () => {
@@ -139,32 +142,32 @@ describe("loadNarrationVersions", () => {
     db.terms = ids.map((id) => term(id));
     loadLiveJobs.mockResolvedValue(new Map([["t80", job("job-80", "term")]]));
 
-    const versions = await loadNarrationVersions(admin, ids);
+    const urls = await loadNarrationUrls(admin, ids);
     expect(db.queries.map((chunk) => chunk.length)).toEqual([80, 1]);
-    expect(versions.get("t80")).toBe("job-80");
-    expect(versions.size).toBe(81);
+    expect(urls.get("t80")).toBe("https://cdn.test/terms/job-80.mp3");
+    expect(urls.size).toBe(81);
   });
 
   it("does not query for no terms", async () => {
-    expect((await loadNarrationVersions(admin, [])).size).toBe(0);
+    expect((await loadNarrationUrls(admin, [])).size).toBe(0);
     expect(loadLiveJobs).not.toHaveBeenCalled();
   });
 });
 
-describe("attachNarrationVersions", () => {
+describe("attachNarrationUrls", () => {
   it("leaves terms untouched without narration access", async () => {
     getNarrationAccessForUser.mockResolvedValue(false);
     const input = [{ id: "current" }];
-    expect(await attachNarrationVersions(admin, "u", input)).toBe(input);
+    expect(await attachNarrationUrls(admin, "u", input)).toBe(input);
     expect(loadLiveJobs).not.toHaveBeenCalled();
   });
 
-  it("sets the version, or null when there is no current clip", async () => {
+  it("sets the address, or null when there is no current clip", async () => {
     db.terms = [term("current"), term("none")];
     loadLiveJobs.mockResolvedValue(new Map([["current", job("job-current", "term")]]));
-    expect(await attachNarrationVersions(admin, "u", [{ id: "current" }, { id: "none" }])).toEqual([
-      { id: "current", narrationVersion: "job-current" },
-      { id: "none", narrationVersion: null },
+    expect(await attachNarrationUrls(admin, "u", [{ id: "current" }, { id: "none" }])).toEqual([
+      { id: "current", narrationUrl: "https://cdn.test/terms/job-current.mp3" },
+      { id: "none", narrationUrl: null },
     ]);
   });
 
@@ -173,6 +176,6 @@ describe("attachNarrationVersions", () => {
     loadLiveJobs.mockRejectedValue(new Error("db down"));
     db.terms = [term("current")];
     const input = [{ id: "current" }];
-    expect(await attachNarrationVersions(admin, "u", input)).toBe(input);
+    expect(await attachNarrationUrls(admin, "u", input)).toBe(input);
   });
 });

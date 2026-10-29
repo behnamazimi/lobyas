@@ -20,7 +20,7 @@ export const dictation: QuizTemplate = {
     if (!term.dictationClip) return null;
     return {
       ...textQuestion(term, { template: "dictation", prompt: QUIZ_COPY[term.kind].dictation }),
-      dictation: { clipVersion: term.dictationClip, meaning: term.definition.trim() },
+      dictation: { clipUrl: term.dictationClip, meaning: term.definition.trim() },
     };
   },
   feedback(question, passed, response) {

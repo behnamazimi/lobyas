@@ -43,7 +43,7 @@ describe("traceQuestionType", () => {
         prompt: "p",
         acceptedAnswers: ["x"],
         language: "nl",
-        dictation: { clipVersion: "v", meaning: "m" },
+        dictation: { clipUrl: "v", meaning: "m" },
       }),
     ).toBe("dictation");
   });

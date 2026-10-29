@@ -21,7 +21,7 @@ const dictation: QuizQuestion = {
   prompt: "Type what you hear.",
   acceptedAnswers: ["goedemorgen"],
   language: "nl",
-  dictation: { clipVersion: "v1", meaning: "good morning" },
+  dictation: { clipUrl: "v1", meaning: "good morning" },
 };
 
 describe("quizNote", () => {

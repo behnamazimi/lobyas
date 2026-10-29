@@ -46,7 +46,7 @@ describe("dictation", () => {
       prompt: "Type what you hear.",
       acceptedAnswers: ["het geval"],
       language: "nl",
-      dictation: { clipVersion: "job-1", meaning: "case" },
+      dictation: { clipUrl: "job-1", meaning: "case" },
     });
     expect(q?.quote).toBeUndefined();
   });

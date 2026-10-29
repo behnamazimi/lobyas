@@ -72,7 +72,7 @@ function sleep(ms: number) {
 
 /** Audio is made on the first Listen tap, so the player asks the route to
  *  prepare it (retrying while another request is still making it), then hands
- *  the ready file to the story's audio controls. */
+ *  the clip's public address to the story's audio controls. */
 export function StoryNarrationPlayer({
   storyId,
   onProgress,
@@ -96,10 +96,11 @@ export function StoryNarrationPlayer({
   topUp?: TopUpState;
 }) {
   const [status, setStatus] = useState<PlayerStatus>("idle");
-  const [version, setVersion] = useState<string | null>(null);
+  const [url, setUrl] = useState<string | null>(null);
+  const [routeFallback, setRouteFallback] = useState(false);
   const cancelledRef = useRef(false);
   const base = `/api/stories/${storyId}/narration`;
-  const src = version ? `${base}?v=${version}` : base;
+  const src = url && !routeFallback ? url : base;
 
   useMountEffect(() => {
     cancelledRef.current = false;
@@ -110,6 +111,7 @@ export function StoryNarrationPlayer({
 
   async function prepare() {
     setStatus("preparing");
+    setRouteFallback(false);
     const deadline = Date.now() + PREPARE_TIMEOUT_MS;
     while (!cancelledRef.current && Date.now() < deadline) {
       let response: Response;
@@ -120,8 +122,8 @@ export function StoryNarrationPlayer({
       }
       if (cancelledRef.current) return;
       if (response.status === 200) {
-        const body: { version?: string } = await response.json().catch(() => ({}));
-        setVersion(body.version ?? null);
+        const body: { url?: string } = await response.json().catch(() => ({}));
+        setUrl(body.url ?? null);
         setStatus("ready");
         return;
       }
@@ -139,8 +141,14 @@ export function StoryNarrationPlayer({
   if (status === "ready") {
     return (
       <StoryAudioControls
+        key={src}
         src={src}
         onError={() => {
+          // The public address failed; the route serves the clip or retires it.
+          if (url && !routeFallback) {
+            setRouteFallback(true);
+            return;
+          }
           setStatus("unavailable");
           onProgress?.(null);
         }}

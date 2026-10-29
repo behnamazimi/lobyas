@@ -7,6 +7,9 @@ function getBucket(): string {
   return bucket;
 }
 
+/** A key is never reused, so the CDN may keep a clip for 30 days. */
+const AUDIO_CACHE_CONTROL = "public, max-age=2592000, immutable";
+
 export async function uploadAudio(path: string, audio: Buffer): Promise<void> {
   const client = getS3Client();
   await client.send(
@@ -15,8 +18,17 @@ export async function uploadAudio(path: string, audio: Buffer): Promise<void> {
       Key: path,
       Body: audio,
       ContentType: "audio/mpeg",
+      CacheControl: AUDIO_CACHE_CONTROL,
     }),
   );
+}
+
+/** Where the browser fetches a clip from: the bucket is public, so Supabase's
+ *  CDN serves it without touching the app. */
+export function publicAudioUrl(path: string): string {
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!base) throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL.");
+  return `${base}/storage/v1/object/public/${getBucket()}/${path}`;
 }
 
 export class AudioMissingError extends Error {
