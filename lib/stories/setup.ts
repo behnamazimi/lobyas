@@ -1,5 +1,6 @@
 import { requireAuthenticatedClient } from "@/lib/auth/require-session";
-import { hasReadyAudio } from "@/lib/ai/speech/jobs";
+import { getReadyAudioPath } from "@/lib/ai/speech/jobs";
+import { publicAudioUrl } from "@/lib/ai/speech/storage";
 import { getAiAccessView } from "@/lib/llm/access";
 import type { AiAccessView } from "@/lib/llm/types";
 import { getNarrationAccessForUser } from "@/lib/narration/access";
@@ -27,7 +28,7 @@ export type StoriesSetupData = {
   /** Set while the Shadowing option is on. */
   shadowing: ShadowingSettings | null;
   /** An unread piece to open straight into, instead of the setup screen. */
-  currentStory: { story: Story; terms: StoryTerm[]; narrationReady: boolean } | null;
+  currentStory: { story: Story; terms: StoryTerm[]; narrationUrl: string | null } | null;
 };
 
 function isEligible(collection: StoryCollection): boolean {
@@ -58,14 +59,16 @@ async function loadStoryToOpen(
 }
 
 /** A failed lookup counts as no clip, so the price is shown rather than hidden wrongly. */
-async function storyHasClip(
+async function storyClipUrl(
   admin: ReturnType<typeof createAdminClient>,
   storyId: string,
-): Promise<boolean> {
-  return hasReadyAudio(admin, { type: "story", id: storyId }).catch((err: unknown) => {
-    console.error("Failed to check for a story clip:", err);
-    return false;
-  });
+): Promise<string | null> {
+  return getReadyAudioPath(admin, { type: "story", id: storyId })
+    .then((path) => (path ? publicAudioUrl(path) : null))
+    .catch((err: unknown) => {
+      console.error("Failed to check for a story clip:", err);
+      return null;
+    });
 }
 
 export async function getStoriesSetupData(
@@ -124,7 +127,7 @@ export async function getStoriesSetupData(
       ? {
           story: unreadStory,
           terms: await getStoryTerms(admin, unreadStory.termIds),
-          narrationReady: narrationAccess && (await storyHasClip(admin, unreadStory.id)),
+          narrationUrl: narrationAccess ? await storyClipUrl(admin, unreadStory.id) : null,
         }
       : null,
   };

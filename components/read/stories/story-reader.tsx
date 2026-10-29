@@ -55,11 +55,13 @@ function StoryHeader({
   playerRef,
   onClipPauses,
   price,
+  clipUrl,
   topUp,
 }: {
   story: Story;
   narrationAccess: boolean;
   price: NarrationPrice | null;
+  clipUrl: string | null;
   topUp: TopUpState | undefined;
   onNarrationProgress?: (fraction: number | null) => void;
   shadowing: ShadowingSetup | null;
@@ -95,6 +97,7 @@ function StoryHeader({
             handleRef={playerRef}
             onClipPauses={onClipPauses}
             price={price}
+            clipUrl={clipUrl}
             topUp={topUp}
           />
         </div>
@@ -161,7 +164,7 @@ export function StoryReader({
   tapToPlay,
   shadowingSettings,
   ai,
-  narrationReady,
+  narrationUrl,
 }: {
   session: StorySession;
   story: Story;
@@ -173,8 +176,8 @@ export function StoryReader({
   shadowingSettings: ShadowingSettings | null;
   /** Who pays for AI, to price the first listen. */
   ai: AiAccessView;
-  /** The clip already exists, so listening is free and no price is shown. */
-  narrationReady: boolean;
+  /** Where the clip already is, so listening is free and no price is shown. */
+  narrationUrl: string | null;
 }) {
   const termById = new Map(terms.map((term) => [term.id, term]));
   const estimatedTimeline = useMemo(
@@ -235,7 +238,8 @@ export function StoryReader({
           sentencePlayback={sentencePlayback}
           playerRef={playerRef}
           onClipPauses={timeline ? setClipPauses : undefined}
-          price={narrationReady ? null : narrationPrice(ai, story)}
+          price={narrationUrl ? null : narrationPrice(ai, story)}
+          clipUrl={narrationUrl}
           topUp={ai.topUp}
         />
         <div
