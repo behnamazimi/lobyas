@@ -193,6 +193,9 @@ export function TermNarrationPlayer({
       return;
     }
 
+    // iOS Safari will not replay a finished clip; loading it again makes it play.
+    if (audio.ended) audio.load();
+
     const alreadySet = srcMatches(audio, src);
     const ready = alreadySet && canPlayThrough(audio);
     if (!alreadySet) audio.src = src;
@@ -231,6 +234,10 @@ export function TermNarrationPlayer({
     setStatus("paused");
   }
 
+  function handlePlaying() {
+    if (wantPlayingRef.current) setStatus("playing");
+  }
+
   function handleEnded() {
     wantPlayingRef.current = false;
     const audio = audioRef.current;
@@ -254,6 +261,7 @@ export function TermNarrationPlayer({
         src={preload && !knownMissing ? src : undefined}
         preload={preload && !knownMissing ? "auto" : "none"}
         onEnded={handleEnded}
+        onPlaying={handlePlaying}
         onError={handleError}
         onPause={handlePause}
       />
