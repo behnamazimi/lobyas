@@ -81,6 +81,7 @@ export function StoryNarrationPlayer({
   handleRef,
   onClipPauses,
   price,
+  clipUrl,
   topUp,
 }: {
   storyId: string;
@@ -92,11 +93,13 @@ export function StoryNarrationPlayer({
   /** What making this audio costs, if credits pay for it. The first listen pays;
    *  a clip that already exists is free. */
   price?: NarrationPrice | null;
+  /** Where the clip already is, so the Listen tap plays it without preparing. */
+  clipUrl?: string | null;
   /** Whether the free top-up would work, for when the audio can't be paid for. */
   topUp?: TopUpState;
 }) {
   const [status, setStatus] = useState<PlayerStatus>("idle");
-  const [url, setUrl] = useState<string | null>(null);
+  const [url, setUrl] = useState(clipUrl);
   const [routeFallback, setRouteFallback] = useState(false);
   const cancelledRef = useRef(false);
   const base = `/api/stories/${storyId}/narration`;
@@ -110,8 +113,12 @@ export function StoryNarrationPlayer({
   });
 
   async function prepare() {
-    setStatus("preparing");
     setRouteFallback(false);
+    if (url) {
+      setStatus("ready");
+      return;
+    }
+    setStatus("preparing");
     const deadline = Date.now() + PREPARE_TIMEOUT_MS;
     while (!cancelledRef.current && Date.now() < deadline) {
       let response: Response;
@@ -149,6 +156,8 @@ export function StoryNarrationPlayer({
             setRouteFallback(true);
             return;
           }
+          // Prepare again on the next tap rather than replay an address that failed.
+          setUrl(null);
           setStatus("unavailable");
           onProgress?.(null);
         }}

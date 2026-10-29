@@ -21,22 +21,22 @@ export async function getLiveJob(admin: Client, subject: SpeechSubject): Promise
   return data;
 }
 
-/** Whether this subject already has a clip that can be played, so nobody has
- *  to pay to make one. */
-export async function hasReadyAudio(
+/** Where this subject's playable clip is stored, or null when there is none,
+ *  so nobody has to pay to make one. */
+export async function getReadyAudioPath(
   admin: Client,
   subject: Pick<SpeechSubject, "type" | "id">,
-): Promise<boolean> {
+): Promise<string | null> {
   const { data, error } = await admin
     .from("audio_jobs")
-    .select("id")
+    .select("storage_path")
     .eq("subject_type", subject.type)
     .eq("subject_id", subject.id)
     .eq("status", "ready")
     .not("storage_path", "is", null)
     .limit(1);
   if (error) throw error;
-  return (data ?? []).length > 0;
+  return data?.[0]?.storage_path ?? null;
 }
 
 /** The new pending job when this caller won the claim, otherwise null. */
