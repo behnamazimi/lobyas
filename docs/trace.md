@@ -342,7 +342,14 @@ that writes a short AI piece around the top of a collection's Read queue —
 the same `rankReadQueue` order Cards uses, minus marked-known terms. Every
 piece is offered the top 10 terms, whatever its length, and uses the ones
 that fit (at least 1, 2 or 3 for short, medium and long); it is still
-charged by length. It doesn't add a trace or a weight of its own. Marking a piece read writes one
+charged by length. A per-collection setup switch ("Also use terms from Review",
+`story_collection_prefs.include_review`, off by default) also offers 5
+random terms from the Review queue, as optional extras. They are drawn from
+below the first 50 of `rankReviewQueue` (`STORY_REVIEW_SKIP`), so a story
+never shows what that day's Review is about to ask. They never count toward
+the minimum, aren't charged for, and are stored in `stories.review_term_ids`
+so the reader underlines them in another color. Used ones get a normal `read`
+like any other term in the piece. It doesn't add a trace or a weight of its own. Marking a piece read writes one
 ordinary `read` event per term that actually made it into the text, through
 the same `recordRead` Cards uses, and only once per piece (`stories.read_at`
 is set at most once). Diminishing returns on familiarity apply exactly as

@@ -69,6 +69,7 @@ function languageName(language: CollectionLanguage): string {
 
 type StoryPromptInput = {
   terms: StoryTerm[];
+  reviewTerms?: StoryTerm[];
   language: CollectionLanguage;
   format: StyleOption;
   tone: StyleOption;
@@ -102,9 +103,11 @@ export function buildStoryPrompt(input: StoryPromptInput): {
   prompt: string;
 } {
   const { min, max, unit } = input.length;
-  const termLines = input.terms
-    .map((term, index) => `${index + 1}. ${term.term}: ${term.definition}`)
-    .join("\n");
+  const numbered = (terms: StoryTerm[], offset: number) =>
+    terms
+      .map((term, index) => `${offset + index + 1}. ${term.term}: ${term.definition}`)
+      .join("\n");
+  const reviewTerms = input.reviewTerms ?? [];
   const recent = input.recentTitles.map((title) => `"${title}"`).join(", ");
 
   const prompt = [
@@ -119,7 +122,14 @@ export function buildStoryPrompt(input: StoryPromptInput): {
       : []),
     "",
     "Terms:",
-    termLines,
+    numbered(input.terms, 0),
+    ...(reviewTerms.length > 0
+      ? [
+          "",
+          "Optional terms (use one only if it fits the story naturally; leaving some or all out is fine, and never bend the story to include them):",
+          numbered(reviewTerms, input.terms.length),
+        ]
+      : []),
   ].join("\n");
 
   return { system: STORY_SYSTEM_PROMPT, prompt };

@@ -12,11 +12,12 @@ export type PieceLength = (typeof PIECE_LENGTHS)[number];
 export const DEFAULT_CEFR_LEVEL: CefrLevel = "B2";
 export const DEFAULT_PIECE_LENGTH: PieceLength = "medium";
 
-/** The per-collection setup the user picks: the language level and how long
- *  the piece is. */
+/** The per-collection setup the user picks: the language level, how long
+ *  the piece is, and whether it may also use terms from the Review queue. */
 export type StoryLevels = {
   cefrLevel: CefrLevel;
   pieceLength: PieceLength;
+  includeReview: boolean;
 };
 
 export function parseCefrLevel(value: string): CefrLevel {
@@ -45,6 +46,8 @@ export type Story = {
   title: string;
   segments: StorySegment[];
   termIds: string[];
+  /** The terms in `termIds` that came from the Review queue. */
+  reviewTermIds: string[];
   vote: -1 | 1 | null;
   readAt: string | null;
 };
