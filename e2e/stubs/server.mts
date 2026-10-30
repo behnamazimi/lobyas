@@ -40,7 +40,7 @@ type Part = { text?: string };
 type GeminiRequest = {
   contents?: { parts?: Part[] }[];
   systemInstruction?: { parts?: Part[] };
-  generationConfig?: { responseSchema?: unknown };
+  generationConfig?: { responseSchema?: unknown; responseJsonSchema?: unknown };
 };
 
 function promptOf(body: GeminiRequest): string {
@@ -53,7 +53,8 @@ function promptOf(body: GeminiRequest): string {
 function quizAnswer(body: GeminiRequest): string {
   const prompt = promptOf(body);
   const ids = [...prompt.matchAll(/^- id: (\S+)/gm)].map((m) => m[1]!);
-  const schema = (body.generationConfig?.responseSchema ?? {}) as {
+  const { responseJsonSchema, responseSchema } = body.generationConfig ?? {};
+  const schema = (responseJsonSchema ?? responseSchema ?? {}) as {
     properties?: { questions?: { properties?: Record<string, unknown> } };
   };
   const slots = schema.properties?.questions?.properties ?? {};

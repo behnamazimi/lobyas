@@ -204,8 +204,9 @@ test.describe("Goals per collection", () => {
   });
 });
 
-test("the reminders card is only for the phone apps", async ({ page }) => {
+test("the reminders card is only for the phone apps", async ({ page, user }) => {
+  await seedCollection(user);
   await gotoReady(page, "/app/goals");
-  await expect(page.getByRole("heading", { name: "Goals" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Goals", exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Reminders" })).toHaveCount(0);
 });
