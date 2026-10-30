@@ -9,6 +9,15 @@ const TERMS = [
 ];
 
 describe("parseStoryText", () => {
+  it("maps a number past the first list to a review term", () => {
+    const review = { id: "r1", term: "Latency", definition: "d" };
+    const result = parseStoryText("Title\n\nA [[latency|" + (TERMS.length + 1) + "]] story.", [
+      ...TERMS,
+      review,
+    ]);
+    expect(result.paragraphs[0]!.segments.some((segment) => segment.termId === "r1")).toBe(true);
+  });
+
   it("reads the title and the model's own paragraphs", () => {
     const result = parseStoryText("Title: The outage\n\nFirst one. Second.\n\nThird.", TERMS);
     expect(result.title).toBe("The outage");

@@ -13,7 +13,6 @@ import type { StorySession } from "@/components/read/stories/use-story-session";
 import { creditGate, isExhausted } from "@/lib/ai-credits/gate";
 import { aiAvailable, type AiAccessView } from "@/lib/llm/types";
 import { storyCreditUse } from "@/lib/stories/credit-fit";
-import { STORY_REVIEW_SKIP } from "@/lib/stories/length";
 import type { StoryCollection } from "@/lib/stories/setup";
 import {
   CEFR_LEVELS,
@@ -104,8 +103,8 @@ export function StorySetupPanel({
           <span>
             <span className="block text-sm font-extrabold">Also use terms from Review</span>
             <span className="mt-1 block text-[13px] font-semibold text-muted">
-              Adds a few Review terms the story can use where they fit. Your Review queue is
-              unchanged, and a collection needs more than {STORY_REVIEW_SKIP} terms to have any.
+              Adds a few Review terms the story can use where they fit. They come from further down
+              your Review queue, so a short queue may add none.
             </span>
           </span>
           <input

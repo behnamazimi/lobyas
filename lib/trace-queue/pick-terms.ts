@@ -191,14 +191,11 @@ export async function pickReviewSampleForUser(
   scope: ReviewScope,
   options: { skip: number; count: number; excludeTermIds: string[] },
 ): Promise<TermCard[]> {
-  const candidates = excludeMarkedKnown(
-    excludeTerms(await fetchTraceCandidatesForUser(client, userId, scope), options.excludeTermIds),
-  );
-  const picked = sampleBelowReviewTop(
-    rankReviewQueue(candidates, new Date()),
-    options.skip,
-    options.count,
-  );
+  const candidates = excludeMarkedKnown(await fetchTraceCandidatesForUser(client, userId, scope));
+  // Rank first, so the skipped top is the real Review queue's top.
+  const excluded = new Set(options.excludeTermIds);
+  const ranked = rankReviewQueue(candidates, new Date()).filter((c) => !excluded.has(c.termId));
+  const picked = sampleBelowReviewTop(ranked, options.skip, options.count);
   if (picked.length === 0) return [];
   return hydrateTermCardsForUser(
     client,

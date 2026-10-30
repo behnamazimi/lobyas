@@ -89,19 +89,23 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
       definition: card.definition,
     });
     const terms = cards.map(toStoryTerm);
+    // The extras are optional, so a failure picking them must not fail the story.
     const reviewTerms = includeReview
-      ? (
-          await pickReviewSampleForUser(
-            admin,
-            userId,
-            { collectionIds: [collectionId] },
-            {
-              skip: STORY_REVIEW_SKIP,
-              count: STORY_REVIEW_POOL,
-              excludeTermIds: terms.map((term) => term.id),
-            },
-          )
-        ).map(toStoryTerm)
+      ? await pickReviewSampleForUser(
+          admin,
+          userId,
+          { collectionIds: [collectionId] },
+          {
+            skip: STORY_REVIEW_SKIP,
+            count: STORY_REVIEW_POOL,
+            excludeTermIds: terms.map((term) => term.id),
+          },
+        )
+          .then((picked) => picked.map(toStoryTerm))
+          .catch((err: unknown) => {
+            console.error("Failed to pick Review terms for a story:", err);
+            return [];
+          })
       : [];
 
     const observability = createAiTurn(userId, "story_generation", await hasAnalyticsConsent());
@@ -182,6 +186,7 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
       language: collection.language,
       has_outline: outline !== null,
       term_count: produced.usedIds.size,
+      review_term_count: produced.story.reviewTermIds.length,
       billing: "credits",
     });
 
