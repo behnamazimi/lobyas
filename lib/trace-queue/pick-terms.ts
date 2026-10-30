@@ -167,6 +167,43 @@ export async function pickReviewTermsForUser(
   return withRecall(withIsNewToUser(cards, ranked), ranked);
 }
 
+/** Skips the top of the ranked Review queue, which is what the learner is about
+ *  to be asked, then takes `count` at random from the rest. */
+export function sampleBelowReviewTop<T>(
+  ranked: T[],
+  skip: number,
+  count: number,
+  random: () => number = Math.random,
+): T[] {
+  const pool = ranked.slice(skip);
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j]!, pool[i]!];
+  }
+  return pool.slice(0, count);
+}
+
+/** A few random terms from further down the Review queue, for stories to use
+ *  without showing the learner what their Review session is about to ask. */
+export async function pickReviewSampleForUser(
+  client: Client,
+  userId: string,
+  scope: ReviewScope,
+  options: { skip: number; count: number; excludeTermIds: string[] },
+): Promise<TermCard[]> {
+  const candidates = excludeMarkedKnown(await fetchTraceCandidatesForUser(client, userId, scope));
+  // Rank first, so the skipped top is the real Review queue's top.
+  const excluded = new Set(options.excludeTermIds);
+  const ranked = rankReviewQueue(candidates, new Date()).filter((c) => !excluded.has(c.termId));
+  const picked = sampleBelowReviewTop(ranked, options.skip, options.count);
+  if (picked.length === 0) return [];
+  return hydrateTermCardsForUser(
+    client,
+    userId,
+    picked.map((c) => c.termId),
+  );
+}
+
 /** Quiz: ranked by R_g(t) ascending, same shape as Review — terms with no
  *  quiz history yet are ranked at UNTESTED_RECOGNITION_RETRIEVABILITY (§5) rather than
  *  being excluded. */

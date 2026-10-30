@@ -11,7 +11,7 @@ export async function loadPrefs(
   const [prefs, settings] = await Promise.all([
     admin
       .from("story_collection_prefs")
-      .select("collection_id, cefr_level, piece_length")
+      .select("collection_id, cefr_level, piece_length, include_review")
       .eq("user_id", userId),
     admin
       .from("user_settings")
@@ -27,6 +27,7 @@ export async function loadPrefs(
     levelsByCollection[row.collection_id] = {
       cefrLevel: parseCefrLevel(row.cefr_level),
       pieceLength: parsePieceLength(row.piece_length),
+      includeReview: row.include_review,
     };
   }
   return { lastCollectionId: settings.data?.story_last_collection_id ?? null, levelsByCollection };
@@ -46,6 +47,7 @@ export async function savePrefs(
         collection_id: collectionId,
         cefr_level: levels.cefrLevel,
         piece_length: levels.pieceLength,
+        include_review: levels.includeReview,
         updated_at: now,
       },
       { onConflict: "user_id,collection_id" },

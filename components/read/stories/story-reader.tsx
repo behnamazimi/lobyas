@@ -26,6 +26,7 @@ import type { ShadowingSettings } from "@/lib/stories/shadowing";
 import { snapTimeline } from "@/lib/stories/pause-alignment";
 import type { ClipPauses } from "@/lib/stories/silence";
 import type { Story, StoryTerm } from "@/lib/stories/types";
+import { cn } from "@/lib/utils";
 
 /** Each term's first wording in the piece, in reading order. */
 function firstOccurrences(story: Story): Map<string, string> {
@@ -133,7 +134,14 @@ function StoryGlossary({ story, termById }: { story: Story; termById: Map<string
             return (
               <li key={termId} className="py-3">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="m-0 min-w-0 font-heading text-lg font-extrabold">{term.term}</p>
+                  <p
+                    className={cn(
+                      "m-0 min-w-0 font-heading text-lg font-extrabold",
+                      story.reviewTermIds.includes(termId) && "text-review-text",
+                    )}
+                  >
+                    {term.term}
+                  </p>
                   <div className="-me-1.5 flex shrink-0 items-center gap-1">
                     <StoryMarkKnown termId={termId} term={term.term} />
                     <Link

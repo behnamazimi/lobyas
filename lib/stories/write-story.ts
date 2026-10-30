@@ -11,10 +11,10 @@ import { hasAnalyticsConsent } from "@/lib/consent/server";
 import { resolveAiAccess } from "@/lib/llm/access";
 import type { AiFailureReason } from "@/lib/llm/types";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { pickReadTermsForUser } from "@/lib/trace-queue";
+import { pickReadTermsForUser, pickReviewSampleForUser } from "@/lib/trace-queue";
 import { storyFailure } from "./failure";
 import { generateStory, StoryProviderError, type StoryRetryReason } from "./generate";
-import { STORY_TERM_POOL, termsForLength } from "./length";
+import { STORY_REVIEW_POOL, STORY_REVIEW_SKIP, STORY_TERM_POOL, termsForLength } from "./length";
 import { savePrefs } from "./prefs";
 import { loadRecentTitles, loadRecentVotes } from "./recent";
 import { dismissUnreadStories, getCollection, insertStory } from "./repository";
@@ -45,6 +45,7 @@ const generateInputSchema = z.object({
   collectionId: z.guid(),
   cefrLevel: z.enum(CEFR_LEVELS),
   pieceLength: z.enum(PIECE_LENGTHS),
+  includeReview: z.boolean().default(false),
   outline: z
     .string()
     .trim()
@@ -58,8 +59,8 @@ const generateInputSchema = z.object({
 export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryResult> {
   const parsed = generateInputSchema.safeParse(rawInput);
   if (!parsed.success) return { error: "Check the story setup and try again." };
-  const { collectionId, cefrLevel, pieceLength, outline } = parsed.data;
-  const levels = { cefrLevel, pieceLength };
+  const { collectionId, cefrLevel, pieceLength, includeReview, outline } = parsed.data;
+  const levels = { cefrLevel, pieceLength, includeReview };
   const userId = auth.user.id;
   const admin = createAdminClient();
 
@@ -82,11 +83,30 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
     const style = pickStyle(votes);
     const format = findFormat(style.format)!;
     const tone = findTone(style.tone)!;
-    const terms = cards.map((card) => ({
+    const toStoryTerm = (card: (typeof cards)[number]) => ({
       id: card.id,
       term: card.term,
       definition: card.definition,
-    }));
+    });
+    const terms = cards.map(toStoryTerm);
+    // The extras are optional, so a failure picking them must not fail the story.
+    const reviewTerms = includeReview
+      ? await pickReviewSampleForUser(
+          admin,
+          userId,
+          { collectionIds: [collectionId] },
+          {
+            skip: STORY_REVIEW_SKIP,
+            count: STORY_REVIEW_POOL,
+            excludeTermIds: terms.map((term) => term.id),
+          },
+        )
+          .then((picked) => picked.map(toStoryTerm))
+          .catch((err: unknown) => {
+            console.error("Failed to pick Review terms for a story:", err);
+            return [];
+          })
+      : [];
 
     const observability = createAiTurn(userId, "story_generation", await hasAnalyticsConsent());
     // Everything the user receives, so a failure anywhere in here refunds the credits.
@@ -97,6 +117,7 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
           provider: access.provider,
           apiKey: access.apiKey,
           terms,
+          reviewTerms,
           language: collection.language,
           format,
           tone,
@@ -125,6 +146,7 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
         title: generated.title,
         segments: generated.segments,
         termIds: generated.termIds,
+        reviewTermIds: generated.reviewTermIds,
       });
       return { story, usedIds };
     };
@@ -164,12 +186,13 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
       language: collection.language,
       has_outline: outline !== null,
       term_count: produced.usedIds.size,
+      review_term_count: produced.story.reviewTermIds.length,
       billing: "credits",
     });
 
     return {
       story: produced.story,
-      terms: terms.filter((term) => produced.usedIds.has(term.id)),
+      terms: [...terms, ...reviewTerms].filter((term) => produced.usedIds.has(term.id)),
     };
   } catch (err) {
     const providerError = err instanceof StoryProviderError ? err : null;

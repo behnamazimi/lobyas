@@ -43,6 +43,8 @@ type GenerateStoryInput = {
   provider: LlmProvider;
   apiKey: string;
   terms: StoryTerm[];
+  /** Optional extras from the Review queue; the model uses them only where they fit. */
+  reviewTerms?: StoryTerm[];
   language: CollectionLanguage;
   format: StyleOption;
   tone: StyleOption;
@@ -60,7 +62,12 @@ type GenerateStoryInput = {
 
 export type StoryRetryReason = StoryGenerationFailure | "provider";
 
-type GeneratedStory = { title: string; segments: StorySegment[]; termIds: string[] };
+type GeneratedStory = {
+  title: string;
+  segments: StorySegment[];
+  termIds: string[];
+  reviewTermIds: string[];
+};
 
 function isRetryable(error: unknown): boolean {
   if (error instanceof StoryGenerationError) return true;
@@ -113,8 +120,15 @@ async function requestStory(
   });
   input.onUsage?.(usage);
   try {
-    const payload = parseStoryText(text, input.terms, input.language);
-    return normalizeStory(payload, input.terms, length, minTermsForLength(input.pieceLength));
+    const reviewTerms = input.reviewTerms ?? [];
+    const payload = parseStoryText(text, [...input.terms, ...reviewTerms], input.language);
+    return normalizeStory(
+      payload,
+      input.terms,
+      length,
+      minTermsForLength(input.pieceLength),
+      reviewTerms,
+    );
   } catch (error) {
     if (error instanceof StoryGenerationError) {
       console.warn("Rejected story reply:", text.slice(0, REJECTED_REPLY_LOG_LIMIT));

@@ -24,15 +24,17 @@ function checkLength(segments: StorySegment[], length: LengthRange) {
 
 /** Turns the parsed reply into the story to save. A term counts when the
  *  model marked it with one of the numbers it was given; the words inside the
- *  marker are the model's choice of form and aren't checked. */
+ *  marker are the model's choice of form and aren't checked. Review terms are
+ *  optional: they are kept when used but never count toward `minTerms`. */
 export function normalizeStory(
   payload: StoryGenerationPayload,
   terms: StoryTerm[],
   length: LengthRange,
   minTerms: number,
-): { title: string; segments: StorySegment[]; termIds: string[] } {
+  reviewTerms: StoryTerm[] = [],
+): { title: string; segments: StorySegment[]; termIds: string[]; reviewTermIds: string[] } {
   const title = checkedTitle(payload.title);
-  const termById = new Map(terms.map((term) => [term.id, term]));
+  const termById = new Map([...terms, ...reviewTerms].map((term) => [term.id, term]));
   const used = new Set<string>();
   const paragraphs: StorySegment[][] = [];
 
@@ -58,6 +60,7 @@ export function normalizeStory(
   }
 
   const termIds = terms.map((term) => term.id).filter((id) => used.has(id));
+  const reviewTermIds = reviewTerms.map((term) => term.id).filter((id) => used.has(id));
   if (termIds.length < minTerms) {
     throw new StoryGenerationError(
       `Only ${termIds.length} of the ${terms.length} terms were marked; this length needs ${minTerms}.`,
@@ -68,5 +71,5 @@ export function normalizeStory(
   const segments = flattenParagraphs(paragraphs);
   checkLength(segments, length);
 
-  return { title, segments, termIds };
+  return { title, segments, termIds: [...termIds, ...reviewTermIds], reviewTermIds };
 }

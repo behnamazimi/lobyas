@@ -99,6 +99,22 @@ export function StorySetupPanel({
 
         <PieceLengthField value={session.pieceLength} onChange={session.setPieceLength} />
 
+        <label className="flex cursor-pointer items-start justify-between gap-3">
+          <span>
+            <span className="block text-sm font-extrabold">Also use terms from Review</span>
+            <span className="mt-1 block text-[13px] font-semibold text-muted">
+              Adds a few Review terms the story can use where they fit. They come from further down
+              your Review queue, so a short queue may add none.
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            className="toggle mt-0.5 shrink-0 toggle-primary"
+            checked={session.includeReview}
+            onChange={(event) => session.setIncludeReview(event.target.checked)}
+          />
+        </label>
+
         <div>
           <label htmlFor="story-outline" className="text-sm font-extrabold">
             Outline (optional)
