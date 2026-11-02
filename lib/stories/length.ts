@@ -41,6 +41,11 @@ const PIECE_LENGTH_SPEC: Record<
  *  the ones that fit, so a short piece still has enough to pick from. */
 export const STORY_TERM_POOL = 10;
 
+/** How many Review terms a story may also be offered, picked at random from
+ *  below the first REVIEW_SKIP of the Review queue (which Review serves next). */
+export const STORY_REVIEW_POOL = 5;
+export const STORY_REVIEW_SKIP = 50;
+
 export type StoryLength = {
   min: number;
   max: number;

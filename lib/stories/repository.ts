@@ -15,7 +15,7 @@ type Client = SupabaseClient<Database>;
 type StoryRow = Database["public"]["Tables"]["stories"]["Row"];
 
 const STORY_COLUMNS =
-  "id, collection_id, language, format, tone, cefr_level, piece_length, outline, title, segments, term_ids, vote, read_at";
+  "id, collection_id, language, format, tone, cefr_level, piece_length, outline, title, segments, term_ids, review_term_ids, vote, read_at";
 
 export function toVote(value: number | null): -1 | 1 | null {
   return value === 1 || value === -1 ? value : null;
@@ -34,6 +34,7 @@ type StoryRowSubset = Pick<
   | "title"
   | "segments"
   | "term_ids"
+  | "review_term_ids"
   | "vote"
   | "read_at"
 >;
@@ -51,6 +52,7 @@ function mapStory(row: StoryRowSubset): Story {
     title: row.title,
     segments: row.segments as StorySegment[],
     termIds: row.term_ids,
+    reviewTermIds: row.review_term_ids,
     vote: toVote(row.vote),
     readAt: row.read_at,
   };
@@ -69,6 +71,7 @@ export async function insertStory(
     title: string;
     segments: StorySegment[];
     termIds: string[];
+    reviewTermIds: string[];
   },
 ): Promise<Story> {
   const { data, error } = await admin
@@ -85,6 +88,7 @@ export async function insertStory(
       title: input.title,
       segments: input.segments as unknown as NonNullable<Json>,
       term_ids: input.termIds,
+      review_term_ids: input.reviewTermIds,
     })
     .select(STORY_COLUMNS)
     .single();

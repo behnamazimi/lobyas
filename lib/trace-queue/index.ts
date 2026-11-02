@@ -13,6 +13,7 @@ export {
   pickReadTermsForUser,
   pickReviewTerms,
   pickReviewTermsForUser,
+  pickReviewSampleForUser,
   pickQuizTerms,
   getPoolStats,
   getReadEligibleCountsByCollectionForUser,

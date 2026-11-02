@@ -24,6 +24,7 @@ type StoryStep = "setup" | "generating" | "reading" | "error";
 const DEFAULT_LEVELS: StoryLevels = {
   cefrLevel: DEFAULT_CEFR_LEVEL,
   pieceLength: DEFAULT_PIECE_LENGTH,
+  includeReview: false,
 };
 
 export function useStorySession(setup: StoriesSetupData) {
@@ -38,6 +39,7 @@ export function useStorySession(setup: StoriesSetupData) {
     DEFAULT_LEVELS;
   const [cefrLevel, setCefrLevel] = useState<CefrLevel>(initialLevels.cefrLevel);
   const [pieceLength, setPieceLength] = useState<PieceLength>(initialLevels.pieceLength);
+  const [includeReview, setIncludeReview] = useState(initialLevels.includeReview);
   const [outline, setOutline] = useState("");
   const [story, setStory] = useState<Story | null>(setup.currentStory?.story ?? null);
   const [terms, setTerms] = useState<StoryTerm[]>(setup.currentStory?.terms ?? []);
@@ -60,6 +62,7 @@ export function useStorySession(setup: StoriesSetupData) {
     const levels = levelsByCollection[nextCollectionId] ?? DEFAULT_LEVELS;
     setCefrLevel(levels.cefrLevel);
     setPieceLength(levels.pieceLength);
+    setIncludeReview(levels.includeReview);
   }
 
   // A story opened from the history is in the URL; once the user moves on,
@@ -86,7 +89,7 @@ export function useStorySession(setup: StoriesSetupData) {
     setErrorMessage(null);
     setErrorReason(null);
 
-    const levels = { cefrLevel, pieceLength };
+    const levels = { cefrLevel, pieceLength, includeReview };
     const controller = new AbortController();
     pendingRef.current = controller;
     let result: Awaited<ReturnType<typeof requestStory>>;
@@ -161,6 +164,8 @@ export function useStorySession(setup: StoriesSetupData) {
     setCefrLevel,
     pieceLength,
     setPieceLength,
+    includeReview,
+    setIncludeReview,
     outline,
     setOutline,
     story,

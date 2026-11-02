@@ -11,10 +11,12 @@ import { cn } from "@/lib/utils";
 function StorySegments({
   segments,
   termById,
+  reviewTermIds,
   onTermPress,
 }: {
   segments: StorySegment[];
   termById: Map<string, StoryTerm>;
+  reviewTermIds: string[];
   onTermPress: (term: StoryTerm) => void;
 }) {
   return segments.map((segment, index) =>
@@ -23,6 +25,7 @@ function StorySegments({
         key={index}
         text={segment.text}
         term={termById.get(segment.termId)}
+        review={reviewTermIds.includes(segment.termId)}
         onPress={onTermPress}
       />
     ) : (
@@ -47,6 +50,7 @@ function HighlightedParagraphs({
   keepInView,
   onSentencePress,
   termById,
+  reviewTermIds,
   onTermPress,
 }: {
   timeline: StoryTimeline;
@@ -54,6 +58,7 @@ function HighlightedParagraphs({
   keepInView: (node: HTMLElement | null) => void;
   onSentencePress?: (index: number) => void;
   termById: Map<string, StoryTerm>;
+  reviewTermIds: string[];
   onTermPress: (term: StoryTerm) => void;
 }) {
   return timeline.paragraphs.map((sentences, paragraphIndex) => (
@@ -77,6 +82,7 @@ function HighlightedParagraphs({
             <StorySegments
               segments={sentence.segments}
               termById={termById}
+              reviewTermIds={reviewTermIds}
               onTermPress={onTermPress}
             />
           </span>
@@ -112,12 +118,18 @@ export function StoryBody({
           keepInView={keepInView}
           onSentencePress={onSentencePress}
           termById={termById}
+          reviewTermIds={story.reviewTermIds}
           onTermPress={onTermPress}
         />
       ) : (
         toParagraphs(story.segments).map((paragraph, paragraphIndex) => (
           <p key={paragraphIndex} className="m-0 whitespace-pre-line">
-            <StorySegments segments={paragraph} termById={termById} onTermPress={onTermPress} />
+            <StorySegments
+              segments={paragraph}
+              termById={termById}
+              reviewTermIds={story.reviewTermIds}
+              onTermPress={onTermPress}
+            />
           </p>
         ))
       )}

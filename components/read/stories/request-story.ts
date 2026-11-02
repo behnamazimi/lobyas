@@ -9,6 +9,7 @@ type StoryRequest = {
   collectionId: string;
   cefrLevel: string;
   pieceLength: string;
+  includeReview: boolean;
   outline: string | null;
 };
 

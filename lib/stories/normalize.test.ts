@@ -155,6 +155,23 @@ describe("normalizeStory", () => {
     expect(normalizeStory(twoTerms, TERMS, 2).termIds).toEqual(["t1", "t4"]);
   });
 
+  it("keeps used review terms but does not count them toward the minimum", () => {
+    const review = [{ id: "r1", term: "Latency", definition: "d" }];
+    const used = payload([
+      { text: "idempotency", termId: "t1" },
+      { text: " " },
+      { text: "latency", termId: "r1" },
+    ]);
+    const result = normalizeWithLength(used, TERMS, LENGTH, 1, review);
+    expect(result.termIds).toEqual(["t1", "r1"]);
+    expect(result.reviewTermIds).toEqual(["r1"]);
+
+    const onlyReview = payload([{ text: "latency", termId: "r1" }]);
+    expect(() => normalizeWithLength(onlyReview, TERMS, LENGTH, 1, review)).toThrow(
+      StoryGenerationError,
+    );
+  });
+
   it("keeps a story with a single term when one is enough", () => {
     const result = normalizeStory(payload([{ text: "idempotent", termId: "t1" }]), TERMS, 1);
     expect(result.termIds).toEqual(["t1"]);

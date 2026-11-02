@@ -18,7 +18,7 @@ vi.mock("./hydrate", () => ({
   hydrateTermCardsForUser: mocks.hydrate,
 }));
 
-const { pickQuizTerms } = await import("./pick-terms");
+const { pickQuizTerms, sampleBelowReviewTop } = await import("./pick-terms");
 
 const client = {} as SupabaseClient<Database>;
 
@@ -66,5 +66,20 @@ describe("quiz pickers carry recognition", () => {
     const byId = Object.fromEntries(cards.map((c) => [c.id, c.recognition]));
     expect(byId.known).toEqual({ posterior: 0.82, testCount: 3 });
     expect(byId.new).toEqual({ posterior: null, testCount: 0 });
+  });
+});
+
+describe("sampleBelowReviewTop", () => {
+  const ranked = Array.from({ length: 60 }, (_, i) => i);
+
+  it("never picks from the top of the queue", () => {
+    for (let run = 0; run < 20; run++) {
+      expect(sampleBelowReviewTop(ranked, 50, 5).every((n) => n >= 50)).toBe(true);
+    }
+  });
+
+  it("returns what is left when fewer than count remain", () => {
+    expect(sampleBelowReviewTop(ranked, 57, 5)).toHaveLength(3);
+    expect(sampleBelowReviewTop(ranked, 60, 5)).toEqual([]);
   });
 });

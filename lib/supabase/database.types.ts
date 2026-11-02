@@ -1439,6 +1439,7 @@ export type Database = {
           piece_length: string;
           read_at: string | null;
           reading_level: string | null;
+          review_term_ids: string[];
           segments: NonNullable<Json>;
           term_ids: string[];
           title: string;
@@ -1460,6 +1461,7 @@ export type Database = {
           piece_length?: string;
           read_at?: string | null;
           reading_level?: string | null;
+          review_term_ids?: string[];
           segments: NonNullable<Json>;
           term_ids: string[];
           title: string;
@@ -1480,6 +1482,7 @@ export type Database = {
           piece_length?: string;
           read_at?: string | null;
           reading_level?: string | null;
+          review_term_ids?: string[];
           segments?: NonNullable<Json>;
           term_ids?: string[];
           title?: string;
@@ -1508,6 +1511,7 @@ export type Database = {
         Row: {
           cefr_level: string;
           collection_id: string;
+          include_review: boolean;
           piece_length: string;
           reading_level: string | null;
           updated_at: string;
@@ -1517,6 +1521,7 @@ export type Database = {
         Insert: {
           cefr_level: string;
           collection_id: string;
+          include_review?: boolean;
           piece_length?: string;
           reading_level?: string | null;
           updated_at?: string;
@@ -1525,6 +1530,7 @@ export type Database = {
         Update: {
           cefr_level?: string;
           collection_id?: string;
+          include_review?: boolean;
           piece_length?: string;
           reading_level?: string | null;
           updated_at?: string;
