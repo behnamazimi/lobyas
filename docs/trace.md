@@ -342,7 +342,7 @@ that writes a short AI piece around the top of a collection's Read queue —
 the same `rankReadQueue` order Cards uses, minus marked-known terms. Every
 piece is offered the top 10 terms, whatever its length, and uses the ones
 that fit (at least 1, 2 or 3 for short, medium and long); it is still
-charged by length. A per-collection setup switch ("Also use terms from Review",
+charged by length. A per-collection setup switch ("Include terms from Review",
 `story_collection_prefs.include_review`, off by default) also offers 5
 random terms from the Review queue, as optional extras. They are drawn from
 below the first 50 of `rankReviewQueue` (`STORY_REVIEW_SKIP`), so a story
