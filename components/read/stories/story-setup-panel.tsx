@@ -3,7 +3,7 @@
 import { useShell } from "@/components/app/shell/shell-context";
 import { TopUpButton } from "@/components/ai-credits/top-up-button";
 import { Pill, SectionCard } from "@/components/kit";
-import { PieceLengthField } from "@/components/read/stories/story-setup-fields";
+import { PieceLengthField, StoryTopicField } from "@/components/read/stories/story-setup-fields";
 import {
   StoryCreditGate,
   StoryFooterHint,
@@ -14,12 +14,7 @@ import { creditGate, isExhausted } from "@/lib/ai-credits/gate";
 import { aiAvailable, type AiAccessView } from "@/lib/llm/types";
 import { storyCreditUse } from "@/lib/stories/credit-fit";
 import type { StoryCollection } from "@/lib/stories/setup";
-import {
-  CEFR_LEVELS,
-  STORY_MIN_TERMS,
-  STORY_OUTLINE_MAX,
-  type CefrLevel,
-} from "@/lib/stories/types";
+import { CEFR_LEVELS, STORY_MIN_TERMS, type CefrLevel } from "@/lib/stories/types";
 
 const CEFR_HINTS: Record<CefrLevel, string> = {
   A1: "A1 · very short, basic sentences",
@@ -99,42 +94,17 @@ export function StorySetupPanel({
 
         <PieceLengthField value={session.pieceLength} onChange={session.setPieceLength} />
 
-        <label className="flex cursor-pointer items-start justify-between gap-3">
-          <span>
-            <span className="block text-sm font-extrabold">Also use terms from Review</span>
-            <span className="mt-1 block text-[13px] font-semibold text-muted">
-              Adds a few Review terms the story can use where they fit. They come from further down
-              your Review queue, so a short queue may add none.
-            </span>
-          </span>
+        <StoryTopicField value={session.outline} onChange={session.setOutline} />
+
+        <label className="flex cursor-pointer items-center justify-between gap-3">
+          <span className="text-sm font-extrabold">Include terms from Review</span>
           <input
             type="checkbox"
-            className="toggle mt-0.5 shrink-0 toggle-primary"
+            className="toggle shrink-0 toggle-primary"
             checked={session.includeReview}
             onChange={(event) => session.setIncludeReview(event.target.checked)}
           />
         </label>
-
-        <div>
-          <label htmlFor="story-outline" className="text-sm font-extrabold">
-            Outline (optional)
-          </label>
-          <textarea
-            id="story-outline"
-            rows={2}
-            value={session.outline}
-            maxLength={STORY_OUTLINE_MAX}
-            onChange={(event) => session.setOutline(event.target.value)}
-            placeholder="e.g. A late-night outage at a small startup"
-            className={`textarea mt-1.5 min-h-16 resize-none px-3.5 py-3 ${FIELD}`}
-          />
-          <div className="mt-1.5 flex justify-between gap-2 text-[13px] font-semibold text-muted">
-            <span>Sets the topic. Terms still come from your queue.</span>
-            <span className="tabular-nums">
-              {session.outline.length}/{STORY_OUTLINE_MAX}
-            </span>
-          </div>
-        </div>
       </SectionCard>
 
       {creditsBlock ? (
