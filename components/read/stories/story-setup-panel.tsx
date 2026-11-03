@@ -14,11 +14,7 @@ import { creditGate, isExhausted } from "@/lib/ai-credits/gate";
 import { aiAvailable, type AiAccessView } from "@/lib/llm/types";
 import { storyCreditUse } from "@/lib/stories/credit-fit";
 import type { StoryCollection } from "@/lib/stories/setup";
-import {
-  CEFR_LEVELS,
-  STORY_MIN_TERMS,
-  type CefrLevel,
-} from "@/lib/stories/types";
+import { CEFR_LEVELS, STORY_MIN_TERMS, type CefrLevel } from "@/lib/stories/types";
 
 const CEFR_HINTS: Record<CefrLevel, string> = {
   A1: "A1 · very short, basic sentences",
