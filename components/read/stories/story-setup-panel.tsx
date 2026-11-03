@@ -3,7 +3,7 @@
 import { useShell } from "@/components/app/shell/shell-context";
 import { TopUpButton } from "@/components/ai-credits/top-up-button";
 import { Pill, SectionCard } from "@/components/kit";
-import { PieceLengthField } from "@/components/read/stories/story-setup-fields";
+import { PieceLengthField, StoryTopicField } from "@/components/read/stories/story-setup-fields";
 import {
   StoryCreditGate,
   StoryFooterHint,
@@ -17,7 +17,6 @@ import type { StoryCollection } from "@/lib/stories/setup";
 import {
   CEFR_LEVELS,
   STORY_MIN_TERMS,
-  STORY_OUTLINE_MAX,
   type CefrLevel,
 } from "@/lib/stories/types";
 
@@ -99,25 +98,7 @@ export function StorySetupPanel({
 
         <PieceLengthField value={session.pieceLength} onChange={session.setPieceLength} />
 
-        <div>
-          <label htmlFor="story-topic" className="text-sm font-extrabold">
-            Topic (optional)
-          </label>
-          <textarea
-            id="story-topic"
-            rows={2}
-            value={session.outline}
-            maxLength={STORY_OUTLINE_MAX}
-            onChange={(event) => session.setOutline(event.target.value)}
-            placeholder="e.g. A late-night outage at a small startup"
-            className={`textarea mt-1.5 min-h-16 resize-none px-3.5 py-3 ${FIELD}`}
-          />
-          {session.outline.length > 0 ? (
-            <div className="mt-1.5 text-right text-[13px] font-semibold text-muted tabular-nums">
-              {session.outline.length}/{STORY_OUTLINE_MAX}
-            </div>
-          ) : null}
-        </div>
+        <StoryTopicField value={session.outline} onChange={session.setOutline} />
 
         <label className="flex cursor-pointer items-center justify-between gap-3">
           <span className="text-sm font-extrabold">Include terms from Review</span>
