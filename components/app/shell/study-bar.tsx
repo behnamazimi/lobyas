@@ -3,19 +3,23 @@
 import { usePathname } from "next/navigation";
 import { refreshAfterStudyAction } from "@/app/(private)/app/actions-study";
 import { StudyTopBar } from "@/components/kit";
+import type { Tone } from "@/components/kit/tones";
 import { useMountEffect } from "@/hooks/use-mount-effect";
 import { useMediaQuery } from "@/hooks/use-platform";
 import { AUTHENTICATED_HOME_PATH } from "@/lib/auth/safe-next-path";
-import { collectionChip } from "./collection-switcher";
 import { useShell } from "./shell-context";
-import { StudyGoalPill } from "./study-goal-pill";
+import { useStudyBarSlots } from "./study-bar-slots";
+import { StudyGoalText } from "./study-goal-text";
 import type { GoalTier } from "@/lib/goals/levels";
 
-function tierOf(pathname: string): GoalTier | null {
-  if (pathname.startsWith("/app/read")) return "read";
-  if (pathname.startsWith("/app/review")) return "review";
-  if (pathname.startsWith("/app/quiz")) return "quiz";
-  return null;
+type StudyMode = { label: string; tone: Tone; tier: GoalTier | null };
+
+function modeOf(pathname: string): StudyMode {
+  if (pathname.startsWith("/app/review"))
+    return { label: "Review", tone: "review", tier: "review" };
+  if (pathname.startsWith("/app/quiz")) return { label: "Quiz", tone: "quiz", tier: "quiz" };
+  if (pathname.startsWith("/app/triage")) return { label: "Triage", tone: "success", tier: null };
+  return { label: "Read", tone: "read", tier: "read" };
 }
 
 const DESKTOP_RAIL = "(min-width: 1024px)";
@@ -32,23 +36,30 @@ export function StudyBar() {
     };
   });
   const { current, degraded, setSwitcherOpen } = useShell();
+  const slots = useStudyBarSlots();
   const desktop = useMediaQuery(DESKTOP_RAIL, false);
-  const chip = collectionChip(current);
-  const tier = tierOf(usePathname());
+  const { tier, ...mode } = modeOf(usePathname());
 
   return (
-    <div className="px-3 pt-safe pb-2">
+    <div className="px-4 pt-safe pb-1">
       <StudyTopBar
         closeHref={AUTHENTICATED_HOME_PATH}
-        goalSlot={
+        mode={mode}
+        collection={
+          current
+            ? {
+                name: current.name,
+                onPress: degraded || desktop ? undefined : () => setSwitcherOpen(true),
+              }
+            : null
+        }
+        goal={
           tier && current ? (
-            <StudyGoalPill key={current.id} collectionId={current.id} tier={tier} />
+            <StudyGoalText key={current.id} collectionId={current.id} tier={tier} />
           ) : undefined
         }
-        collection={{
-          ...chip,
-          onPress: degraded || desktop ? undefined : () => setSwitcherOpen(true),
-        }}
+        center={<div ref={slots?.setCenter} className="contents" />}
+        end={<div ref={slots?.setEnd} className="contents" />}
       />
     </div>
   );

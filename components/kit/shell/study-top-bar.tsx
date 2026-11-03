@@ -1,101 +1,92 @@
-import { X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { CLAMP_ONE_LINE } from "@/lib/kit/text";
 import { cn } from "@/lib/utils";
 import { IconButton } from "../controls/pill";
-import { ProgressRing } from "../progress/ring";
-import { Tile } from "../surface/card";
-import type { Tone } from "../tones";
+import { TONES, type Tone } from "../tones";
 
-const pill =
-  "flex h-11 items-center gap-2 rounded-full bg-base-100 text-sm font-extrabold shadow-[0_1px_2px_rgb(var(--shadow-rgb)/0.08)]";
+type StudyMode = { label: string; tone: Tone };
+type StudyCollection = { name: string; onPress?: () => void };
 
-/** Same width on every study screen, so the collection name truncates the same way with or without a goal. */
-const SLOT = "h-11 w-44 shrink-0";
-
-/** The bar over a study screen: close, the collection chip and the goal pill.
- *  Leave `goal.value` out for a running count with no ring. */
+/** The bar over a study screen. The first row holds close, the page's own
+ *  controls (`center`, `end`); the second names the mode and collection, with
+ *  today's goal as plain text. Only the first row and the collection, when it
+ *  can be pressed, are buttons. */
 export function StudyTopBar({
   closeHref,
   closeLabel = "Close and go home",
+  mode,
   collection,
   goal,
-  goalSlot,
+  center,
+  end,
   className,
 }: {
   closeHref: string;
   closeLabel?: string;
-  collection: { name: string; letter: string; tone: Tone; onPress?: () => void };
-  goal?: { label: string; value?: number; tone: Tone; icon?: ReactNode };
-  /** Replaces `goal` with a live element. */
-  goalSlot?: ReactNode;
+  mode: StudyMode;
+  collection: StudyCollection | null;
+  goal?: ReactNode;
+  center?: ReactNode;
+  end?: ReactNode;
   className?: string;
 }) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <IconButton label={closeLabel} href={closeHref} className="-ml-2">
-        <X className="size-6" strokeWidth={2.6} aria-hidden />
-      </IconButton>
-      <div className="flex min-w-0 flex-1 justify-center">
-        <CollectionChip collection={collection} />
+    <div className={cn("flex flex-col gap-0.5", className)}>
+      <div className="grid h-12 grid-cols-[1fr_auto_1fr] items-center gap-2">
+        <IconButton label={closeLabel} href={closeHref} className="-ml-2 justify-self-start">
+          <X className="size-6" strokeWidth={2.6} aria-hidden />
+        </IconButton>
+        <div className="flex min-w-0 items-center justify-center">{center}</div>
+        <div className="-mr-2 flex min-w-0 items-center justify-end">{end}</div>
       </div>
-      <div className={cn(SLOT, "flex items-center")}>
-        {goalSlot ?? (goal ? <GoalPill {...goal} /> : null)}
+      <div className="flex h-9 items-center justify-between gap-3">
+        <StudyContext mode={mode} collection={collection} />
+        {goal ? (
+          <div className="shrink-0 text-[13px] font-bold text-muted tabular-nums">{goal}</div>
+        ) : null}
       </div>
     </div>
   );
 }
 
-function CollectionChip({
+function StudyContext({
+  mode,
   collection,
 }: {
-  collection: { name: string; letter: string; tone: Tone; onPress?: () => void };
+  mode: StudyMode;
+  collection: StudyCollection | null;
 }) {
-  const className = cn(
-    pill,
-    "max-w-full min-w-0 pr-3.5 pl-1.5",
-    collection.onPress && "cursor-pointer hover:bg-base-200",
-  );
   const body = (
     <>
-      <Tile tone={collection.tone} size={24} serif>
-        {collection.letter}
-      </Tile>
-      <span className={cn("min-w-0", CLAMP_ONE_LINE)}>{collection.name}</span>
+      <span
+        aria-hidden
+        className={cn("size-2 shrink-0 rounded-full bg-current", TONES[mode.tone].text)}
+      />
+      <span className={cn("shrink-0 font-extrabold", TONES[mode.tone].text)}>{mode.label}</span>
+      {collection ? (
+        <>
+          <span aria-hidden className="text-muted">
+            ·
+          </span>
+          <span className={cn("min-w-0", CLAMP_ONE_LINE)}>{collection.name}</span>
+          {collection.onPress ? (
+            <ChevronDown className="size-4 shrink-0 text-muted" strokeWidth={2.6} aria-hidden />
+          ) : null}
+        </>
+      ) : null}
     </>
   );
-  if (!collection.onPress) return <div className={className}>{body}</div>;
+  const className = "flex h-9 min-w-0 items-center gap-1.5 text-sm font-bold text-ink-soft";
+  if (!collection?.onPress) return <div className={className}>{body}</div>;
   return (
-    <button type="button" onClick={collection.onPress} className={className}>
+    <button
+      type="button"
+      aria-label={`${collection.name}, change collection`}
+      onClick={collection.onPress}
+      className={cn(className, "-mx-1.5 cursor-pointer rounded-lg px-1.5 hover:bg-base-100")}
+    >
       {body}
     </button>
-  );
-}
-
-/** The pill's ring (or `icon` when there is no goal) and its label. */
-export function GoalPill({
-  label,
-  value,
-  tone,
-  icon,
-}: {
-  label: ReactNode;
-  value?: number;
-  tone: Tone;
-  icon?: ReactNode;
-}) {
-  return (
-    <div className={cn(pill, "w-full min-w-0 pr-3 pl-2 tabular-nums")}>
-      <span className="flex shrink-0">
-        {value !== undefined ? (
-          <ProgressRing value={value} tone={tone} size={24} strokeWidth={10}>
-            {icon}
-          </ProgressRing>
-        ) : (
-          icon
-        )}
-      </span>
-      <span className={cn("min-w-0", CLAMP_ONE_LINE)}>{label}</span>
-    </div>
   );
 }
