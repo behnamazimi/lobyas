@@ -1,6 +1,5 @@
 "use client";
 
-import { Eye } from "lucide-react";
 import { useRef, type Ref } from "react";
 import { StudyCard } from "@/components/kit";
 import { FirstExposureKnownPrompt } from "@/components/shared/first-exposure-known-prompt";
@@ -30,8 +29,7 @@ type ReviewTermCardProps = {
 
 function RecallHint() {
   return (
-    <span className="mt-6 flex min-h-9 items-center gap-1.5 rounded-full bg-base-200 px-3.5 text-sm font-extrabold text-ink-soft">
-      <Eye className="size-4 shrink-0" strokeWidth={2.6} aria-hidden />
+    <span className="mt-6 text-sm font-semibold text-muted">
       <span className="inline md:hidden coarse:inline">Recall the meaning, then tap</span>
       <span className="hidden md:inline coarse:hidden">
         Recall the meaning, then click or press Enter

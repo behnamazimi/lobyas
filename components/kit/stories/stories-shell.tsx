@@ -1,5 +1,4 @@
-import { Bell } from "lucide-react";
-import { PageBadge } from "@/components/illustrations/scenes/page-badge";
+import { Bell, SlidersHorizontal } from "lucide-react";
 import {
   CollectionSwitcherRow,
   IconButton,
@@ -83,31 +82,27 @@ export function ShellStories() {
       </Story>
       <Story
         title="Study top bar"
-        note="With a goal ring, with a running count, and with a long collection name."
+        note="Close and the page's controls on top; the mode, collection and today's goal as plain text below. A long collection name truncates."
       >
         <div className="flex flex-col gap-4">
           <StudyTopBar
             closeHref="/admin/kit"
-            collection={{ name: "Standup", letter: "S", tone: "read" }}
-            goal={{ label: "18 of 20 today", value: 0.9, tone: "review" }}
+            mode={{ label: "Read", tone: "read" }}
+            collection={{ name: "Standup", onPress: () => {} }}
+            goal="6 of 20 today"
+            end={
+              <IconButton label="Options">
+                <SlidersHorizontal className="size-5" aria-hidden />
+              </IconButton>
+            }
           />
           <StudyTopBar
             closeHref="/admin/kit"
-            collection={{ name: "Standup", letter: "S", tone: "read" }}
-            goal={{
-              label: "312 reviewed today",
-              tone: "review",
-              icon: <PageBadge page="review" className="size-6" />,
-            }}
-          />
-          <StudyTopBar
-            closeHref="/admin/kit"
+            mode={{ label: "Quiz", tone: "quiz" }}
             collection={{
               name: "Distributed Systems Fundamentals for Engineering Interviews",
-              letter: "D",
-              tone: "quiz",
             }}
-            goal={{ label: "1,024 of 2,000 today", value: 0.5, tone: "quiz" }}
+            goal="1,024 of 2,000 today"
           />
         </div>
       </Story>

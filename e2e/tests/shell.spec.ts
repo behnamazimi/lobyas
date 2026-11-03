@@ -95,6 +95,30 @@ test.describe("App shell", () => {
     },
   );
 
+  test(
+    "the study bar holds the page's controls and switches collection on a phone",
+    { tag: "@smoke" },
+    async ({ page, user, isMobile }) => {
+      test.skip(!isMobile, "The rail's switcher replaces this from 1024 px up");
+      await seedCollection(user, SAMPLE_TERMS, "Alpha terms");
+      await seedCollection(user, SAMPLE_TERMS.slice(0, 3), "Beta terms");
+      await gotoReady(page, "/app/read");
+
+      await expect(page.getByRole("navigation", { name: "Read mode" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Read options" })).toBeVisible();
+      const bar = page.getByRole("button", { name: /, change collection$/ });
+      const other = (await bar.getAttribute("aria-label"))?.startsWith("Alpha")
+        ? "Beta terms"
+        : "Alpha terms";
+      await bar.click();
+      await page
+        .getByRole("dialog")
+        .getByRole("button", { name: new RegExp(`^${other}`) })
+        .click();
+      await expect(page.getByRole("button", { name: `${other}, change collection` })).toBeVisible();
+    },
+  );
+
   test("a paused collection is listed in the switcher and opens in the Library", async ({
     page,
     user,

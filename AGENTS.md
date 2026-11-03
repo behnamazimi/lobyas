@@ -166,7 +166,10 @@ Signed-in app routes use the shell in `components/app/shell/`. Four destinations
 Home (`/app`), Library, Goals and Me. Under `lg` those four show a tab bar; from
 `lg` up a rail stays fixed to the window (brand, collection switcher, the four
 destinations, the streak and the account row). Read, Review, Quiz and Triage
-hide the tab bar and show the study top bar. Other app pages are sub-pages, with
+hide the tab bar and show the study top bar: close and the page's own controls
+on top, then the mode, the collection and today's goal as plain text (never a
+pill, so only buttons look pressable). A study page puts its controls there with
+`StudyBarControls` (`components/app/shell/study-bar-slots.tsx`). Other app pages are sub-pages, with
 a phone back bar, unless the page draws its own header (`ownsHeader` in
 `lib/chrome.ts`). The current collection is the `lb_lib_collection` cookie.
 
