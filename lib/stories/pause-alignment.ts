@@ -94,15 +94,31 @@ const SPEAKER_LABEL = /^\s*[\p{L}][\p{L}\p{N} .'’-]{0,24}:\s/u;
 /** A colon that introduces a quote ("he shouted: „Damn!”"). Voices pause after it. */
 const QUOTE_INTRO = /[:：](?=\s*[\p{Pi}"'„«「『])/u;
 
-/** How far into a sentence's text its speaker label or quote introduction ends, from 0 to 1; 0 when
- *  it has none. */
-function labelShare(timeline: StoryTimeline, index: number): number {
+/** A quote that closes before its speech tag („Wat jammer”, zegt hij). Voices
+ *  pause after the quote. */
+const QUOTE_BEFORE_TAG = /[”“»"」』][,，]?(?=\s+\S)/u;
+
+type InnerPause = { share: number; weight: number };
+
+/** The pauses inside a sentence, each placed by how far into its text it falls
+ *  (0 to 1): after a speaker label or quote introduction, and after a quote
+ *  followed by its speech tag. */
+function innerPauses(timeline: StoryTimeline, index: number): InnerPause[] {
   const sentence = timeline.paragraphs.flat().find((candidate) => candidate.index === index);
   const text = sentence?.segments.map((segment) => segment.text).join("") ?? "";
+  const spoken = text.trim().length;
   const intro = QUOTE_INTRO.exec(text);
   const label = SPEAKER_LABEL.exec(text)?.[0].trimEnd().length ?? (intro ? intro.index + 1 : 0);
-  const spoken = text.trim().length;
-  return label > 0 && label < spoken ? label / spoken : 0;
+  const quote = QUOTE_BEFORE_TAG.exec(text);
+  const quoteEnd = quote ? quote.index + quote[0].length : 0;
+  const found: [number, number][] = [
+    [label, LABEL_WEIGHT],
+    [quoteEnd, QUOTE_WEIGHT],
+  ];
+  return found
+    .filter(([at]) => at > 0 && at < spoken)
+    .sort(([a], [b]) => a - b)
+    .map(([at, weight]) => ({ share: at / spoken, weight }));
 }
 
 /** Playback stops this long after the near-silence begins and starts this long
@@ -127,35 +143,36 @@ function startBefore(pause: Pause): number {
   return end - Math.min(GUARD_SECONDS, (end - start) / 2);
 }
 
-/** Not every story has speaker labels, and a voice may not pause after one. So
- *  a label's pause counts for less than a sentence's: it is only there to keep
- *  the pause after a name from being taken for the end of the sentence. */
+/** A voice may not pause inside a sentence, so such a pause counts for less
+ *  than a sentence's: it is only there to keep the pause after a name or a quote
+ *  from being taken for the end of the sentence. A voice almost always rests
+ *  after a quote and its comma, so that pause counts for more than a name's. */
 const LABEL_WEIGHT = 0.5;
+const QUOTE_WEIGHT = 0.8;
 
 type Slot = {
   /** Where the pause is expected, in seconds. */
   estimate: number;
-  /** The title's end is 0 and the end of sentence i is i + 1. A pause after a
-   *  speaker label has none: it is matched so the sentence's own pause can't
+  /** The title's end is 0 and the end of sentence i is i + 1. A pause inside a
+   *  sentence has none: it is matched so the sentence's own pause can't
    *  take it, but nothing moves to it. */
   boundary: number | null;
   weight: number;
 };
 
-/** Where pauses are expected, in order: after the title, after each speaker
- *  label, and after each sentence but the last (which ends with the clip). */
+/** Where pauses are expected, in order: after the title, at each pause inside
+ *  a sentence, and after each sentence but the last (which ends with the clip). */
 function expectedPauses(timeline: StoryTimeline, durationSeconds: number): Slot[] {
   const count = timeline.ends.length;
   const slots: Slot[] = [{ estimate: timeline.titleEnd * durationSeconds, boundary: 0, weight: 1 }];
   for (let index = 0; index < count; index += 1) {
     const start = index === 0 ? timeline.titleEnd : timeline.ends[index - 1]!;
     const end = timeline.ends[index]!;
-    const label = labelShare(timeline, index);
-    if (label > 0) {
+    for (const { share, weight } of innerPauses(timeline, index)) {
       slots.push({
-        estimate: (start + label * (end - start)) * durationSeconds,
+        estimate: (start + share * (end - start)) * durationSeconds,
         boundary: null,
-        weight: LABEL_WEIGHT,
+        weight,
       });
     }
     if (index < count - 1)

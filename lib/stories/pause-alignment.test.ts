@@ -156,6 +156,39 @@ describe("snapTimeline", () => {
     });
   });
 
+  describe("with a quote before its speech tag", () => {
+    const story = buildTimeline(
+      "Soep in de regen",
+      [
+        {
+          text: "Sander wil soep halen in de supermarkt. Het regent hard en de straat is druk. Bij de deur ziet hij de buurman. Die draagt een ander jasje tegen de regen. De rits van de jas is kapot. „Wat jammer”, zegt Sander lachend. De jas was heel goedkoop, maar de kwaliteit is slecht.",
+        },
+      ],
+      "nl",
+    );
+    const seconds = 34;
+    const quoteSentence = 5;
+    // The voice runs behind the estimate, and rests after „Wat jammer”, too.
+    const lag = 1.5;
+    const pauseAt = (share: number): Pause => ({
+      start: share * seconds + lag - 0.3,
+      end: share * seconds + lag + 0.3,
+    });
+    const quoteShare =
+      story.ends[quoteSentence - 1]! +
+      0.3 * (story.ends[quoteSentence]! - story.ends[quoteSentence - 1]!);
+    const pauses = [story.titleEnd, ...story.ends.slice(0, -1), quoteShare]
+      .sort((a, b) => a - b)
+      .map(pauseAt);
+
+    it("ends the sentence after its speech tag, not at the pause after the quote", () => {
+      const snapped = snapTimeline(story, pauses, seconds);
+      expect(snapped.ends[quoteSentence]! * seconds).toBeCloseTo(
+        story.ends[quoteSentence]! * seconds + lag,
+      );
+    });
+  });
+
   describe("with speaker labels", () => {
     const dialogue = buildTimeline(
       "Title",
