@@ -1,6 +1,6 @@
 "use client";
 
-import type { MouseEvent } from "react";
+import { Fragment, type MouseEvent } from "react";
 
 import { StoryTermButton } from "@/components/read/stories/story-term-popover";
 import type { StoryTimeline } from "@/lib/stories/highlight";
@@ -44,6 +44,18 @@ function pressSentence(event: MouseEvent<HTMLElement>, press: () => void) {
   press();
 }
 
+const TRAILING_SPACE = /\s+$/u;
+
+/** The sentence without the space after it, which sits outside the highlight
+ *  so it doesn't run up to the next sentence. */
+function splitTrailingSpace(segments: StorySegment[]): [StorySegment[], string] {
+  const last = segments.at(-1);
+  const space = last?.text.match(TRAILING_SPACE)?.[0] ?? "";
+  if (!last || !space || last.termId) return [segments, ""];
+  const text = last.text.slice(0, -space.length);
+  return [[...segments.slice(0, -1), ...(text ? [{ ...last, text }] : [])], space];
+}
+
 function HighlightedParagraphs({
   timeline,
   activeSentence,
@@ -65,27 +77,30 @@ function HighlightedParagraphs({
     <p key={paragraphIndex} className="m-0 whitespace-pre-line">
       {sentences.map((sentence) => {
         const active = sentence.index === activeSentence;
+        const [segments, space] = splitTrailingSpace(sentence.segments);
         return (
-          <span
-            key={sentence.index}
-            ref={active ? keepInView : undefined}
-            onClick={
-              onSentencePress &&
-              ((event) => pressSentence(event, () => onSentencePress(sentence.index)))
-            }
-            className={cn(
-              "rounded-sm box-decoration-clone transition-colors motion-reduce:transition-none",
-              active && "bg-warning/30",
-              onSentencePress && "cursor-pointer",
-            )}
-          >
-            <StorySegments
-              segments={sentence.segments}
-              termById={termById}
-              reviewTermIds={reviewTermIds}
-              onTermPress={onTermPress}
-            />
-          </span>
+          <Fragment key={sentence.index}>
+            <span
+              ref={active ? keepInView : undefined}
+              onClick={
+                onSentencePress &&
+                ((event) => pressSentence(event, () => onSentencePress(sentence.index)))
+              }
+              className={cn(
+                "rounded-sm box-decoration-clone transition-colors motion-reduce:transition-none",
+                active && "bg-warning/30",
+                onSentencePress && "cursor-pointer",
+              )}
+            >
+              <StorySegments
+                segments={segments}
+                termById={termById}
+                reviewTermIds={reviewTermIds}
+                onTermPress={onTermPress}
+              />
+            </span>
+            {space}
+          </Fragment>
         );
       })}
     </p>
