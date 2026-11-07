@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { UNTESTED_RECALL_RETRIEVABILITY } from "./constants";
 import { daysUntilRetrievability } from "./recall";
-import { rankQuizQueue, rankReadQueue, rankReviewQueue, recallRetrievabilityNow } from "./queue";
+import {
+  rankQuizQueue,
+  rankReadQueue,
+  rankReviewQueue,
+  readPoolSize,
+  recallRetrievabilityNow,
+} from "./queue";
 import { applyQuizAnswer } from "./snapshot";
 import type { TraceCandidate } from "./types";
 
@@ -83,6 +89,77 @@ describe("rankReadQueue", () => {
       makeCandidate({ termId: "old", createdAt: new Date("2026-01-01") }),
     ];
     expect(rankReadQueue(candidates, NOW).map((c) => c.termId)).toEqual(["old", "new"]);
+  });
+});
+
+describe("rankReadQueue pool", () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const ids = (cs: { termId: string }[]) => cs.map((c) => c.termId);
+
+  it("serves the oldest read first and a term just read last", () => {
+    const candidates = [
+      makeCandidate({
+        termId: "just-read",
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - 1000),
+      }),
+      makeCandidate({
+        termId: "mid",
+        readCount: 2,
+        lastReadAt: new Date(NOW.getTime() - 10 * DAY),
+      }),
+      makeCandidate({
+        termId: "oldest",
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - 30 * DAY),
+      }),
+    ];
+    expect(ids(rankReadQueue(candidates, NOW))).toEqual(["oldest", "mid", "just-read"]);
+  });
+
+  it("puts a never-read term ahead of read ones, even one only reviewed", () => {
+    const candidates = [
+      makeCandidate({
+        termId: "read",
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - 5 * DAY),
+      }),
+      makeCandidate({
+        termId: "reviewed-only",
+        reviewRecallCount: 2,
+        recallStability: 5,
+        lastReviewRecallAt: new Date(NOW.getTime() - 3 * DAY),
+      }),
+    ];
+    expect(ids(rankReadQueue(candidates, NOW))[0]).toBe("reviewed-only");
+  });
+
+  it("keeps a heavily exposed term out of the pool and orders the rest by score", () => {
+    const pool = Array.from({ length: 30 }, (_, i) =>
+      makeCandidate({
+        termId: `p${i}`,
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - (i + 1) * DAY),
+      }),
+    );
+    const heavy = (termId: string, reviewRecallCount: number) =>
+      makeCandidate({
+        termId,
+        reviewRecallCount,
+        recallStability: 5,
+        lastReviewRecallAt: NOW,
+      });
+    const ranked = ids(rankReadQueue([heavy("heavy-12", 12), ...pool, heavy("heavy-6", 6)], NOW));
+    expect(ranked.slice(-2)).toEqual(["heavy-6", "heavy-12"]);
+    expect(ranked[0]).toBe("p29");
+  });
+});
+
+describe("readPoolSize", () => {
+  it("is the whole queue when it is small, a quarter when it is big", () => {
+    expect(readPoolSize(10)).toBe(10);
+    expect(readPoolSize(100)).toBe(30);
+    expect(readPoolSize(400)).toBe(100);
   });
 });
 

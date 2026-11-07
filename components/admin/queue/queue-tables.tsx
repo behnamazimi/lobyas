@@ -17,6 +17,15 @@ const REASON_LABELS: Record<ExcludedReason, string> = {
 
 export function ReadTable({ section, asOf }: { section: QueueSection<ReadRow>; asOf: Date }) {
   const columns: Column<ReadRow>[] = [
+    {
+      label: "Pool",
+      cell: (r) => (r.inPool ? <span className="badge badge-primary">pool</span> : "after pool"),
+    },
+    {
+      label: "Last read",
+      nowrap: true,
+      cell: (r) => <When date={r.item.lastReadAt} asOf={asOf} />,
+    },
     { label: "Score", cell: (r) => number(r.score) },
     { label: "Exposure", cell: (r) => number(r.exposure) },
     { label: "Mastery nudge", cell: (r) => number(r.temper) },

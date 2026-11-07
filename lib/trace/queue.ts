@@ -11,6 +11,8 @@
 
 import {
   FAMILIARITY_DECAY_SCALE_DAYS,
+  READ_POOL_MIN,
+  READ_POOL_SHARE,
   READ_TEMPER_WEIGHT,
   SESSION_COOLDOWN_RETRIEVABILITY,
   UNTESTED_RECALL_RETRIEVABILITY,
@@ -107,13 +109,24 @@ export function cooldownEndsAt(
   return new Date(lastTestedAt.getTime() + days * 24 * 60 * 60 * 1000);
 }
 
-/** Read: always eligible, ranked ascending by decay-aware cross-tier
- *  exposure plus a small mastery-tempering nudge (READ_TEMPER_WEIGHT) —
- *  see computeReadExposure/computeReadTempering above. Ties broken by
- *  oldest term first, so a freshly-added term doesn't jump the line ahead
- *  of one that's been sitting unread longer. */
+function lastReadTime(c: TraceCandidate): number {
+  return c.lastReadAt?.getTime() ?? -Infinity;
+}
+
+/** How many terms Read serves oldest-read first. */
+export function readPoolSize(total: number): number {
+  return Math.min(total, Math.max(READ_POOL_MIN, Math.ceil(total * READ_POOL_SHARE)));
+}
+
+/** Read: always eligible. Terms are scored by decay-aware cross-tier exposure
+ *  plus a small mastery-tempering nudge (READ_TEMPER_WEIGHT) — see
+ *  computeReadExposure/computeReadTempering above — and ties go to the oldest
+ *  term, so a freshly-added term doesn't jump the line. The lowest-scoring
+ *  readPoolSize terms are the pool: never-read terms first, then oldest read
+ *  first, so a term just read waits for the rest of the pool. Everything else
+ *  follows in score order. */
 export function rankReadQueue(candidates: TraceCandidate[], now: Date): TraceCandidate[] {
-  return candidates
+  const byScore = candidates
     .map((c) => ({
       candidate: c,
       score: computeReadExposure(c, now) + READ_TEMPER_WEIGHT * computeReadTempering(c, now),
@@ -123,6 +136,10 @@ export function rankReadQueue(candidates: TraceCandidate[], now: Date): TraceCan
         a.score - b.score || a.candidate.createdAt.getTime() - b.candidate.createdAt.getTime(),
     )
     .map(({ candidate }) => candidate);
+
+  const poolSize = readPoolSize(byScore.length);
+  const pool = byScore.slice(0, poolSize).sort((a, b) => lastReadTime(a) - lastReadTime(b));
+  return [...pool, ...byScore.slice(poolSize)];
 }
 
 /** Review: every term is eligible. Ranked by R_r(t) ascending — most at
