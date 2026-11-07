@@ -24,6 +24,30 @@ export async function loadRecentTitles(
   return (data ?? []).map((row) => row.title);
 }
 
+const RECENT_STORY_TERM_LIMIT = 2;
+const RECENT_STORY_TERM_DAYS = 14;
+
+/** The terms used in the user's latest stories for a collection, newest story
+ *  first, so a new story doesn't offer them again straight away. */
+export async function loadRecentTermGroups(
+  admin: Client,
+  userId: string,
+  collectionId: string,
+  now = new Date(),
+): Promise<string[][]> {
+  const since = new Date(now.getTime() - RECENT_STORY_TERM_DAYS * 24 * 60 * 60 * 1000);
+  const { data, error } = await admin
+    .from("stories")
+    .select("term_ids")
+    .eq("user_id", userId)
+    .eq("collection_id", collectionId)
+    .gte("created_at", since.toISOString())
+    .order("created_at", { ascending: false })
+    .limit(RECENT_STORY_TERM_LIMIT);
+  if (error) throw error;
+  return (data ?? []).map((row) => row.term_ids);
+}
+
 export async function loadRecentVotes(admin: Client, userId: string): Promise<StoryVote[]> {
   const { data, error } = await admin
     .from("stories")

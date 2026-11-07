@@ -16,7 +16,7 @@ import { storyFailure } from "./failure";
 import { generateStory, StoryProviderError, type StoryRetryReason } from "./generate";
 import { STORY_REVIEW_POOL, STORY_REVIEW_SKIP, STORY_TERM_POOL, termsForLength } from "./length";
 import { savePrefs } from "./prefs";
-import { loadRecentTitles, loadRecentVotes } from "./recent";
+import { loadRecentTermGroups, loadRecentTitles, loadRecentVotes } from "./recent";
 import { dismissUnreadStories, getCollection, insertStory } from "./repository";
 import { pickSetting } from "./settings";
 import { pickStyle } from "./style-picker";
@@ -72,7 +72,16 @@ export async function writeStory(auth: Auth, rawInput: unknown): Promise<StoryRe
     }
 
     const [cards, collection, votes, recentTitles] = await Promise.all([
-      pickReadTermsForUser(admin, userId, { collectionIds: [collectionId] }, STORY_TERM_POOL),
+      loadRecentTermGroups(admin, userId, collectionId).then((recentTermGroups) =>
+        pickReadTermsForUser(
+          admin,
+          userId,
+          { collectionIds: [collectionId] },
+          STORY_TERM_POOL,
+          undefined,
+          recentTermGroups,
+        ),
+      ),
       getCollection(admin, collectionId),
       loadRecentVotes(admin, userId),
       loadRecentTitles(admin, userId, collectionId),

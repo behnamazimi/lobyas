@@ -96,20 +96,39 @@ export async function pickReadTerms(
   return withIsNewToUser(cards, ranked);
 }
 
-/** Service-role counterpart of {@link pickReadTerms}. */
+/** Takes the first `limit` of a ranked list while avoiding the term ids in
+ *  `avoidGroups` (newest group first). When too few are left, the oldest
+ *  group is let back in first, then the next, so the list never comes up short
+ *  because of the avoiding. */
+export function takeAvoiding<T extends { termId: string }>(
+  ranked: T[],
+  avoidGroups: string[][],
+  limit: number,
+): T[] {
+  for (let kept = avoidGroups.length; kept > 0; kept--) {
+    const avoid = new Set(avoidGroups.slice(0, kept).flat());
+    const allowed = ranked.filter((c) => !avoid.has(c.termId));
+    if (allowed.length >= limit) return allowed.slice(0, limit);
+  }
+  return ranked.slice(0, limit);
+}
+
+/** Service-role counterpart of {@link pickReadTerms}. `avoidTermIdGroups` is
+ *  a soft exclusion (see {@link takeAvoiding}); `excludeTermIds` is a hard one. */
 export async function pickReadTermsForUser(
   client: Client,
   userId: string,
   scope: ReviewScope,
   limit: number,
   excludeTermIds?: string[],
+  avoidTermIdGroups: string[][] = [],
 ): Promise<TermCard[]> {
   const candidates = excludeMarkedKnown(
     excludeTerms(await fetchTraceCandidatesForUser(client, userId, scope), excludeTermIds),
   );
   if (candidates.length === 0) return [];
 
-  const ranked = rankReadQueue(candidates, new Date()).slice(0, limit);
+  const ranked = takeAvoiding(rankReadQueue(candidates, new Date()), avoidTermIdGroups, limit);
   if (ranked.length === 0) return [];
 
   const cards = await hydrateTermCardsForUser(

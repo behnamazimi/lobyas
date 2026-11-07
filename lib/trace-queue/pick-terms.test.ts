@@ -18,7 +18,7 @@ vi.mock("./hydrate", () => ({
   hydrateTermCardsForUser: mocks.hydrate,
 }));
 
-const { pickQuizTerms, sampleBelowReviewTop } = await import("./pick-terms");
+const { pickQuizTerms, sampleBelowReviewTop, takeAvoiding } = await import("./pick-terms");
 
 const client = {} as SupabaseClient<Database>;
 
@@ -81,5 +81,33 @@ describe("sampleBelowReviewTop", () => {
   it("returns what is left when fewer than count remain", () => {
     expect(sampleBelowReviewTop(ranked, 57, 5)).toHaveLength(3);
     expect(sampleBelowReviewTop(ranked, 60, 5)).toEqual([]);
+  });
+});
+
+describe("takeAvoiding", () => {
+  const ranked = "abcdefghij".split("").map((termId) => ({ termId }));
+  const ids = (picked: { termId: string }[]) => picked.map((c) => c.termId).join("");
+
+  it("skips the terms of every group while enough are left", () => {
+    expect(ids(takeAvoiding(ranked, [["a", "b"], ["c"]], 5))).toBe("defgh");
+  });
+
+  it("lets the oldest group back in first when too few are left", () => {
+    expect(
+      ids(
+        takeAvoiding(
+          ranked,
+          [
+            ["a", "b"],
+            ["c", "d", "e", "f"],
+          ],
+          7,
+        ),
+      ),
+    ).toBe("cdefghi");
+  });
+
+  it("returns the plain top when even one group leaves too few", () => {
+    expect(ids(takeAvoiding(ranked, [["a", "b", "c", "d"]], 8))).toBe("abcdefgh");
   });
 });
