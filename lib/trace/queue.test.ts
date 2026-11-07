@@ -1,13 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { UNTESTED_RECALL_RETRIEVABILITY } from "./constants";
 import { daysUntilRetrievability } from "./recall";
-import {
-  rankQuizQueue,
-  rankReadQueue,
-  rankReviewQueue,
-  readPoolSize,
-  recallRetrievabilityNow,
-} from "./queue";
+import { rankQuizQueue, rankReadQueue, rankReviewQueue, recallRetrievabilityNow } from "./queue";
 import { applyQuizAnswer } from "./snapshot";
 import type { TraceCandidate } from "./types";
 
@@ -131,7 +125,10 @@ describe("rankReadQueue pool", () => {
         lastReviewRecallAt: new Date(NOW.getTime() - 3 * DAY),
       }),
     ];
-    expect(ids(rankReadQueue(candidates, NOW))[0]).toBe("reviewed-only");
+    const heavy = ["h1", "h2"].map((termId) =>
+      makeCandidate({ termId, reviewRecallCount: 12, recallStability: 5, lastReviewRecallAt: NOW }),
+    );
+    expect(ids(rankReadQueue([...candidates, ...heavy], NOW))[0]).toBe("reviewed-only");
   });
 
   it("keeps a heavily exposed term out of the pool and orders the rest by score", () => {
@@ -153,13 +150,40 @@ describe("rankReadQueue pool", () => {
     expect(ranked.slice(-2)).toEqual(["heavy-6", "heavy-12"]);
     expect(ranked[0]).toBe("p29");
   });
-});
 
-describe("readPoolSize", () => {
-  it("is the whole queue when it is small, a quarter when it is big", () => {
-    expect(readPoolSize(10)).toBe(10);
-    expect(readPoolSize(100)).toBe(30);
-    expect(readPoolSize(400)).toBe(100);
+  it("serves exactly the lowest-scoring quarter as the pool, then the next lowest", () => {
+    const terms = Array.from({ length: 120 }, (_, i) =>
+      makeCandidate({
+        termId: `t${i}`,
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - (i + 1) * DAY),
+      }),
+    );
+    const ranked = ids(rankReadQueue(terms, NOW));
+    // Older reads score lower: t119 is the lowest and t90 the 30th lowest.
+    expect(new Set(ranked.slice(0, 30))).toEqual(new Set(terms.slice(90).map((t) => t.termId)));
+    expect(ranked[30]).toBe("t89");
+  });
+
+  it("keeps heavily reviewed terms out of a small collection's pool", () => {
+    const light = Array.from({ length: 20 }, (_, i) =>
+      makeCandidate({
+        termId: `l${i}`,
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - (i + 1) * DAY),
+      }),
+    );
+    const heavy = Array.from({ length: 20 }, (_, i) =>
+      makeCandidate({
+        termId: `h${i}`,
+        reviewRecallCount: 8,
+        recallStability: 5,
+        lastReviewRecallAt: NOW,
+      }),
+    );
+    const ranked = ids(rankReadQueue([...heavy, ...light], NOW));
+    expect(ranked.slice(0, 20).every((id) => id.startsWith("l"))).toBe(true);
+    expect(ranked.slice(20).every((id) => id.startsWith("h"))).toBe(true);
   });
 });
 

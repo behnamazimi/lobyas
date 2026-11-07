@@ -115,7 +115,7 @@ export type ReadFeedBatchResult = {
 };
 
 /**
- * Pull the next batch off the Read queue, ranked by lowest exposure first.
+ * Pull the next batch off the Read queue, ranked by rankReadQueue.
  * Returned masked — the client only records a read once the user
  * reveals/scroll-exposes it. Hydrates via get_term_card so relationships match.
  *

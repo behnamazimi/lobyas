@@ -76,7 +76,8 @@ function withRecognition(cards: TermCard[], candidates: TraceCandidate[]): TermC
   });
 }
 
-/** Read: single ranked pool, lowest exposure first. */
+/** Read: a pool of the least-exposed terms, oldest read first, then the rest
+ *  by exposure (see rankReadQueue). */
 export async function pickReadTerms(
   client: Client,
   userId: string,

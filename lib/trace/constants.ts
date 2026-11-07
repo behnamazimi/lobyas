@@ -176,9 +176,10 @@ export const KNOWN_MIN_TEST_COUNT = 3;
  *  live, same as everything else in this file. */
 export const READ_TEMPER_WEIGHT = 0.2;
 
-/** Read's pool: the lowest-scoring share of terms (never fewer than
- *  READ_POOL_MIN) is served oldest-read first, so a term just read waits for
- *  the whole pool to have a turn. */
+/** Read's pool: the lowest-scoring share of terms is served oldest-read first,
+ *  so a term just read waits for the whole pool to have a turn. A small
+ *  collection gets at least half its terms, up to READ_POOL_MIN, so Review and
+ *  Quiz history still keeps its well-known terms out. */
 export const READ_POOL_SHARE = 0.25;
 export const READ_POOL_MIN = 30;
 

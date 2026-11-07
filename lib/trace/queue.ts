@@ -109,13 +109,18 @@ export function cooldownEndsAt(
   return new Date(lastTestedAt.getTime() + days * 24 * 60 * 60 * 1000);
 }
 
-function lastReadTime(c: TraceCandidate): number {
-  return c.lastReadAt?.getTime() ?? -Infinity;
+/** Never-read terms sort before every read one. */
+function byLastRead(a: TraceCandidate, b: TraceCandidate): number {
+  if (a.lastReadAt === null || b.lastReadAt === null) {
+    return Number(a.lastReadAt !== null) - Number(b.lastReadAt !== null);
+  }
+  return a.lastReadAt.getTime() - b.lastReadAt.getTime();
 }
 
 /** How many terms Read serves oldest-read first. */
 export function readPoolSize(total: number): number {
-  return Math.min(total, Math.max(READ_POOL_MIN, Math.ceil(total * READ_POOL_SHARE)));
+  const floor = Math.min(READ_POOL_MIN, Math.ceil(total / 2));
+  return Math.min(total, Math.max(floor, Math.ceil(total * READ_POOL_SHARE)));
 }
 
 /** Read: always eligible. Terms are scored by decay-aware cross-tier exposure
@@ -138,7 +143,7 @@ export function rankReadQueue(candidates: TraceCandidate[], now: Date): TraceCan
     .map(({ candidate }) => candidate);
 
   const poolSize = readPoolSize(byScore.length);
-  const pool = byScore.slice(0, poolSize).sort((a, b) => lastReadTime(a) - lastReadTime(b));
+  const pool = byScore.slice(0, poolSize).sort(byLastRead);
   return [...pool, ...byScore.slice(poolSize)];
 }
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readPoolSize } from "@/lib/trace";
 import { buildQueueDebug, excludedReasons, type QueueDebugTerm } from "./build";
 
 const NOW = new Date("2026-10-06T12:00:00Z");
@@ -172,6 +173,17 @@ describe("buildQueueDebug", () => {
     });
     const debug = buildQueueDebug([term("newer"), older], options);
     expect(debug.read.rows.map((r) => r.item.termId)).toEqual(["older", "newer"]);
+  });
+});
+
+describe("buildQueueDebug read pool", () => {
+  it("marks exactly the pool the feeds serve oldest-read first", () => {
+    const terms = Array.from({ length: 40 }, (_, i) => term(`t${i}`));
+    const debug = buildQueueDebug(terms, options);
+    expect(debug.read.rows.filter((r) => r.inPool)).toHaveLength(readPoolSize(40));
+    expect(debug.read.rows.map((r) => r.inPool)).toEqual(
+      debug.read.rows.map((r) => r.inPool).sort((a, b) => Number(b) - Number(a)),
+    );
   });
 });
 
