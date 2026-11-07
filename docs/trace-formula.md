@@ -225,11 +225,11 @@ Queues still rank by raw `R(t)` ascending regardless of pool, **not** by Mastery
 
 ## 10. Per-tier queues (no due dates)
 
-| Tier   | Eligible when                                | Sort by                          | Notes                            |
-| ------ | -------------------------------------------- | -------------------------------- | -------------------------------- |
-| Read   | always                                       | lowest exposure count / lowest F | or content order                 |
-| Review | ≥1 Read done (S_r ≠ null after first grade)  | R_r(t) ascending                 | most at-risk of forgetting first |
-| Quiz   | ≥1 Read done (S_g ≠ null after first answer) | R_g(t) ascending                 | most at-risk of forgetting first |
+| Tier   | Eligible when                                | Sort by                                  | Notes                            |
+| ------ | -------------------------------------------- | ---------------------------------------- | -------------------------------- |
+| Read   | always                                       | pool of least exposed, oldest read first | see `docs/trace.md`              |
+| Review | ≥1 Read done (S_r ≠ null after first grade)  | R_r(t) ascending                         | most at-risk of forgetting first |
+| Quiz   | ≥1 Read done (S_g ≠ null after first answer) | R_g(t) ascending                         | most at-risk of forgetting first |
 
 This isn't a separate rule to enforce — it falls directly out of Sections 4b/5's nullable-state design. A term with no S_r simply has no `R_r(t)` to rank by, so it can't appear in the Review queue; same for Quiz. No manual gating logic needed beyond "don't rank what you can't compute."
 

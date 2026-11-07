@@ -86,6 +86,107 @@ describe("rankReadQueue", () => {
   });
 });
 
+describe("rankReadQueue pool", () => {
+  const DAY = 24 * 60 * 60 * 1000;
+  const ids = (cs: { termId: string }[]) => cs.map((c) => c.termId);
+
+  it("serves the oldest read first and a term just read last", () => {
+    const candidates = [
+      makeCandidate({
+        termId: "just-read",
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - 1000),
+      }),
+      makeCandidate({
+        termId: "mid",
+        readCount: 2,
+        lastReadAt: new Date(NOW.getTime() - 10 * DAY),
+      }),
+      makeCandidate({
+        termId: "oldest",
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - 30 * DAY),
+      }),
+    ];
+    expect(ids(rankReadQueue(candidates, NOW))).toEqual(["oldest", "mid", "just-read"]);
+  });
+
+  it("puts a never-read term ahead of read ones, even one only reviewed", () => {
+    const candidates = [
+      makeCandidate({
+        termId: "read",
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - 5 * DAY),
+      }),
+      makeCandidate({
+        termId: "reviewed-only",
+        reviewRecallCount: 2,
+        recallStability: 5,
+        lastReviewRecallAt: new Date(NOW.getTime() - 3 * DAY),
+      }),
+    ];
+    const heavy = ["h1", "h2"].map((termId) =>
+      makeCandidate({ termId, reviewRecallCount: 12, recallStability: 5, lastReviewRecallAt: NOW }),
+    );
+    expect(ids(rankReadQueue([...candidates, ...heavy], NOW))[0]).toBe("reviewed-only");
+  });
+
+  it("keeps a heavily exposed term out of the pool and orders the rest by score", () => {
+    const pool = Array.from({ length: 30 }, (_, i) =>
+      makeCandidate({
+        termId: `p${i}`,
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - (i + 1) * DAY),
+      }),
+    );
+    const heavy = (termId: string, reviewRecallCount: number) =>
+      makeCandidate({
+        termId,
+        reviewRecallCount,
+        recallStability: 5,
+        lastReviewRecallAt: NOW,
+      });
+    const ranked = ids(rankReadQueue([heavy("heavy-12", 12), ...pool, heavy("heavy-6", 6)], NOW));
+    expect(ranked.slice(-2)).toEqual(["heavy-6", "heavy-12"]);
+    expect(ranked[0]).toBe("p29");
+  });
+
+  it("serves exactly the lowest-scoring quarter as the pool, then the next lowest", () => {
+    const terms = Array.from({ length: 120 }, (_, i) =>
+      makeCandidate({
+        termId: `t${i}`,
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - (i + 1) * DAY),
+      }),
+    );
+    const ranked = ids(rankReadQueue(terms, NOW));
+    // Older reads score lower: t119 is the lowest and t90 the 30th lowest.
+    expect(new Set(ranked.slice(0, 30))).toEqual(new Set(terms.slice(90).map((t) => t.termId)));
+    expect(ranked[30]).toBe("t89");
+  });
+
+  it("keeps heavily reviewed terms out of a small collection's pool", () => {
+    const light = Array.from({ length: 20 }, (_, i) =>
+      makeCandidate({
+        termId: `l${i}`,
+        readCount: 1,
+        lastReadAt: new Date(NOW.getTime() - (i + 1) * DAY),
+      }),
+    );
+    const heavy = Array.from({ length: 20 }, (_, i) =>
+      makeCandidate({
+        termId: `h${i}`,
+        reviewRecallCount: 8,
+        recallStability: 5,
+        lastReviewRecallAt: NOW,
+      }),
+    );
+    const ranked = ids(rankReadQueue([...heavy, ...light], NOW));
+    expect(ranked.slice(0, 20).every((id) => id.startsWith("l"))).toBe(true);
+    expect(ranked.slice(20).every((id) => id.startsWith("h"))).toBe(true);
+  });
+});
+
 describe("rankReviewQueue", () => {
   it("includes never-graded terms — otherwise no term could ever receive its first grade", () => {
     const candidates = [makeCandidate({ termId: "never-reviewed" })];

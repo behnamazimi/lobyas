@@ -104,7 +104,8 @@ To credit a new study surface, call `tickGoal` once the term is recorded.
 The forecast plays TRACE forward one day at a time for the collection being
 edited. Each day it picks the top N terms per tier with the real ranking
 functions and applies the real update functions, using that collection's goals
-as N. A term counts as mastered on the same rule
+as N. Read rotates through its pool, oldest read first, so the forecast reads a
+wider spread of terms than a lowest-exposure-first queue would. A term counts as mastered on the same rule
 that stamps `ever_mastered_at`: a successful answer that leaves it known.
 
 - Grades come from a seeded random sequence, using the learner's own Review

@@ -21,6 +21,7 @@ export type {
 } from "./types";
 export {
   rankReadQueue,
+  readPoolSize,
   rankReviewQueue,
   rankQuizQueue,
   computeReadExposure,

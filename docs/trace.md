@@ -414,7 +414,7 @@ active collections — just by a different signal. There's no separate
 
 | Tier       | Ranked by                                                                    | Never-tested terms                                                       |
 | ---------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| **Read**   | Lowest decay-aware exposure (Read+Review+Quiz combined), tempered by mastery | Always included — reading is how a term gets exposure in the first place |
+| **Read**   | Pool of the least-exposed terms, oldest read first; the rest by exposure     | Always included — reading is how a term gets exposure in the first place |
 | **Review** | Lowest recall retrievability first                                           | Ranked as if 0.89 retrievable: after decayed terms, before the rest      |
 | **Quiz**   | Least likely to be recognised first (posterior × recognition retrievability) | Ranked as if 0.7: after missed and decayed terms, before the rest        |
 
@@ -430,6 +430,18 @@ term read many times long ago no longer permanently outranks one read
 once very recently (the old count never faded); and a term graded
 confidently in Review while never actually opened in Read no longer sits
 at the front of Read's queue forever just because `readCount` is 0.
+
+That score only decides _which_ terms Read serves, not which comes next. The
+lowest-scoring quarter of the terms is the pool (a small collection gets at
+least half its terms, up to 30; `READ_POOL_SHARE`, `READ_POOL_MIN`,
+`readPoolSize`). The pool is served never-read terms first, then oldest read
+first. "Never read" means no Read, so a term only reviewed or quizzed counts as
+never read and goes first inside the pool. Without this, a handful of terms with one
+read and no Review scored lowest every time, so cards and Stories offered the
+same terms again within the hour. A term just read goes to the back of the pool,
+and the pool refills from the next-lowest scores as reads raise exposure.
+Terms outside the pool follow in score order, so the queue is still one full
+ordered list.
 
 The Review/Quiz placement of never-tested terms is worth dwelling on, because
 it's easy to get backwards. A term with no recall trace yet isn't "low risk
@@ -667,6 +679,7 @@ writing:
 | Session cooldown                                             | 0.98 retrievability                | Above this, a term drops out of that tier's list for the rest of the session                                                     |
 | Untested-term queue position (Review / Quiz)                 | 0.89 / 0.7                         | Where a never-graded or never-answered term sorts; learned terms that have decayed below it go first                             |
 | Read mastery-temper weight                                   | 0.2                                | How much the mastery-tempering nudge can push an already-tested term later in Read's queue, relative to its decay-aware exposure |
+| Read pool                                                    | 25%, at least half up to 30 terms  | How many of the least-exposed terms Read serves oldest-read first                                                                |
 
 These are reasoned starting points, not values fit to real usage data — this
 one in particular is meant to be tuned by feel once it's live, the same way the rest of the scoring engine's constants

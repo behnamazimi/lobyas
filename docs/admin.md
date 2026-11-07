@@ -206,6 +206,9 @@ and viewing is not audited.
 - **Tabs.** Read, Review and Quiz show the rank, the number the sort used and the raw state. The first rows are
   marked "next": that is the batch a feed takes at once (`READ_FEED_BATCH_SIZE`, `REVIEW_QUEUE_BUFFER_SIZE`, and
   the default quiz length). Each tab keeps the top rows (25 to 500, default 50) and says how many there are.
+- **Read pool.** Read ranks in two parts: a pool of the least-exposed terms (marked "pool"), served oldest-read first,
+  then every other term by score. The Read tab shows both, with each term's last read. "Score" decides who is in the
+  pool; it no longer decides the order inside it.
 - **Cooldown.** Only Review and Quiz have one: a term above 0.98 retrievability is held out. There is no stored
   due time, so "back in the queue" is computed by inverting the decay (`cooldownEndsAt` in `lib/trace/queue.ts`).
   Read has no cooldown. Times show in the viewer's time zone, with the gap counted from the "As of" time.

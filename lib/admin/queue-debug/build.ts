@@ -9,6 +9,7 @@ import {
   rankReadQueue,
   rankReviewQueue,
   READ_TEMPER_WEIGHT,
+  readPoolSize,
   recallRetrievabilityNow,
   recognitionRetrievabilityNow,
   type TraceCandidate,
@@ -30,6 +31,8 @@ export type QueueSection<Row> = { rows: Row[]; total: number };
 export type ReadRow = {
   rank: number;
   nextBatch: boolean;
+  /** In Read's pool: served oldest-read first. The rest follow in score order. */
+  inPool: boolean;
   item: QueueDebugTerm;
   exposure: number;
   temper: number;
@@ -146,6 +149,7 @@ export function buildQueueDebug(terms: QueueDebugTerm[], options: QueueDebugOpti
   const eligible = scoped.filter((t) => excludedReasons(t).length === 0);
 
   const readRanked = rankReadQueue(eligible, now);
+  const poolSize = readPoolSize(readRanked.length);
   const read: QueueSection<ReadRow> = {
     total: readRanked.length,
     rows: readRanked.slice(0, limit).map((c, i): ReadRow => {
@@ -154,6 +158,7 @@ export function buildQueueDebug(terms: QueueDebugTerm[], options: QueueDebugOpti
       return {
         rank: i + 1,
         nextBatch: i < batch.read,
+        inPool: i < poolSize,
         item: byId.get(c.termId)!,
         exposure,
         temper,
