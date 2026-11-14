@@ -259,3 +259,46 @@ describe("a short title spoken quickly", () => {
     expect(snapped.ends[0]! * 11).toBeCloseTo(3.4);
   });
 });
+
+describe("a voice that rests at a comma as long as at a full stop", () => {
+  // A simulated narration that starts late and runs behind the estimate. The
+  // pause at 7.29 s is the comma after "koffer".
+  const pauses: Pause[] = [
+    [1.84, 2.64],
+    [5.04, 5.49],
+    [7.29, 7.74],
+    [8.88, 9.33],
+    [11.31, 11.76],
+    [13.56, 14.01],
+    [16.83, 17.28],
+    [21.24, 21.69],
+    [23.85, 24.3],
+    [28.08, 28.53],
+    [30.39, 30.84],
+  ].map(([start, end]) => ({ start: start!, end: end! }));
+  const duration = 32.96;
+  const timeline = buildTimeline(
+    "De koffer van Bram",
+    [
+      {
+        text: "Bram staat bij de band op het vliegveld. Hij verwacht zijn rode koffer, maar die komt niet. Een medewerker wil direct helpen. Bram beschrijft de tas rustig. Samen vergelijken ze de nummers op de kaartjes. Plotseling ziet de man de juiste koffer bij een andere band staan. Hij pakt de tas met een glimlach op. Uit grote dank geeft Bram de vriendelijke man een doos chocola. Die heeft de man echt verdiend. Bram loopt blij naar de uitgang.",
+      },
+    ],
+    "nl",
+  );
+  const middle = (pause: Pause) => (pause.start + pause.end) / 2;
+  const sentencePauses = pauses.filter((_, index) => index !== 2);
+
+  it("ends the sentence after the comma, not at the comma's pause", () => {
+    const { speech } = snapTimeline(timeline, pauses, duration);
+    expect(speech[1]!.end * duration).toBeCloseTo(pauses[3]!.start + GUARD);
+  });
+
+  it("keeps every later sentence on its own pause", () => {
+    const { titleEnd, ends } = snapTimeline(timeline, pauses, duration);
+    expect(titleEnd * duration).toBeCloseTo(middle(sentencePauses[0]!));
+    ends.slice(0, -1).forEach((end, index) => {
+      expect(end * duration).toBeCloseTo(middle(sentencePauses[index + 1]!));
+    });
+  });
+});
