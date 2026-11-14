@@ -104,9 +104,10 @@ const SPOKEN_CHARACTER = /[\p{L}\p{N}\s]/gu;
 const SOFT_PAUSE = /[,;、，；]/gu;
 const HARD_PAUSE = /[:：—–]/gu;
 const TRAILING_CLOSERS = /[\p{Pf}\p{Pe}"'»“”‘’\s]+$/u;
-// Voices linger longer on a question or an ellipsis than on a full stop.
-const SOFT_PAUSE_WEIGHT = 2;
+// A voice can rest at a comma about as long as at a full stop.
+const SOFT_PAUSE_WEIGHT = 6;
 const HARD_PAUSE_WEIGHT = 3;
+// Voices linger longer on a question or an ellipsis than on a full stop.
 const ENDING_WEIGHTS: [RegExp, number][] = [
   [/(\.\.\.|…)$/u, 6],
   [/[!?！？]$/u, 5],

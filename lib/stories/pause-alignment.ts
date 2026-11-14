@@ -98,11 +98,15 @@ const QUOTE_INTRO = /[:：](?=\s*[\p{Pi}"'„«「『])/u;
  *  pause after the quote. */
 const QUOTE_BEFORE_TAG = /[”“»"」』][,，]?(?=\s+\S)/u;
 
+/** A comma or semicolon between words ("rode koffer, maar"). Voices often rest
+ *  there as long as between sentences. */
+const CLAUSE_BREAK = /[,;，；、](?=\s)/gu;
+
 type InnerPause = { share: number; weight: number };
 
 /** The pauses inside a sentence, each placed by how far into its text it falls
- *  (0 to 1): after a speaker label or quote introduction, and after a quote
- *  followed by its speech tag. */
+ *  (0 to 1): after a speaker label or quote introduction, after a quote
+ *  followed by its speech tag, and at each comma. */
 function innerPauses(timeline: StoryTimeline, index: number): InnerPause[] {
   const sentence = timeline.paragraphs.flat().find((candidate) => candidate.index === index);
   const text = sentence?.segments.map((segment) => segment.text).join("") ?? "";
@@ -115,6 +119,10 @@ function innerPauses(timeline: StoryTimeline, index: number): InnerPause[] {
     [label, LABEL_WEIGHT],
     [quoteEnd, QUOTE_WEIGHT],
   ];
+  for (const comma of text.matchAll(CLAUSE_BREAK)) {
+    const at = comma.index + 1;
+    if (!found.some(([other]) => Math.abs(other - at) <= 1)) found.push([at, CLAUSE_WEIGHT]);
+  }
   return found
     .filter(([at]) => at > 0 && at < spoken)
     .sort(([a], [b]) => a - b)
@@ -149,6 +157,7 @@ function startBefore(pause: Pause): number {
  *  after a quote and its comma, so that pause counts for more than a name's. */
 const LABEL_WEIGHT = 0.5;
 const QUOTE_WEIGHT = 0.8;
+const CLAUSE_WEIGHT = 0.7;
 
 type Slot = {
   /** Where the pause is expected, in seconds. */

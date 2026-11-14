@@ -377,7 +377,9 @@ Shadowing follow the real audio. The pauses are matched in order, all at once.
 A sentence that starts with a speaker label such as "Elena:" gets an extra,
 lighter-weighted slot for the pause after the label, so that pause isn't taken
 for the end of the previous sentence; stories without labels have no such
-slots. Each pause also records its near-silent core, so playback never stops
+slots. Each comma inside a sentence gets a lighter slot too, since a voice can
+rest there as long as between sentences; without it, a sentence ended at its
+comma and every later one took the pause before its own. Each pause also records its near-silent core, so playback never stops
 or starts inside a soft last or first sound. Where no pause is found, or the
 clip can't be decoded, the estimates stay. None of this changes scoring.
 
