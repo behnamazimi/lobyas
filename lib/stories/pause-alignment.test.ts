@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildTimeline } from "./highlight";
-import { matchBoundariesToPauses, snapTimeline } from "./pause-alignment";
+import { snapTimeline } from "./pause-alignment";
+import { matchBoundariesToPauses } from "./pause-matching";
 import type { Pause } from "./silence";
 
 const GUARD = 0.08;
@@ -300,5 +301,83 @@ describe("a voice that rests at a comma as long as at a full stop", () => {
     ends.slice(0, -1).forEach((end, index) => {
       expect(end * duration).toBeCloseTo(middle(sentencePauses[index + 1]!));
     });
+  });
+});
+
+describe("a title followed by a long rest", () => {
+  const pauses: Pause[] = [
+    [1.78, 3.4],
+    [6.53, 7.24],
+    [9.2, 10.12],
+    [12.26, 12.88],
+  ].map(([start, end]) => ({ start: start!, end: end! }));
+  const timeline = buildTimeline(
+    "Minder geld voor de tuin",
+    [
+      {
+        text: "Mees en Sara beheren samen een kleine buurtmoestuin. Deze lente is er minder geld van de wijk. Mees kijkt naar de lege portemonnee op tafel.",
+      },
+    ],
+    "nl",
+  );
+
+  it("ends each sentence at its own pause, not the one before", () => {
+    const snapped = snapTimeline(timeline, pauses, 15);
+    expect(snapped.ends[0]! * 15).toBeCloseTo(6.88);
+    expect(snapped.ends[1]! * 15).toBeCloseTo(9.66);
+  });
+});
+
+describe("estimates that run early through a quoted exchange", () => {
+  const quiet: [number, number][] = [
+    [1.78, 3.4],
+    [6.53, 7.24],
+    [9.2, 10.12],
+    [10.66, 10.79],
+    [11.84, 11.96],
+    [12.26, 12.88],
+    [13.72, 14.17],
+    [15.77, 16.95],
+    [18.51, 19.26],
+    [21.01, 21.14],
+    [21.28, 21.89],
+    [22.05, 22.4],
+    [23.09, 23.65],
+    [24.46, 25.28],
+    [26.6, 27.17],
+    [28.82, 29.68],
+    [31.38, 32.2],
+    [34.05, 34.95],
+    [36.95, 37.78],
+    [38.77, 39.08],
+    [40.23, 41.01],
+    [41.25, 41.37],
+    [42.64, 43.72],
+    [44.5, 44.77],
+    [45.19, 45.93],
+    [46.65, 46.9],
+    [48.15, 49.21],
+    [49.76, 49.95],
+    [50.46, 51.11],
+    [52.93, 53.35],
+  ];
+  const pauses: Pause[] = quiet.map(([start, end]) => ({ start: start!, end: end! }));
+  const timeline = buildTimeline(
+    "Minder geld voor de tuin",
+    [
+      {
+        text: "Mees en Sara beheren samen een kleine buurtmoestuin. Deze lente is er minder geld van de wijk. Mees kijkt naar de lege portemonnee op tafel. Het is een moeilijk geval. Ze kunnen niet alle planten kopen.\n\nSara loopt naar de kant van de schuur. Ze pakt oude bakken vol kleine stekjes. „Huh?” vraagt Mees verbaasd. „Waar komen die vandaan?” Sara lacht vriendelijk naar hem. Ze deelt haar eigen plantjes met de tuin.\n\nSamen brengen ze de stekjes naar het land. Een harde storm trok door de straat in de nacht. Sommige oude struiken konden niet overleven. Dat vinden ze erg jammer, want die struiken waren mooi. Maar de bomen blijven gelukkig staan.\n\n„Dank je wel voor je hulp,” zegt Mees. Sara glimlacht en pakt twee gieters vol water. „Laten we beginnen,” zegt ze vrolijk. Ze giet voorzichtig water bij de wortels. Mees schept zwarte aarde over de jonge plantjes.",
+      },
+    ],
+    "nl",
+  );
+
+  it("ends each sentence on its own pause, not the one before it", () => {
+    const duration = 56.088;
+    const snapped = snapTimeline(timeline, pauses, duration);
+    const seconds = (sentence: number) => snapped.ends[sentence]! * duration;
+    expect(seconds(7)).toBeCloseTo(23.37, 1);
+    expect(seconds(8)).toBeCloseTo(24.87, 1);
+    expect(seconds(9)).toBeCloseTo(26.89, 1);
   });
 });

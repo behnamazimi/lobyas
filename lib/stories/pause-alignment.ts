@@ -1,75 +1,8 @@
 import type { StoryTimeline } from "./highlight";
+import { FULL_PAUSE_SECONDS, matchBoundariesToPauses } from "./pause-matching";
 import type { Pause } from "./silence";
 
-/** The estimate can be off by seconds, so a pause further than this from where a
- *  sentence is expected to end is not that sentence's pause. */
-const MATCH_WINDOW_SECONDS = 2;
-/** A pause this long or longer counts fully as a sentence-end pause. */
-const FULL_PAUSE_SECONDS = 0.5;
-const SHORTEST_COUNTED_SECONDS = 0.1;
-// A match must score above zero. Longer pauses count most, so a short comma
-// pause is only taken when it sits right on the estimate.
-const NEARNESS_WEIGHT = 0.35;
-const LENGTH_WEIGHT = 0.65;
-const MATCH_THRESHOLD = 0.3;
-
-function matchScore(estimate: number, pause: Pause): number {
-  const distance = Math.abs((pause.start + pause.end) / 2 - estimate);
-  if (distance > MATCH_WINDOW_SECONDS) return 0;
-  const nearness = 1 - distance / MATCH_WINDOW_SECONDS;
-  const length = Math.min(
-    Math.max(
-      (pause.end - pause.start - SHORTEST_COUNTED_SECONDS) /
-        (FULL_PAUSE_SECONDS - SHORTEST_COUNTED_SECONDS),
-      0,
-    ),
-    1,
-  );
-  return NEARNESS_WEIGHT * nearness + LENGTH_WEIGHT * length - MATCH_THRESHOLD;
-}
-
-/** Pairs each expected boundary (in seconds, in order) with a pause, or with
- *  nothing. The pairing is done for all of them at once and keeps the order,
- *  so two boundaries never take the same pause and a pause is never skipped
- *  backwards. A boundary with a lower weight counts for less, so it only takes
- *  a pause that a heavier one has no better use for. Returns the index of the
- *  chosen pause for each boundary. */
-export function matchBoundariesToPauses(
-  estimates: number[],
-  pauses: Pause[],
-  weights: number[] = [],
-): (number | null)[] {
-  const rows = estimates.length + 1;
-  const columns = pauses.length + 1;
-  const best = new Float64Array(rows * columns);
-  const at = (i: number, j: number) => i * columns + j;
-
-  for (let i = 1; i < rows; i += 1) {
-    for (let j = 1; j < columns; j += 1) {
-      const score = matchScore(estimates[i - 1]!, pauses[j - 1]!) * (weights[i - 1] ?? 1);
-      let value = Math.max(best[at(i - 1, j)]!, best[at(i, j - 1)]!);
-      if (score > 0) value = Math.max(value, best[at(i - 1, j - 1)]! + score);
-      best[at(i, j)] = value;
-    }
-  }
-
-  const matches: (number | null)[] = estimates.map(() => null);
-  let i = rows - 1;
-  let j = columns - 1;
-  while (i > 0 && j > 0) {
-    const score = matchScore(estimates[i - 1]!, pauses[j - 1]!) * (weights[i - 1] ?? 1);
-    if (score > 0 && best[at(i, j)] === best[at(i - 1, j - 1)]! + score) {
-      matches[i - 1] = j - 1;
-      i -= 1;
-      j -= 1;
-    } else if (best[at(i, j)] === best[at(i - 1, j)]) {
-      i -= 1;
-    } else {
-      j -= 1;
-    }
-  }
-  return matches;
-}
+const DRIFT_PASSES = 2;
 
 /** Moves a boundary that found no pause by the same amount as its neighbours
  *  that did, so one missed pause doesn't leave it as far off as the estimate. */
@@ -162,6 +95,8 @@ const CLAUSE_WEIGHT = 0.7;
 type Slot = {
   /** Where the pause is expected, in seconds. */
   estimate: number;
+  /** The estimate moved to where the story really starts; used for matching. */
+  expected: number;
   /** The title's end is 0 and the end of sentence i is i + 1. A pause inside a
    *  sentence has none: it is matched so the sentence's own pause can't
    *  take it, but nothing moves to it. */
@@ -171,29 +106,48 @@ type Slot = {
 
 /** Where pauses are expected, in order: after the title, at each pause inside
  *  a sentence, and after each sentence but the last (which ends with the clip). */
-function expectedPauses(timeline: StoryTimeline, durationSeconds: number): Slot[] {
+function expectedPauses(
+  timeline: StoryTimeline,
+  durationSeconds: number,
+  storyStart?: number,
+): Slot[] {
   const count = timeline.ends.length;
-  const slots: Slot[] = [{ estimate: timeline.titleEnd * durationSeconds, boundary: 0, weight: 1 }];
+  const titleEstimate = timeline.titleEnd * durationSeconds;
+  const slots: Slot[] = [
+    { estimate: titleEstimate, expected: titleEstimate, boundary: 0, weight: 1 },
+  ];
+  const toClip = (estimate: number) =>
+    storyStart === undefined
+      ? estimate
+      : storyStart +
+        ((estimate - titleEstimate) / (durationSeconds - titleEstimate)) *
+          (durationSeconds - storyStart);
   for (let index = 0; index < count; index += 1) {
     const start = index === 0 ? timeline.titleEnd : timeline.ends[index - 1]!;
     const end = timeline.ends[index]!;
     for (const { share, weight } of innerPauses(timeline, index)) {
+      const estimate = (start + share * (end - start)) * durationSeconds;
       slots.push({
-        estimate: (start + share * (end - start)) * durationSeconds,
+        estimate,
+        expected: toClip(estimate),
         boundary: null,
         weight,
       });
     }
     if (index < count - 1)
-      slots.push({ estimate: end * durationSeconds, boundary: index + 1, weight: 1 });
+      slots.push({
+        estimate: end * durationSeconds,
+        expected: toClip(end * durationSeconds),
+        boundary: index + 1,
+        weight: 1,
+      });
   }
   return slots;
 }
 
 /** The timeline with its sentence boundaries moved onto the pauses found in the
  *  clip. Each boundary is the middle of its pause's near-silence, where the
- *  highlight changes;
- *  a sentence is spoken from just before the pause ahead of it ends to just
+ *  highlight changes; a sentence is spoken from just before the pause ahead of it ends to just
  *  after the pause behind it begins. Boundaries with no pause keep the estimate, adjusted by
  *  their neighbours. With nothing to go on the timeline comes back unchanged. */
 export function snapTimeline(
@@ -204,12 +158,36 @@ export function snapTimeline(
   const count = timeline.ends.length;
   if (count === 0 || pauses.length === 0 || !(durationSeconds > 0)) return timeline;
 
-  const slots = expectedPauses(timeline, durationSeconds);
-  const matches = matchBoundariesToPauses(
-    slots.map((slot) => slot.estimate),
-    pauses,
-    slots.map((slot) => slot.weight),
-  );
+  const match = (slots: Slot[]) =>
+    matchBoundariesToPauses(
+      slots.map((slot) => slot.expected),
+      pauses,
+      slots.map((slot) => slot.weight),
+    );
+  let slots = expectedPauses(timeline, durationSeconds);
+  let matches = match(slots);
+  // A title's rest is often longer than estimated, putting every later estimate
+  // out of reach. Match again with the story spread from where that rest ends.
+  const titlePause = matches[0];
+  if (titlePause !== null && titlePause !== undefined) {
+    slots = expectedPauses(timeline, durationSeconds, pauses[titlePause]!.end);
+    matches = match(slots);
+  }
+  // Estimates drift, and two pauses can both fit a drifted one. Carry the error
+  // of each long pause that was matched on to the estimates after it, and match again.
+  const spread = slots;
+  for (let pass = 0; pass < DRIFT_PASSES; pass += 1) {
+    let drift = 0;
+    slots = spread.map((slot, index) => {
+      const pause = matches[index] === null ? undefined : pauses[matches[index]!];
+      const carried = { ...slot, expected: slot.expected + drift };
+      if (pause && slot.boundary && pause.end - pause.start >= FULL_PAUSE_SECONDS) {
+        drift = middleOf(pause) - slot.expected;
+      }
+      return carried;
+    });
+    matches = match(slots);
+  }
 
   const anchors: [number, number][] = [[0, 0]];
   slots.forEach((slot, index) => {
