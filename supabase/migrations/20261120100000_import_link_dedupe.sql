@@ -174,15 +174,13 @@ begin
       (v_ids->>lower(btrim(coalesce(v_item->>'source', ''))))::uuid,
       (select t.id from public.terms t
         where t.collection_id = v_collection_id
-          and lower(btrim(t.term)) = lower(btrim(coalesce(v_item->>'source', '')))
-        limit 1)
+          and lower(t.term) = lower(btrim(coalesce(v_item->>'source', ''))))
     );
     v_tgt := coalesce(
       (v_ids->>lower(btrim(coalesce(v_item->>'target', ''))))::uuid,
       (select t.id from public.terms t
         where t.collection_id = v_collection_id
-          and lower(btrim(t.term)) = lower(btrim(coalesce(v_item->>'target', '')))
-        limit 1)
+          and lower(t.term) = lower(btrim(coalesce(v_item->>'target', ''))))
     );
     if v_src is null or v_tgt is null or v_src = v_tgt
        or btrim(coalesce(v_item->>'relationship_type', '')) = '' then
@@ -214,8 +212,14 @@ begin
     values (
       v_src, v_tgt, btrim(v_item->>'relationship_type'),
       coalesce(v_item->>'description', '')
-    );
-    v_rel_created := v_rel_created + 1;
+    )
+    -- Another import may have added the same link a moment ago.
+    on conflict on constraint term_relationships_unique_pair do nothing;
+    if found then
+      v_rel_created := v_rel_created + 1;
+    else
+      v_rel_dropped := v_rel_dropped + 1;
+    end if;
   end loop;
 
   insert into public.user_active_collections (user_id, collection_id)
