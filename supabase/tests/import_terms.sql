@@ -83,6 +83,18 @@ begin
           from public.terms where id = t_sla), 'update blanked or missed a value';
   assert (select definition = 'Customers leaving' from public.terms where collection_id = d1 and term = 'Churn'), 'unfinished term not finished';
 
+  -- Links reach terms already in the collection, and an already-linked pair is not linked again.
+  r := public.my_import_terms(
+    gen_random_uuid(), jsonb_build_object('collection_id', d1), '[{"term":"Runway"}]',
+    '[{"source":"Runway","target":"SLA","relationship_type":"related"},
+      {"source":"sla","target":"runway","relationship_type":"Related","description":"y"},
+      {"source":"Churn","target":"Runway","relationship_type":"depends on"}]',
+    'skip');
+  assert (r->>'relationships_created')::int = 1 and (r->>'relationships_updated')::int = 1
+         and (r->>'relationships_dropped')::int = 1, 'existing-term link counts';
+  assert (select count(*) from public.term_relationships r join public.terms t on t.id = r.source_term_id
+          where t.collection_id = d1) = 2, 'a pair was linked twice';
+
   -- A failing batch leaves nothing behind, not even its batch row.
   v_failed := false;
   begin
@@ -106,7 +118,7 @@ begin
   v_failed := false;
   begin
     perform public.my_import_terms(gen_random_uuid(), '{"name": "Big"}',
-      (select jsonb_agg(jsonb_build_object('term', 't' || g)) from generate_series(1, 501) g), '[]', 'skip');
+      (select jsonb_agg(jsonb_build_object('term', 't' || g)) from generate_series(1, 1101) g), '[]', 'skip');
   exception when others then v_failed := true; v_msg := sqlerrm;
   end;
   assert v_failed and v_msg = 'import_too_large', 'cap';
